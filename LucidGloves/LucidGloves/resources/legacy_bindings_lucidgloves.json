@@ -1,0 +1,39 @@
+{
+   "bindings" : {
+      "/actions/legacy" : {
+	  "haptics" : [
+         ],
+         "poses" : [
+         ],
+         "sources" : [
+			{
+               "inputs" : {
+                  "position" : {
+                     "output" : "/actions/legacy/in/left_axis0_value"
+                  }
+               },
+               "mode" : "trackpad",
+               "path" : "/user/treadmill/input/trackpad"
+            },
+			{
+               "inputs" : {
+                  "position" : {
+                     "output" : "/actions/legacy/in/left_axis0_value"
+                  }
+               },
+               "mode" : "joystick",
+               "path" : "/user/treadmill/input/joystick"
+            }
+         ]
+      }
+   },
+   "category" : "legacy",
+   "controller_type" : "lucidgloves_controller",
+   "description" : "Legacy mapping for LucidGloves",
+   "name" : "Legacy_Binding_Lucidgloves",
+   "options" : {
+      "mirror_actions" : false,
+      "returnBindingsWithLeftHand" : true,
+      "simulated_controller_type" : "none"
+    }
+}

@@ -1,0 +1,8 @@
+{
+	"alwaysActivate": true,
+	"name" : "lucidgloves",
+	"directory" : "",
+	"resourceOnly" : false,
+	"prefersUpperDeviceIndices" :  true,
+	"hmd_presence" : []
+}
