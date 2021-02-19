@@ -26,6 +26,11 @@ public:
 	EVRInitError Activate(uint32_t unObjectId);
 
 	/**
+	Tell the driver which hand glove it is, and run any other starting actions
+	**/
+	void Init(ETrackedControllerRole role);
+
+	/**
 	Un-initialize your controller here.
 	**/
 	void Deactivate();

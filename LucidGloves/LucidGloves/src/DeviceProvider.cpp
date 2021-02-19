@@ -10,16 +10,24 @@ EVRInitError DeviceProvider::Init(IVRDriverContext* pDriverContext)
     
     VRDriverLog()->Log("Initializing LucidGloves"); //this is how you log out Steam's log file.
 
-    controllerDriver = new ControllerDriver();
-    VRServerDriverHost()->TrackedDeviceAdded("lucidgloves", TrackedDeviceClass_Controller, controllerDriver); //add all your devices like this.
+    leftHand = new ControllerDriver();
+    rightHand = new ControllerDriver();
+
+    leftHand->Init(TrackedControllerRole_LeftHand);
+    rightHand->Init(TrackedControllerRole_LeftHand);
+
+    VRServerDriverHost()->TrackedDeviceAdded("lucidgloves-left", TrackedDeviceClass_Controller, leftHand);
+    VRServerDriverHost()->TrackedDeviceAdded("lucidgloves-right", TrackedDeviceClass_Controller, rightHand);
 
     return vr::VRInitError_None;
 }
 
 void DeviceProvider::Cleanup()
 {
-    delete controllerDriver;
-    controllerDriver = NULL;
+    delete leftHand;
+    leftHand = NULL;
+    delete rightHand;
+    rightHand = NULL;
 }
 const char* const* DeviceProvider::GetInterfaceVersions()
 {
@@ -28,7 +36,8 @@ const char* const* DeviceProvider::GetInterfaceVersions()
 
 void DeviceProvider::RunFrame()
 {
-    controllerDriver->RunFrame();
+    leftHand->RunFrame();
+    rightHand->RunFrame();
 }
 
 bool DeviceProvider::ShouldBlockStandbyMode()

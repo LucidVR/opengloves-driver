@@ -53,5 +53,6 @@ public:
 	void LeaveStandby();
 
 private:
-	ControllerDriver* controllerDriver; //this provider only provides this one controller driver.
+	ControllerDriver* leftHand;
+	ControllerDriver* rightHand;
 };

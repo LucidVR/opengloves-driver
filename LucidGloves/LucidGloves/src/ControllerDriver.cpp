@@ -12,6 +12,10 @@ EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 	return VRInitError_None;
 }
 
+void ControllerDriver::Init(ETrackedControllerRole role) {
+	//m_role = role;
+}
+
 DriverPose_t ControllerDriver::GetPose()
 {
 	DriverPose_t pose = { 0 };
