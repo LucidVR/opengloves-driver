@@ -4,6 +4,10 @@
 
 using namespace vr;
 
+static const char* right_controller_serial = "lucidgloves-right";
+static const char* left_controller_serial = "lucidgloves-left";
+
+
 /**
 This class controls the behavior of the controller. This is where you 
 tell OpenVR what your controller has (buttons, joystick, trackpad, etc.).
@@ -68,10 +72,9 @@ public:
 
 private:
 
-	uint32_t driverId;
-	VRInputComponentHandle_t joystickYHandle;
-	VRInputComponentHandle_t trackpadYHandle;
-	VRInputComponentHandle_t joystickXHandle;
-	VRInputComponentHandle_t trackpadXHandle;
+	uint32_t m_driverId;
+	VRInputComponentHandle_t m_joystickYHandle;
+	VRInputComponentHandle_t m_joystickXHandle;
+	ETrackedControllerRole m_role = TrackedControllerRole_OptOut; //changed in Init();
 
 };

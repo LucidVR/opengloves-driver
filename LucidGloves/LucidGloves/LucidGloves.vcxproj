@@ -24,8 +24,10 @@
     <ClInclude Include="include\openvr.h" />
     <ClInclude Include="include\openvr_capi.h" />
     <ClInclude Include="include\openvr_driver.h" />
+    <ClInclude Include="include\PoseTracker.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\PoseTracker.cpp" />
     <ClCompile Include="src\ControllerDriver.cpp" />
     <ClCompile Include="src\DeviceFactory.cpp" />
     <ClCompile Include="src\DeviceProvider.cpp" />

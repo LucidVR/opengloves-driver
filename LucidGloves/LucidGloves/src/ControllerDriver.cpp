@@ -2,18 +2,18 @@
 
 EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 {
-	driverId = unObjectId; //unique ID for your driver
+	m_driverId = unObjectId; //unique ID for your driver
 
-	PropertyContainerHandle_t props = VRProperties()->TrackedDeviceToPropertyContainer(driverId); //this gets a container object where you store all the information about your driver
+	PropertyContainerHandle_t props = VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
 	VRProperties()->SetStringProperty(props, Prop_InputProfilePath_String, "{lucidgloves}/input/controller_profile.json"); //tell OpenVR where to get your driver's Input Profile
-	VRProperties()->SetInt32Property(props, Prop_ControllerRoleHint_Int32, ETrackedControllerRole::TrackedControllerRole_OptOut); //tells OpenVR what kind of device this is
+	VRProperties()->SetInt32Property(props, Prop_ControllerRoleHint_Int32, m_role); //tells OpenVR what kind of device this is
 
 	return VRInitError_None;
 }
 
 void ControllerDriver::Init(ETrackedControllerRole role) {
-	//m_role = role;
+	m_role = role;
 }
 
 DriverPose_t ControllerDriver::GetPose()
@@ -38,15 +38,13 @@ DriverPose_t ControllerDriver::GetPose()
 void ControllerDriver::RunFrame()
 {
 	//Since we used VRScalarUnits_NormalizedTwoSided as the unit, the range is -1 to 1.
-	VRDriverInput()->UpdateScalarComponent(joystickYHandle, 0.95f, 0); //move forward
-	VRDriverInput()->UpdateScalarComponent(trackpadYHandle, 0.95f, 0); //move foward
-	VRDriverInput()->UpdateScalarComponent(joystickXHandle, 0.0f, 0); //change the value to move sideways
-	VRDriverInput()->UpdateScalarComponent(trackpadXHandle, 0.0f, 0); //change the value to move sideways
+	VRDriverInput()->UpdateScalarComponent(m_joystickYHandle, 0.95f, 0); //move forward
+	VRDriverInput()->UpdateScalarComponent(m_joystickXHandle, 0.0f, 0); //change the value to move sideways
 }
 
 void ControllerDriver::Deactivate()
 {
-	driverId = k_unTrackedDeviceIndexInvalid;
+	m_driverId = k_unTrackedDeviceIndexInvalid;
 }
 
 void* ControllerDriver::GetComponent(const char* pchComponentNameAndVersion)

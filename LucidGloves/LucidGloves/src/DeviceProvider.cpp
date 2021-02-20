@@ -10,24 +10,24 @@ EVRInitError DeviceProvider::Init(IVRDriverContext* pDriverContext)
     
     VRDriverLog()->Log("Initializing LucidGloves"); //this is how you log out Steam's log file.
 
-    leftHand = new ControllerDriver();
-    rightHand = new ControllerDriver();
+    m_leftHand = new ControllerDriver();
+    m_rightHand = new ControllerDriver();
 
-    leftHand->Init(TrackedControllerRole_LeftHand);
-    rightHand->Init(TrackedControllerRole_LeftHand);
+    m_leftHand->Init(TrackedControllerRole_LeftHand);
+    m_rightHand->Init(TrackedControllerRole_RightHand);
 
-    VRServerDriverHost()->TrackedDeviceAdded("lucidgloves-left", TrackedDeviceClass_Controller, leftHand);
-    VRServerDriverHost()->TrackedDeviceAdded("lucidgloves-right", TrackedDeviceClass_Controller, rightHand);
+    VRServerDriverHost()->TrackedDeviceAdded(left_controller_serial, TrackedDeviceClass_Controller, m_leftHand);
+    VRServerDriverHost()->TrackedDeviceAdded(right_controller_serial, TrackedDeviceClass_Controller, m_rightHand);
 
     return vr::VRInitError_None;
 }
 
 void DeviceProvider::Cleanup()
 {
-    delete leftHand;
-    leftHand = NULL;
-    delete rightHand;
-    rightHand = NULL;
+    delete m_leftHand;
+    m_leftHand = NULL;
+    delete m_rightHand;
+    m_rightHand = NULL;
 }
 const char* const* DeviceProvider::GetInterfaceVersions()
 {
@@ -36,8 +36,8 @@ const char* const* DeviceProvider::GetInterfaceVersions()
 
 void DeviceProvider::RunFrame()
 {
-    leftHand->RunFrame();
-    rightHand->RunFrame();
+    m_leftHand->RunFrame();
+    m_rightHand->RunFrame();
 }
 
 bool DeviceProvider::ShouldBlockStandbyMode()

@@ -53,6 +53,6 @@ public:
 	void LeaveStandby();
 
 private:
-	ControllerDriver* leftHand;
-	ControllerDriver* rightHand;
+	ControllerDriver* m_leftHand;
+	ControllerDriver* m_rightHand;
 };
