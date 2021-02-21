@@ -2,7 +2,7 @@
 #include <ControllerDriver.h>
 #include <openvr_driver.h>
 #include <windows.h>
-
+#include <memory>
 using namespace vr;
 
 /**
@@ -53,6 +53,6 @@ public:
 	void LeaveStandby();
 
 private:
-	ControllerDriver* m_leftHand;
-	ControllerDriver* m_rightHand;
+	std::unique_ptr<ControllerDriver> m_leftHand;
+	std::unique_ptr<ControllerDriver> m_rightHand;
 };
