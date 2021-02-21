@@ -6,7 +6,10 @@ using namespace vr;
 
 static const char* right_controller_serial = "lucidgloves-right";
 static const char* left_controller_serial = "lucidgloves-left";
-
+static const char* c_settings_section = "driver_lucidgloves";
+static const char* device_manufacturer = "Lucas_VRTech&Danwillm";
+static const char* device_controller_type = "lucidgloves";
+static const char* device_model_number = "lucidgloves1";
 
 /**
 This class controls the behavior of the controller. This is where you 
@@ -76,5 +79,7 @@ private:
 	VRInputComponentHandle_t m_joystickYHandle;
 	VRInputComponentHandle_t m_joystickXHandle;
 	ETrackedControllerRole m_role = TrackedControllerRole_OptOut; //changed in Init();
+
+
 
 };
