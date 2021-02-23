@@ -2,6 +2,7 @@
 #include <openvr_driver.h>
 #include <windows.h>
 #include <thread>
+#include <Comm/SerialCommunicationManager.h>
 
 static const char* right_controller_serial = "lucidgloves-right";
 static const char* left_controller_serial = "lucidgloves-left";
@@ -72,12 +73,20 @@ public:
 	**/
 	void RunFrame();
 
+
+	/**
+		Callback passed to communication manager. Called every time data is received from the device.
+	**/
+	void onDataReceived(int* data);
+
+
 private:
 
 	uint32_t m_driverId;
 	vr::VRInputComponentHandle_t m_joystickYHandle;
 	vr::VRInputComponentHandle_t m_joystickXHandle;
 	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut; //changed in Init();
+	std::unique_ptr<ICommunicationManager> communicationManager;
 	std::thread m_serialThread;
 	std::thread m_poseThread;
 };

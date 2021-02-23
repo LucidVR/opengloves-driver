@@ -17,6 +17,19 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)100000);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, device_controller_type);
 
+	communicationManager = std::make_unique<SerialManager>();
+	communicationManager->Connect();
+	if (communicationManager->IsConnected()) {
+		std::cout << "Connected successfully!" << std::endl;
+
+		communicationManager->BeginListener(&onDataReceived);
+
+	}
+	else {
+		std::cout << "Could not connect succesfully..." << std::endl;
+		//Perhaps retry
+	}
+
 	return vr::VRInitError_None;
 }
 
@@ -28,14 +41,32 @@ vr::DriverPose_t ControllerDriver::GetPose()
 	pose.result = vr::TrackingResult_Calibrating_OutOfRange;
 	pose.deviceIsConnected = true;
 	return pose;
+
+	//for the pose, we can start a separate thread in PoseTracker.cpp which sends position data in a callback similar to how we handle comms.
+	//Perhaps GetPose(), if needed for anything, just returns a DriverPose_t value from the last returned position saved in the callback.
 }
 
 void ControllerDriver::RunFrame()
 {
-	//Since we used VRScalarUnits_NormalizedTwoSided as the unit, the range is -1 to 1.
-	vr::VRDriverInput()->UpdateScalarComponent(m_joystickYHandle, 0.95f, 0); //placeholder
-	vr::VRDriverInput()->UpdateScalarComponent(m_joystickXHandle, 0.0f, 0); //placeholder
+	//do nothing?
 }
+
+void onDataReceived(int* datas) {
+	//proposed structure for serial data
+	//0: pinky (range 0-analog_cap)
+	//1: ring  (range 0-analog_cap)
+	//2: middle (range 0-analog_cap)
+	//3: index (range 0-analog_cap)
+	//4: thumb (range 0-analog_cap)
+	//5: grab (0-1)						//I believe grab+pinch gestures should be determined by the arduino as this is where calibration takes place.
+	//6: pinch (0-1)					//This also allows for grab/pinch buttons to be used optionally as a substitute for estimated gestures
+	//7: joyX (range 0-analog_cap)
+	//8: joyY (range 0-analog_cap)
+	//9: button1 (0-1)
+	//10: button2 (0-1)
+}
+
+
 
 void ControllerDriver::Deactivate()
 {

@@ -19,6 +19,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\Comm\CommunicationManager.h" />
+    <ClInclude Include="include\Comm\SerialCommunicationManager.h" />
     <ClInclude Include="include\ControllerDriver.h" />
     <ClInclude Include="include\DeviceProvider.h" />
     <ClInclude Include="include\driverlog.h" />
@@ -29,6 +31,7 @@
     <ClInclude Include="include\quat_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Comm\SerialCommunicationManager.cpp" />
     <ClCompile Include="src\driverlog.cpp" />
     <ClCompile Include="src\PoseTracker.cpp" />
     <ClCompile Include="src\ControllerDriver.cpp" />
@@ -80,7 +83,7 @@
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v142</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
