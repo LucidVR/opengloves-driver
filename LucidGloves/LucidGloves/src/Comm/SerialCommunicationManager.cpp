@@ -64,12 +64,12 @@ void SerialManager::Connect() {
 	}
 }
 
-void SerialManager::BeginListener(void(*func)(int*)) {
+void SerialManager::BeginListener(const std::function<void(const int*)>& callback) {
 	thread_active_ = true;
-	serial_thread_ = std::thread(&SerialManager::ListenerThread, this, func);
+	serial_thread_ = std::thread(&SerialManager::ListenerThread, this, callback);
 }
 
-void SerialManager::ListenerThread(void(*func)(int*)) {
+void SerialManager::ListenerThread(const std::function<void(const int*)>& callback) {
 	PurgeBuffer();
 	std::string receivedChars;
 
@@ -81,7 +81,7 @@ void SerialManager::ListenerThread(void(*func)(int*)) {
 		//3FF&3FF&3FF&3FF&3FF&1&1&3FF&3FF&1&1\n is 36 chars long.
 		//1023&1023&1023&1023&1023&1&1&1023&1023&1&1\n is 43 chars long.
 		int interpretedData[11] = {1023,1023,1023,1023, 1023, 1, 1, 1023, 1023, 1,1 };
-		func(interpretedData);
+		callback(interpretedData);
 
 		receivedChars.clear();
 	}
@@ -131,7 +131,6 @@ void SerialManager::Disconnect() {
 			serial_thread_.join();
 		}
 		is_connected_ = false;
-		std::cout << "disconnecting..." << std::endl;
 		//Disconnect
 	}
 }

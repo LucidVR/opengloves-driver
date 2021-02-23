@@ -3,13 +3,14 @@
 #include <windows.h>
 #include <thread>
 #include <Comm/SerialCommunicationManager.h>
+#include <functional>
 
-static const char* right_controller_serial = "lucidgloves-right";
-static const char* left_controller_serial = "lucidgloves-left";
-static const char* c_settings_section = "driver_lucidgloves";
-static const char* device_manufacturer = "Lucas_VRTech&Danwillm";
-static const char* device_controller_type = "lucidgloves";
-static const char* device_model_number = "lucidgloves1";
+static const char* c_rightControllerSerialNumber = "lucidgloves-right";
+static const char* c_leftControllerSerialNumber = "lucidgloves-left";
+static const char* c_settingsSection = "driver_lucidgloves";
+static const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
+static const char* c_deviceControllerType = "lucidgloves";
+static const char* c_deviceModelNumber = "lucidgloves1";
 
 /**
 This class controls the behavior of the controller. This is where you 
@@ -31,11 +32,6 @@ public:
 	the controller state changes.
 	**/
 	vr::EVRInitError Activate(uint32_t unObjectId);
-
-	/**
-	Tell the driver which hand glove it is, and run any other starting actions
-	**/
-	void Init(vr::ETrackedControllerRole role);
 
 	/**
 	Un-initialize your controller here.
@@ -73,20 +69,13 @@ public:
 	**/
 	void RunFrame();
 
-
-	/**
-		Callback passed to communication manager. Called every time data is received from the device.
-	**/
-	void onDataReceived(int* data);
-
-
 private:
 
 	uint32_t m_driverId;
 	vr::VRInputComponentHandle_t m_joystickYHandle;
 	vr::VRInputComponentHandle_t m_joystickXHandle;
 	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut; //changed in Init();
-	std::unique_ptr<ICommunicationManager> communicationManager;
+	std::unique_ptr<ICommunicationManager> m_communicationManager;
 	std::thread m_serialThread;
 	std::thread m_poseThread;
 };
