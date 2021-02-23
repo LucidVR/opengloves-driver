@@ -4,6 +4,7 @@
 #include <thread>
 #include <Comm/SerialCommunicationManager.h>
 #include <functional>
+#include "driverlog.h"
 
 static const char* c_rightControllerSerialNumber = "lucidgloves-right";
 static const char* c_leftControllerSerialNumber = "lucidgloves-left";
@@ -69,8 +70,9 @@ public:
 	**/
 	void RunFrame();
 
-private:
+	void StartDevice();
 
+private:
 	uint32_t m_driverId;
 	vr::VRInputComponentHandle_t m_joystickYHandle;
 	vr::VRInputComponentHandle_t m_joystickXHandle;
