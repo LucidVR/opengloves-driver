@@ -1,8 +1,7 @@
 #pragma once
 #include <openvr_driver.h>
 #include <windows.h>
-
-using namespace vr;
+#include <thread>
 
 static const char* right_controller_serial = "lucidgloves-right";
 static const char* left_controller_serial = "lucidgloves-left";
@@ -21,21 +20,21 @@ For the methods, take a look at the comment blocks for the ITrackedDeviceServerD
 class too. Those comment blocks have some good information.
 
 **/
-class ControllerDriver : public ITrackedDeviceServerDriver
+class ControllerDriver : public vr::ITrackedDeviceServerDriver
 {
 public:
-
+	ControllerDriver(vr::ETrackedControllerRole role);
 	/**
 	Initialize your controller here. Give OpenVR information 
 	about your controller and set up handles to inform OpenVR when 
 	the controller state changes.
 	**/
-	EVRInitError Activate(uint32_t unObjectId);
+	vr::EVRInitError Activate(uint32_t unObjectId);
 
 	/**
 	Tell the driver which hand glove it is, and run any other starting actions
 	**/
-	void Init(ETrackedControllerRole role);
+	void Init(vr::ETrackedControllerRole role);
 
 	/**
 	Un-initialize your controller here.
@@ -65,7 +64,7 @@ public:
 	Returns the Pose for your device. Pose is an object that contains the position, rotation, velocity, 
 	and angular velocity of your device.
 	**/
-	DriverPose_t GetPose();
+	vr::DriverPose_t GetPose();
 
 	/**
 	You can retrieve the state of your device here and update OpenVR if anything has changed. This 
@@ -76,10 +75,9 @@ public:
 private:
 
 	uint32_t m_driverId;
-	VRInputComponentHandle_t m_joystickYHandle;
-	VRInputComponentHandle_t m_joystickXHandle;
-	ETrackedControllerRole m_role = TrackedControllerRole_OptOut; //changed in Init();
-
-
-
+	vr::VRInputComponentHandle_t m_joystickYHandle;
+	vr::VRInputComponentHandle_t m_joystickXHandle;
+	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut; //changed in Init();
+	std::thread m_serialThread;
+	std::thread m_poseThread;
 };
