@@ -1,23 +1,60 @@
 #include <ControllerDriver.h>
 
-ControllerDriver::ControllerDriver(vr::ETrackedControllerRole role) : m_role(role) {};
+ControllerDriver::ControllerDriver(const vr::ETrackedControllerRole role) : m_role(role) {};
 
-vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
+void OnDataReceived(const int* datas) {
+
+}
+
+vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
 {
 	m_driverId = unObjectId; //unique ID for your driver
-	const char* serial_number = m_role == vr::TrackedControllerRole_RightHand ? right_controller_serial : left_controller_serial;
+
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{lucidgloves}/input/controller_profile.json"); //tell OpenVR where to get your driver's Input Profile
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_role); //tells OpenVR what kind of device this is
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, serial_number);
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, device_model_number);
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, device_manufacturer);
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, m_role == vr::TrackedControllerRole_RightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber);
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, (int32_t)vr::TrackedDeviceClass_Controller);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)100000);
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, device_controller_type);
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, c_deviceControllerType);
+
+	StartDevice();
 
 	return vr::VRInitError_None;
+}
+
+//This could do with a rename, its a bit vague as to what it does
+void ControllerDriver::StartDevice() {
+
+	m_communicationManager = std::make_unique<SerialManager>();
+
+	m_communicationManager->Connect();
+
+	if (m_communicationManager->IsConnected()) {
+
+		m_communicationManager->BeginListener([&](const int* datas) {
+			//proposed structure for serial data
+			//0: pinky (range 0-analog_cap)
+			//1: ring  (range 0-analog_cap)
+			//2: middle (range 0-analog_cap)
+			//3: index (range 0-analog_cap)
+			//4: thumb (range 0-analog_cap)
+			//5: grab (0-1)						//I believe grab+pinch gestures should be determined by the arduino as this is where calibration takes place.
+			//6: pinch (0-1)					//This also allows for grab/pinch buttons to be used optionally as a substitute for estimated gestures
+			//7: joyX (range 0-analog_cap)
+			//8: joyY (range 0-analog_cap)
+			//9: button1 (0-1)
+			//10: button2 (0-1)
+			});
+
+	}
+	else {
+		DebugDriverLog("Device did not connect successfully");
+		//Perhaps retry
+	}
 }
 
 vr::DriverPose_t ControllerDriver::GetPose()
@@ -28,17 +65,20 @@ vr::DriverPose_t ControllerDriver::GetPose()
 	pose.result = vr::TrackingResult_Calibrating_OutOfRange;
 	pose.deviceIsConnected = true;
 	return pose;
+
+	//for the pose, we can start a separate thread in PoseTracker.cpp which sends position data in a callback similar to how we handle comms.
+	//Perhaps GetPose(), if needed for anything, just returns a DriverPose_t value from the last returned position saved in the callback.
 }
 
 void ControllerDriver::RunFrame()
 {
-	//Since we used VRScalarUnits_NormalizedTwoSided as the unit, the range is -1 to 1.
-	vr::VRDriverInput()->UpdateScalarComponent(m_joystickYHandle, 0.95f, 0); //placeholder
-	vr::VRDriverInput()->UpdateScalarComponent(m_joystickXHandle, 0.0f, 0); //placeholder
+	//do nothing?
 }
+
 
 void ControllerDriver::Deactivate()
 {
+	m_communicationManager->Disconnect();
 	m_driverId = vr::k_unTrackedDeviceIndexInvalid;
 }
 
@@ -48,6 +88,7 @@ void* ControllerDriver::GetComponent(const char* pchComponentNameAndVersion)
 	//Check out the IVRDriverInput_Version declaration in openvr_driver.h. You can search that file for other _Version declarations 
 	//to see other components that are available. You could also put a log in this class and output the value passed into this 
 	//method to see what OpenVR is looking for.
+
 	if (strcmp(vr::IVRDriverInput_Version, pchComponentNameAndVersion) == 0)
 	{
 		return this;

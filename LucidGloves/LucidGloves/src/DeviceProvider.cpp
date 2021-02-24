@@ -13,8 +13,8 @@ EVRInitError DeviceProvider::Init(IVRDriverContext* pDriverContext)
     std::unique_ptr<ControllerDriver> m_leftHand = std::make_unique<ControllerDriver>(TrackedControllerRole_LeftHand);
     std::unique_ptr<ControllerDriver> m_rightHand = std::make_unique<ControllerDriver>(TrackedControllerRole_RightHand);
 
-    VRServerDriverHost()->TrackedDeviceAdded(left_controller_serial, TrackedDeviceClass_Controller, m_leftHand.get());
-    VRServerDriverHost()->TrackedDeviceAdded(right_controller_serial, TrackedDeviceClass_Controller, m_rightHand.get());
+    VRServerDriverHost()->TrackedDeviceAdded(c_leftControllerSerialNumber, TrackedDeviceClass_Controller, m_leftHand.get());
+    VRServerDriverHost()->TrackedDeviceAdded(c_rightControllerSerialNumber, TrackedDeviceClass_Controller, m_rightHand.get());
 
     return vr::VRInitError_None;
 }
