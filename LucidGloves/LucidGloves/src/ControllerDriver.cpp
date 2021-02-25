@@ -8,7 +8,7 @@ void OnDataReceived(const float* datas) {
 }
 
 bool ControllerDriver::isRightHand() {
-	return vr::TrackedControllerRole_RightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber;
+	return m_role == vr::TrackedControllerRole_RightHand;
 }
 
 vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
@@ -93,9 +93,6 @@ vr::DriverPose_t ControllerDriver::GetPose()
 	pose.result = vr::TrackingResult_Calibrating_OutOfRange;
 	pose.deviceIsConnected = true;
 	return pose;
-
-	//for the pose, we can start a separate thread in PoseTracker.cpp which sends position data in a callback similar to how we handle comms.
-	//Perhaps GetPose(), if needed for anything, just returns a DriverPose_t value from the last returned position saved in the callback.
 }
 
 void ControllerDriver::RunFrame()

@@ -84,7 +84,7 @@ private:
 	vr::VRInputComponentHandle_t m_joystickYHandle;
 	vr::VRInputComponentHandle_t m_joystickXHandle;
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
-	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut; //changed in Init();
+	vr::ETrackedControllerRole m_role;
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
 	std::thread m_serialThread;
 	std::thread m_poseThread;
