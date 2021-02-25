@@ -90,8 +90,6 @@ private:
 	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut;
 	short int m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
-	VRDeviceSettings m_vrDeviceSettings;
-
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
 
 	short int DiscoverController() const;
@@ -99,8 +97,4 @@ private:
 
 	std::thread m_serialThread;
 	std::thread m_poseThread;
-};
-
-struct VRDeviceSettings {
-	vr::HmdVector3_t offsetVector;
 };

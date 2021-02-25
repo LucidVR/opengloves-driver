@@ -109,7 +109,7 @@ vr::DriverPose_t ControllerDriver::GetPose()
 
 		vr::HmdMatrix33_t rotation_matrix = Get33Matrix(matrix);
 
-		vr::HmdVector3_t vector_offset = MultiplyMatrix(rotation_matrix, m_vrDeviceSettings.offsetVector);
+		vr::HmdVector3_t vector_offset = { 0, 0, 0 };
 
 		m_controllerPose.vecPosition[0] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[0][3] + vector_offset.v[0];
 		m_controllerPose.vecPosition[1] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[1][3] + vector_offset.v[1];
