@@ -77,15 +77,16 @@ public:
 
 	void StartDevice();
 
-	bool isRightHand();
+	bool IsRightHand();
 
 private:
 	uint32_t m_driverId;
 	vr::VRInputComponentHandle_t m_joystickYHandle;
 	vr::VRInputComponentHandle_t m_joystickXHandle;
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
-	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut; //changed in Init();
+	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut;
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
+	vr::VRBoneTransform_t handTransforms[NUM_BONES];
 	std::thread m_serialThread;
 	std::thread m_poseThread;
 };

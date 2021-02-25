@@ -1,13 +1,18 @@
 #include <ControllerDriver.h>
 
 
-ControllerDriver::ControllerDriver(const vr::ETrackedControllerRole role) : m_role(role) {};
+ControllerDriver::ControllerDriver(const vr::ETrackedControllerRole role) 
+	: m_role(role) {
+
+	//copy a default bone transform to our hand transform for use in finger positining later
+	std::copy(std::begin(m_role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose), std::end(m_role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose), std::begin(m_handTransforms));
+};
 
 void OnDataReceived(const float* datas) {
 
 }
 
-bool ControllerDriver::isRightHand() {
+bool ControllerDriver::IsRightHand() {
 	return vr::TrackedControllerRole_RightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber;
 }
 
@@ -29,6 +34,7 @@ vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
 	// Create the skeletal component and save the handle for later use
 	vr::EVRInputError err = vr::VRDriverInput()->CreateSkeletonComponent(props, c_componentName, c_skeletonPath, c_basePosePath,
 		vr::EVRSkeletalTrackingLevel::VRSkeletalTracking_Partial, NULL, NUM_BONES, &m_skeletalComponentHandle);
+
 	if (err != vr::VRInputError_None)
 	{
 		// Handle failure case TODO: switch to using driverlog.cpp
@@ -67,14 +73,13 @@ void ControllerDriver::StartDevice() {
 			//and 0 || 1 for buttons
 			float fingerFlexion[5] = { datas[0], datas[1], datas[2], datas[3], datas[4] };
 			float fingerSplay[5] = { 0.5, 0.5, 0.5, 0.5, 0.5 };
-			vr::VRBoneTransform_t handTransforms[NUM_BONES];
-			ComputeEntireHand(handTransforms, fingerFlexion, fingerSplay, isRightHand());
+			;
+			ComputeEntireHand(m_handTransforms, fingerFlexion, fingerSplay, IsRightHand());
 
-			vr::EVRInputError err = vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, handTransforms, NUM_BONES);
+			vr::EVRInputError err = vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
 			if (err != vr::VRInputError_None)
 			{
-				// Handle failure case TODO: switch to using driverlog.cpp
-				vr::VRDriverLog()->Log("UpdateSkeletonComponent failed.  Error: " + err);
+				DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s" + err);
 			}
 		});
 
