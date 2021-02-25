@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\bones.h" />
     <ClInclude Include="include\Comm\CommunicationManager.h" />
     <ClInclude Include="include\Comm\SerialCommunicationManager.h" />
     <ClInclude Include="include\ControllerDriver.h" />
@@ -31,6 +32,7 @@
     <ClInclude Include="include\quat_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\bones.cpp" />
     <ClCompile Include="src\Comm\SerialCommunicationManager.cpp" />
     <ClCompile Include="src\driverlog.cpp" />
     <ClCompile Include="src\PoseTracker.cpp" />

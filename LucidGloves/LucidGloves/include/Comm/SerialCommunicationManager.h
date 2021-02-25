@@ -13,11 +13,11 @@
 class SerialManager : public ICommunicationManager {
 public:
 	void Connect();
-	void BeginListener(const std::function<void(const int*)>& callback);
+	void BeginListener(const std::function<void(const float*)>& callback);
     bool IsConnected();
     void Disconnect();
 private:
-    void ListenerThread(const std::function<void(const int*)>& callback);
+    void ListenerThread(const std::function<void(const float*)>& callback);
     int ReceiveNextPacket(std::string &buff);
     bool PurgeBuffer();
 	bool is_connected_;

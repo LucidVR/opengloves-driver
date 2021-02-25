@@ -4,7 +4,9 @@
 #include <thread>
 #include <Comm/SerialCommunicationManager.h>
 #include <functional>
-#include "driverlog.h"
+#include <driverlog.h>
+#include <bones.h>
+
 
 static const char* c_rightControllerSerialNumber = "lucidgloves-right";
 static const char* c_leftControllerSerialNumber = "lucidgloves-left";
@@ -12,6 +14,9 @@ static const char* c_settingsSection = "driver_lucidgloves";
 static const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
 static const char* c_deviceControllerType = "lucidgloves";
 static const char* c_deviceModelNumber = "lucidgloves1";
+static const char* c_componentName = "/input/skeleton/left";
+static const char* c_skeletonPath = "/skeleton/hand/left";
+static const char* c_basePosePath = "/pose/raw";
 
 /**
 This class controls the behavior of the controller. This is where you 
@@ -72,10 +77,13 @@ public:
 
 	void StartDevice();
 
+	bool isRightHand();
+
 private:
 	uint32_t m_driverId;
 	vr::VRInputComponentHandle_t m_joystickYHandle;
 	vr::VRInputComponentHandle_t m_joystickXHandle;
+	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
 	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut; //changed in Init();
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
 	std::thread m_serialThread;

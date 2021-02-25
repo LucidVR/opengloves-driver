@@ -64,26 +64,42 @@ void SerialManager::Connect() {
 	}
 }
 
-void SerialManager::BeginListener(const std::function<void(const int*)>& callback) {
+void SerialManager::BeginListener(const std::function<void(const float*)>& callback) {
 	thread_active_ = true;
 	serial_thread_ = std::thread(&SerialManager::ListenerThread, this, callback);
 }
 
-void SerialManager::ListenerThread(const std::function<void(const int*)>& callback) {
+void SerialManager::ListenerThread(const std::function<void(const float*)>& callback) {
 	PurgeBuffer();
-	std::string receivedChars;
+	std::string receivedString;
 
 	int iteration = 0;
 	while (thread_active_) {
-		int bytesRead = ReceiveNextPacket(receivedChars);
+		int bytesRead = ReceiveNextPacket(receivedString);
 
-		//TODO: Come up with our communication convention. Hex? Whitespace?
+		//For now using base10 but will eventually switch to hex to save space
 		//3FF&3FF&3FF&3FF&3FF&1&1&3FF&3FF&1&1\n is 36 chars long.
 		//1023&1023&1023&1023&1023&1&1&1023&1023&1&1\n is 43 chars long.
-		int interpretedData[11] = {1023,1023,1023,1023, 1023, 1, 1, 1023, 1023, 1,1 };
+		char* next_token;
+		char* pch;
+		const int stringSize = 44;
+		char receivedChars[stringSize];
+		strcpy_s(receivedChars, receivedString.c_str());
+		int index = 0;
+		float interpretedData[11] = {0,0,0,0,0,0,0,0,0,0,0};
+		bool analog[11] = { true, true, true, true, true, false, false, true, true, false, false };
+		pch = strtok_s(receivedChars, " &", &next_token);
+		while (pch != NULL && index < 11)
+		{
+			float divisor = analog[index] ? 1023 : 1;
+			int x = atoi(pch);
+			interpretedData[index] = (float)x / divisor;
+			pch = strtok_s(NULL, " &", &next_token);
+			index++;
+		}
 		callback(interpretedData);
 
-		receivedChars.clear();
+		receivedString.clear();
 	}
 }
 
