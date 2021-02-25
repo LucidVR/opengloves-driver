@@ -2,11 +2,11 @@
 #include <openvr_driver.h>
 #include <windows.h>
 #include <thread>
-#include <Comm/SerialCommunicationManager.h>
+#include "Comm/SerialCommunicationManager.h"
 #include <functional>
-#include <driverlog.h>
-#include <bones.h>
-
+#include "driverlog.h"
+#include "bones.h"
+#include "quat_utils.h"
 
 static const char* c_rightControllerSerialNumber = "lucidgloves-right";
 static const char* c_leftControllerSerialNumber = "lucidgloves-left";
@@ -77,16 +77,30 @@ public:
 
 	void StartDevice();
 
-	bool IsRightHand();
-
 private:
 	uint32_t m_driverId;
+
 	vr::VRInputComponentHandle_t m_joystickYHandle;
 	vr::VRInputComponentHandle_t m_joystickXHandle;
+
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
+	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
+	vr::DriverPose_t m_controllerPose;
+
 	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut;
+	short int m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
+
+	VRDeviceSettings m_vrDeviceSettings;
+
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
-	vr::VRBoneTransform_t handTransforms[NUM_BONES];
+
+	short int DiscoverController() const;
+	bool IsRightHand() const;
+
 	std::thread m_serialThread;
 	std::thread m_poseThread;
+};
+
+struct VRDeviceSettings {
+	vr::HmdVector3_t offsetVector;
 };
