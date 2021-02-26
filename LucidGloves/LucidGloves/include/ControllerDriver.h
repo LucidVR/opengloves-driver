@@ -2,7 +2,6 @@
 #include <openvr_driver.h>
 #include <windows.h>
 #include <thread>
-#include "Comm/SerialCommunicationManager.h"
 #include <functional>
 #include "driverlog.h"
 #include "bones.h"
@@ -79,6 +78,8 @@ public:
 
 	void StartDevice();
 
+	//bool IsRightHand();
+
 private:
 	uint32_t m_driverId;
 
@@ -87,7 +88,10 @@ private:
 
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
+	vr::DriverPose_t m_controllerPose;
+	short int m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
+	vr::ETrackedControllerRole m_role;
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
 
 	std::unique_ptr<ControllerPose> m_controllerPose;

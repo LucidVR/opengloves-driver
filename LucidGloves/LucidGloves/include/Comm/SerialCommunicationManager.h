@@ -8,6 +8,7 @@
 #include <chrono>
 #include <vector>
 #include <sstream>
+#include <Comm/CommunicationReference.h>
 
 #define MAX_DATA_LENGTH 100
 #define ARDUINO_WAIT_TIME 1500
@@ -17,11 +18,11 @@ static constexpr float c_maxAnalogValue = 1023;
 class SerialManager : public ICommunicationManager {
 public:
 	void Connect();
-	void BeginListener(const std::function<void(const VRCommData_t*)>& callback);
+	void BeginListener(const std::function<void(VRCommData_t)>& callback);
     bool IsConnected();
     void Disconnect();
 private:
-    void ListenerThread(const std::function<void(const VRCommData_t*)>& callback);
+    void ListenerThread(const std::function<void(VRCommData_t)>& callback);
     int ReceiveNextPacket(std::string &buff);
     bool PurgeBuffer();
 	bool is_connected_;

@@ -10,11 +10,7 @@ ControllerDriver::ControllerDriver(const vr::ETrackedControllerRole role)
 		std::end(m_role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose),
 		std::begin(m_handTransforms)
 	);
-
-	m_controllerPose = std::make_unique<ControllerPose>(role, std::string(c_deviceManufacturer));
-	m_communicationManager = std::make_unique<SerialManager>();
-
-};
+}
 
 bool ControllerDriver::IsRightHand() const {
 	return m_role == vr::TrackedControllerRole_RightHand;
@@ -42,7 +38,7 @@ vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
 	if (err != vr::VRInputError_None)
 	{
 		// Handle failure case TODO: switch to using driverlog.cpp
-		vr::VRDriverLog()->Log("CreateSkeletonComponent failed.  Error: " + err);
+		DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", err);
 	}
 
 	StartDevice();
@@ -56,31 +52,13 @@ void ControllerDriver::StartDevice() {
 
 	if (m_communicationManager->IsConnected()) {
 
-		m_communicationManager->BeginListener([&](const float* datas) {
-			/*proposed structure for serial data
-			0: pinky (range 0-analog_cap)
-			1: ring  (range 0-analog_cap)
-			2: middle (range 0-analog_cap)
-			3: index (range 0-analog_cap)
-			4: thumb (range 0-analog_cap)
-			5: grab (0-1)						//I believe grab+pinch gestures should be determined by the arduino as this is where calibration takes place.
-			6: pinch (0-1)						//This also allows for grab/pinch buttons to be used optionally as a substitute for estimated gestures.
-			7: joyX (range 0-analog_cap)		//however this does mean 6 extra bytes of data that could have been calculated off board instead.
-			8: joyY (range 0-analog_cap)
-			9: button1 (0-1)
-			10: button2 (0-1)
-			*/
-			//datas is a float array containing 0.0 - 1.0 floats that represent the extension of each finger (or joystick which will need to be scaled to -1.0 - 1.0)
-			//and 0 || 1 for buttons
-			float fingerFlexion[5] = { datas[0], datas[1], datas[2], datas[3], datas[4] };
-			float fingerSplay[5] = { 0.5, 0.5, 0.5, 0.5, 0.5 };
-			;
-			ComputeEntireHand(m_handTransforms, fingerFlexion, fingerSplay, IsRightHand());
+		m_communicationManager->BeginListener([&](VRCommData_t datas) {
+			ComputeEntireHand(m_handTransforms, datas.flexion, datas.splay, IsRightHand());
 
 			vr::EVRInputError err = vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
 			if (err != vr::VRInputError_None)
 			{
-				DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s" + err);
+				DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s\n", err);
 			}
 		});
 

@@ -64,12 +64,12 @@ void SerialManager::Connect() {
 	}
 }
 
-void SerialManager::BeginListener(const std::function<void(const VRCommData_t*)>& callback) {
+void SerialManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
 	thread_active_ = true;
 	serial_thread_ = std::thread(&SerialManager::ListenerThread, this, callback);
 }
 
-void SerialManager::ListenerThread(const std::function<void(const VRCommData_t*)>& callback) {
+void SerialManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
 	PurgeBuffer();
 	std::string receivedString;
 
@@ -102,7 +102,6 @@ void SerialManager::ListenerThread(const std::function<void(const VRCommData_t*)
 
 		commData.grab = tokens[VRCommDataInputPosition::GES_GRAB] == 1;
 		commData.pinch = tokens[VRCommDataInputPosition::GES_PINCH] == 1;
-		
 
 		callback(commData);
 

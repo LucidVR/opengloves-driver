@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="include\bones.h" />
     <ClInclude Include="include\Comm\CommunicationManager.h" />
+    <ClInclude Include="include\Comm\CommunicationReference.h" />
     <ClInclude Include="include\Comm\SerialCommunicationManager.h" />
     <ClInclude Include="include\ControllerDriver.h" />
     <ClInclude Include="include\DeviceProvider.h" />
