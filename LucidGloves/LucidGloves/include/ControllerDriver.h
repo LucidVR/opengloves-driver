@@ -86,10 +86,9 @@ private:
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
 	vr::DriverPose_t m_controllerPose;
-
-	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut;
 	short int m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
+	vr::ETrackedControllerRole m_role;
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
 
 	short int DiscoverController() const;

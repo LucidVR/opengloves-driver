@@ -12,8 +12,8 @@ void OnDataReceived(const float* datas) {
 
 }
 
-bool ControllerDriver::IsRightHand() const {
-	return vr::TrackedControllerRole_RightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber;
+bool ControllerDriver::isRightHand() {
+	return m_role == vr::TrackedControllerRole_RightHand;
 }
 
 vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
