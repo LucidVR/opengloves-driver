@@ -64,12 +64,12 @@ void SerialManager::Connect() {
 	}
 }
 
-void SerialManager::BeginListener(const std::function<void(const float*)>& callback) {
+void SerialManager::BeginListener(const std::function<void(const VRCommData_t*)>& callback) {
 	thread_active_ = true;
 	serial_thread_ = std::thread(&SerialManager::ListenerThread, this, callback);
 }
 
-void SerialManager::ListenerThread(const std::function<void(const float*)>& callback) {
+void SerialManager::ListenerThread(const std::function<void(const VRCommData_t*)>& callback) {
 	PurgeBuffer();
 	std::string receivedString;
 
@@ -80,24 +80,31 @@ void SerialManager::ListenerThread(const std::function<void(const float*)>& call
 		//For now using base10 but will eventually switch to hex to save space
 		//3FF&3FF&3FF&3FF&3FF&1&1&3FF&3FF&1&1\n is 36 chars long.
 		//1023&1023&1023&1023&1023&1&1&1023&1023&1&1\n is 43 chars long.
-		char* next_token;
-		char* pch;
-		const int stringSize = 44;
-		char receivedChars[stringSize];
-		strcpy_s(receivedChars, receivedString.c_str());
-		int index = 0;
-		float interpretedData[11] = {0,0,0,0,0,0,0,0,0,0,0};
-		bool analog[11] = { true, true, true, true, true, false, false, true, true, false, false };
-		pch = strtok_s(receivedChars, " &", &next_token);
-		while (pch != NULL && index < 11)
-		{
-			float divisor = analog[index] ? 1023 : 1;
-			int x = atoi(pch);
-			interpretedData[index] = (float)x / divisor;
-			pch = strtok_s(NULL, " &", &next_token);
-			index++;
+
+		VRCommData_t commData;
+
+		std::string buf;
+		std::stringstream ss(receivedString);
+
+		std::vector<float> tokens;
+
+		while (getline(ss, buf, '&')) tokens.push_back(std::stof(buf));
+
+		for (int i = 0; i < 5; i++) {
+			commData.flexion[i] = tokens[i] / c_maxAnalogValue;
+			commData.splay[i] = 0.5;
 		}
-		callback(interpretedData);
+
+		commData.joyX = (2 * tokens[VRCommDataInputPosition::JOY_X] / c_maxAnalogValue) - 1;
+		commData.joyY = (2 * tokens[VRCommDataInputPosition::JOY_Y] / c_maxAnalogValue) - 1;
+		commData.aButton = tokens[VRCommDataInputPosition::BTN_A] == 1;
+		commData.bButton = tokens[VRCommDataInputPosition::BTN_B] == 1;
+
+		commData.grab = tokens[VRCommDataInputPosition::GES_GRAB] == 1;
+		commData.pinch = tokens[VRCommDataInputPosition::GES_PINCH] == 1;
+		
+
+		callback(commData);
 
 		receivedString.clear();
 	}
@@ -113,7 +120,6 @@ int SerialManager::ReceiveNextPacket(std::string &buff) {
 
 	char nextChar;
 	int bytesRead = 0;
-
 	if (WaitCommEvent(h_serial_, &dwCommEvent, NULL)) {
 		do {
 			if (ReadFile(h_serial_, &nextChar, 1, &dwRead, NULL))

@@ -7,6 +7,8 @@
 #include "driverlog.h"
 #include "bones.h"
 #include "quat_utils.h"
+#include "Comm/SerialCommunicationManager.h"
+#include "ControllerPose.h"
 
 static const char* c_rightControllerSerialNumber = "lucidgloves-right";
 static const char* c_leftControllerSerialNumber = "lucidgloves-left";
@@ -85,12 +87,11 @@ private:
 
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
-	vr::DriverPose_t m_controllerPose;
-
-	vr::ETrackedControllerRole m_role = vr::TrackedControllerRole_OptOut;
-	short int m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
+
+	std::unique_ptr<ControllerPose> m_controllerPose;
+	vr::ETrackedControllerRole m_role;
 
 	short int DiscoverController() const;
 	bool IsRightHand() const;

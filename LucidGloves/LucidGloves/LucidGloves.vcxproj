@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -32,8 +32,10 @@
     <ClInclude Include="include\quat_utils.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="include\ControllerPose.h" />
     <ClCompile Include="src\bones.cpp" />
     <ClCompile Include="src\Comm\SerialCommunicationManager.cpp" />
+    <ClCompile Include="src\ControllerPose.cpp" />
     <ClCompile Include="src\driverlog.cpp" />
     <ClCompile Include="src\PoseTracker.cpp" />
     <ClCompile Include="src\ControllerDriver.cpp" />
