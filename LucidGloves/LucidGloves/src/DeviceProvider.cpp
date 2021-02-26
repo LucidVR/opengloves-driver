@@ -8,7 +8,7 @@ EVRInitError DeviceProvider::Init(IVRDriverContext* pDriverContext)
         return initError;
     }
     
-    VRDriverLog()->Log("Initializing LucidGloves"); //this is how you log out Steam's log file.
+   DebugDriverLog("Initializing LucidGloves");
 
     std::unique_ptr<ControllerDriver> m_leftHand = std::make_unique<ControllerDriver>(TrackedControllerRole_LeftHand);
     std::unique_ptr<ControllerDriver> m_rightHand = std::make_unique<ControllerDriver>(TrackedControllerRole_RightHand);
