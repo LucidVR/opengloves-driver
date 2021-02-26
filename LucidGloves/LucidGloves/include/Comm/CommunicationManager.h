@@ -1,20 +1,19 @@
 #pragma once
 #include <string>
 #include <functional>
-#include <Comm/CommunicationReference.h>
 
-class ICommunicationManager {
-public:
-	virtual void Connect() = 0;
-	virtual void BeginListener(const std::function<void(VRCommData_t)>& callback) = 0;
-	virtual bool IsConnected() = 0;
-	virtual void Disconnect() = 0;
-	virtual ~ICommunicationManager() {};
-private:
-	bool is_connected_;
+struct VRCommData_t
+{
+	float flexion[5];
+	float splay[5];
+	float joyX;
+	float joyY;
+	bool aButton;
+	bool bButton;
+	bool joyClick;
+	bool grab;
+	bool pinch;
 };
-
-
 
 enum VRCommDataInputPosition {
 	FIN_INDEX = 0,
@@ -29,15 +28,13 @@ enum VRCommDataInputPosition {
 	GES_PINCH = 9,
 };
 
-struct VRCommData_t
-{
-	float flexion[5];
-	float splay[5];
-	float joyX;
-	float joyY;
-	bool aButton;
-	bool bButton;
-	bool joyClick;
-	bool grab;
-	bool pinch;
+class ICommunicationManager {
+public:
+	virtual void Connect() = 0;
+	virtual void BeginListener(const std::function<void(VRCommData_t)>& callback) = 0;
+	virtual bool IsConnected() = 0;
+	virtual void Disconnect() = 0;
+	virtual ~ICommunicationManager() {};
+private:
+	bool is_connected_;
 };

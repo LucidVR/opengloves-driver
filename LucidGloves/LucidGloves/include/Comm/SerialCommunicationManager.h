@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Comm/CommunicationManager.h>
+#include "Comm/CommunicationManager.h"
 #include <windows.h>
 #include <iostream>
 #include <thread>
@@ -8,7 +8,6 @@
 #include <chrono>
 #include <vector>
 #include <sstream>
-#include <Comm/CommunicationReference.h>
 
 #define MAX_DATA_LENGTH 100
 #define ARDUINO_WAIT_TIME 1500

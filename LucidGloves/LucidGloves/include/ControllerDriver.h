@@ -82,20 +82,17 @@ public:
 
 private:
 	uint32_t m_driverId;
+	vr::ETrackedControllerRole m_role;
 
 	vr::VRInputComponentHandle_t m_joystickYHandle;
 	vr::VRInputComponentHandle_t m_joystickXHandle;
 
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
-	vr::DriverPose_t m_controllerPose;
 	short int m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
-	vr::ETrackedControllerRole m_role;
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
-
 	std::unique_ptr<ControllerPose> m_controllerPose;
-	vr::ETrackedControllerRole m_role;
 
 	short int DiscoverController() const;
 	bool IsRightHand() const;
