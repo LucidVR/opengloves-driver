@@ -64,12 +64,12 @@ void SerialManager::Connect() {
 	}
 }
 
-void SerialManager::BeginListener(const std::function<void(const float*)>& callback) {
+void SerialManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
 	thread_active_ = true;
 	serial_thread_ = std::thread(&SerialManager::ListenerThread, this, callback);
 }
 
-void SerialManager::ListenerThread(const std::function<void(const float*)>& callback) {
+void SerialManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
 	PurgeBuffer();
 	std::string receivedString;
 
@@ -86,18 +86,30 @@ void SerialManager::ListenerThread(const std::function<void(const float*)>& call
 		char receivedChars[stringSize];
 		strcpy_s(receivedChars, receivedString.c_str());
 		int index = 0;
-		float interpretedData[11] = {0,0,0,0,0,0,0,0,0,0,0};
-		bool analog[11] = { true, true, true, true, true, false, false, true, true, false, false };
+		int numericalData[11] = {0,0,0,0,0,0,0,0,0,0,0};
+		
+		VRCommData_t commData;
+
 		pch = strtok_s(receivedChars, " &", &next_token);
 		while (pch != NULL && index < 11)
 		{
-			float divisor = analog[index] ? 1023 : 1;
-			int x = atoi(pch);
-			interpretedData[index] = (float)x / divisor;
+			numericalData[index] = atoi(pch);
 			pch = strtok_s(NULL, " &", &next_token);
 			index++;
 		}
-		callback(interpretedData);
+		for (int i = 0; i < 5; i++) {
+			commData.flexion[i] = (float)numericalData[i] / (float)analogCap_c;
+			commData.splay[i] = 0.5;
+		};
+		commData.joyX = (2 * (float)numericalData[5] / (float)analogCap_c) - 1;
+		commData.joyY = (2 * (float)numericalData[6] / (float)analogCap_c) - 1;
+		commData.grab = numericalData[6] == 1;
+		commData.pinch = numericalData[7] == 1;
+		commData.aButton = numericalData[8] == 1;
+		commData.bButton = numericalData[9] == 1;
+
+
+		callback(commData);
 
 		receivedString.clear();
 	}

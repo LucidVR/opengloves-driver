@@ -2,11 +2,12 @@
 #include <openvr_driver.h>
 #include <windows.h>
 #include <thread>
-#include "Comm/SerialCommunicationManager.h"
 #include <functional>
-#include "driverlog.h"
-#include "bones.h"
-#include "quat_utils.h"
+#include <driverlog.h>
+#include <bones.h>
+#include <quat_utils.h>
+#include <Comm/SerialCommunicationManager.h>
+#include <Comm/CommunicationReference.h>
 
 static const char* c_rightControllerSerialNumber = "lucidgloves-right";
 static const char* c_leftControllerSerialNumber = "lucidgloves-left";
@@ -76,6 +77,8 @@ public:
 	void RunFrame();
 
 	void StartDevice();
+
+	//bool IsRightHand();
 
 private:
 	uint32_t m_driverId;
