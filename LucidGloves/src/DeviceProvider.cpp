@@ -7,7 +7,8 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext)
 	{
 		return initError;
 	}
-
+	VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
+	InitDriverLog(vr::VRDriverLog());
 	DebugDriverLog("Initializing LucidGloves");
 
 	VRDeviceConfiguration_t leftConfiguration = GetConfiguration(vr::TrackedControllerRole_LeftHand);

@@ -2,6 +2,7 @@
 #include <openvr_driver.h>
 #include "Quaternion.h"
 #include "DeviceConfiguration.h"
+#include "DriverLog.h"
 
 class ControllerPose {
 public:

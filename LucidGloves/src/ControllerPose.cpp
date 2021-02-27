@@ -4,6 +4,8 @@
 ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRDeviceConfiguration_t configuration) : m_configuration(configuration) {
 	m_shadowControllerId = DiscoverController(shadowDeviceOfRole, thisDeviceManufacturer);
 
+	if (m_shadowControllerId == -1) DebugDriverLog("Could not find a controller");
+
 	m_pose.deviceIsConnected = m_shadowControllerId != -1;
 	m_pose.poseIsValid = true;
 	m_pose.qDriverFromHeadRotation.w = 1;
@@ -70,5 +72,5 @@ short int ControllerPose::DiscoverController(vr::ETrackedControllerRole shadowDe
 	}
 
 	//We didn't find a controller
-	return vr::k_unTrackedDeviceIndexInvalid;
+	return -1;
 }

@@ -81,6 +81,7 @@ void ControllerDriver::StartDevice() {
 	if (m_communicationManager->IsConnected()) {
 
 		m_communicationManager->BeginListener([&](VRCommData_t datas) {
+			DebugDriverLog("Received data!");
 			ComputeEntireHand(m_handTransforms, datas.flexion, datas.splay, IsRightHand());
 
 			vr::EVRInputError err;
@@ -110,8 +111,7 @@ void ControllerDriver::StartDevice() {
 
 vr::DriverPose_t ControllerDriver::GetPose()
 {
-	vr::DriverPose_t pose = { 0 };
-	return pose;
+	return m_controllerPose->UpdatePose();
 }
 
 void ControllerDriver::RunFrame()
