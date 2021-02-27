@@ -14,18 +14,22 @@
 
 static constexpr float c_maxAnalogValue = 1023;
 
-struct VRSerialConfiguration {
+struct VRSerialConfiguration_t {
     char* port;
 
-    VRSerialConfiguration(char* port) : port(port) {};
+    VRSerialConfiguration_t(char* port) : port(port) {};
 };
 
 class SerialManager : public ICommunicationManager {
 public:
-    SerialManager(VRSerialConfiguration configuration) : m_configuration(configuration) {};
+    SerialManager(VRSerialConfiguration_t configuration) : m_configuration(configuration) {};
+    //connect to the device using serial
 	void Connect();
+    //start a thread that listens for updates from the device and calls the callback with data
 	void BeginListener(const std::function<void(VRCommData_t)>& callback);
+    //returns if connected or not
     bool IsConnected();
+    //close the serial port
     void Disconnect();
 private:
     void ListenerThread(const std::function<void(VRCommData_t)>& callback);
@@ -41,6 +45,6 @@ private:
     std::atomic<bool> m_threadActive;
     std::thread m_serialThread;
 
-    VRSerialConfiguration m_configuration;
+    VRSerialConfiguration_t m_configuration;
 };
 

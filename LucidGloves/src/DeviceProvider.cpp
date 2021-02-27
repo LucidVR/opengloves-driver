@@ -10,8 +10,8 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext)
 
 	DebugDriverLog("Initializing LucidGloves");
 
-	VRDeviceConfiguration leftConfiguration = GetConfiguration(vr::TrackedControllerRole_LeftHand);
-	VRDeviceConfiguration rightConfiguration = GetConfiguration(vr::TrackedControllerRole_RightHand);
+	VRDeviceConfiguration_t leftConfiguration = GetConfiguration(vr::TrackedControllerRole_LeftHand);
+	VRDeviceConfiguration_t rightConfiguration = GetConfiguration(vr::TrackedControllerRole_RightHand);
 
 	std::unique_ptr<ControllerDriver> m_leftHand = std::make_unique<ControllerDriver>(leftConfiguration);
 	std::unique_ptr<ControllerDriver> m_rightHand = std::make_unique<ControllerDriver>(rightConfiguration);
@@ -21,7 +21,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext)
 
 	return vr::VRInitError_None;
 }
-VRDeviceConfiguration DeviceProvider::GetConfiguration(vr::ETrackedControllerRole role) {
+VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerRole role) {
 	const int protocol = vr::VRSettings()->GetInt32(c_settingsSection, "protocol");
 
 	const float offsetX = vr::VRSettings()->GetFloat(c_settingsSection, "x_offset");
@@ -38,8 +38,8 @@ VRDeviceConfiguration DeviceProvider::GetConfiguration(vr::ETrackedControllerRol
 			char port[64];
 			vr::VRSettings()->GetString(c_settingsSection, role == vr::TrackedControllerRole_RightHand ? "right_port" : "left_port", port, sizeof(port));
 
-			VRSerialConfiguration serialSettings(port);
-			VRDeviceConfiguration deviceSettings(role, offsetVector, poseOffset, serialSettings);
+			VRSerialConfiguration_t serialSettings(port);
+			VRDeviceConfiguration_t deviceSettings(role, offsetVector, poseOffset, serialSettings);
 
 			return deviceSettings;
 		}

@@ -1,6 +1,6 @@
 #include "ControllerDriver.h"
 
-ControllerDriver::ControllerDriver(const VRDeviceConfiguration configuration)
+ControllerDriver::ControllerDriver(const VRDeviceConfiguration_t configuration)
 	: m_configuration(configuration) {
 
 	//copy a default bone transform to our hand transform for use in finger positioning later
@@ -45,7 +45,7 @@ vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
 
 	if (err != vr::VRInputError_None)
 	{
-		// Handle failure case TODO: switch to using driverlog.cpp
+		// Handle failure case
 		DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", err);
 	}
 
