@@ -3,11 +3,10 @@
 #include <windows.h>
 #include <thread>
 #include <functional>
-#include <driverlog.h>
-#include <bones.h>
-#include <quat_utils.h>
-#include <Comm/SerialCommunicationManager.h>
-#include <Comm/CommunicationReference.h>
+#include "driverlog.h"
+#include "bones.h"
+#include "Comm/SerialCommunicationManager.h"
+#include "ControllerPose.h"
 
 static const char* c_rightControllerSerialNumber = "lucidgloves-right";
 static const char* c_leftControllerSerialNumber = "lucidgloves-left";
@@ -18,6 +17,30 @@ static const char* c_deviceModelNumber = "lucidgloves1";
 static const char* c_componentName = "/input/skeleton/left";
 static const char* c_skeletonPath = "/skeleton/hand/left";
 static const char* c_basePosePath = "/pose/raw";
+
+enum VRDeviceProtocol {
+	SERIAL = 0,
+};
+
+struct VRDeviceConfiguration_t {
+	VRDeviceConfiguration_t(vr::ETrackedControllerRole role, vr::HmdVector3_t offsetVector, float poseOffset, VRSerialConfiguration_t serialConfiguration) :
+		role(role),
+		offsetVector(offsetVector),
+		poseOffset(poseOffset),
+		serialConfiguration(serialConfiguration),
+		protocol(VRDeviceProtocol::SERIAL) {};
+
+	vr::ETrackedControllerRole role;
+
+	vr::HmdVector3_t offsetVector;
+
+	float poseOffset;
+
+	VRSerialConfiguration_t serialConfiguration;
+	
+	VRDeviceProtocol protocol;
+
+};
 
 /**
 This class controls the behavior of the controller. This is where you 
@@ -32,7 +55,7 @@ class too. Those comment blocks have some good information.
 class ControllerDriver : public vr::ITrackedDeviceServerDriver
 {
 public:
-	ControllerDriver(vr::ETrackedControllerRole role);
+	ControllerDriver(const VRDeviceConfiguration_t settings);
 	/**
 	Initialize your controller here. Give OpenVR information 
 	about your controller and set up handles to inform OpenVR when 
@@ -88,15 +111,14 @@ private:
 
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
-	vr::DriverPose_t m_controllerPose;
 	short int m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
-	vr::ETrackedControllerRole m_role;
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
+	std::unique_ptr<ControllerPose> m_controllerPose;
 
+	VRDeviceConfiguration_t m_configuration;
 	short int DiscoverController() const;
 	bool IsRightHand() const;
 
 	std::thread m_serialThread;
-	std::thread m_poseThread;
 };

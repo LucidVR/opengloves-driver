@@ -3,11 +3,11 @@
 void SerialManager::Connect() {
 	std::cout << "connecting...." << std::endl;
 	//We're not yet connected
-	is_connected_ = false;
+	m_isConnected = false;
 	const char* port = "COM7";
 
 	//Try to connect to the given port throuh CreateFile
-	h_serial_ = CreateFile(port,
+	m_hSerial = CreateFile(port,
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		NULL,
@@ -15,7 +15,7 @@ void SerialManager::Connect() {
 		FILE_ATTRIBUTE_NORMAL,
 		NULL);
 
-	if (this->h_serial_ == INVALID_HANDLE_VALUE)
+	if (this->m_hSerial == INVALID_HANDLE_VALUE)
 	{
 		if (GetLastError() == ERROR_FILE_NOT_FOUND) {
 
@@ -32,7 +32,7 @@ void SerialManager::Connect() {
 		DCB dcbSerialParams = { 0 };
 
 		//Try to get the current
-		if (!GetCommState(h_serial_, &dcbSerialParams))
+		if (!GetCommState(m_hSerial, &dcbSerialParams))
 		{
 			//If impossible, show an error
 			printf("failed to get current serial parameters!");
@@ -49,24 +49,24 @@ void SerialManager::Connect() {
 			dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
 
 			//set the parameters and check for their proper application
-			if (!SetCommState(h_serial_, &dcbSerialParams))
+			if (!SetCommState(m_hSerial, &dcbSerialParams))
 			{
 				printf("ALERT: Could not set Serial Port parameters");
 			}
 			else
 			{
 				//If everything went fine we're connected
-				is_connected_ = true;
+				m_isConnected = true;
 				//Flush any remaining characters in the buffers 
-				PurgeComm(h_serial_, PURGE_RXCLEAR | PURGE_TXCLEAR);
+				PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
 			}
 		}
 	}
 }
 
 void SerialManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
-	thread_active_ = true;
-	serial_thread_ = std::thread(&SerialManager::ListenerThread, this, callback);
+	m_threadActive = true;
+	m_serialThread = std::thread(&SerialManager::ListenerThread, this, callback);
 }
 
 void SerialManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
@@ -74,40 +74,34 @@ void SerialManager::ListenerThread(const std::function<void(VRCommData_t)>& call
 	std::string receivedString;
 
 	int iteration = 0;
-	while (thread_active_) {
+	while (m_threadActive) {
 		int bytesRead = ReceiveNextPacket(receivedString);
 
 		//For now using base10 but will eventually switch to hex to save space
 		//3FF&3FF&3FF&3FF&3FF&1&1&3FF&3FF&1&1\n is 36 chars long.
 		//1023&1023&1023&1023&1023&1&1&1023&1023&1&1\n is 43 chars long.
-		char* next_token;
-		char* pch;
-		const int stringSize = 44;
-		char receivedChars[stringSize];
-		strcpy_s(receivedChars, receivedString.c_str());
-		int index = 0;
-		int numericalData[11] = {0,0,0,0,0,0,0,0,0,0,0};
-		
+
 		VRCommData_t commData;
 
-		pch = strtok_s(receivedChars, " &", &next_token);
-		while (pch != NULL && index < 11)
-		{
-			numericalData[index] = atoi(pch);
-			pch = strtok_s(NULL, " &", &next_token);
-			index++;
-		}
-		for (int i = 0; i < 5; i++) {
-			commData.flexion[i] = (float)numericalData[i] / (float)analogCap_c;
-			commData.splay[i] = 0.5;
-		};
-		commData.joyX = (2 * (float)numericalData[5] / (float)analogCap_c) - 1;
-		commData.joyY = (2 * (float)numericalData[6] / (float)analogCap_c) - 1;
-		commData.grab = numericalData[6] == 1;
-		commData.pinch = numericalData[7] == 1;
-		commData.aButton = numericalData[8] == 1;
-		commData.bButton = numericalData[9] == 1;
+		std::string buf;
+		std::stringstream ss(receivedString);
 
+		std::vector<float> tokens;
+
+		while (getline(ss, buf, '&')) tokens.push_back(std::stof(buf));
+
+		for (int i = 0; i < 5; i++) {
+			commData.flexion[i] = tokens[i] / c_maxAnalogValue;
+			commData.splay[i] = 0.5;
+		}
+
+		commData.joyX = (2 * tokens[VRCommDataInputPosition::JOY_X] / c_maxAnalogValue) - 1;
+		commData.joyY = (2 * tokens[VRCommDataInputPosition::JOY_Y] / c_maxAnalogValue) - 1;
+		commData.aButton = tokens[VRCommDataInputPosition::BTN_A] == 1;
+		commData.bButton = tokens[VRCommDataInputPosition::BTN_B] == 1;
+
+		commData.grab = tokens[VRCommDataInputPosition::GES_GRAB] == 1;
+		commData.pinch = tokens[VRCommDataInputPosition::GES_PINCH] == 1;
 
 		callback(commData);
 
@@ -119,16 +113,15 @@ int SerialManager::ReceiveNextPacket(std::string &buff) {
 	DWORD dwCommEvent;
 	DWORD dwRead = 0;
 
-	if (!SetCommMask(h_serial_, EV_RXCHAR)) {
+	if (!SetCommMask(m_hSerial, EV_RXCHAR)) {
 		std::cout << "Error setting comm mask" << std::endl;
 	}
 
 	char nextChar;
 	int bytesRead = 0;
-
-	if (WaitCommEvent(h_serial_, &dwCommEvent, NULL)) {
+	if (WaitCommEvent(m_hSerial, &dwCommEvent, NULL)) {
 		do {
-			if (ReadFile(h_serial_, &nextChar, 1, &dwRead, NULL))
+			if (ReadFile(m_hSerial, &nextChar, 1, &dwRead, NULL))
 			{
 				buff += nextChar;
 				bytesRead++;
@@ -146,23 +139,23 @@ int SerialManager::ReceiveNextPacket(std::string &buff) {
 	return bytesRead;
 }
 bool SerialManager::PurgeBuffer() {
-	return PurgeComm(h_serial_, PURGE_RXCLEAR | PURGE_TXCLEAR);
+	return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
 }
 
 void SerialManager::Disconnect() {
-	if (is_connected_) {
+	if (m_isConnected) {
 
-		CloseHandle(h_serial_);
+		CloseHandle(m_hSerial);
 
-		if (thread_active_) {
-			thread_active_ = false;
-			serial_thread_.join();
+		if (m_threadActive) {
+			m_threadActive = false;
+			m_serialThread.join();
 		}
-		is_connected_ = false;
+		m_isConnected = false;
 		//Disconnect
 	}
 }
 //May want to get a heartbeat here instead?
 bool SerialManager::IsConnected() {
-	return is_connected_;
+	return m_isConnected;
 }

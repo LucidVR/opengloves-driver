@@ -1,5 +1,5 @@
-#include <bones.h>
-#include <driverlog.h>
+#include <Bones.h>
+#include <DriverLog.h>
 
 // these poses come from Valve's Index Controllers so share the same root bone to wrist
 // geometry assumptions.

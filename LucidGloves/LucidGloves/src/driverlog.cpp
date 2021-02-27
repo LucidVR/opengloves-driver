@@ -1,6 +1,6 @@
 //========= Copyright Valve Corporation ============//
 
-#include "driverlog.h"
+#include "DriverLog.h"
 
 #include <stdio.h>
 #include <stdarg.h>

@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -19,28 +19,27 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\bones.h" />
+    <ClInclude Include="include\Bones.h" />
     <ClInclude Include="include\Comm\CommunicationManager.h" />
-    <ClInclude Include="include\Comm\CommunicationReference.h" />
     <ClInclude Include="include\Comm\SerialCommunicationManager.h" />
     <ClInclude Include="include\ControllerDriver.h" />
+    <ClInclude Include="include\ControllerPose.h" />
     <ClInclude Include="include\DeviceProvider.h" />
-    <ClInclude Include="include\driverlog.h" />
+    <ClInclude Include="include\DriverLog.h" />
     <ClInclude Include="include\openvr.h" />
     <ClInclude Include="include\openvr_capi.h" />
     <ClInclude Include="include\openvr_driver.h" />
-    <ClInclude Include="include\PoseTracker.h" />
-    <ClInclude Include="include\quat_utils.h" />
+    <ClInclude Include="include\Quaternion.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\bones.cpp" />
+    <ClCompile Include="src\Bones.cpp" />
     <ClCompile Include="src\Comm\SerialCommunicationManager.cpp" />
-    <ClCompile Include="src\driverlog.cpp" />
-    <ClCompile Include="src\PoseTracker.cpp" />
+    <ClCompile Include="src\ControllerPose.cpp" />
+    <ClCompile Include="src\DriverLog.cpp" />
     <ClCompile Include="src\ControllerDriver.cpp" />
     <ClCompile Include="src\DeviceFactory.cpp" />
     <ClCompile Include="src\DeviceProvider.cpp" />
-    <ClCompile Include="src\quat_utils.cpp" />
+    <ClCompile Include="src\Quaternion.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="include\openvr_api.cs" />

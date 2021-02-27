@@ -1,15 +1,27 @@
-#include <ControllerDriver.h>
+#include "ControllerDriver.h"
 
+ControllerDriver::ControllerDriver(const VRDeviceConfiguration_t configuration)
+	: m_configuration(configuration) {
 
-ControllerDriver::ControllerDriver(const vr::ETrackedControllerRole role) 
-	: m_role(role) {
+	//copy a default bone transform to our hand transform for use in finger positioning later
+	std::copy(
+		std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose),
+		std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose),
+		std::begin(m_handTransforms)
+	);
 
-	//copy a default bone transform to our hand transform for use in finger positining later
-	std::copy(std::begin(m_role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose), std::end(m_role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose), std::begin(m_handTransforms));
-};
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer));
 
-bool ControllerDriver::IsRightHand() const{
-	return m_role == vr::TrackedControllerRole_RightHand;
+	switch (m_configuration.protocol) {
+	case VRDeviceProtocol::SERIAL:
+		m_communicationManager = std::make_unique<SerialManager>(m_configuration.serialConfiguration);
+
+		break;
+	}
+}
+
+bool ControllerDriver::IsRightHand() const {
+	return m_configuration.role == vr::TrackedControllerRole_RightHand;
 }
 
 vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
@@ -19,8 +31,8 @@ vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{lucidgloves}/input/controller_profile.json"); //tell OpenVR where to get your driver's Input Profile
-	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_role); //tells OpenVR what kind of device this is
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, m_role == vr::TrackedControllerRole_RightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber);
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_configuration.role); //tells OpenVR what kind of device this is
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, m_configuration.role == vr::TrackedControllerRole_RightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, (int32_t)vr::TrackedDeviceClass_Controller);
@@ -33,14 +45,9 @@ vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
 
 	if (err != vr::VRInputError_None)
 	{
-		// Handle failure case TODO: switch to using driverlog.cpp
+		// Handle failure case
 		DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", err);
 	}
-
-	m_shadowControllerId = DiscoverController();
-
-	m_controllerPose.deviceIsConnected = m_shadowControllerId != -1;
-	m_controllerPose.poseIsValid = true;
 
 	StartDevice();
 
@@ -49,9 +56,6 @@ vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
 
 //This could do with a rename, its a bit vague as to what it does
 void ControllerDriver::StartDevice() {
-
-	m_communicationManager = std::make_unique<SerialManager>();
-
 	m_communicationManager->Connect();
 
 	if (m_communicationManager->IsConnected()) {
@@ -64,7 +68,7 @@ void ControllerDriver::StartDevice() {
 			{
 				DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s\n", err);
 			}
-		});
+			});
 
 	}
 	else {
@@ -75,51 +79,7 @@ void ControllerDriver::StartDevice() {
 
 vr::DriverPose_t ControllerDriver::GetPose()
 {
-	vr::TrackedDevicePose_t trackedDevicePoses[10];
-	vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0, trackedDevicePoses, 10);
-
-	if (trackedDevicePoses[m_shadowControllerId].bPoseIsValid)
-	{
-	
-		m_controllerPose.deviceIsConnected = true;
-
-		vr::HmdMatrix34_t matrix = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking;
-
-		vr::HmdMatrix33_t rotation_matrix = Get33Matrix(matrix);
-
-		vr::HmdVector3_t vector_offset = { 0, 0, 0 };
-
-		m_controllerPose.vecPosition[0] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[0][3] + vector_offset.v[0];
-		m_controllerPose.vecPosition[1] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[1][3] + vector_offset.v[1];
-		m_controllerPose.vecPosition[2] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[2][3] + vector_offset.v[2]; //- forward
-
-		vr::HmdQuaternion_t controller_rotation = GetRotation(matrix);
-		vr::HmdQuaternion_t offset_quaternion = QuaternionFromAngle(1, 0, 0, DegToRad(-45));
-
-		//merge rotation
-		m_controllerPose.qRotation = MultiplyQuaternion(controller_rotation, offset_quaternion);
-
-		m_controllerPose.result = vr::TrackingResult_Running_OK;
-
-		m_controllerPose.vecAngularVelocity[0] = trackedDevicePoses[m_shadowControllerId].vAngularVelocity.v[0];
-		m_controllerPose.vecAngularVelocity[1] = trackedDevicePoses[m_shadowControllerId].vAngularVelocity.v[1];
-		m_controllerPose.vecAngularVelocity[2] = trackedDevicePoses[m_shadowControllerId].vAngularVelocity.v[2];
-
-		m_controllerPose.vecVelocity[0] = trackedDevicePoses[m_shadowControllerId].vVelocity.v[0];
-		m_controllerPose.vecVelocity[1] = trackedDevicePoses[m_shadowControllerId].vVelocity.v[1];
-		m_controllerPose.vecVelocity[2] = trackedDevicePoses[m_shadowControllerId].vVelocity.v[2];
-
-		//set the pose
-		vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose, sizeof(vr::DriverPose_t));
-	}
-	else {
-		m_controllerPose.poseIsValid = false;
-	}
-
-	return m_controllerPose;
-
-	//for the pose, we can start a separate thread in PoseTracker.cpp which sends position data in a callback similar to how we handle comms.
-	//Perhaps GetPose(), if needed for anything, just returns a DriverPose_t value from the last returned position saved in the callback.
+	return m_controllerPose->UpdatePose();
 }
 
 void ControllerDriver::RunFrame()
@@ -158,31 +118,3 @@ void ControllerDriver::DebugRequest(const char* pchRequest, char* pchResponseBuf
 		pchResponseBuffer[0] = 0;
 	}
 }
-
-short int ControllerDriver::DiscoverController() const {
-
-	vr::TrackedDevicePose_t hmd_pose[10];
-	vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0, hmd_pose, 10);
-
-	for (int i = 1; i < 10; i++) //omit id 0, as this is always the headset pose
-	{
-		vr::ETrackedPropertyError err;
-
-		vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(i);
-
-		std::string found_device_manufacturer = vr::VRProperties()->GetStringProperty(container, vr::Prop_ManufacturerName_String, &err);
-		int32_t device_class = vr::VRProperties()->GetInt32Property(container, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32, &err);
-
-		//We have a device that is not this one
-		if (found_device_manufacturer != std::string(c_deviceManufacturer)) {
-			const bool isRightHand = IsRightHand();
-
-			//We have a device which identifies itself as a tracked controller and is of the right hand
-			if ((isRightHand && device_class == vr::TrackedControllerRole_RightHand) || (!isRightHand && device_class == vr::TrackedControllerRole_LeftHand)) return i;
-		}
-	}
-
-	//We didn't find a controller
-	return -1;
-}
-
