@@ -1,6 +1,6 @@
 #include "ControllerDriver.h"
 
-ControllerDriver::ControllerDriver(const VRDeviceConfiguration configuration)
+ControllerDriver::ControllerDriver(const VRDeviceConfiguration_t configuration)
 	: m_configuration(configuration) {
 
 	//copy a default bone transform to our hand transform for use in finger positioning later

@@ -29,7 +29,6 @@
     <ClInclude Include="include\openvr.h" />
     <ClInclude Include="include\openvr_capi.h" />
     <ClInclude Include="include\openvr_driver.h" />
-    <ClInclude Include="include\PoseTracker.h" />
     <ClInclude Include="include\Quaternion.h" />
   </ItemGroup>
   <ItemGroup>
@@ -37,7 +36,6 @@
     <ClCompile Include="src\Comm\SerialCommunicationManager.cpp" />
     <ClCompile Include="src\ControllerPose.cpp" />
     <ClCompile Include="src\DriverLog.cpp" />
-    <ClCompile Include="src\PoseTracker.cpp" />
     <ClCompile Include="src\ControllerDriver.cpp" />
     <ClCompile Include="src\DeviceFactory.cpp" />
     <ClCompile Include="src\DeviceProvider.cpp" />

@@ -22,8 +22,8 @@ enum VRDeviceProtocol {
 	SERIAL = 0,
 };
 
-struct VRDeviceConfiguration {
-	VRDeviceConfiguration(vr::ETrackedControllerRole role, vr::HmdVector3_t offsetVector, float poseOffset, VRSerialConfiguration serialConfiguration) :
+struct VRDeviceConfiguration_t {
+	VRDeviceConfiguration_t(vr::ETrackedControllerRole role, vr::HmdVector3_t offsetVector, float poseOffset, VRSerialConfiguration_t serialConfiguration) :
 		role(role),
 		offsetVector(offsetVector),
 		poseOffset(poseOffset),
@@ -36,7 +36,7 @@ struct VRDeviceConfiguration {
 
 	float poseOffset;
 
-	VRSerialConfiguration serialConfiguration;
+	VRSerialConfiguration_t serialConfiguration;
 	
 	VRDeviceProtocol protocol;
 
@@ -55,7 +55,7 @@ class too. Those comment blocks have some good information.
 class ControllerDriver : public vr::ITrackedDeviceServerDriver
 {
 public:
-	ControllerDriver(const VRDeviceConfiguration settings);
+	ControllerDriver(const VRDeviceConfiguration_t settings);
 	/**
 	Initialize your controller here. Give OpenVR information 
 	about your controller and set up handles to inform OpenVR when 
@@ -116,7 +116,7 @@ private:
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
 	std::unique_ptr<ControllerPose> m_controllerPose;
 
-	VRDeviceConfiguration m_configuration;
+	VRDeviceConfiguration_t m_configuration;
 	short int DiscoverController() const;
 	bool IsRightHand() const;
 

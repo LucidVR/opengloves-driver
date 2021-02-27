@@ -21,7 +21,7 @@ public:
 	**/
 	vr::EVRInitError Init(vr::IVRDriverContext* pDriverContext);
 
-	VRDeviceConfiguration GetConfiguration(vr::ETrackedControllerRole role);
+	VRDeviceConfiguration_t GetConfiguration(vr::ETrackedControllerRole role);
 
 	/**
 	Called right before your driver is unloaded.
