@@ -57,6 +57,6 @@ public:
 	void LeaveStandby();
 
 private:
-	std::unique_ptr<ControllerDriver> m_leftHand;
-	std::unique_ptr<ControllerDriver> m_rightHand;
+	ControllerDriver* m_leftHand;
+	ControllerDriver* m_rightHand;
 };

@@ -1,10 +1,11 @@
 #pragma once
 #include <openvr_driver.h>
 #include "Quaternion.h"
+#include "DeviceConfiguration.h"
 
 class ControllerPose {
 public:
-	ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer);
+	ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRDeviceConfiguration_t configuration);
 	vr::DriverPose_t UpdatePose();
 private:
 	//We may not initially know what the id of the device that we want to shadow is. This method finds devices that have a specific type specified and that are not this one
@@ -18,8 +19,5 @@ private:
 	//This represents the orientation and rotation, as well as angular velocity, etc.
 	vr::DriverPose_t m_pose;
 
-	//This vector is set to the offset of the controller relative to the hand.
-	//If we have the controller mounted on top of the hand with no offset, the hand will appear where the controller is - not what we want.
-	//This offset vector is configurable in settings.
-	vr::HmdVector3_t m_offsetVector = { 0, 0, 0 };
+	VRDeviceConfiguration_t m_configuration;
 };

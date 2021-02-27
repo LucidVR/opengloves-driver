@@ -1,7 +1,7 @@
 #pragma once
 #include "ControllerPose.h"
 
-ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer) {
+ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRDeviceConfiguration_t configuration) : m_configuration(configuration) {
 	m_shadowControllerId = DiscoverController(shadowDeviceOfRole, thisDeviceManufacturer);
 
 	m_pose.deviceIsConnected = m_shadowControllerId != -1;
@@ -25,7 +25,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 		const vr::HmdMatrix34_t shadowControllerMatrix = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking;
 
 		//As we need to account for rotation for the offset, multiply 
-		const vr::HmdVector3_t vectorOffset = MultiplyMatrix(Get33Matrix(shadowControllerMatrix), m_offsetVector);
+		const vr::HmdVector3_t vectorOffset = MultiplyMatrix(Get33Matrix(shadowControllerMatrix), m_configuration.offsetVector);
 
 		m_pose.vecPosition[0] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[0][3] + double(vectorOffset.v[0]);
 		m_pose.vecPosition[1] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[1][3] + double(vectorOffset.v[1]);

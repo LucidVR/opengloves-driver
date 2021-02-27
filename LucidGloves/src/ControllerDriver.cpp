@@ -10,7 +10,7 @@ ControllerDriver::ControllerDriver(const VRDeviceConfiguration_t configuration)
 		std::begin(m_handTransforms)
 	);
 
-	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer));
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer), configuration);
 
 	switch (m_configuration.protocol) {
 	case VRDeviceProtocol::SERIAL:
@@ -24,29 +24,49 @@ bool ControllerDriver::IsRightHand() const {
 	return m_configuration.role == vr::TrackedControllerRole_RightHand;
 }
 
-vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
+vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 {
+	DebugDriverLog("Activating lucidgloves...");
+	const bool isRightHand = IsRightHand();
+
 	m_driverId = unObjectId; //unique ID for your driver
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{lucidgloves}/input/controller_profile.json"); //tell OpenVR where to get your driver's Input Profile
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, c_inputProfilePath); //tell OpenVR where to get your driver's Input Profile
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_configuration.role); //tells OpenVR what kind of device this is
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, m_configuration.role == vr::TrackedControllerRole_RightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber);
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, isRightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, (int32_t)vr::TrackedDeviceClass_Controller);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)100000);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, c_deviceControllerType);
 
-	// Create the skeletal component and save the handle for later use
-	vr::EVRInputError err = vr::VRDriverInput()->CreateSkeletonComponent(props, c_componentName, c_skeletonPath, c_basePosePath,
-		vr::EVRSkeletalTrackingLevel::VRSkeletalTracking_Partial, NULL, NUM_BONES, &m_skeletalComponentHandle);
 
-	if (err != vr::VRInputError_None)
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/joystick/x", &m_inputComponentHandles[ComponentIndex::COMP_JOY_X], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedTwoSided);
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/joystick/y", &m_inputComponentHandles[ComponentIndex::COMP_JOY_Y], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedTwoSided);
+	vr::VRDriverInput()->CreateBooleanComponent(props, "/input/joystick/click", &m_inputComponentHandles[ComponentIndex::COMP_JOY_BTN]);
+	vr::VRDriverInput()->CreateBooleanComponent(props, "/input/A/click", &m_inputComponentHandles[ComponentIndex::COMP_BTN_A]);
+
+	vr::VRDriverInput()->CreateBooleanComponent(props, "/input/grab/click", &m_inputComponentHandles[ComponentIndex::COMP_GES_GRAB]);
+
+	vr::VRDriverInput()->CreateHapticComponent(props, "output/haptic", &m_inputComponentHandles[ComponentIndex::COMP_HAPTIC]);
+
+	// Create the skeletal component and save the handle for later use
+
+	vr::EVRInputError error = vr::VRDriverInput()->CreateSkeletonComponent(props,
+		isRightHand ? "/input/skeleton/right" : "/input/skeleton/left",
+		isRightHand ? "/skeleton/hand/right" : "/skeleton/hand/left",
+		"/pose/raw",
+		vr::VRSkeletalTracking_Partial,
+		isRightHand ? right_fist_pose : left_fist_pose,
+		NUM_BONES,
+		&m_skeletalComponentHandle);
+
+	if (error != vr::VRInputError_None)
 	{
 		// Handle failure case
-		DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", err);
+		DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", error);
 	}
 
 	StartDevice();
@@ -63,12 +83,23 @@ void ControllerDriver::StartDevice() {
 		m_communicationManager->BeginListener([&](VRCommData_t datas) {
 			ComputeEntireHand(m_handTransforms, datas.flexion, datas.splay, IsRightHand());
 
-			vr::EVRInputError err = vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
-			if (err != vr::VRInputError_None)
-			{
-				DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s\n", err);
-			}
-			});
+			vr::EVRInputError err;
+
+			err = vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
+			if (err != vr::VRInputError_None) DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s\n", err);
+			err = vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
+			if (err != vr::VRInputError_None) DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s\n", err);
+
+			vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_X], datas.joyX, 0);
+			vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_Y], datas.joyY, 0);
+
+			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_A], datas.aButton, 0);
+			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_B], datas.bButton, 0);
+
+			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_GES_GRAB], datas.grab, 0);
+			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_GES_PINCH], datas.pinch, 0);
+
+		});
 
 	}
 	else {
@@ -79,7 +110,8 @@ void ControllerDriver::StartDevice() {
 
 vr::DriverPose_t ControllerDriver::GetPose()
 {
-	return m_controllerPose->UpdatePose();
+	vr::DriverPose_t pose = { 0 };
+	return pose;
 }
 
 void ControllerDriver::RunFrame()

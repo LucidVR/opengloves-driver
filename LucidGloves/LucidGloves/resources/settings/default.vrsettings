@@ -3,8 +3,8 @@
 		"enable" : true,
 		"protocol": 0,
 		"serial": {
-			"right_port": "\\\\.\\COM9",
-			"left_port": "\\\\.\\COM8"
+			"left_port": "\\\\.\\COM4",
+			"right_port": "\\\\.\\COM5"
 		},
 		"x_offset": -0.07,
 		"y_offset": -0.08,

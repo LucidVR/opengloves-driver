@@ -7,6 +7,7 @@
 #include "bones.h"
 #include "Comm/SerialCommunicationManager.h"
 #include "ControllerPose.h"
+#include "DeviceConfiguration.h"
 
 static const char* c_rightControllerSerialNumber = "lucidgloves-right";
 static const char* c_leftControllerSerialNumber = "lucidgloves-left";
@@ -17,29 +18,18 @@ static const char* c_deviceModelNumber = "lucidgloves1";
 static const char* c_componentName = "/input/skeleton/left";
 static const char* c_skeletonPath = "/skeleton/hand/left";
 static const char* c_basePosePath = "/pose/raw";
+static const char* c_inputProfilePath = "{lucidgloves}/input/controller_profile.json";
 
-enum VRDeviceProtocol {
-	SERIAL = 0,
-};
-
-struct VRDeviceConfiguration_t {
-	VRDeviceConfiguration_t(vr::ETrackedControllerRole role, vr::HmdVector3_t offsetVector, float poseOffset, VRSerialConfiguration_t serialConfiguration) :
-		role(role),
-		offsetVector(offsetVector),
-		poseOffset(poseOffset),
-		serialConfiguration(serialConfiguration),
-		protocol(VRDeviceProtocol::SERIAL) {};
-
-	vr::ETrackedControllerRole role;
-
-	vr::HmdVector3_t offsetVector;
-
-	float poseOffset;
-
-	VRSerialConfiguration_t serialConfiguration;
-	
-	VRDeviceProtocol protocol;
-
+static const enum ComponentIndex : int {
+	COMP_JOY_X = 0,
+	COMP_JOY_Y = 1,
+	COMP_JOY_BTN = 2,
+	COMP_BTN_TRG = 3,
+	COMP_BTN_A = 4,
+	COMP_BTN_B = 5,
+	COMP_GES_GRAB = 6,
+	COMP_GES_PINCH = 7,
+	COMP_HAPTIC = 8
 };
 
 /**
@@ -106,11 +96,11 @@ public:
 private:
 	uint32_t m_driverId;
 
-	vr::VRInputComponentHandle_t m_joystickYHandle;
-	vr::VRInputComponentHandle_t m_joystickXHandle;
-
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
+	vr::VRInputComponentHandle_t m_inputComponentHandles[8];
+
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
+
 	short int m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
