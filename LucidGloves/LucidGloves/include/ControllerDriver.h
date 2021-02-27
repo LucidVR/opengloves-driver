@@ -5,7 +5,6 @@
 #include <functional>
 #include "driverlog.h"
 #include "bones.h"
-#include "quat_utils.h"
 #include "Comm/SerialCommunicationManager.h"
 #include "ControllerPose.h"
 
@@ -18,6 +17,30 @@ static const char* c_deviceModelNumber = "lucidgloves1";
 static const char* c_componentName = "/input/skeleton/left";
 static const char* c_skeletonPath = "/skeleton/hand/left";
 static const char* c_basePosePath = "/pose/raw";
+
+enum VRDeviceProtocol {
+	SERIAL = 0,
+};
+
+struct VRDeviceConfiguration {
+	VRDeviceConfiguration(vr::ETrackedControllerRole role, vr::HmdVector3_t offsetVector, float poseOffset, VRSerialConfiguration serialSettings) :
+		role(role),
+		offsetVector(offsetVector),
+		poseOffset(poseOffset),
+		serialSettings(serialSettings),
+		protocol(VRDeviceProtocol::SERIAL) {};
+
+	vr::ETrackedControllerRole role;
+
+	vr::HmdVector3_t offsetVector;
+
+	float poseOffset;
+
+	VRSerialConfiguration serialSettings;
+	
+	VRDeviceProtocol protocol;
+
+};
 
 /**
 This class controls the behavior of the controller. This is where you 
@@ -32,7 +55,7 @@ class too. Those comment blocks have some good information.
 class ControllerDriver : public vr::ITrackedDeviceServerDriver
 {
 public:
-	ControllerDriver(vr::ETrackedControllerRole role);
+	ControllerDriver(const VRDeviceConfiguration settings);
 	/**
 	Initialize your controller here. Give OpenVR information 
 	about your controller and set up handles to inform OpenVR when 
@@ -82,7 +105,6 @@ public:
 
 private:
 	uint32_t m_driverId;
-	vr::ETrackedControllerRole m_role;
 
 	vr::VRInputComponentHandle_t m_joystickYHandle;
 	vr::VRInputComponentHandle_t m_joystickXHandle;
@@ -94,9 +116,9 @@ private:
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
 	std::unique_ptr<ControllerPose> m_controllerPose;
 
+	VRDeviceConfiguration m_configuration;
 	short int DiscoverController() const;
 	bool IsRightHand() const;
 
 	std::thread m_serialThread;
-	std::thread m_poseThread;
 };

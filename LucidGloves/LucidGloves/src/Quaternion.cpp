@@ -1,4 +1,4 @@
-#include "quat_utils.h"
+#include "Quaternion.h"
 
 double DegToRad(int degrees) {
 	return degrees * M_PI / 180;

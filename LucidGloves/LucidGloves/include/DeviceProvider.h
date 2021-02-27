@@ -3,7 +3,6 @@
 #include <openvr_driver.h>
 #include <windows.h>
 #include <memory>
-using namespace vr;
 
 /**
 This class instantiates all the device drivers you have, meaning if you've 
@@ -13,14 +12,16 @@ create instances of each of those and inform OpenVR about all of your devices.
 Take a look at the comment blocks for all the methods in IServerTrackedDeviceProvider
 too.
 **/
-class DeviceProvider : public IServerTrackedDeviceProvider
+class DeviceProvider : public vr::IServerTrackedDeviceProvider
 {
 public:
 
 	/**
 	Initiailze and add your drivers to OpenVR here.
 	**/
-	EVRInitError Init(IVRDriverContext* pDriverContext);
+	vr::EVRInitError Init(vr::IVRDriverContext* pDriverContext);
+
+	VRDeviceConfiguration GetConfiguration(vr::ETrackedControllerRole role);
 
 	/**
 	Called right before your driver is unloaded.

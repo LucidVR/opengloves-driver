@@ -1,19 +1,25 @@
 #include "ControllerDriver.h"
 
-
-ControllerDriver::ControllerDriver(const vr::ETrackedControllerRole role)
-	: m_role(role) {
+ControllerDriver::ControllerDriver(const VRDeviceConfiguration settings)
+	: m_configuration(settings) {
 
 	//copy a default bone transform to our hand transform for use in finger positioning later
 	std::copy(
-		std::begin(m_role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose),
-		std::end(m_role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose),
+		std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose),
+		std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose),
 		std::begin(m_handTransforms)
 	);
+
+	switch (settings.protocol) {
+	case VRDeviceProtocol::SERIAL:
+		m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer));
+		break;
+	}
+	m_communicationManager = std::make_unique<SerialManager>();
 }
 
 bool ControllerDriver::IsRightHand() const {
-	return m_role == vr::TrackedControllerRole_RightHand;
+	return m_configuration.role == vr::TrackedControllerRole_RightHand;
 }
 
 vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
@@ -23,8 +29,8 @@ vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{lucidgloves}/input/controller_profile.json"); //tell OpenVR where to get your driver's Input Profile
-	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_role); //tells OpenVR what kind of device this is
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, m_role == vr::TrackedControllerRole_RightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber);
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_configuration.role); //tells OpenVR what kind of device this is
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, m_configuration.role == vr::TrackedControllerRole_RightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, (int32_t)vr::TrackedDeviceClass_Controller);
@@ -60,7 +66,7 @@ void ControllerDriver::StartDevice() {
 			{
 				DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s\n", err);
 			}
-		});
+			});
 
 	}
 	else {

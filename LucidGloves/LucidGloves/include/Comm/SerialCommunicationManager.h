@@ -34,3 +34,9 @@ private:
     std::atomic<bool> thread_active_;
     std::thread serial_thread_;
 };
+
+struct VRSerialConfiguration {
+    char* port;
+
+    VRSerialConfiguration(char* port) : port(port) {};
+};
