@@ -1,7 +1,7 @@
 #include "ControllerDriver.h"
 
-ControllerDriver::ControllerDriver(const VRDeviceConfiguration settings)
-	: m_configuration(settings) {
+ControllerDriver::ControllerDriver(const VRDeviceConfiguration configuration)
+	: m_configuration(configuration) {
 
 	//copy a default bone transform to our hand transform for use in finger positioning later
 	std::copy(
@@ -10,12 +10,14 @@ ControllerDriver::ControllerDriver(const VRDeviceConfiguration settings)
 		std::begin(m_handTransforms)
 	);
 
-	switch (settings.protocol) {
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer));
+
+	switch (m_configuration.protocol) {
 	case VRDeviceProtocol::SERIAL:
-		m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer));
+		m_communicationManager = std::make_unique<SerialManager>(m_configuration.serialConfiguration);
+
 		break;
 	}
-	m_communicationManager = std::make_unique<SerialManager>();
 }
 
 bool ControllerDriver::IsRightHand() const {
