@@ -4,10 +4,9 @@ void SerialManager::Connect() {
 	std::cout << "connecting...." << std::endl;
 	//We're not yet connected
 	m_isConnected = false;
-	const char* port = "COM7";
 
 	//Try to connect to the given port throuh CreateFile
-	m_hSerial = CreateFile(port,
+	m_hSerial = CreateFile(m_configuration.port,
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		NULL,
@@ -19,7 +18,7 @@ void SerialManager::Connect() {
 	{
 		if (GetLastError() == ERROR_FILE_NOT_FOUND) {
 
-			printf("ERROR: Handle was not attached. Reason: %s not available.\n", port);
+			printf("ERROR: Handle was not attached. Reason: %s not available.\n", m_configuration.port);
 		}
 		else
 		{
