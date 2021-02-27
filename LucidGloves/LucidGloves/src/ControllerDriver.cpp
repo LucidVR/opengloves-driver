@@ -45,7 +45,7 @@ vr::EVRInitError ControllerDriver::Activate(const uint32_t unObjectId)
 
 	if (err != vr::VRInputError_None)
 	{
-		// Handle failure case TODO: switch to using driverlog.cpp
+		// Handle failure case
 		DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", err);
 	}
 

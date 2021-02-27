@@ -21,6 +21,9 @@ public:
 	**/
 	vr::EVRInitError Init(vr::IVRDriverContext* pDriverContext);
 
+	/**
+	* returns the configuration set in VRSettings for the device role given
+	**/
 	VRDeviceConfiguration_t GetConfiguration(vr::ETrackedControllerRole role);
 
 	/**
