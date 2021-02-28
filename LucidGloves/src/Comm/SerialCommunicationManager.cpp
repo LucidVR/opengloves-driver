@@ -18,11 +18,11 @@ void SerialManager::Connect() {
 	{
 		if (GetLastError() == ERROR_FILE_NOT_FOUND) {
 
-			printf("ERROR: Handle was not attached. Reason: %s not available.\n", m_configuration.port);
+			DebugDriverLog("ERROR: Handle was not attached. Reason: %s not available.\n", m_configuration.port);
 		}
 		else
 		{
-			printf("Received error connecting to port");
+			DebugDriverLog("Received error connecting to port");
 		}
 	}
 	else
@@ -34,7 +34,7 @@ void SerialManager::Connect() {
 		if (!GetCommState(m_hSerial, &dcbSerialParams))
 		{
 			//If impossible, show an error
-			printf("failed to get current serial parameters!");
+			DebugDriverLog("failed to get current serial parameters!");
 		}
 		else
 		{
@@ -50,7 +50,7 @@ void SerialManager::Connect() {
 			//set the parameters and check for their proper application
 			if (!SetCommState(m_hSerial, &dcbSerialParams))
 			{
-				printf("ALERT: Could not set Serial Port parameters");
+				DebugDriverLog("ALERT: Could not set Serial Port parameters");
 			}
 			else
 			{
@@ -126,13 +126,13 @@ int SerialManager::ReceiveNextPacket(std::string &buff) {
 				bytesRead++;
 			}
 			else {
-				std::cout << "Read file error" << std::endl;
+				DebugDriverLog("Read file error");
 				break;
 			}
 		} while (nextChar != '\n');
 	}
 	else {
-		std::cout << "Error" << std::endl;
+		DebugDriverLog("Error in comm event");
 	}
 
 	return bytesRead;

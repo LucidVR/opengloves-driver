@@ -10,7 +10,6 @@ ControllerDriver::ControllerDriver(const VRDeviceConfiguration_t configuration)
 		std::begin(m_handTransforms)
 	);
 
-	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer), configuration);
 
 	switch (m_configuration.protocol) {
 	case VRDeviceProtocol::SERIAL:
@@ -30,11 +29,12 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 	const bool isRightHand = IsRightHand();
 
 	m_driverId = unObjectId; //unique ID for your driver
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer), m_configuration, m_driverId);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, c_inputProfilePath); //tell OpenVR where to get your driver's Input Profile
-	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_configuration.role); //tells OpenVR what kind of device this is
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, isRightHand ? vr::TrackedControllerRole_RightHand : vr::TrackedControllerRole_LeftHand); //tells OpenVR what kind of device this is
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, isRightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
@@ -111,12 +111,14 @@ void ControllerDriver::StartDevice() {
 
 vr::DriverPose_t ControllerDriver::GetPose()
 {
-	return m_controllerPose->UpdatePose();
+	vr::DriverPose_t pose = { 0 };
+
+	return pose;
 }
 
 void ControllerDriver::RunFrame()
 {
-	//do nothing?
+	m_controllerPose->UpdatePose();
 }
 
 

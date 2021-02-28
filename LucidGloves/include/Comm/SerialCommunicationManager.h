@@ -8,6 +8,7 @@
 #include <chrono>
 #include <vector>
 #include <sstream>
+#include "DriverLog.h"
 
 #define MAX_DATA_LENGTH 100
 #define ARDUINO_WAIT_TIME 1500
