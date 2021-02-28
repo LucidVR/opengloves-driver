@@ -7,7 +7,7 @@
 class ControllerPose {
 public:
 	ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRDeviceConfiguration_t configuration, uint32_t driverId);
-	void UpdatePose();
+	vr::DriverPose_t UpdatePose();
 private:
 	short int m_driverId = -1;
 	//We may not initially know what the id of the device that we want to shadow is. This method finds devices that have a specific type specified and that are not this one

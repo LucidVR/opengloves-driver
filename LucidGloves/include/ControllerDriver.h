@@ -15,10 +15,9 @@ static const char* c_settingsSection = "driver_lucidgloves";
 static const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
 static const char* c_deviceControllerType = "lucidgloves";
 static const char* c_deviceModelNumber = "lucidgloves1";
-static const char* c_componentName = "/input/skeleton/left";
-static const char* c_skeletonPath = "/skeleton/hand/left";
 static const char* c_basePosePath = "/pose/raw";
 static const char* c_inputProfilePath = "{lucidgloves}/input/controller_profile.json";
+static const char* c_renderModelPath = "{lucidgloves}/rendermodels/lucidgloves";
 
 static const enum ComponentIndex : int {
 	COMP_JOY_X = 0,

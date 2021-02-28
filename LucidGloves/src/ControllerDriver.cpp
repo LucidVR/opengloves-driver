@@ -34,13 +34,14 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, c_inputProfilePath); //tell OpenVR where to get your driver's Input Profile
-	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, isRightHand ? vr::TrackedControllerRole_RightHand : vr::TrackedControllerRole_LeftHand); //tells OpenVR what kind of device this is
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_configuration.role); //tells OpenVR what kind of device this is
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, isRightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, (int32_t)vr::TrackedDeviceClass_Controller);
-	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)100000);
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)4294967295);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, c_deviceControllerType);
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, c_renderModelPath);
 
 
 	vr::VRDriverInput()->CreateScalarComponent(props, "/input/joystick/x", &m_inputComponentHandles[ComponentIndex::COMP_JOY_X], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedTwoSided);
@@ -69,7 +70,7 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 		DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", error);
 	}
 
-	StartDevice();
+	//StartDevice();
 
 	return vr::VRInitError_None;
 }
@@ -111,9 +112,7 @@ void ControllerDriver::StartDevice() {
 
 vr::DriverPose_t ControllerDriver::GetPose()
 {
-	vr::DriverPose_t pose = { 0 };
-
-	return pose;
+	return m_controllerPose->UpdatePose();
 }
 
 void ControllerDriver::RunFrame()
