@@ -16,7 +16,7 @@ static const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
 static const char* c_deviceControllerType = "lucidgloves";
 static const char* c_deviceModelNumber = "lucidgloves1";
 static const char* c_basePosePath = "/pose/raw";
-static const char* c_inputProfilePath = "{lucidgloves}/input/controller_profile.json";
+static const char* c_inputProfilePath = "{lucidgloves}/input/lucidgloves_profile.json";
 static const char* c_renderModelPath = "{lucidgloves}/rendermodels/lucidgloves";
 
 static const enum ComponentIndex : int {
