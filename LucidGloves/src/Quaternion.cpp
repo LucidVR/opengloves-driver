@@ -7,6 +7,17 @@ double RadToDeg(double rad) {
 	return rad * 180 / M_PI;
 }
 
+static vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t matrix)
+{
+	vr::HmdVector3_t vector;
+
+	vector.v[0] = matrix.m[0][3];
+	vector.v[1] = matrix.m[1][3];
+	vector.v[2] = matrix.m[2][3];
+
+	return vector;
+}
+
 vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t matrix) {
 	vr::HmdQuaternion_t q;
 

@@ -26,10 +26,11 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 
 		if (trackedDevicePoses[m_shadowControllerId].bPoseIsValid)
 		{
+			//DebugDriverLog("pose %d IS valid", m_shadowControllerId);
 			m_pose.poseIsValid = true;
 			m_pose.deviceIsConnected = true;
 
-			//const vr::HmdMatrix34_t shadowControllerMatrix = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking;
+			const vr::HmdMatrix34_t shadowControllerMatrix = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking;
 
 			////As we need to account for rotation for the offset, multiply 
 			//const vr::HmdVector3_t vectorOffset = MultiplyMatrix(Get33Matrix(shadowControllerMatrix), m_configuration.offsetVector);
@@ -38,16 +39,16 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 			m_pose.vecPosition[1] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[1][3];
 			m_pose.vecPosition[2] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[2][3];
 
-			vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_pose, sizeof(vr::DriverPose_t));
+			//DebugDriverLog("Numbers set: X%.2f Y%.2f Z%.2f ID%d", m_pose.vecPosition[0], m_pose.vecPosition[1], m_pose.vecPosition[2], m_driverId);
 
 			//m_pose.vecPosition[0] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[0][3] + vectorOffset.v[0];
 			//m_pose.vecPosition[1] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[1][3] + vectorOffset.v[1];
 			//m_pose.vecPosition[2] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[2][3] + vectorOffset.v[2]; //- forward
 
 			////We want to produce a quaternion rotation of the controllers that accounts for any rotation the controller has on the hand.
-			//m_pose.qRotation = MultiplyQuaternion(GetRotation(shadowControllerMatrix), QuaternionFromAngle(1, 0, 0, DegToRad(-90)));
+			m_pose.qRotation = MultiplyQuaternion(GetRotation(shadowControllerMatrix), QuaternionFromAngle(1, 0, 0, DegToRad(-90)));
 
-			//m_pose.result = vr::TrackingResult_Running_OK;
+			m_pose.result = vr::TrackingResult_Running_OK;
 
 			//m_pose.vecAngularVelocity[0] = trackedDevicePoses[m_shadowControllerId].vAngularVelocity.v[0];
 			//m_pose.vecAngularVelocity[1] = trackedDevicePoses[m_shadowControllerId].vAngularVelocity.v[1];
@@ -58,10 +59,12 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 			//m_pose.vecVelocity[2] = trackedDevicePoses[m_shadowControllerId].vVelocity.v[2];
 
 			//set the pose
-
+			//vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_pose, sizeof(vr::DriverPose_t));
 		}
-		else {
-			DebugDriverLog("pose is not valid");
+		else 
+		{
+
+			//DebugDriverLog("pose %d is not valid", m_shadowControllerId);
 		}
 	} else {
 		DebugDriverLog("Discovering controller");
@@ -80,6 +83,10 @@ void ControllerPose::DiscoverController() {
 
 		std::string foundDeviceManufacturer = vr::VRProperties()->GetStringProperty(container, vr::Prop_ManufacturerName_String, &err);
 		int32_t deviceControllerRole = vr::VRProperties()->GetInt32Property(container, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32, &err);
+
+		//if (i == 10) {
+		//	DebugDriverLog("Discovered an imposter! Id: %i, Manufacturer: %s, Role: %d", i, foundDeviceManufacturer.c_str(), deviceControllerRole);
+		//}
 
 		//We have a device which identifies itself as a tracked device that we want to be searching for, and that device is not this one.
 		if (deviceControllerRole == m_shadowDeviceOfRole && foundDeviceManufacturer != m_thisDeviceManufacturer) {
