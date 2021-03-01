@@ -25,7 +25,7 @@ bool ControllerDriver::IsRightHand() const {
 
 vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 {
-	DebugDriverLog("Activating lucidgloves...");
+	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d", unObjectId, m_configuration.role);
 	const bool isRightHand = IsRightHand();
 
 	m_driverId = unObjectId; //unique ID for your driver
@@ -39,7 +39,8 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, (int32_t)vr::TrackedDeviceClass_Controller);
-	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)4294967295);
+	//vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)4294967295);
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)2147483647);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, c_deviceControllerType);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, c_renderModelPath);
 
@@ -70,7 +71,7 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 		DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", error);
 	}
 
-	//StartDevice();
+	StartDevice();
 
 	return vr::VRInitError_None;
 }
@@ -117,7 +118,8 @@ vr::DriverPose_t ControllerDriver::GetPose()
 
 void ControllerDriver::RunFrame()
 {
-	m_controllerPose->UpdatePose();
+	//m_controllerPose->UpdatePose();
+	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
 }
 
 
