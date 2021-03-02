@@ -16,7 +16,7 @@ static const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
 static const char* c_deviceControllerType = "lucidgloves";
 static const char* c_deviceModelNumber = "lucidgloves1";
 static const char* c_basePosePath = "/pose/raw";
-static const char* c_inputProfilePath = "{lucidgloves}/input/controller_profile.json";
+static const char* c_inputProfilePath = "{lucidgloves}/input/lucidgloves_profile.json";
 static const char* c_renderModelPath = "{lucidgloves}/rendermodels/lucidgloves";
 
 static const enum ComponentIndex : int {
@@ -103,11 +103,10 @@ private:
 	uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
-	std::unique_ptr<ControllerPose> m_controllerPose;
+	//std::unique_ptr<ControllerPose> m_controllerPose;
+	ControllerPose* m_controllerPose;
 
 	VRDeviceConfiguration_t m_configuration;
 	short int DiscoverController() const;
 	bool IsRightHand() const;
-
-	std::thread m_serialThread;
 };

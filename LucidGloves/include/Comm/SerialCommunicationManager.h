@@ -10,15 +10,14 @@
 #include <sstream>
 #include "DriverLog.h"
 
-#define MAX_DATA_LENGTH 100
-#define ARDUINO_WAIT_TIME 1500
+#define ARDUINO_WAIT_TIME 2000
 
 static constexpr float c_maxAnalogValue = 1023;
 
 struct VRSerialConfiguration_t {
-    char* port;
+    std::string port;
 
-    VRSerialConfiguration_t(char* port) : port(port) {};
+    VRSerialConfiguration_t(std::string port) : port(port) {};
 };
 
 class SerialManager : public ICommunicationManager {
