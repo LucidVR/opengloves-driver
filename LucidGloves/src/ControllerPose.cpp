@@ -59,7 +59,6 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 	} else {
 		newPose.result = vr::TrackingResult_Uninitialized;
 		newPose.deviceIsConnected = false;
-		DebugDriverLog("Discovering controller");
 		DiscoverController();
 	}
 
@@ -82,8 +81,5 @@ void ControllerPose::DiscoverController() {
 			m_shadowControllerId = i;
 			break;
 		}
-	}
-	if (m_shadowControllerId == -1) {
-		DebugDriverLog("did not find a controller");
 	}
 }
