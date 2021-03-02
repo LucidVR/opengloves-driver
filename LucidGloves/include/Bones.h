@@ -11,7 +11,7 @@ extern vr::VRBoneTransform_t left_fist_pose[NUM_BONES];
 /**
 *Computes the bone transforms for the flexion and extension of fingers. Applied to one BoneTransform_t.
 **/
-void ComputeBoneFlexion(vr::VRBoneTransform_t bone_transform, float transform, int bone_index, bool right_hand);
+void ComputeBoneFlexion(vr::VRBoneTransform_t* bone_transform, float transform, int bone_index, bool right_hand);
 
 /**
 *Computes the bone transforms for the abduction and adduction of fingers. Applied to one BoneTransform_t.

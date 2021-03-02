@@ -142,26 +142,26 @@ vr::VRBoneTransform_t left_fist_pose[NUM_BONES] = {
 
 
 //Transform should be between 0-1
-void ComputeBoneFlexion(vr::VRBoneTransform_t bone_transform, float transform, int i, bool right_hand) {
+void ComputeBoneFlexion(vr::VRBoneTransform_t* bone_transform, float transform, int i, bool right_hand) {
 
 	vr::VRBoneTransform_t* fist_pose = right_hand ? right_fist_pose : left_fist_pose;
 	vr::VRBoneTransform_t* open_pose = right_hand ? right_open_hand_pose : left_open_hand_pose;
 
-	bone_transform.orientation.w = Lerp(open_pose[i].orientation.w, fist_pose[i].orientation.w, transform);
-	bone_transform.orientation.x = Lerp(open_pose[i].orientation.x, fist_pose[i].orientation.x, transform);
-	bone_transform.orientation.y = Lerp(open_pose[i].orientation.y, fist_pose[i].orientation.y, transform);
-	bone_transform.orientation.z = Lerp(open_pose[i].orientation.z, fist_pose[i].orientation.z, transform);
+	bone_transform->orientation.w = Lerp(open_pose[i].orientation.w, fist_pose[i].orientation.w, transform);
+	bone_transform->orientation.x = Lerp(open_pose[i].orientation.x, fist_pose[i].orientation.x, transform);
+	bone_transform->orientation.y = Lerp(open_pose[i].orientation.y, fist_pose[i].orientation.y, transform);
+	bone_transform->orientation.z = Lerp(open_pose[i].orientation.z, fist_pose[i].orientation.z, transform);
 
-	bone_transform.position.v[0] = Lerp(open_pose[i].position.v[0], fist_pose[i].position.v[0], transform);
-	bone_transform.position.v[1] = Lerp(open_pose[i].position.v[1], fist_pose[i].position.v[1], transform);
-	bone_transform.position.v[2] = Lerp(open_pose[i].position.v[2], fist_pose[i].position.v[2], transform);
-	bone_transform.position.v[3] = Lerp(open_pose[i].position.v[3], fist_pose[i].position.v[3], transform);
+	bone_transform->position.v[0] = Lerp(open_pose[i].position.v[0], fist_pose[i].position.v[0], transform);
+	bone_transform->position.v[1] = Lerp(open_pose[i].position.v[1], fist_pose[i].position.v[1], transform);
+	bone_transform->position.v[2] = Lerp(open_pose[i].position.v[2], fist_pose[i].position.v[2], transform);
+	bone_transform->position.v[3] = Lerp(open_pose[i].position.v[3], fist_pose[i].position.v[3], transform);
 }
 
-void ComputeEntireHand(vr::VRBoneTransform_t* bone_transforms, float flexion[5], float splay[5], bool right_hand) {
+void ComputeEntireHand(vr::VRBoneTransform_t bone_transform[NUM_BONES], float flexion[5], float splay[5], bool right_hand) {
 	//for now only flexion is calculated. {0.5, 0.5, 0.5, 0.5, 0.5} is acceptable for no splay hardware as well
 	for (int i = 0; i < NUM_BONES; i++) {
-		ComputeBoneFlexion(bone_transforms[i], flexion[FingerFromBone(i)], i, right_hand);
+		ComputeBoneFlexion(&bone_transform[i], flexion[FingerFromBone(i)], i, right_hand);
 	}
 	//ComputeBoneSplay(bone_transforms[i], splay[FingerFromBone(i)], i, right_hand);
 }
