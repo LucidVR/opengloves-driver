@@ -1,28 +1,19 @@
 {
   "jsonid": "input_profile",
-  "controller_type": "lucidgloves_controller",
-  "legacy_binding" : "{lucidgloves}/input/legacy_bindings_lucidgloves.json",
-  "device_class" : "TrackedDeviceClass_Controller",
-  "input_bindingui_mode": "controller_handed",
-  "input_bindingui_right": {
-		"image": "{lucidgloves}/icons/game_controller.svg"
+  "controller_type": "lucidgloves",
+  "input_bindingui_mode" : "controller_handed",
+  "input_bindingui_left" :
+  {
+    "image": "{lucidgloves}/icons/lucidgloves.svg"
   },
-  "should_show_binding_errors": true,
-  "input_source": {
+  "input_bindingui_right" :
+  {
+    "image": "{lucidgloves}/icons/lucidgloves.svg"
+  },
+  "input_source" :
+  {
     "/pose/raw" : {
         "type" : "pose",
-        "binding_image_point" : [ 5, 35 ]
-    },
-    "/input/skeleton/right" : {
-        "type" : "skeleton",
-        "skeleton": "/skeleton/hand/right",
-        "side" : "right",
-        "binding_image_point" : [ 5, 35 ]
-    },
-	"/input/skeleton/left" : {
-        "type" : "skeleton",
-        "skeleton": "/skeleton/hand/left",
-        "side" : "left",
         "binding_image_point" : [ 5, 35 ]
     },
 	"/input/trigger/click" : {
@@ -48,7 +39,7 @@
         "binding_image_point" : [ 67, 81 ],
         "order" : 4
     },
-	"/input/grab/click" : {
+	"/input/grip/click" : {
         "type" : "button",
         "binding_image_point" : [ 67, 81 ],
         "order" : 5
@@ -60,23 +51,23 @@
 	},
 	"/input/finger/index" : {
         "type" : "trigger",
-		"visibility" : "InputValueVisibility_AvailableButHidden",
+	"visibility" : "InputValueVisibility_AvailableButHidden",
         "binding_image_point" : [ 56, 86 ]
     },
     "/input/finger/middle" : {
         "type" : "trigger",
-		"visibility" : "InputValueVisibility_AvailableButHidden",
+	"visibility" : "InputValueVisibility_AvailableButHidden",
         "binding_image_point" : [ 56, 86 ]
     },
     "/input/finger/ring" : {
         "type" : "trigger",
-		"visibility" : "InputValueVisibility_AvailableButHidden",
+	"visibility" : "InputValueVisibility_AvailableButHidden",
         "binding_image_point" : [ 56, 86 ]
     },
     "/input/finger/pinky" : {
         "type" : "trigger",
-		"visibility" : "InputValueVisibility_AvailableButHidden",
+	"visibility" : "InputValueVisibility_AvailableButHidden",
         "binding_image_point" : [ 56, 86 ]
     }
-  }
+ }
 }
