@@ -20,15 +20,11 @@ This method returns an instance of your provider that OpenVR uses.
 HMD_DLL_EXPORT
 void* HmdDriverFactory(const char* interfaceName, int* returnCode)
 {
-	if (strcmp(interfaceName, vr::IServerTrackedDeviceProvider_Version) == 0) 
+
+	if (0 == strcmp(vr::IServerTrackedDeviceProvider_Version, interfaceName))
 	{
 		return &deviceProvider;
 	}
-
-	if (returnCode)
-	{
-		*returnCode = vr::VRInitError_Init_InterfaceNotFound;
-	}
-
-	return NULL;
+	DriverLog("HmdDriverFactory called for %s", interfaceName);
+	return nullptr;
 }

@@ -103,11 +103,10 @@ private:
 	uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
-	std::unique_ptr<ControllerPose> m_controllerPose;
+	//std::unique_ptr<ControllerPose> m_controllerPose;
+	ControllerPose* m_controllerPose;
 
 	VRDeviceConfiguration_t m_configuration;
 	short int DiscoverController() const;
 	bool IsRightHand() const;
-
-	std::thread m_serialThread;
 };
