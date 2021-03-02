@@ -36,7 +36,7 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 
 	switch (protocol) {
 		case VRDeviceProtocol::SERIAL:
-			char port[64];
+			char port[16];
 			vr::VRSettings()->GetString(c_settingsSection, role == vr::TrackedControllerRole_RightHand ? "serial_right_port" : "serial_left_port", port, sizeof(port));
 
 			VRSerialConfiguration_t serialSettings(port);

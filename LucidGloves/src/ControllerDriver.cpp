@@ -39,8 +39,7 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, (int32_t)vr::TrackedDeviceClass_Controller);
-	//vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)4294967295);
-	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)2147483647);
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)100000);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, c_deviceControllerType);
 
 	vr::VRDriverInput()->CreateScalarComponent(props, "/input/joystick/x", &m_inputComponentHandles[ComponentIndex::COMP_JOY_X], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedTwoSided);
@@ -81,7 +80,7 @@ void ControllerDriver::StartDevice() {
 	if (m_communicationManager->IsConnected()) {
 
 		m_communicationManager->BeginListener([&](VRCommData_t datas) {
-			DebugDriverLog("Received data!");
+			DebugDriverLog("Received data!, index: %f, middle: %f", datas.flexion[0], datas.flexion[1]);
 			ComputeEntireHand(m_handTransforms, datas.flexion, datas.splay, IsRightHand());
 
 			vr::EVRInputError err;

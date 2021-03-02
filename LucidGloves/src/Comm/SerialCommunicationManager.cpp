@@ -1,12 +1,11 @@
 #include <Comm/SerialCommunicationManager.h>
 
 void SerialManager::Connect() {
-	std::cout << "connecting...." << std::endl;
 	//We're not yet connected
 	m_isConnected = false;
 
 	//Try to connect to the given port throuh CreateFile
-	m_hSerial = CreateFile(m_configuration.port,
+	m_hSerial = CreateFile(m_configuration.port.c_str(),
 		GENERIC_READ | GENERIC_WRITE,
 		0,
 		NULL,
@@ -18,11 +17,11 @@ void SerialManager::Connect() {
 	{
 		if (GetLastError() == ERROR_FILE_NOT_FOUND) {
 
-			DebugDriverLog("ERROR: Handle was not attached. Reason: %s not available.\n", m_configuration.port);
+			DebugDriverLog("Serial error: Handle was not attached. Reason: not available.");
 		}
 		else
 		{
-			DebugDriverLog("Received error connecting to port");
+			DebugDriverLog("Serial error:Received error connecting to port");
 		}
 	}
 	else
@@ -34,7 +33,7 @@ void SerialManager::Connect() {
 		if (!GetCommState(m_hSerial, &dcbSerialParams))
 		{
 			//If impossible, show an error
-			DebugDriverLog("failed to get current serial parameters!");
+			DebugDriverLog("Serial error: failed to get current serial parameters!");
 		}
 		else
 		{
@@ -69,46 +68,52 @@ void SerialManager::BeginListener(const std::function<void(VRCommData_t)>& callb
 }
 
 void SerialManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
+	std::this_thread::sleep_for(std::chrono::milliseconds(ARDUINO_WAIT_TIME));
 	PurgeBuffer();
 	std::string receivedString;
 
 	int iteration = 0;
 	while (m_threadActive) {
-		int bytesRead = ReceiveNextPacket(receivedString);
+		try {
+			int bytesRead = ReceiveNextPacket(receivedString);
 
-		//For now using base10 but will eventually switch to hex to save space
-		//3FF&3FF&3FF&3FF&3FF&1&1&3FF&3FF&1&1\n is 36 chars long.
-		//1023&1023&1023&1023&1023&1&1&1023&1023&1&1\n is 43 chars long.
+			//For now using base10 but will eventually switch to hex to save space
+			//3FF&3FF&3FF&3FF&3FF&1&1&3FF&3FF&1&1\n is 36 chars long.
+			//1023&1023&1023&1023&1023&1&1&1023&1023&1&1\n is 43 chars long.
 
-		VRCommData_t commData;
+			VRCommData_t commData;
 
-		std::string buf;
-		std::stringstream ss(receivedString);
+			std::string buf;
+			std::stringstream ss(receivedString);
 
-		std::vector<float> tokens;
+			std::vector<float> tokens;
 
-		while (getline(ss, buf, '&')) tokens.push_back(std::stof(buf));
+			while (getline(ss, buf, '&')) tokens.push_back(std::stof(buf));
 
-		for (int i = 0; i < 5; i++) {
-			commData.flexion[i] = tokens[i] / c_maxAnalogValue;
-			commData.splay[i] = 0.5;
+			for (int i = 0; i < 5; i++) {
+				commData.flexion[i] = tokens[i] / c_maxAnalogValue;
+				commData.splay[i] = 0.5;
+			}
+
+			commData.joyX = (2 * tokens[VRCommDataInputPosition::JOY_X] / c_maxAnalogValue) - 1;
+			commData.joyY = (2 * tokens[VRCommDataInputPosition::JOY_Y] / c_maxAnalogValue) - 1;
+			commData.aButton = tokens[VRCommDataInputPosition::BTN_A] == 1;
+			commData.bButton = tokens[VRCommDataInputPosition::BTN_B] == 1;
+
+			commData.grab = tokens[VRCommDataInputPosition::GES_GRAB] == 1;
+			commData.pinch = tokens[VRCommDataInputPosition::GES_PINCH] == 1;
+
+			callback(commData);
+
+			receivedString.clear();
 		}
-
-		commData.joyX = (2 * tokens[VRCommDataInputPosition::JOY_X] / c_maxAnalogValue) - 1;
-		commData.joyY = (2 * tokens[VRCommDataInputPosition::JOY_Y] / c_maxAnalogValue) - 1;
-		commData.aButton = tokens[VRCommDataInputPosition::BTN_A] == 1;
-		commData.bButton = tokens[VRCommDataInputPosition::BTN_B] == 1;
-
-		commData.grab = tokens[VRCommDataInputPosition::GES_GRAB] == 1;
-		commData.pinch = tokens[VRCommDataInputPosition::GES_PINCH] == 1;
-
-		callback(commData);
-
-		receivedString.clear();
+		catch (const std::exception& e) {
+			DebugDriverLog("Exception caught while trying to convert to int. Skipping...");
+		}
 	}
 }
 
-int SerialManager::ReceiveNextPacket(std::string &buff) {
+int SerialManager::ReceiveNextPacket(std::string& buff) {
 	DWORD dwCommEvent;
 	DWORD dwRead = 0;
 
@@ -143,14 +148,14 @@ bool SerialManager::PurgeBuffer() {
 
 void SerialManager::Disconnect() {
 	if (m_isConnected) {
-
-		CloseHandle(m_hSerial);
-
 		if (m_threadActive) {
 			m_threadActive = false;
 			m_serialThread.join();
 		}
 		m_isConnected = false;
+		CloseHandle(m_hSerial);
+
+
 		//Disconnect
 	}
 }

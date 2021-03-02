@@ -32,7 +32,6 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 			newPose.vecPosition[1] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[1][3] + vectorOffset.v[1];
 			newPose.vecPosition[2] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[2][3] + vectorOffset.v[2]; //- forward
 
-			
 			vr::HmdQuaternion_t offset_quaternion = QuaternionFromAngle(1, 0, 0, DegToRad(-45));
 
 			//merge rotation
