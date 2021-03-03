@@ -80,22 +80,14 @@ void ControllerDriver::StartDevice() {
 	if (m_communicationManager->IsConnected()) {
 
 		m_communicationManager->BeginListener([&](VRCommData_t datas) {
-			DebugDriverLog("Received data!, thumb: %f, index: %f", datas.flexion[0], datas.flexion[1]);
 			ComputeEntireHand(m_handTransforms, datas.flexion, datas.splay, IsRightHand());
 
-			vr::EVRInputError err;
-
-			err = vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
-			if (err != vr::VRInputError_None) DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s\n", err);
-			err = vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
-			if (err != vr::VRInputError_None) DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s\n", err);
+			vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
+			vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
 
 			vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_X], datas.joyX, 0);
 			vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_Y], datas.joyY, 0);
 
-			if (datas.aButton) {
-				DebugDriverLog("A BUTTON PRESSED");
-			}
 			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_A], datas.aButton, 0);
 			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_B], datas.bButton, 0);
 
