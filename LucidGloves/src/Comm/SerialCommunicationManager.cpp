@@ -63,20 +63,21 @@ void SerialManager::Connect() {
 }
 
 void SerialManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
+	//DebugDriverLog("Begun listener");
 	m_threadActive = true;
 	m_serialThread = std::thread(&SerialManager::ListenerThread, this, callback);
 }
 
 void SerialManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
+	//DebugDriverLog("In listener thread");
 	std::this_thread::sleep_for(std::chrono::milliseconds(ARDUINO_WAIT_TIME));
 	PurgeBuffer();
 	std::string receivedString;
-
 	int iteration = 0;
 	while (m_threadActive) {
 		try {
 			int bytesRead = ReceiveNextPacket(receivedString);
-
+			//DebugDriverLog("Received Data: %s", receivedString);
 			//For now using base10 but will eventually switch to hex to save space
 			//3FF&3FF&3FF&3FF&3FF&1&1&3FF&3FF&1&1\n is 36 chars long.
 			//1023&1023&1023&1023&1023&1&1&1023&1023&1&1\n is 43 chars long.

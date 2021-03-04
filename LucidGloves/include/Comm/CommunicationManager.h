@@ -35,11 +35,11 @@ struct VRCommData_t
 };
 
 enum VRCommDataInputPosition {
-	FIN_THUMB = 0,
-	FIN_INDEX = 1,
+	FIN_PINKY = 0,
+	FIN_RING = 1,
 	FIN_MIDDLE = 2,
-	FIN_RING = 3,
-	FIN_PINKY = 4,
+	FIN_INDEX = 3,
+	FIN_THUMB = 4,
 	JOY_X = 5,
 	JOY_Y = 6,
 	JOY_BTN =7,

@@ -50,7 +50,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 			newPose.result = vr::TrackingResult_Running_OK;
 
 		} else {
-			DebugDriverLog("pose %d is not valid", m_shadowControllerId);
+			//DebugDriverLog("pose %d is not valid", m_shadowControllerId);
 			newPose.poseIsValid = false;
 			newPose.deviceIsConnected = true;
 			newPose.result = vr::TrackingResult_Uninitialized;
