@@ -76,9 +76,9 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 //This could do with a rename, its a bit vague as to what it does
 void ControllerDriver::StartDevice() {
 	m_communicationManager->Connect();
-
+	//DebugDriverLog("Getting ready to connect:");
 	if (m_communicationManager->IsConnected()) {
-
+		//DebugDriverLog("Connected successfully");
 		m_communicationManager->BeginListener([&](VRCommData_t datas) {
 
 			//Compute each finger transform

@@ -45,6 +45,7 @@
   <ItemGroup>
     <None Include="include\openvr_api.cs" />
     <None Include="include\openvr_api.json" />
+    <None Include="LucidGloves\resources\input\lucidgloves_profile.json" />
     <None Include="resources\controller_profile.json" />
     <None Include="resources\driver.vrdrivermanifest" />
     <None Include="resources\game_controller.svg" />
