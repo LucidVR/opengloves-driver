@@ -1,22 +1,36 @@
 # lucidgloves - LucidVR X Fngrs
-A collaboration between Lucas_VRTech and Danwillm
+Developed by:
+* Danwillm
+* Lucas_VRTech
 
+## What is this?
 This repository contains the OpenVR(SteamVR) driver for a DIY VR Haptic Glove.
 
-The two hardware types officially supported by this driver are LucidVR gloves, and Fngrs.
+### This driver is a work in progress
+__This Repository is a *very early* work in progress. Binaries are not up yet and many things are likely to change.__
+Things in this repo are subject to rapid changes and currently is not in a stable release state.
 
-The fully built driver will be available on steamworks as well as in the releases section.
-Instructions for building from source will be in the wiki.
+Pre-built binaries are not yet available, and must be built locally. Instructions to do that are in the Wiki.
 
+Releases will be available on Steam once the repo hits a stable release.
 
-Currently supported:
+That said, we are more than happy to help with issues that may arise, the easiest way is to join the discord server:
+
+https://discord.gg/SnreYUhMTp
+
+## Officically Compatible Hardware:
+* LucidVR Gloves - Prototype 3+
+* Fngrs by danwillm
+* If you've made you're own, we would love to know and incorporate into this project!
+
+## Currently supported:
 * Finger flexion tracking
 * Copy position from a controller
 * Button and joystick inputs
 * Communication Protocols:
   - Serial over USB
 
-Considered additions:
+### Considered additions:
 * Finger splay tracking
 * Copy position from a tracker
 * Force feedback haptics
@@ -24,3 +38,8 @@ Considered additions:
   - Bluetooth LE
   - 2.4ghz wifi
   - Single port serial
+  - Hex compression for serial
+
+We are actively welcoming contributions, feel free to open a pull request.
+
+If you run into issues, you are welcome to open a GitHub issue or contact us directly on Discord.
