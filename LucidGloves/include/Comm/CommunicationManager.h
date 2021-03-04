@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 #include <functional>
-
+#include <array>
 /*
 	Input Structure:
 
@@ -22,11 +22,24 @@
 */
 struct VRCommData_t
 {
-	float flexion[5];
-	float splay[5];
+	VRCommData_t(std::array<float, 5> flexion, std::array<float, 5> splay, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch) :
+		flexion(flexion),
+		splay(splay),
+		joyX(joyX),
+		joyY(joyY),
+		joyButton(joyButton),
+		trgButton(trgButton),
+		aButton(aButton),
+		bButton(bButton),
+		grab(grab),
+		pinch(pinch)
+	{};
+
+	std::array<float, 5> flexion;
+	std::array<float, 5> splay;
 	float joyX;
 	float joyY;	
-	bool joyClick;
+	bool joyButton;
 	bool trgButton;
 	bool aButton;
 	bool bButton;
