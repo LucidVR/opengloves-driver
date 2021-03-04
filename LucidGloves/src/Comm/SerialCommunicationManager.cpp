@@ -98,6 +98,7 @@ void SerialManager::ListenerThread(const std::function<void(VRCommData_t)>& call
 
 			commData.joyX = (2 * tokens[VRCommDataInputPosition::JOY_X] / c_maxAnalogValue) - 1;
 			commData.joyY = (2 * tokens[VRCommDataInputPosition::JOY_Y] / c_maxAnalogValue) - 1;
+			commData.trgButton = tokens[VRCommDataInputPosition::BTN_TRG] == 1;
 			commData.aButton = tokens[VRCommDataInputPosition::BTN_A] == 1;
 			commData.bButton = tokens[VRCommDataInputPosition::BTN_B] == 1;
 
