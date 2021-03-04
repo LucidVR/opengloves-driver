@@ -6,13 +6,16 @@ Developed by:
 ## What is this?
 This repository contains the OpenVR(SteamVR) driver for a DIY VR Haptic Glove.
 
-### This driver is a work in progress
 __This Repository is a *very early* work in progress. Binaries are not up yet and many things are likely to change.__
 Things in this repo are subject to rapid changes and currently is not in a stable release state.
 
 Pre-built binaries are not yet available, and must be built locally. Instructions to do that are in the Wiki.
 
 Releases will be available on Steam once the repo hits a stable release.
+
+This driver has been tested with and is officially compatible for:
+* LucidVR Gloves - Prototype 3+
+* Fngrs by danwillm
 
 That said, we are more than happy to help with issues that may arise, the easiest way is to join the discord server:
 
