@@ -29,7 +29,8 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 	const float offsetY = vr::VRSettings()->GetFloat(c_settingsSection, "y_offset");
 	const float offsetZ = vr::VRSettings()->GetFloat(c_settingsSection, "z_offset");
 
-	const vr::HmdVector3_t offsetVector = { offsetX, offsetY, offsetZ };
+	//x axis is flipped for the different hands
+	const vr::HmdVector3_t offsetVector = { role == vr::TrackedControllerRole_RightHand ? offsetX : -offsetX, offsetY, offsetZ };
 
 	const float poseOffset = vr::VRSettings()->GetFloat(c_settingsSection, "pose_offset");
 

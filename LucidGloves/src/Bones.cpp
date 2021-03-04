@@ -3,7 +3,7 @@
 
 // these poses come from Valve's Index Controllers so share the same root bone to wrist
 // geometry assumptions.
-vr::VRBoneTransform_t right_open_hand_pose[NUM_BONES] = {
+vr::VRBoneTransform_t rightOpenPose[NUM_BONES] = {
 { { 0.000000f,  0.000000f,  0.000000f,  1.000000f}, { 1.000000f, -0.000000f, -0.000000f,  0.000000f} },
 { { 0.034038f,  0.036503f,  0.164722f,  1.000000f}, {-0.055147f, -0.078608f,  0.920279f, -0.379296f} },
 { { 0.012083f,  0.028070f,  0.025050f,  1.000000f}, { 0.567418f, -0.464112f,  0.623374f, -0.272106f} },
@@ -37,7 +37,7 @@ vr::VRBoneTransform_t right_open_hand_pose[NUM_BONES] = {
 { { 0.031806f, -0.087214f,  0.121015f,  1.000000f}, {-0.003659f,  0.758407f,  0.639342f,  0.126678f} },
 };
 
-vr::VRBoneTransform_t right_fist_pose[NUM_BONES] =
+vr::VRBoneTransform_t rightFistPose[NUM_BONES] =
 {
 { { 0.000000f,  0.000000f,  0.000000f,  1.000000f}, { 1.000000f, -0.000000f, -0.000000f,  0.000000f} },
 { { 0.034038f,  0.036503f,  0.164722f,  1.000000f}, {-0.055147f, -0.078608f,  0.920279f, -0.379296f} },
@@ -72,7 +72,7 @@ vr::VRBoneTransform_t right_fist_pose[NUM_BONES] =
 { {-0.003263f, -0.034685f,  0.139926f,  1.000000f}, { 0.019690f, -0.100741f,  0.957331f,  0.270149f} },
 };
 
-vr::VRBoneTransform_t left_open_hand_pose[NUM_BONES] = {
+vr::VRBoneTransform_t leftOpenPose[NUM_BONES] = {
 { { 0.000000f,  0.000000f,  0.000000f,  1.000000f}, { 1.000000f, -0.000000f, -0.000000f,  0.000000f} },
 { {-0.034038f,  0.036503f,  0.164722f,  1.000000f}, {-0.055147f, -0.078608f, -0.920279f,  0.379296f} },
 { {-0.012083f,  0.028070f,  0.025050f,  1.000000f}, { 0.464112f,  0.567418f,  0.272106f,  0.623374f} },
@@ -106,7 +106,7 @@ vr::VRBoneTransform_t left_open_hand_pose[NUM_BONES] = {
 { {-0.031806f, -0.087214f,  0.121015f,  1.000000f}, {-0.003659f,  0.758407f, -0.639342f, -0.126678f} },
 };
 
-vr::VRBoneTransform_t left_fist_pose[NUM_BONES] = {
+vr::VRBoneTransform_t leftFistPose[NUM_BONES] = {
 { { 0.000000f,  0.000000f,  0.000000f,  1.000000f}, { 1.000000f, -0.000000f, -0.000000f,  0.000000f} },
 { {-0.034038f,  0.036503f,  0.164722f,  1.000000f}, {-0.055147f, -0.078608f, -0.920279f,  0.379296f} },
 { {-0.016305f,  0.027529f,  0.017800f,  1.000000f}, { 0.225703f,  0.483332f,  0.126413f,  0.836342f} },
@@ -140,74 +140,24 @@ vr::VRBoneTransform_t left_fist_pose[NUM_BONES] = {
 { { 0.003263f, -0.034685f,  0.139926f,  1.000000f}, { 0.019690f, -0.100741f, -0.957331f, -0.270149f} },
 };
 
+void ComputeBoneTransform(vr::VRBoneTransform_t bone_transform[NUM_BONES], const float transform, const int startBoneIndex, const bool isRightHand) {
 
-//Transform should be between 0-1
-void ComputeBoneFlexion(vr::VRBoneTransform_t bone_transform, float transform, int i, bool right_hand) {
+	vr::VRBoneTransform_t* fist_pose = isRightHand ? rightFistPose : leftFistPose;
+	vr::VRBoneTransform_t* open_pose = isRightHand ? rightOpenPose : leftOpenPose;
 
-	vr::VRBoneTransform_t* fist_pose = right_hand ? right_fist_pose : left_fist_pose;
-	vr::VRBoneTransform_t* open_pose = right_hand ? right_open_hand_pose : left_open_hand_pose;
+	for (int i = startBoneIndex; i < startBoneIndex + 5; i++) {
+		bone_transform[i].orientation.w = Lerp(open_pose[i].orientation.w, fist_pose[i].orientation.w, transform);
+		bone_transform[i].orientation.x = Lerp(open_pose[i].orientation.x, fist_pose[i].orientation.x, transform);
+		bone_transform[i].orientation.y = Lerp(open_pose[i].orientation.y, fist_pose[i].orientation.y, transform);
+		bone_transform[i].orientation.z = Lerp(open_pose[i].orientation.z, fist_pose[i].orientation.z, transform);
 
-	bone_transform.orientation.w = Lerp(open_pose[i].orientation.w, fist_pose[i].orientation.w, transform);
-	bone_transform.orientation.x = Lerp(open_pose[i].orientation.x, fist_pose[i].orientation.x, transform);
-	bone_transform.orientation.y = Lerp(open_pose[i].orientation.y, fist_pose[i].orientation.y, transform);
-	bone_transform.orientation.z = Lerp(open_pose[i].orientation.z, fist_pose[i].orientation.z, transform);
-
-	bone_transform.position.v[0] = Lerp(open_pose[i].position.v[0], fist_pose[i].position.v[0], transform);
-	bone_transform.position.v[1] = Lerp(open_pose[i].position.v[1], fist_pose[i].position.v[1], transform);
-	bone_transform.position.v[2] = Lerp(open_pose[i].position.v[2], fist_pose[i].position.v[2], transform);
-	bone_transform.position.v[3] = Lerp(open_pose[i].position.v[3], fist_pose[i].position.v[3], transform);
-}
-
-void ComputeEntireHand(vr::VRBoneTransform_t* bone_transforms, float flexion[5], float splay[5], bool right_hand) {
-	//for now only flexion is calculated. {0.5, 0.5, 0.5, 0.5, 0.5} is acceptable for no splay hardware as well
-	for (int i = 0; i < NUM_BONES; i++) {
-		ComputeBoneFlexion(bone_transforms[i], flexion[FingerFromBone(i)], i, right_hand);
+		bone_transform[i].position.v[0] = Lerp(open_pose[i].position.v[0], fist_pose[i].position.v[0], transform);
+		bone_transform[i].position.v[1] = Lerp(open_pose[i].position.v[1], fist_pose[i].position.v[1], transform);
+		bone_transform[i].position.v[2] = Lerp(open_pose[i].position.v[2], fist_pose[i].position.v[2], transform);
+		bone_transform[i].position.v[3] = Lerp(open_pose[i].position.v[3], fist_pose[i].position.v[3], transform);
 	}
-	//ComputeBoneSplay(bone_transforms[i], splay[FingerFromBone(i)], i, right_hand);
 }
 
-float Lerp(float a, float b, float f) {
+float Lerp(const float a, const float b, const float f) {
 	return a + f * (b - a);
-}
-
-int FingerFromBone(vr::BoneIndex_t bone) {
-	switch (bone) {
-	case eBone_Thumb0:
-	case eBone_Thumb1:
-	case eBone_Thumb2:
-	case eBone_Thumb3:
-	case eBone_Aux_Thumb:
-		return 4;
-	case eBone_IndexFinger0:
-	case eBone_IndexFinger1:
-	case eBone_IndexFinger2:
-	case eBone_IndexFinger3:
-	case eBone_IndexFinger4:
-	case eBone_Aux_IndexFinger:
-		return 3;
-	case eBone_MiddleFinger0:
-	case eBone_MiddleFinger1:
-	case eBone_MiddleFinger2:
-	case eBone_MiddleFinger3:
-	case eBone_MiddleFinger4:
-	case eBone_Aux_MiddleFinger:
-		return 2;
-	case eBone_RingFinger0:
-	case eBone_RingFinger1:
-	case eBone_RingFinger2:
-	case eBone_RingFinger3:
-	case eBone_RingFinger4:
-	case eBone_Aux_RingFinger:
-		return 1;
-	case eBone_PinkyFinger0:
-	case eBone_PinkyFinger1:
-	case eBone_PinkyFinger2:
-	case eBone_PinkyFinger3:
-	case eBone_PinkyFinger4:
-	case eBone_Aux_PinkyFinger:
-		return 0;
-
-	default:
-		return -1;
-	}
 }

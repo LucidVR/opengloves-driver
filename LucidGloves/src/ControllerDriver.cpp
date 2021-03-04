@@ -5,8 +5,8 @@ ControllerDriver::ControllerDriver(const VRDeviceConfiguration_t configuration)
 
 	//copy a default bone transform to our hand transform for use in finger positioning later
 	std::copy(
-		std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose),
-		std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? right_open_hand_pose : left_open_hand_pose),
+		std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
+		std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
 		std::begin(m_handTransforms)
 	);
 
@@ -58,7 +58,7 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 		isRightHand ? "/skeleton/hand/right" : "/skeleton/hand/left",
 		"/pose/raw",
 		vr::VRSkeletalTracking_Partial,
-		isRightHand ? right_fist_pose : left_fist_pose,
+		isRightHand ? rightOpenPose : leftOpenPose,
 		NUM_BONES,
 		&m_skeletalComponentHandle);
 
@@ -76,26 +76,25 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 //This could do with a rename, its a bit vague as to what it does
 void ControllerDriver::StartDevice() {
 	m_communicationManager->Connect();
-
+	//DebugDriverLog("Getting ready to connect:");
 	if (m_communicationManager->IsConnected()) {
-
+		//DebugDriverLog("Connected successfully");
 		m_communicationManager->BeginListener([&](VRCommData_t datas) {
-			DebugDriverLog("Received data!, thumb: %f, index: %f", datas.flexion[0], datas.flexion[1]);
-			ComputeEntireHand(m_handTransforms, datas.flexion, datas.splay, IsRightHand());
 
-			vr::EVRInputError err;
-
-			err = vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
-			if (err != vr::VRInputError_None) DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s\n", err);
-			err = vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
-			if (err != vr::VRInputError_None) DebugDriverLog("UpdateSkeletonComponent failed.  Error: %s\n", err);
+			//Compute each finger transform
+			int currentBoneIndex = 1;
+			for (int i = 0; i < datas.flexion.size(); i++) {
+				ComputeBoneTransform(m_handTransforms, datas.flexion[i], currentBoneIndex, IsRightHand());
+				currentBoneIndex += 5;
+			}
+			vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
+			vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
 
 			vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_X], datas.joyX, 0);
 			vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_Y], datas.joyY, 0);
 
-			if (datas.aButton) {
-				DebugDriverLog("A BUTTON PRESSED");
-			}
+			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_BTN], datas.joyButton, 0);
+			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_TRG], datas.trgButton, 0);
 			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_A], datas.aButton, 0);
 			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_B], datas.bButton, 0);
 
