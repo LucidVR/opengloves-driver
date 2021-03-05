@@ -123,7 +123,7 @@ int SerialManager::ReceiveNextPacket(std::string& buff) {
 	DWORD dwRead = 0;
 
 	if (!SetCommMask(m_hSerial, EV_RXCHAR)) {
-		std::cout << "Error setting comm mask" << std::endl;
+		DebugDriverLog("Error setting comm mask");
 	}
 
 	char nextChar;
