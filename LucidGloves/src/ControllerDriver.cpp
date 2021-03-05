@@ -87,10 +87,10 @@ void ControllerDriver::StartDevice() {
 		m_communicationManager->BeginListener([&](VRCommData_t datas) {
 
 			//Compute each finger transform
-			int currentBoneIndex = 1;
+			int currentBoneIndex = 2;
 			for (int i = 0; i < datas.flexion.size(); i++) {
 				ComputeBoneTransform(m_handTransforms, datas.flexion[i], currentBoneIndex, IsRightHand());
-				currentBoneIndex += 5;
+				currentBoneIndex = currentBoneIndex == 2 ? currentBoneIndex+=4 : currentBoneIndex+=5;
 			}
 			vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
 			vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
@@ -98,9 +98,6 @@ void ControllerDriver::StartDevice() {
 			vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_X], datas.joyX, 0);
 			vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_Y], datas.joyY, 0);
 
-			if (datas.grab) {
-				DebugDriverLog("Trigger activated!");
-			}
 			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_BTN], datas.joyButton, 0);
 			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_TRG], datas.trgButton, 0);
 			vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_A], datas.aButton, 0);
