@@ -168,14 +168,14 @@ vr::HmdVector4_t CalculatePosition(const float transform, const int boneIndex, c
 }
 
 //Transform should be between 0-1
-void ComputeBoneFlexion(vr::VRBoneTransform_t *bone_transform, const float transform, int i, const bool isRightHand) {
+void ComputeBoneFlexion(vr::VRBoneTransform_t* bone_transform, float transform, int index, const bool isRightHand) {
 
 	vr::VRBoneTransform_t* fist_pose = isRightHand ? rightFistPose : leftFistPose;
 	vr::VRBoneTransform_t* open_pose = isRightHand ? rightOpenPose : leftOpenPose;
 
 
-	bone_transform->orientation = CalculateOrientation(transform, i, open_pose, fist_pose);
-	bone_transform->position = CalculatePosition(transform, i, open_pose, fist_pose);
+	bone_transform->orientation = CalculateOrientation(transform, index, open_pose, fist_pose);
+	bone_transform->position = CalculatePosition(transform, index, open_pose, fist_pose);
 }
 
 
