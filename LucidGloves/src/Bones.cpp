@@ -167,40 +167,61 @@ vr::HmdVector4_t CalculatePosition(const float transform, const int boneIndex, c
 	return result;
 }
 
-void ComputeBoneTransform(vr::VRBoneTransform_t bone_transform[NUM_BONES], const float transform, const int startBoneIndex, const bool isRightHand) {
+//Transform should be between 0-1
+void ComputeBoneFlexion(vr::VRBoneTransform_t* bone_transform, float transform, int index, const bool isRightHand) {
 
 	vr::VRBoneTransform_t* fist_pose = isRightHand ? rightFistPose : leftFistPose;
 	vr::VRBoneTransform_t* open_pose = isRightHand ? rightOpenPose : leftOpenPose;
 
-	int bonesInFlexion = 5;
-	if (startBoneIndex == HandSkeletonBone::eBone_Thumb0) bonesInFlexion = 4;
 
-	for (int i = startBoneIndex; i < startBoneIndex + bonesInFlexion; i++) {
-		bone_transform[i].orientation = CalculateOrientation(transform, i, open_pose, fist_pose);
-		bone_transform[i].position = CalculatePosition(transform, i, open_pose, fist_pose);
-	}
-
-	const int auxBoneIndex = AuxFromStartBone(startBoneIndex);
-
-	/*bone_transform[auxBoneIndex].orientation = CalculateOrientation(transform, auxBoneIndex, open_pose, fist_pose);
-	bone_transform[auxBoneIndex].position = CalculatePosition(transform, auxBoneIndex, open_pose, fist_pose);*/
+	bone_transform->orientation = CalculateOrientation(transform, index, open_pose, fist_pose);
+	bone_transform->position = CalculatePosition(transform, index, open_pose, fist_pose);
 }
+
 
 float Lerp(const float a, const float b, const float f) {
 	return a + f * (b - a);
 }
 
-int AuxFromStartBone(const vr::BoneIndex_t startIndex) {
-	switch (startIndex) {
-	case HandSkeletonBone::eBone_Thumb0:
-		return HandSkeletonBone::eBone_Aux_Thumb;
-	case HandSkeletonBone::eBone_IndexFinger0:
-		return HandSkeletonBone::eBone_Aux_IndexFinger;
-	case HandSkeletonBone::eBone_MiddleFinger0:
-		return HandSkeletonBone::eBone_Aux_MiddleFinger;
-	case HandSkeletonBone::eBone_RingFinger0:
-		return HandSkeletonBone::eBone_Aux_RingFinger;
-	case HandSkeletonBone::eBone_PinkyFinger0:
-		return HandSkeletonBone::eBone_Aux_PinkyFinger;
+int FingerFromBone(vr::BoneIndex_t bone) {
+	switch (bone) {
+	case eBone_Thumb0:
+	case eBone_Thumb1:
+	case eBone_Thumb2:
+	case eBone_Thumb3:
+	case eBone_Aux_Thumb:
+		return 0;
+	case eBone_IndexFinger0:
+	case eBone_IndexFinger1:
+	case eBone_IndexFinger2:
+	case eBone_IndexFinger3:
+	case eBone_IndexFinger4:
+	case eBone_Aux_IndexFinger:
+		return 1;
+	case eBone_MiddleFinger0:
+	case eBone_MiddleFinger1:
+	case eBone_MiddleFinger2:
+	case eBone_MiddleFinger3:
+	case eBone_MiddleFinger4:
+	case eBone_Aux_MiddleFinger:
+		return 2;
+	case eBone_RingFinger0:
+	case eBone_RingFinger1:
+	case eBone_RingFinger2:
+	case eBone_RingFinger3:
+	case eBone_RingFinger4:
+	case eBone_Aux_RingFinger:
+		return 3;
+	case eBone_PinkyFinger0:
+	case eBone_PinkyFinger1:
+	case eBone_PinkyFinger2:
+	case eBone_PinkyFinger3:
+	case eBone_PinkyFinger4:
+	case eBone_Aux_PinkyFinger:
+		return 4;
+
+	default:
+		return -1;
 	}
+
 }
