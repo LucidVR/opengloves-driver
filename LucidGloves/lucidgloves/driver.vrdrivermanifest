@@ -3,6 +3,6 @@
 	"name" : "lucidgloves",
 	"directory" : "",
 	"resourceOnly" : false,
-	"prefersUpperDeviceIndices" :  true,
+	"prefersUpperDeviceIndices" :  false,
 	"hmd_presence" : []
 }

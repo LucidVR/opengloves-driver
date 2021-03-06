@@ -140,24 +140,67 @@ vr::VRBoneTransform_t leftFistPose[NUM_BONES] = {
 { { 0.003263f, -0.034685f,  0.139926f,  1.000000f}, { 0.019690f, -0.100741f, -0.957331f, -0.270149f} },
 };
 
+vr::HmdQuaternionf_t CalculateOrientation(const float transform, const int boneIndex, const vr::VRBoneTransform_t* openPose, const vr::VRBoneTransform_t* fistPose) {
+
+	const vr::HmdQuaternionf_t openPoseOrientation = openPose[boneIndex].orientation;
+	const vr::HmdQuaternionf_t fistPoseOrientation = fistPose[boneIndex].orientation;
+
+	vr::HmdQuaternionf_t result;
+	result.w = Lerp(openPoseOrientation.w, fistPoseOrientation.w, transform);
+	result.x = Lerp(openPoseOrientation.x, fistPoseOrientation.x, transform);
+	result.y = Lerp(openPoseOrientation.y, fistPoseOrientation.y, transform);
+	result.z = Lerp(openPoseOrientation.z, fistPoseOrientation.z, transform);
+
+	return result;
+}
+vr::HmdVector4_t CalculatePosition(const float transform, const int boneIndex, const vr::VRBoneTransform_t* openPose, const vr::VRBoneTransform_t* fistPose) {
+
+	const vr::HmdVector4_t openPosePosition = openPose[boneIndex].position;
+	const vr::HmdVector4_t fistPosePosition = fistPose[boneIndex].position;
+
+	vr::HmdVector4_t result;
+	result.v[0] = Lerp(openPosePosition.v[0], fistPosePosition.v[0], transform);
+	result.v[1] = Lerp(openPosePosition.v[1], fistPosePosition.v[1], transform);
+	result.v[2] = Lerp(openPosePosition.v[2], fistPosePosition.v[2], transform);
+	result.v[3] = Lerp(openPosePosition.v[3], fistPosePosition.v[3], transform);
+
+	return result;
+}
+
 void ComputeBoneTransform(vr::VRBoneTransform_t bone_transform[NUM_BONES], const float transform, const int startBoneIndex, const bool isRightHand) {
 
 	vr::VRBoneTransform_t* fist_pose = isRightHand ? rightFistPose : leftFistPose;
 	vr::VRBoneTransform_t* open_pose = isRightHand ? rightOpenPose : leftOpenPose;
 
-	for (int i = startBoneIndex; i < startBoneIndex + 5; i++) {
-		bone_transform[i].orientation.w = Lerp(open_pose[i].orientation.w, fist_pose[i].orientation.w, transform);
-		bone_transform[i].orientation.x = Lerp(open_pose[i].orientation.x, fist_pose[i].orientation.x, transform);
-		bone_transform[i].orientation.y = Lerp(open_pose[i].orientation.y, fist_pose[i].orientation.y, transform);
-		bone_transform[i].orientation.z = Lerp(open_pose[i].orientation.z, fist_pose[i].orientation.z, transform);
+	int bonesInFlexion = 5;
+	if (startBoneIndex == HandSkeletonBone::eBone_Thumb0) bonesInFlexion = 4;
 
-		bone_transform[i].position.v[0] = Lerp(open_pose[i].position.v[0], fist_pose[i].position.v[0], transform);
-		bone_transform[i].position.v[1] = Lerp(open_pose[i].position.v[1], fist_pose[i].position.v[1], transform);
-		bone_transform[i].position.v[2] = Lerp(open_pose[i].position.v[2], fist_pose[i].position.v[2], transform);
-		bone_transform[i].position.v[3] = Lerp(open_pose[i].position.v[3], fist_pose[i].position.v[3], transform);
+	for (int i = startBoneIndex; i < startBoneIndex + bonesInFlexion; i++) {
+		bone_transform[i].orientation = CalculateOrientation(transform, i, open_pose, fist_pose);
+		bone_transform[i].position = CalculatePosition(transform, i, open_pose, fist_pose);
 	}
+
+	const int auxBoneIndex = AuxFromStartBone(startBoneIndex);
+
+	/*bone_transform[auxBoneIndex].orientation = CalculateOrientation(transform, auxBoneIndex, open_pose, fist_pose);
+	bone_transform[auxBoneIndex].position = CalculatePosition(transform, auxBoneIndex, open_pose, fist_pose);*/
 }
 
 float Lerp(const float a, const float b, const float f) {
 	return a + f * (b - a);
+}
+
+int AuxFromStartBone(const vr::BoneIndex_t startIndex) {
+	switch (startIndex) {
+	case HandSkeletonBone::eBone_Thumb0:
+		return HandSkeletonBone::eBone_Aux_Thumb;
+	case HandSkeletonBone::eBone_IndexFinger0:
+		return HandSkeletonBone::eBone_Aux_IndexFinger;
+	case HandSkeletonBone::eBone_MiddleFinger0:
+		return HandSkeletonBone::eBone_Aux_MiddleFinger;
+	case HandSkeletonBone::eBone_RingFinger0:
+		return HandSkeletonBone::eBone_Aux_RingFinger;
+	case HandSkeletonBone::eBone_PinkyFinger0:
+		return HandSkeletonBone::eBone_Aux_PinkyFinger;
+	}
 }
