@@ -12,13 +12,13 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext)
 	DebugDriverLog("Initializing LucidGloves");
 
 	VRDeviceConfiguration_t leftConfiguration = GetConfiguration(vr::TrackedControllerRole_LeftHand);
-	VRDeviceConfiguration_t rightConfiguration = GetConfiguration(vr::TrackedControllerRole_RightHand);
+	//VRDeviceConfiguration_t rightConfiguration = GetConfiguration(vr::TrackedControllerRole_RightHand);
 
 	m_leftHand = new ControllerDriver(leftConfiguration);
-	m_rightHand = new ControllerDriver(rightConfiguration);
+	//m_rightHand = new ControllerDriver(rightConfiguration);
 
 	vr::VRServerDriverHost()->TrackedDeviceAdded(c_leftControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_leftHand);
-	vr::VRServerDriverHost()->TrackedDeviceAdded(c_rightControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_rightHand);
+	//vr::VRServerDriverHost()->TrackedDeviceAdded(c_rightControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_rightHand);
 
 	return vr::VRInitError_None;
 }
@@ -62,7 +62,7 @@ const char* const* DeviceProvider::GetInterfaceVersions()
 void DeviceProvider::RunFrame()
 {
 	m_leftHand->RunFrame();
-	m_rightHand->RunFrame();
+	//m_rightHand->RunFrame();
 }
 
 bool DeviceProvider::ShouldBlockStandbyMode()

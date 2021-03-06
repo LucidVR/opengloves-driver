@@ -87,10 +87,11 @@ void ControllerDriver::StartDevice() {
 
 			try {
 				//Compute each finger transform
-				int currentBoneIndex = 2;
-				for (int i = 0; i < datas.flexion.size(); i++) {
-					ComputeBoneTransform(m_handTransforms, datas.flexion[i], currentBoneIndex, IsRightHand());
-					currentBoneIndex = currentBoneIndex == 2 ? currentBoneIndex += 4 : currentBoneIndex += 5;
+				for (int i = 0; i < NUM_BONES; i++) {
+					int fingerNum = FingerFromBone(i);
+					if (fingerNum != -1) {
+						ComputeBoneFlexion(&m_handTransforms[i], datas.flexion[fingerNum], i, IsRightHand());
+					}
 				}
 				vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
 				vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
