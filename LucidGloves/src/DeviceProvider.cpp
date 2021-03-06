@@ -14,11 +14,11 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext)
 	VRDeviceConfiguration_t leftConfiguration = GetConfiguration(vr::TrackedControllerRole_LeftHand);
 	VRDeviceConfiguration_t rightConfiguration = GetConfiguration(vr::TrackedControllerRole_RightHand);
 
-	m_leftHand = new ControllerDriver(leftConfiguration);
-	m_rightHand = new ControllerDriver(rightConfiguration);
+	m_leftHand = std::make_unique<ControllerDriver>(leftConfiguration);
+	m_rightHand = std::make_unique<ControllerDriver>(rightConfiguration);
 
-	vr::VRServerDriverHost()->TrackedDeviceAdded(c_leftControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_leftHand);
-	vr::VRServerDriverHost()->TrackedDeviceAdded(c_rightControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_rightHand);
+	vr::VRServerDriverHost()->TrackedDeviceAdded(c_leftControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_leftHand.get());
+	vr::VRServerDriverHost()->TrackedDeviceAdded(c_rightControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_rightHand.get());
 
 	return vr::VRInitError_None;
 }
@@ -46,14 +46,7 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 			return deviceSettings;
 		}
 }
-void DeviceProvider::Cleanup()
-{
-	delete m_leftHand;
-	delete m_rightHand;
-
-	m_leftHand = nullptr;
-	m_rightHand = nullptr;
-}
+void DeviceProvider::Cleanup() {}
 const char* const* DeviceProvider::GetInterfaceVersions()
 {
 	return vr::k_InterfaceVersions;
