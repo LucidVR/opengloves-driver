@@ -190,14 +190,14 @@ int FingerFromBone(vr::BoneIndex_t bone) {
 	case eBone_Thumb2:
 	case eBone_Thumb3:
 	case eBone_Aux_Thumb:
-		return 4;
+		return 0;
 	case eBone_IndexFinger0:
 	case eBone_IndexFinger1:
 	case eBone_IndexFinger2:
 	case eBone_IndexFinger3:
 	case eBone_IndexFinger4:
 	case eBone_Aux_IndexFinger:
-		return 3;
+		return 1;
 	case eBone_MiddleFinger0:
 	case eBone_MiddleFinger1:
 	case eBone_MiddleFinger2:
@@ -211,14 +211,14 @@ int FingerFromBone(vr::BoneIndex_t bone) {
 	case eBone_RingFinger3:
 	case eBone_RingFinger4:
 	case eBone_Aux_RingFinger:
-		return 1;
+		return 3;
 	case eBone_PinkyFinger0:
 	case eBone_PinkyFinger1:
 	case eBone_PinkyFinger2:
 	case eBone_PinkyFinger3:
 	case eBone_PinkyFinger4:
 	case eBone_Aux_PinkyFinger:
-		return 0;
+		return 4;
 
 	default:
 		return -1;

@@ -62,7 +62,7 @@ const char* const* DeviceProvider::GetInterfaceVersions()
 void DeviceProvider::RunFrame()
 {
 	m_leftHand->RunFrame();
-	//m_rightHand->RunFrame();
+	m_rightHand->RunFrame();
 }
 
 bool DeviceProvider::ShouldBlockStandbyMode()
