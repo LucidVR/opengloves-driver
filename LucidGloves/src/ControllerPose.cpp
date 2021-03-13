@@ -69,9 +69,8 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 	return newPose;
 }
 void ControllerPose::DiscoverController() {
-
-	for (int i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) //omit id 0, as this is always the headset pose
-	{
+	//omit id 0, as this is always the headset pose
+	for (int i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
 		vr::ETrackedPropertyError err;
 
 		vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(i);
