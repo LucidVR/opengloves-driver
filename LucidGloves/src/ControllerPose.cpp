@@ -18,8 +18,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 		vr::TrackedDevicePose_t trackedDevicePoses[vr::k_unMaxTrackedDeviceCount];
 		vr::VRServerDriverHost()->GetRawTrackedDevicePoses(0, trackedDevicePoses, vr::k_unMaxTrackedDeviceCount);
 
-		if (trackedDevicePoses[m_shadowControllerId].bPoseIsValid)
-		{
+		if (trackedDevicePoses[m_shadowControllerId].bPoseIsValid) {
 			newPose.qWorldFromDriverRotation.w = 1;
 			newPose.qDriverFromHeadRotation.w = 1;
 
@@ -27,7 +26,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 
 			////As we need to account for rotation for the offset, multiply 
 			const vr::HmdVector3_t vectorOffset = MultiplyMatrix(Get33Matrix(shadowControllerMatrix), m_configuration.offsetVector);
-			
+
 			newPose.vecPosition[0] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[0][3] + vectorOffset.v[0];
 			newPose.vecPosition[1] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[1][3] + vectorOffset.v[1];
 			newPose.vecPosition[2] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[2][3] + vectorOffset.v[2]; //- forward
@@ -49,14 +48,16 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 			newPose.deviceIsConnected = true;
 			newPose.result = vr::TrackingResult_Running_OK;
 
-		} else {
+		}
+		else {
 			//DebugDriverLog("pose %d is not valid", m_shadowControllerId);
 			newPose.poseIsValid = false;
 			newPose.deviceIsConnected = true;
 			newPose.result = vr::TrackingResult_Uninitialized;
 		}
 
-	} else {
+	}
+	else {
 		newPose.result = vr::TrackingResult_Uninitialized;
 		newPose.deviceIsConnected = false;
 		DiscoverController();

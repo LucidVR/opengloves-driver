@@ -8,8 +8,7 @@ extern vr::VRBoneTransform_t rightFistPose[NUM_BONES];
 extern vr::VRBoneTransform_t leftOpenPose[NUM_BONES];
 extern vr::VRBoneTransform_t leftFistPose[NUM_BONES];
 
-enum HandSkeletonBone : vr::BoneIndex_t
-{
+enum HandSkeletonBone : vr::BoneIndex_t {
 	eBone_Root = 0,
 	eBone_Wrist,
 	eBone_Thumb0,
@@ -44,8 +43,8 @@ enum HandSkeletonBone : vr::BoneIndex_t
 	eBone_Count
 };
 
-void ComputeBoneFlexion(vr::VRBoneTransform_t *bone_transform, float transform, int index, const bool isRightHand);
-void ComputeBoneSplay(vr::VRBoneTransform_t *bone_transform, const float transform, int index, const bool isRightHand);
+void ComputeBoneFlexion(vr::VRBoneTransform_t* bone_transform, float transform, int index, const bool isRightHand);
+void ComputeBoneSplay(vr::VRBoneTransform_t* bone_transform, const float transform, int index, const bool isRightHand);
 vr::HmdQuaternionf_t CalculateOrientation(const float transform, const int boneIndex, const vr::VRBoneTransform_t* openPose, const vr::VRBoneTransform_t* fistPose);
 vr::HmdVector4_t CalculatePosition(const float transform, const int boneIndex, const vr::VRBoneTransform_t* openPose, const vr::VRBoneTransform_t* fistPose);
 int FingerFromBone(vr::BoneIndex_t bone);

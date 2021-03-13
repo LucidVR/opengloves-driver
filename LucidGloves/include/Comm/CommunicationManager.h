@@ -20,8 +20,7 @@
 	ges_grab --
 	ges_pinch | -- up for debate if these should be done arduino/driver side, but probably arduino side
 */
-struct VRCommData_t
-{
+struct VRCommData_t {
 	VRCommData_t(std::array<float, 5> flexion, std::array<float, 5> splay, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch) :
 		flexion(flexion),
 		splay(splay),
@@ -32,13 +31,12 @@ struct VRCommData_t
 		aButton(aButton),
 		bButton(bButton),
 		grab(grab),
-		pinch(pinch)
-	{};
+		pinch(pinch) {};
 
 	std::array<float, 5> flexion;
 	std::array<float, 5> splay;
 	float joyX;
-	float joyY;	
+	float joyY;
 	bool joyButton;
 	bool trgButton;
 	bool aButton;
@@ -55,7 +53,7 @@ enum VRCommDataInputPosition {
 	FIN_THUMB = 4,
 	JOY_X = 5,
 	JOY_Y = 6,
-	JOY_BTN =7,
+	JOY_BTN = 7,
 	BTN_TRG = 8,
 	BTN_A = 9,
 	BTN_B = 10,
