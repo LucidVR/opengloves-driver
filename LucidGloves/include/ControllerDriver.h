@@ -95,16 +95,15 @@ public:
 private:
 	uint32_t m_driverId;
 
-	vr::VRInputComponentHandle_t m_skeletalComponentHandle;
-	vr::VRInputComponentHandle_t m_inputComponentHandles[8];
+	vr::VRInputComponentHandle_t m_skeletalComponentHandle{};
+	vr::VRInputComponentHandle_t m_inputComponentHandles[8]{};
 
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
 
 	uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
-	//std::unique_ptr<ControllerPose> m_controllerPose;
-	ControllerPose* m_controllerPose;
+	std::unique_ptr<ControllerPose> m_controllerPose;
 
 	VRDeviceConfiguration_t m_configuration;
 	short int DiscoverController() const;

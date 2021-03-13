@@ -17,7 +17,7 @@ This driver has been tested with and is officially compatible for:
 * LucidVR Gloves - Prototype 3+
 * Fngrs by danwillm
 
-That said, we are more than happy to help with issues that may arise, the easiest way is to join the discord server:
+That said, we are more than happy to help with issues that may arise, feel free to open a thread on the GitHub discussions page, or contact us directly on GitHub:
 
 https://discord.gg/SnreYUhMTp
 
@@ -45,4 +45,4 @@ https://discord.gg/SnreYUhMTp
 
 We are actively welcoming contributions, feel free to open a pull request.
 
-If you run into issues, you are welcome to open a GitHub issue or contact us directly on Discord.
+If you run into issues, you are welcome to open a GitHub issue/discussion or contact us directly on Discord.

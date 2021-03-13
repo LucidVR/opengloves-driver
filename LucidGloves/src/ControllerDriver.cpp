@@ -28,7 +28,7 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 	const bool isRightHand = IsRightHand();
 
 	m_driverId = unObjectId; //unique ID for your driver
-	m_controllerPose = new ControllerPose(m_configuration.role, std::string(c_deviceManufacturer), m_configuration, m_driverId);
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer), m_configuration, m_driverId);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
@@ -134,8 +134,6 @@ void ControllerDriver::RunFrame()
 void ControllerDriver::Deactivate()
 {
 	m_communicationManager->Disconnect();
-	delete m_controllerPose;
-	m_controllerPose = nullptr;
 	m_driverId = vr::k_unTrackedDeviceIndexInvalid;
 }
 
