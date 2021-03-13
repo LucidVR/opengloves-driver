@@ -1,0 +1,12 @@
+{
+	"driver_lucidgloves" : {
+		"enable" : true,
+		"protocol": 0,
+		"serial_left_port": "\\\\.\\COM4",
+		"serial_right_port": "\\\\.\\COM5",
+		"x_offset": -0.07,
+		"y_offset": -0.08,
+		"z_offset": 0.07,
+		"pose_offset": -0.06
+	}
+}
