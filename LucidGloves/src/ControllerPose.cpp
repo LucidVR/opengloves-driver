@@ -10,6 +10,9 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, st
 	m_pose.qDriverFromHeadRotation.w = 1;
 	//This will be configurable in settings
 	m_pose.poseTimeOffset = configuration.poseOffset;
+	const vr::HmdVector3_t angleOffset = m_configuration.angleOffsetVector;
+	m_offsetQuaternion = EulerToQuaternion(DegToRad(angleOffset.v[0]), DegToRad(angleOffset.v[1]), DegToRad(angleOffset.v[2]));
+	DebugDriverLog("Offset calculated! {%.2f, %.2f, %.2f, %.2f}", m_offsetQuaternion.w, m_offsetQuaternion.x, m_offsetQuaternion.y, m_offsetQuaternion.z);
 }
 
 vr::DriverPose_t ControllerPose::UpdatePose() {
@@ -31,10 +34,10 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 			newPose.vecPosition[1] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[1][3] + vectorOffset.v[1];
 			newPose.vecPosition[2] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[2][3] + vectorOffset.v[2]; //- forward
 
-			vr::HmdQuaternion_t offset_quaternion = QuaternionFromAngle(1, 0, 0, DegToRad(-45));
-
+			//vr::HmdQuaternion_t offset_quaternion = QuaternionFromAngle(1, 0, 0, DegToRad(-45));
+			
 			//merge rotation
-			newPose.qRotation = MultiplyQuaternion(GetRotation(shadowControllerMatrix), offset_quaternion);
+			newPose.qRotation = MultiplyQuaternion(GetRotation(shadowControllerMatrix), m_offsetQuaternion);
 
 			newPose.vecAngularVelocity[0] = trackedDevicePoses[m_shadowControllerId].vAngularVelocity.v[0];
 			newPose.vecAngularVelocity[1] = trackedDevicePoses[m_shadowControllerId].vAngularVelocity.v[1];
