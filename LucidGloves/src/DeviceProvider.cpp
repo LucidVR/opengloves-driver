@@ -33,16 +33,18 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 	const float offsetYDeg = vr::VRSettings()->GetFloat(c_settingsSection, "y_offsetDegrees");
 	const float offsetZDeg = vr::VRSettings()->GetFloat(c_settingsSection, "z_offsetDegrees");
 
-	const bool leftReversedX = vr::VRSettings()->GetBool(c_settingsSection, "leftFlippedX");
-	const bool leftReversedY = vr::VRSettings()->GetBool(c_settingsSection, "leftFlippedX");
-	const bool leftReversedZ = vr::VRSettings()->GetBool(c_settingsSection, "leftFlippedX");
+	const bool leftReversedX = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_x");
+	const bool leftReversedY = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_y");
+	const bool leftReversedZ = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_z");
+
+	const bool isRightHand = role == vr::TrackedControllerRole_RightHand;
 
 	//x axis may be flipped for the different hands
-	const vr::HmdVector3_t offsetVector = { role == vr::TrackedControllerRole_RightHand || !leftReversedX ? offsetX : -offsetX, offsetY, offsetZ };
+	const vr::HmdVector3_t offsetVector = { isRightHand || !leftReversedX ? offsetX : -offsetX, offsetY, offsetZ };
 	const vr::HmdVector3_t angleOffsetVector =
-	  { role == vr::TrackedControllerRole_RightHand || !leftReversedX ? offsetXDeg : -offsetXDeg, 
-		role == vr::TrackedControllerRole_RightHand || !leftReversedY ? offsetYDeg : -offsetYDeg,
-		role == vr::TrackedControllerRole_RightHand || !leftReversedZ ? offsetZDeg : -offsetZDeg };
+	  { isRightHand || !leftReversedX ? offsetXDeg : -offsetXDeg, 
+		isRightHand || !leftReversedY ? offsetYDeg : -offsetYDeg,
+		isRightHand || !leftReversedZ ? offsetZDeg : -offsetZDeg };
 
 	const float poseOffset = vr::VRSettings()->GetFloat(c_settingsSection, "pose_offset");
 

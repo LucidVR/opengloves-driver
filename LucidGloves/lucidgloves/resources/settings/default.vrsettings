@@ -11,9 +11,9 @@
 		"x_offsetDegrees": 90,
 		"y_offsetDegrees": 0,
 		"z_offsetDegrees": 0,
-		"leftFlippedX": true,
-		"leftFlippedY": false,
-		"leftFlippedZ": true
+		"left_flipped_x": true,
+		"left_flipped_y": false,
+		"left_flipped_z": true
 
 	}
 }

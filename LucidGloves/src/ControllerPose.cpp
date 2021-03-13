@@ -36,9 +36,6 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 			newPose.vecPosition[2] = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking.m[2][3] + vectorOffset.v[2]; //- forward
 
 			//vr::HmdQuaternion_t offset_quaternion = QuaternionFromAngle(1, 0, 0, DegToRad(-45));
-			bool isRightHand = m_shadowDeviceOfRole == vr::TrackedControllerRole_RightHand;
-			//vr::HmdQuaternion_t leftOffset_quaternion = { 0.707f, 0.00f, 0.00f, -0.707f };
-			vr::HmdQuaternion_t rightOffset_quaternion = { 0.707f, 0.00f, 0.00f, 0.707f };
 			
 			//merge rotation
 			newPose.qRotation = MultiplyQuaternion(GetRotation(shadowControllerMatrix), m_offsetQuaternion);
