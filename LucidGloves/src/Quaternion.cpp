@@ -7,7 +7,7 @@ double RadToDeg(double rad) {
 	return rad * 180 / M_PI;
 }
 
-static vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t matrix) {
+vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t& matrix) {
 	vr::HmdVector3_t vector;
 
 	vector.v[0] = matrix.m[0][3];
@@ -17,7 +17,17 @@ static vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t matrix) {
 	return vector;
 }
 
-vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t matrix) {
+vr::HmdVector3_t CombinePosition(vr::HmdMatrix34_t& matrix, vr::HmdVector3_t& vec) {
+	vr::HmdVector3_t vector;
+
+	vector.v[0] = matrix.m[0][3] + vec.v[0];
+	vector.v[1] = matrix.m[1][3] + vec.v[1];
+	vector.v[2] = matrix.m[2][3] + vec.v[2];
+
+	return vector;
+}
+
+vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t& matrix) {
 	vr::HmdQuaternion_t q;
 
 	q.w = sqrt(fmax(0, 1 + matrix.m[0][0] + matrix.m[1][1] + matrix.m[2][2])) / 2;
@@ -32,7 +42,7 @@ vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t matrix) {
 	return q;
 }
 
-vr::HmdMatrix33_t Get33Matrix(const vr::HmdMatrix34_t matrix) {
+vr::HmdMatrix33_t GetRotationMatrix(const vr::HmdMatrix34_t& matrix) {
 	vr::HmdMatrix33_t result = { {
 		{matrix.m[0][0], matrix.m[0][1], matrix.m[0][2]},
 		{matrix.m[1][0], matrix.m[1][1], matrix.m[1][2]},
@@ -41,7 +51,7 @@ vr::HmdMatrix33_t Get33Matrix(const vr::HmdMatrix34_t matrix) {
 
 	return result;
 }
-vr::HmdVector3_t MultiplyMatrix(const vr::HmdMatrix33_t matrix, const vr::HmdVector3_t vector) {
+vr::HmdVector3_t MultiplyMatrix(const vr::HmdMatrix33_t& matrix, const vr::HmdVector3_t& vector) {
 	vr::HmdVector3_t result;
 
 	result.v[0] = matrix.m[0][0] * vector.v[0] + matrix.m[0][1] * vector.v[1] + matrix.m[0][2] * vector.v[2];
@@ -72,15 +82,14 @@ vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, cons
 	return quat;
 }
 
-vr::HmdQuaternion_t EulerToQuaternion(const double& x, const double& y, const double& z)
-{
+vr::HmdQuaternion_t EulerToQuaternion(const double& x, const double& y, const double& z) {
 	vr::HmdQuaternion_t quat0 = QuaternionFromAngle(1, 0, 0, x);
 	vr::HmdQuaternion_t quat1 = MultiplyQuaternion(quat0, QuaternionFromAngle(0, 1, 0, y));
 	vr::HmdQuaternion_t quat2 = MultiplyQuaternion(quat1, QuaternionFromAngle(0, 0, 1, z));
 	return quat2;
 }
 
-vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t q, const vr::HmdQuaternion_t r) {
+vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::HmdQuaternion_t& r) {
 	vr::HmdQuaternion_t result;
 
 	result.w = (r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z);

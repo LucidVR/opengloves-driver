@@ -22,7 +22,7 @@ struct VRSerialConfiguration_t {
 
 class SerialManager : public ICommunicationManager {
 public:
-	SerialManager(VRSerialConfiguration_t configuration) : m_configuration(configuration) {};
+	SerialManager(VRSerialConfiguration_t configuration) : m_configuration(configuration), m_isConnected(false), m_hSerial(0), m_errors(0) {};
 	//connect to the device using serial
 	void Connect();
 	//start a thread that listens for updates from the device and calls the callback with data

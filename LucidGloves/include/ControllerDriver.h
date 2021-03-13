@@ -43,7 +43,7 @@ class too. Those comment blocks have some good information.
 **/
 class ControllerDriver : public vr::ITrackedDeviceServerDriver {
 public:
-	ControllerDriver(const VRDeviceConfiguration_t settings);
+	ControllerDriver(const VRDeviceConfiguration_t &settings);
 	/**
 	Initialize your controller here. Give OpenVR information
 	about your controller and set up handles to inform OpenVR when
