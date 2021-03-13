@@ -29,8 +29,20 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 	const float offsetY = vr::VRSettings()->GetFloat(c_settingsSection, "y_offset");
 	const float offsetZ = vr::VRSettings()->GetFloat(c_settingsSection, "z_offset");
 
-	//x axis is flipped for the different hands
-	const vr::HmdVector3_t offsetVector = { role == vr::TrackedControllerRole_RightHand ? offsetX : -offsetX, offsetY, offsetZ };
+	const float offsetXDeg = vr::VRSettings()->GetFloat(c_settingsSection, "x_offsetDegrees");
+	const float offsetYDeg = vr::VRSettings()->GetFloat(c_settingsSection, "y_offsetDegrees");
+	const float offsetZDeg = vr::VRSettings()->GetFloat(c_settingsSection, "z_offsetDegrees");
+
+	const bool leftReversedX = vr::VRSettings()->GetBool(c_settingsSection, "leftFlippedX");
+	const bool leftReversedY = vr::VRSettings()->GetBool(c_settingsSection, "leftFlippedX");
+	const bool leftReversedZ = vr::VRSettings()->GetBool(c_settingsSection, "leftFlippedX");
+
+	//x axis may be flipped for the different hands
+	const vr::HmdVector3_t offsetVector = { role == vr::TrackedControllerRole_RightHand || !leftReversedX ? offsetX : -offsetX, offsetY, offsetZ };
+	const vr::HmdVector3_t angleOffsetVector =
+	  { role == vr::TrackedControllerRole_RightHand || !leftReversedX ? offsetXDeg : -offsetXDeg, 
+		role == vr::TrackedControllerRole_RightHand || !leftReversedY ? offsetYDeg : -offsetYDeg,
+		role == vr::TrackedControllerRole_RightHand || !leftReversedZ ? offsetZDeg : -offsetZDeg };
 
 	const float poseOffset = vr::VRSettings()->GetFloat(c_settingsSection, "pose_offset");
 
@@ -41,7 +53,7 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 			vr::VRSettings()->GetString(c_settingsSection, role == vr::TrackedControllerRole_RightHand ? "serial_right_port" : "serial_left_port", port, sizeof(port));
 
 			VRSerialConfiguration_t serialSettings(port);
-			VRDeviceConfiguration_t deviceSettings(role, offsetVector, poseOffset, serialSettings);
+			VRDeviceConfiguration_t deviceSettings(role, offsetVector, angleOffsetVector, poseOffset, serialSettings);
 
 			return deviceSettings;
 		}
