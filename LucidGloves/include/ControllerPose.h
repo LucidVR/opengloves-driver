@@ -20,6 +20,7 @@ private:
 	//This is the pose we send back for OpenVR to process as our pose for the driver.
 	//This represents the orientation and rotation, as well as angular velocity, etc.
 	vr::DriverPose_t m_pose;
+	vr::HmdQuaternion_t m_offsetQuaternion;
 
 	VRDeviceConfiguration_t m_configuration;
 

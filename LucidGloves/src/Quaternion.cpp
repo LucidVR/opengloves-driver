@@ -73,6 +73,15 @@ vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, cons
 
 	return quat;
 }
+
+vr::HmdQuaternion_t EulerToQuaternion(const double& x, const double& y, const double& z)
+{
+	vr::HmdQuaternion_t quat0 = QuaternionFromAngle(1, 0, 0, x);
+	vr::HmdQuaternion_t quat1 = MultiplyQuaternion(quat0, QuaternionFromAngle(0, 1, 0, y));
+	vr::HmdQuaternion_t quat2 = MultiplyQuaternion(quat1, QuaternionFromAngle(0, 0, 1, z));
+	return quat2;
+}
+
 vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t q, const vr::HmdQuaternion_t r) {
 	vr::HmdQuaternion_t result;
 

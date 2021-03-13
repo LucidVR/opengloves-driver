@@ -7,9 +7,10 @@ enum VRDeviceProtocol {
 };
 
 struct VRDeviceConfiguration_t {
-	VRDeviceConfiguration_t(vr::ETrackedControllerRole role, vr::HmdVector3_t offsetVector, float poseOffset, VRSerialConfiguration_t serialConfiguration) :
+	VRDeviceConfiguration_t(vr::ETrackedControllerRole role, vr::HmdVector3_t offsetVector, vr::HmdVector3_t angleOffsetVector, float poseOffset, VRSerialConfiguration_t serialConfiguration) :
 		role(role),
 		offsetVector(offsetVector),
+		angleOffsetVector(angleOffsetVector),
 		poseOffset(poseOffset),
 		serialConfiguration(serialConfiguration),
 		protocol(VRDeviceProtocol::SERIAL) {};
@@ -17,6 +18,7 @@ struct VRDeviceConfiguration_t {
 	vr::ETrackedControllerRole role;
 
 	vr::HmdVector3_t offsetVector;
+	vr::HmdVector3_t angleOffsetVector;
 
 	float poseOffset;
 
