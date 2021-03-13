@@ -1,10 +1,8 @@
 #include <DeviceProvider.h>
 
-vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext)
-{
+vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 	vr::EVRInitError initError = InitServerDriverContext(pDriverContext);
-	if (initError != vr::EVRInitError::VRInitError_None)
-	{
+	if (initError != vr::EVRInitError::VRInitError_None) {
 		return initError;
 	}
 	VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
@@ -50,30 +48,27 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 
 
 	switch (protocol) {
-		case VRDeviceProtocol::SERIAL:
-			char port[16];
-			vr::VRSettings()->GetString(c_settingsSection, role == vr::TrackedControllerRole_RightHand ? "serial_right_port" : "serial_left_port", port, sizeof(port));
+	case VRDeviceProtocol::SERIAL:
+		char port[16];
+		vr::VRSettings()->GetString(c_settingsSection, role == vr::TrackedControllerRole_RightHand ? "serial_right_port" : "serial_left_port", port, sizeof(port));
 
-			VRSerialConfiguration_t serialSettings(port);
-			VRDeviceConfiguration_t deviceSettings(role, offsetVector, angleOffsetVector, poseOffset, serialSettings);
+    VRSerialConfiguration_t serialSettings(port);
+    VRDeviceConfiguration_t deviceSettings(role, offsetVector, angleOffsetVector, poseOffset, serialSettings);
 
-			return deviceSettings;
-		}
+		return deviceSettings;
+	}
 }
 void DeviceProvider::Cleanup() {}
-const char* const* DeviceProvider::GetInterfaceVersions()
-{
+const char* const* DeviceProvider::GetInterfaceVersions() {
 	return vr::k_InterfaceVersions;
 }
 
-void DeviceProvider::RunFrame()
-{
+void DeviceProvider::RunFrame() {
 	m_leftHand->RunFrame();
 	m_rightHand->RunFrame();
 }
 
-bool DeviceProvider::ShouldBlockStandbyMode()
-{
+bool DeviceProvider::ShouldBlockStandbyMode() {
 	return false;
 }
 

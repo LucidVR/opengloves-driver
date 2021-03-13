@@ -22,8 +22,7 @@ bool ControllerDriver::IsRightHand() const {
 	return m_configuration.role == vr::TrackedControllerRole_RightHand;
 }
 
-vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
-{
+vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId) {
 	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d", unObjectId, m_configuration.role);
 	const bool isRightHand = IsRightHand();
 
@@ -66,8 +65,7 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId)
 		NUM_BONES,
 		&m_skeletalComponentHandle);
 
-	if (error != vr::VRInputError_None)
-	{
+	if (error != vr::VRInputError_None) {
 		// Handle failure case
 		DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", error);
 	}
@@ -119,26 +117,22 @@ void ControllerDriver::StartDevice() {
 	}
 }
 
-vr::DriverPose_t ControllerDriver::GetPose()
-{
+vr::DriverPose_t ControllerDriver::GetPose() {
 	return m_controllerPose->UpdatePose();
 }
 
-void ControllerDriver::RunFrame()
-{
+void ControllerDriver::RunFrame() {
 	//m_controllerPose->UpdatePose();
 	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
 }
 
 
-void ControllerDriver::Deactivate()
-{
+void ControllerDriver::Deactivate() {
 	m_communicationManager->Disconnect();
 	m_driverId = vr::k_unTrackedDeviceIndexInvalid;
 }
 
-void* ControllerDriver::GetComponent(const char* pchComponentNameAndVersion)
-{
+void* ControllerDriver::GetComponent(const char* pchComponentNameAndVersion) {
 	//I found that if this method just returns null always, it works fine. But I'm leaving the if statement in since it doesn't hurt.
 	//Check out the IVRDriverInput_Version declaration in openvr_driver.h. You can search that file for other _Version declarations 
 	//to see other components that are available. You could also put a log in this class and output the value passed into this 
@@ -156,8 +150,7 @@ void* ControllerDriver::GetComponent(const char* pchComponentNameAndVersion)
 void ControllerDriver::EnterStandby() {}
 
 void ControllerDriver::DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) {
-	if (unResponseBufferSize >= 1)
-	{
+	if (unResponseBufferSize >= 1) {
 		pchResponseBuffer[0] = 0;
 	}
 }

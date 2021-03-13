@@ -7,8 +7,7 @@ double RadToDeg(double rad) {
 	return rad * 180 / M_PI;
 }
 
-static vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t matrix)
-{
+static vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t matrix) {
 	vr::HmdVector3_t vector;
 
 	vector.v[0] = matrix.m[0][3];
@@ -52,8 +51,7 @@ vr::HmdVector3_t MultiplyMatrix(const vr::HmdMatrix33_t matrix, const vr::HmdVec
 	return result;
 }
 
-vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, const double& zz, const double& a)
-{
+vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, const double& zz, const double& a) {
 	double factor = sin(a / 2.0);
 
 	// Calculate the x, y and z of the quaternion

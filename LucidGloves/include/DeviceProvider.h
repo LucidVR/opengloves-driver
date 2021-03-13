@@ -5,15 +5,14 @@
 #include <memory>
 
 /**
-This class instantiates all the device drivers you have, meaning if you've 
-created multiple drivers for multiple different controllers, this class will 
+This class instantiates all the device drivers you have, meaning if you've
+created multiple drivers for multiple different controllers, this class will
 create instances of each of those and inform OpenVR about all of your devices.
 
 Take a look at the comment blocks for all the methods in IServerTrackedDeviceProvider
 too.
 **/
-class DeviceProvider : public vr::IServerTrackedDeviceProvider
-{
+class DeviceProvider : public vr::IServerTrackedDeviceProvider {
 public:
 
 	/**
