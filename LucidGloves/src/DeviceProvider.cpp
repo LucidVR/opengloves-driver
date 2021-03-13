@@ -29,9 +29,9 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 	const float offsetY = vr::VRSettings()->GetFloat(c_settingsSection, "y_offset");
 	const float offsetZ = vr::VRSettings()->GetFloat(c_settingsSection, "z_offset");
 
-	const float offsetXDeg = vr::VRSettings()->GetFloat(c_settingsSection, "x_offsetDegrees");
-	const float offsetYDeg = vr::VRSettings()->GetFloat(c_settingsSection, "y_offsetDegrees");
-	const float offsetZDeg = vr::VRSettings()->GetFloat(c_settingsSection, "z_offsetDegrees");
+	const float offsetXDeg = vr::VRSettings()->GetFloat(c_settingsSection, "x_offset_degrees");
+	const float offsetYDeg = vr::VRSettings()->GetFloat(c_settingsSection, "y_offset_degrees");
+	const float offsetZDeg = vr::VRSettings()->GetFloat(c_settingsSection, "z_offset_degrees");
 
 	const bool leftReversedX = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_x");
 	const bool leftReversedY = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_y");
