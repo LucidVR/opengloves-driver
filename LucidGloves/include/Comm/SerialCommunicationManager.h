@@ -32,9 +32,10 @@ public:
 	//close the serial port
 	void Disconnect();
 private:
-	void ListenerThread(const std::function<void(VRCommData_t)>& callback);
-	int ReceiveNextPacket(std::string& buff);
-	bool PurgeBuffer();
+    void ListenerThread(const std::function<void(VRCommData_t)>& callback);
+    bool ReceiveNextPacket(std::string &buff);
+    bool PurgeBuffer();
+
 	bool m_isConnected;
 	//Serial comm handler
 	HANDLE m_hSerial;
