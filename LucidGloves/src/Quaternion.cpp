@@ -7,7 +7,7 @@ double RadToDeg(double rad) {
 	return rad * 180 / M_PI;
 }
 
-vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t& matrix) {
+vr::HmdVector3_t GetPosition(const vr::HmdMatrix34_t& matrix) {
 	vr::HmdVector3_t vector;
 
 	vector.v[0] = matrix.m[0][3];
@@ -17,7 +17,7 @@ vr::HmdVector3_t GetPosition(vr::HmdMatrix34_t& matrix) {
 	return vector;
 }
 
-vr::HmdVector3_t CombinePosition(vr::HmdMatrix34_t& matrix, vr::HmdVector3_t& vec) {
+vr::HmdVector3_t CombinePosition(const vr::HmdMatrix34_t& matrix, const vr::HmdVector3_t& vec) {
 	vr::HmdVector3_t vector;
 
 	vector.v[0] = matrix.m[0][3] + vec.v[0];

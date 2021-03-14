@@ -47,4 +47,3 @@ private:
 
 	VRSerialConfiguration_t m_configuration;
 };
-
