@@ -43,6 +43,15 @@ https://discord.gg/SnreYUhMTp
   - Single port serial
   - Hex compression for serial
 
+### Games tested:
+* Half Life Alyx (compatible)
+* SteamVR Home (compatible)
+* The Lab (compatible)
+* Aperture Hand Lab (compatible)
+* Boneworks (known issues)
+* Blade and Sorcery (known issues)
+* VRChat (NOT compatible for now)
+
 We are actively welcoming contributions, feel free to open a pull request.
 
 If you run into issues, you are welcome to open a GitHub issue/discussion or contact us directly on Discord.
