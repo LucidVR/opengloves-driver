@@ -1,25 +1,26 @@
-# lucidgloves - LucidVR X Fngrs
+# FreeGlove OpenVR Driver - LucidVR X Fngrs
 Developed by:
 * Danwillm
 * Lucas_VRTech
 
 ## What is this?
-This repository contains the OpenVR(SteamVR) driver for a DIY VR Haptic Glove.
+This repository contains a OpenVR(SteamVR) driver for building VR Haptic Gloves.
 
-__This Repository is a *very early* work in progress. Binaries are not up yet and many things are likely to change.__
-Things in this repo are subject to rapid changes and currently is not in a stable release state.
+This repository is open for anyone to use wanting to make their own custom VR hardware, specifically VR Gloves. However, we hope for this project to expand to support more generic hardware, such as treadmills, shoes, etc.
 
-Pre-Built binaries are available in the releases section.
-Instructions for building from source code are in the Wiki.
+## Officically Compatible Hardware:
+* LucidVR Gloves - Prototype 3+ (VR Glove)
+* Fngrs by danwillm (VR Glove)
+* If you've made you're own, we would love to know and incorporate into this project!
+
+__This Repository is a *very early* work in progress - many things are likely to change.__
+As such, this repo is not in a stable release state yet.
+
+With that in mind, binaries are available in the releases section, or instructions for building from source code are in the Wiki.
 
 Releases will be available on Steam once the repo hits a stable release.
 
 That said, we are more than happy to help with issues that may arise, skip to the bottom for how to contact us.
-
-## Officically Compatible Hardware:
-* LucidVR Gloves - Prototype 3+
-* Fngrs by danwillm
-* If you've made you're own, we would love to know and incorporate into this project!
 
 ## Currently supported:
 * Finger flexion tracking
