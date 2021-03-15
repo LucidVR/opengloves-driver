@@ -14,9 +14,7 @@ Instructions for building from source code are in the Wiki.
 
 Releases will be available on Steam once the repo hits a stable release.
 
-That said, we are more than happy to help with issues that may arise, feel free to open a thread on the GitHub discussions page, or contact us directly on GitHub:
-
-https://discord.gg/SnreYUhMTp
+That said, we are more than happy to help with issues that may arise, skip to the bottom for how to contact us.
 
 ## Officically Compatible Hardware:
 * LucidVR Gloves - Prototype 3+
@@ -25,17 +23,21 @@ https://discord.gg/SnreYUhMTp
 
 ## Currently supported:
 * Finger flexion tracking
-* Copy position from a controller
+* Positioning from a controller
 * Button and joystick inputs
 * Communication Protocols:
   - Serial over USB
 
-### Considered additions:
-* Finger splay tracking
-* Copy position from a tracker
-* Force feedback haptics
+## Features that are almost certainly going to be supported:
+* Positioning from a tracker (If you have some available and don't mind running test driver builds, please do contact us!)
 * Communication Protocols:
   - Bluetooth LE
+  - Single port serial
+
+### Considered additions:
+* Finger splay tracking
+* Force feedback haptics
+* Communication Protocols:
   - 2.4ghz wifi
   - Single port serial
   - Hex compression for serial
@@ -45,10 +47,16 @@ https://discord.gg/SnreYUhMTp
 * SteamVR Home (compatible)
 * The Lab (compatible)
 * Aperture Hand Lab (compatible)
+* Pavlov (compatible)
 * Boneworks (known issues)
 * Blade and Sorcery (known issues)
-* VRChat (NOT compatible for now)
+* VRChat (NOT compatible due to VRChat's bindings, but we are looking into it.)
+* Have a game you've tested that does/doesn't work? Please let us know!
 
 We are actively welcoming contributions, feel free to open a pull request.
 
-If you run into issues, you are welcome to open a GitHub issue/discussion or contact us directly on Discord.
+If you run into issues, you are more than welcome to open a GitHub issue/discussion, or contact us directly on Discord: 
+
+`danwillm#8254` - Driver maintainer
+
+`LucidVR#0001` - Hardware maintainer
