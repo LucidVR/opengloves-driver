@@ -44,7 +44,7 @@ That said, we are more than happy to help with issues that may arise, skip to th
 
 ### Games tested:
 * Half Life Alyx (compatible)
-* SteamVR Home (compatible)
+* SteamVR Home (known issues)
 * The Lab (compatible)
 * Aperture Hand Lab (compatible)
 * Pavlov (compatible)
