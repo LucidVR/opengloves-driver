@@ -94,6 +94,8 @@ public:
 private:
 	uint32_t m_driverId;
 
+	bool m_hasActivated;
+
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle{};
 	vr::VRInputComponentHandle_t m_inputComponentHandles[8]{};
 
