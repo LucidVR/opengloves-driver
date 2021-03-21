@@ -28,7 +28,12 @@ static const enum ComponentIndex : int {
 	COMP_BTN_B = 5,
 	COMP_GES_GRAB = 6,
 	COMP_GES_PINCH = 7,
-	COMP_HAPTIC = 8
+	COMP_HAPTIC = 8,
+	COMP_TRG_THUMB = 9,
+	COMP_TRG_INDEX = 10,
+	COMP_TRG_MIDDLE = 11,
+	COMP_TRG_RING = 12,
+	COMP_TRG_PINKY = 13
 };
 
 /**
@@ -95,7 +100,7 @@ private:
 	uint32_t m_driverId;
 
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle{};
-	vr::VRInputComponentHandle_t m_inputComponentHandles[8]{};
+	vr::VRInputComponentHandle_t m_inputComponentHandles[14]{};
 
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
 

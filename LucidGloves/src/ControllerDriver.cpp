@@ -54,6 +54,12 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId) {
 
 	vr::VRDriverInput()->CreateHapticComponent(props, "output/haptic", &m_inputComponentHandles[ComponentIndex::COMP_HAPTIC]);
 
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/thumb", &m_inputComponentHandles[ComponentIndex::COMP_TRG_THUMB], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/index", &m_inputComponentHandles[ComponentIndex::COMP_TRG_INDEX], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/middle", &m_inputComponentHandles[ComponentIndex::COMP_TRG_MIDDLE], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/ring", &m_inputComponentHandles[ComponentIndex::COMP_TRG_RING], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/pinky", &m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
+
 	// Create the skeletal component and save the handle for later use
 
 	vr::EVRInputError error = vr::VRDriverInput()->CreateSkeletonComponent(props,
@@ -104,6 +110,12 @@ void ControllerDriver::StartDevice() {
 
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_GES_GRAB], datas.grab, 0);
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_GES_PINCH], datas.pinch, 0);
+
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_THUMB], datas.flexion[0], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_INDEX], datas.flexion[1], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_MIDDLE], datas.flexion[2], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_RING], datas.flexion[3], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], datas.flexion[4], 0);
 			}
 			catch (const std::exception& e) {
 				DebugDriverLog("Caught exception updating components");
