@@ -1,7 +1,7 @@
 #include "ControllerDriver.h"
 
 ControllerDriver::ControllerDriver(const VRDeviceConfiguration_t &configuration)
-	: m_configuration(configuration), m_driverId(-1) {
+	: m_configuration(configuration), m_driverId(-1), m_hasActivated(false) {
 
 	//copy a default bone transform to our hand transform for use in finger positioning later
 	std::copy(
@@ -23,7 +23,6 @@ bool ControllerDriver::IsRightHand() const {
 }
 
 vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId) {
-	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d", unObjectId, m_configuration.role);
 	const bool isRightHand = IsRightHand();
 
 	m_driverId = unObjectId; //unique ID for your driver
@@ -72,6 +71,8 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId) {
 
 	StartDevice();
 
+	m_hasActivated = true;
+
 	return vr::VRInitError_None;
 }
 
@@ -118,18 +119,24 @@ void ControllerDriver::StartDevice() {
 }
 
 vr::DriverPose_t ControllerDriver::GetPose() {
-	return m_controllerPose->UpdatePose();
+	if(m_hasActivated) return m_controllerPose->UpdatePose();
+
+	vr::DriverPose_t pose = { 0 };
+	return pose;
 }
 
 void ControllerDriver::RunFrame() {
-	//m_controllerPose->UpdatePose();
-	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
+	if (m_hasActivated) {
+		vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
+	}
 }
 
 
 void ControllerDriver::Deactivate() {
-	m_communicationManager->Disconnect();
-	m_driverId = vr::k_unTrackedDeviceIndexInvalid;
+	if (m_hasActivated) {
+		m_communicationManager->Disconnect();
+		m_driverId = vr::k_unTrackedDeviceIndexInvalid;
+	}
 }
 
 void* ControllerDriver::GetComponent(const char* pchComponentNameAndVersion) {
