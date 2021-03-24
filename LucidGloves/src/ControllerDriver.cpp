@@ -23,6 +23,7 @@ bool ControllerDriver::IsRightHand() const {
 }
 
 vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId) {
+	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d, enabled: %s", unObjectId, m_configuration.role, m_configuration.enabled?"true":"false");
 	const bool isRightHand = IsRightHand();
 
 	m_driverId = unObjectId; //unique ID for your driver

@@ -11,12 +11,14 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
 	VRDeviceConfiguration_t leftConfiguration = GetConfiguration(vr::TrackedControllerRole_LeftHand);
 	VRDeviceConfiguration_t rightConfiguration = GetConfiguration(vr::TrackedControllerRole_RightHand);
-
-	m_leftHand = std::make_unique<ControllerDriver>(leftConfiguration);
-	m_rightHand = std::make_unique<ControllerDriver>(rightConfiguration);
-
-	vr::VRServerDriverHost()->TrackedDeviceAdded(c_leftControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_leftHand.get());
-	vr::VRServerDriverHost()->TrackedDeviceAdded(c_rightControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_rightHand.get());
+	if (leftConfiguration.enabled) {
+		m_leftHand = std::make_unique<ControllerDriver>(leftConfiguration);
+		vr::VRServerDriverHost()->TrackedDeviceAdded(c_leftControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_leftHand.get());
+	}
+	if (rightConfiguration.enabled) {
+		m_rightHand = std::make_unique<ControllerDriver>(rightConfiguration);
+		vr::VRServerDriverHost()->TrackedDeviceAdded(c_rightControllerSerialNumber, vr::TrackedDeviceClass_Controller, m_rightHand.get());
+	}
 
 	return vr::VRInitError_None;
 }
@@ -37,6 +39,8 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 
 	const bool isRightHand = role == vr::TrackedControllerRole_RightHand;
 
+	const bool isEnabled = vr::VRSettings()->GetBool(c_settingsSection, isRightHand ? "right_enabled":"left_enabled");
+
 	//x axis may be flipped for the different hands
 	const vr::HmdVector3_t offsetVector = { isRightHand || !leftReversedX ? offsetX : -offsetX, offsetY, offsetZ };
 	const vr::HmdVector3_t angleOffsetVector =
@@ -53,7 +57,7 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 		vr::VRSettings()->GetString(c_settingsSection, role == vr::TrackedControllerRole_RightHand ? "serial_right_port" : "serial_left_port", port, sizeof(port));
 
     VRSerialConfiguration_t serialSettings(port);
-    VRDeviceConfiguration_t deviceSettings(role, offsetVector, angleOffsetVector, poseOffset, serialSettings);
+    VRDeviceConfiguration_t deviceSettings(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, serialSettings);
 
 		return deviceSettings;
 	}
@@ -64,8 +68,10 @@ const char* const* DeviceProvider::GetInterfaceVersions() {
 }
 
 void DeviceProvider::RunFrame() {
-	m_leftHand->RunFrame();
-	m_rightHand->RunFrame();
+	if (m_leftHand)
+		m_leftHand->RunFrame();
+	if (m_rightHand)
+		m_rightHand->RunFrame();
 }
 
 bool DeviceProvider::ShouldBlockStandbyMode() {

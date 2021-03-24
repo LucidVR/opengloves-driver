@@ -1,6 +1,7 @@
 {
 	"driver_lucidgloves": {
-		"enable": true,
+		"left_enabled": true,
+		"right_enabled": true,
 		"protocol": 0,
 		"serial_left_port": "\\\\.\\COM4",
 		"serial_right_port": "\\\\.\\COM5",
