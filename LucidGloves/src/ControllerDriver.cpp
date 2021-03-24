@@ -1,7 +1,7 @@
 #include "ControllerDriver.h"
 
 ControllerDriver::ControllerDriver(const VRDeviceConfiguration_t &configuration)
-	: m_configuration(configuration), m_driverId(-1) {
+	: m_configuration(configuration), m_driverId(-1), m_hasActivated(false) {
 
 	//copy a default bone transform to our hand transform for use in finger positioning later
 	std::copy(
@@ -23,7 +23,7 @@ bool ControllerDriver::IsRightHand() const {
 }
 
 vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId) {
-	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d", unObjectId, m_configuration.role);
+	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d, enabled: %s", unObjectId, m_configuration.role, m_configuration.enabled?"true":"false");
 	const bool isRightHand = IsRightHand();
 
 	m_driverId = unObjectId; //unique ID for your driver
@@ -54,6 +54,12 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId) {
 
 	vr::VRDriverInput()->CreateHapticComponent(props, "output/haptic", &m_inputComponentHandles[ComponentIndex::COMP_HAPTIC]);
 
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/thumb", &m_inputComponentHandles[ComponentIndex::COMP_TRG_THUMB], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/index", &m_inputComponentHandles[ComponentIndex::COMP_TRG_INDEX], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/middle", &m_inputComponentHandles[ComponentIndex::COMP_TRG_MIDDLE], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/ring", &m_inputComponentHandles[ComponentIndex::COMP_TRG_RING], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
+	vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/pinky", &m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
+
 	// Create the skeletal component and save the handle for later use
 
 	vr::EVRInputError error = vr::VRDriverInput()->CreateSkeletonComponent(props,
@@ -71,6 +77,8 @@ vr::EVRInitError ControllerDriver::Activate(uint32_t unObjectId) {
 	}
 
 	StartDevice();
+
+	m_hasActivated = true;
 
 	return vr::VRInitError_None;
 }
@@ -104,6 +112,12 @@ void ControllerDriver::StartDevice() {
 
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_GES_GRAB], datas.grab, 0);
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_GES_PINCH], datas.pinch, 0);
+
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_THUMB], datas.flexion[0], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_INDEX], datas.flexion[1], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_MIDDLE], datas.flexion[2], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_RING], datas.flexion[3], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], datas.flexion[4], 0);
 			}
 			catch (const std::exception& e) {
 				DebugDriverLog("Caught exception updating components");
@@ -118,18 +132,24 @@ void ControllerDriver::StartDevice() {
 }
 
 vr::DriverPose_t ControllerDriver::GetPose() {
-	return m_controllerPose->UpdatePose();
+	if(m_hasActivated) return m_controllerPose->UpdatePose();
+
+	vr::DriverPose_t pose = { 0 };
+	return pose;
 }
 
 void ControllerDriver::RunFrame() {
-	//m_controllerPose->UpdatePose();
-	vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
+	if (m_hasActivated) {
+		vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
+	}
 }
 
 
 void ControllerDriver::Deactivate() {
-	m_communicationManager->Disconnect();
-	m_driverId = vr::k_unTrackedDeviceIndexInvalid;
+	if (m_hasActivated) {
+		m_communicationManager->Disconnect();
+		m_driverId = vr::k_unTrackedDeviceIndexInvalid;
+	}
 }
 
 void* ControllerDriver::GetComponent(const char* pchComponentNameAndVersion) {
