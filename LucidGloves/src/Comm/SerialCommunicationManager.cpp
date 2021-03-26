@@ -55,13 +55,13 @@ void SerialManager::Connect() {
 	}
 }
 
-void SerialManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
+void SerialManager::BeginListener(const std::function<void(std::string)>& callback) {
 	//DebugDriverLog("Begun listener");
 	m_threadActive = true;
 	m_serialThread = std::thread(&SerialManager::ListenerThread, this, callback);
 }
 
-void SerialManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
+void SerialManager::ListenerThread(const std::function<void(std::string)>& callback) {
 	//DebugDriverLog("In listener thread");
 	std::this_thread::sleep_for(std::chrono::milliseconds(ARDUINO_WAIT_TIME));
 	PurgeBuffer();
@@ -69,9 +69,10 @@ void SerialManager::ListenerThread(const std::function<void(VRCommData_t)>& call
 
 	while (m_threadActive) {
 		bool readSuccessful = ReceiveNextPacket(receivedString);
-
+		
 		if (readSuccessful) {
-			try {
+			callback(receivedString);
+			/*try {
 				std::string buf;
 				std::stringstream ss(receivedString);
 
@@ -108,7 +109,7 @@ void SerialManager::ListenerThread(const std::function<void(VRCommData_t)>& call
 			}
 			catch (const std::exception& e) {
 				DebugDriverLog("Exception caught while parsing comm data");
-			}
+			}*/
 		}
 		else {
 			DebugDriverLog("Detected that arduino has disconnected! Stopping listener...");

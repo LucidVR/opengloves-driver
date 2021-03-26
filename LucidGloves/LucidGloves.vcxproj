@@ -27,12 +27,15 @@
     <ClInclude Include="include\DeviceConfiguration.h" />
     <ClInclude Include="include\DeviceProvider.h" />
     <ClInclude Include="include\DriverLog.h" />
+    <ClInclude Include="include\Encode\EncodingManager.h" />
     <ClInclude Include="include\openvr.h" />
     <ClInclude Include="include\openvr_capi.h" />
     <ClInclude Include="include\openvr_driver.h" />
     <ClInclude Include="include\Quaternion.h" />
+    <ClInclude Include="include\Encode\LegacyEncodingManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\Encode\LegacyEncodingManager.cpp" />
     <ClCompile Include="src\Bones.cpp" />
     <ClCompile Include="src\Comm\SerialCommunicationManager.cpp" />
     <ClCompile Include="src\ControllerPose.cpp" />

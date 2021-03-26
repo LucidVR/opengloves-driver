@@ -26,13 +26,13 @@ public:
 	//connect to the device using serial
 	void Connect();
 	//start a thread that listens for updates from the device and calls the callback with data
-	void BeginListener(const std::function<void(VRCommData_t)>& callback);
+	void BeginListener(const std::function<void(std::string)>& callback);
 	//returns if connected or not
 	bool IsConnected();
 	//close the serial port
 	void Disconnect();
 private:
-    void ListenerThread(const std::function<void(VRCommData_t)>& callback);
+    void ListenerThread(const std::function<void(std::string)>& callback);
     bool ReceiveNextPacket(std::string &buff);
     bool PurgeBuffer();
 
