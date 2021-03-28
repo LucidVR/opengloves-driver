@@ -72,6 +72,7 @@ void SerialManager::ListenerThread(const std::function<void(std::string)>& callb
 		
 		if (readSuccessful) {
 			callback(receivedString);
+			receivedString.clear();
 			/*try {
 				std::string buf;
 				std::stringstream ss(receivedString);
