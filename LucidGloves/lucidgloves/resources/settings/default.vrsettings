@@ -9,12 +9,14 @@
 		"y_offset": -0.08,
 		"z_offset": 0.07,
 		"pose_offset": -0.06,
-		"x_offset_degrees": 90,
+		"x_offset_degrees": -40,
 		"y_offset_degrees": 0,
 		"z_offset_degrees": 0,
-		"left_flipped_x": true,
-		"left_flipped_y": false,
-		"left_flipped_z": true
-
+		"left_flipped_pos_x": true,
+		"left_flipped_pos_y": false,
+		"left_flipped_pos_z": false,
+		"left_flipped_rot_x": false,
+		"left_flipped_rot_y": false,
+		"left_flipped_rot_z": true
 	}
 }
