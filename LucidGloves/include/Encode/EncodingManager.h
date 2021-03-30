@@ -50,5 +50,4 @@ public:
 	virtual ~IEncodingManager() {};
 private:
 	float m_maxAnalogValue;
-	bool is_connected_;
 };

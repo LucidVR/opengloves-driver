@@ -12,13 +12,17 @@ ControllerDriver::ControllerDriver(const VRDeviceConfiguration_t &configuration)
 
 
 	switch (m_configuration.communicationProtocol) {
+	default:
+		DriverLog("No communication protocol defined... using default.");
 	case VRCommunicationProtocol::SERIAL:
 		m_communicationManager = std::make_unique<SerialManager>(m_configuration.serialConfiguration);
 		break;
 	}
 	switch (m_configuration.encodingProtocol) {
+	default:
+		DriverLog("No encoding protocol defined... using default.");
 	case VREncodingProtocol::LEGACY:
-		m_encodingManager = std::make_unique<LegacyEncodingManager>((float)m_configuration.adcCounts);
+		m_encodingManager = std::make_unique<LegacyEncodingManager>((float)m_configuration.maxAnalogValue);
 		break;
 	}
 }

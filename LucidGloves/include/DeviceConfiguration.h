@@ -11,13 +11,13 @@ enum VREncodingProtocol {
 };
 
 struct VRDeviceConfiguration_t {
-	VRDeviceConfiguration_t(vr::ETrackedControllerRole role, bool enabled, vr::HmdVector3_t offsetVector, vr::HmdVector3_t angleOffsetVector, float poseOffset, int adcCounts, VRCommunicationProtocol communicationProtocol, VREncodingProtocol encodingProtocol, VRSerialConfiguration_t serialConfiguration) :
+	VRDeviceConfiguration_t(vr::ETrackedControllerRole role, bool enabled, vr::HmdVector3_t offsetVector, vr::HmdVector3_t angleOffsetVector, float poseOffset, int maxAnalogValue, VRCommunicationProtocol communicationProtocol, VREncodingProtocol encodingProtocol, VRSerialConfiguration_t serialConfiguration) :
 		role(role),
 		enabled(enabled),
 		offsetVector(offsetVector),
 		angleOffsetVector(angleOffsetVector),
 		poseOffset(poseOffset),
-		adcCounts(adcCounts),
+		maxAnalogValue(maxAnalogValue),
 		serialConfiguration(serialConfiguration),
 		communicationProtocol(communicationProtocol),
 		encodingProtocol(encodingProtocol) {};
@@ -26,7 +26,7 @@ struct VRDeviceConfiguration_t {
 	bool enabled;
 	vr::HmdVector3_t offsetVector;
 	vr::HmdVector3_t angleOffsetVector;
-	int adcCounts;
+	int maxAnalogValue;
 	float poseOffset;
 
 	VRSerialConfiguration_t serialConfiguration;
