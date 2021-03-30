@@ -33,20 +33,29 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 	const float offsetYDeg = vr::VRSettings()->GetFloat(c_settingsSection, "y_offset_degrees");
 	const float offsetZDeg = vr::VRSettings()->GetFloat(c_settingsSection, "z_offset_degrees");
 
-	const bool leftReversedX = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_x");
-	const bool leftReversedY = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_y");
-	const bool leftReversedZ = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_z");
+	const bool leftFlippedXPos = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_pos_x");
+	const bool leftFlippedYPos = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_pos_y");
+	const bool leftFlippedZPos = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_pos_z");
+
+	const bool leftFlippedXRot = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_rot_x");
+	const bool leftFlippedYRot = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_rot_y");
+	const bool leftFlippedZRot = vr::VRSettings()->GetBool(c_settingsSection, "left_flipped_rot_z");
 
 	const bool isRightHand = role == vr::TrackedControllerRole_RightHand;
 
 	const bool isEnabled = vr::VRSettings()->GetBool(c_settingsSection, isRightHand ? "right_enabled":"left_enabled");
 
 	//x axis may be flipped for the different hands
-	const vr::HmdVector3_t offsetVector = { isRightHand || !leftReversedX ? offsetX : -offsetX, offsetY, offsetZ };
-	const vr::HmdVector3_t angleOffsetVector =
-	  { isRightHand || !leftReversedX ? offsetXDeg : -offsetXDeg, 
-		isRightHand || !leftReversedY ? offsetYDeg : -offsetYDeg,
-		isRightHand || !leftReversedZ ? offsetZDeg : -offsetZDeg };
+	const vr::HmdVector3_t offsetVector = { 
+		(isRightHand || !leftFlippedXPos) ? offsetX : -offsetX,
+		(isRightHand || !leftFlippedYPos) ? offsetY : -offsetX,
+		(isRightHand || !leftFlippedZPos) ? offsetZ : -offsetZ 
+	};
+	const vr::HmdVector3_t angleOffsetVector = { 
+		(isRightHand || !leftFlippedXRot) ? offsetXDeg : -offsetXDeg,
+		(isRightHand || !leftFlippedYRot) ? offsetYDeg : -offsetYDeg,
+		(isRightHand || !leftFlippedZRot) ? offsetZDeg : -offsetZDeg
+	};
 
 	const float poseOffset = vr::VRSettings()->GetFloat(c_settingsSection, "pose_offset");
 
