@@ -11,12 +11,16 @@ ControllerDriver::ControllerDriver(const VRDeviceConfiguration_t &configuration)
 	);
 
 
-	switch (m_configuration.protocol) {
-	case VRDeviceProtocol::SERIAL:
+	switch (m_configuration.communicationProtocol) {
+	case VRCommunicationProtocol::SERIAL:
 		m_communicationManager = std::make_unique<SerialManager>(m_configuration.serialConfiguration);
 		break;
 	}
-	m_encodingManager = std::make_unique<LegacyEncodingManager>(1023.0);  //hardwired just for testing, will fix
+	switch (m_configuration.encodingProtocol) {
+	case VREncodingProtocol::LEGACY:
+		m_encodingManager = std::make_unique<LegacyEncodingManager>((float)m_configuration.adcCounts);
+		break;
+	}
 }
 
 bool ControllerDriver::IsRightHand() const {

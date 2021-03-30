@@ -73,44 +73,6 @@ void SerialManager::ListenerThread(const std::function<void(std::string)>& callb
 		if (readSuccessful) {
 			callback(receivedString);
 			receivedString.clear();
-			/*try {
-				std::string buf;
-				std::stringstream ss(receivedString);
-
-				std::vector<float> tokens;
-				while (getline(ss, buf, '&')) tokens.push_back(std::stof(buf));
-
-				std::array<float, 5> flexion;
-				std::array<float, 5> splay;
-
-				for (int i = 0; i < 5; i++) {
-					flexion[i] = tokens[i] / c_maxAnalogValue;
-					splay[i] = 0.5;
-				}
-
-				const float joyX = (2 * tokens[VRCommDataInputPosition::JOY_X] / c_maxAnalogValue) - 1;
-				const float joyY = (2 * tokens[VRCommDataInputPosition::JOY_Y] / c_maxAnalogValue) - 1;
-
-				VRCommData_t commData(
-					flexion,
-					splay,
-					joyX,
-					joyY,
-					tokens[VRCommDataInputPosition::JOY_BTN] == 1,
-					tokens[VRCommDataInputPosition::BTN_TRG] == 1,
-					tokens[VRCommDataInputPosition::BTN_A] == 1,
-					tokens[VRCommDataInputPosition::BTN_B] == 1,
-					tokens[VRCommDataInputPosition::GES_GRAB] == 1,
-					tokens[VRCommDataInputPosition::GES_PINCH] == 1
-				);
-
-				callback(commData);
-
-				receivedString.clear();
-			}
-			catch (const std::exception& e) {
-				DebugDriverLog("Exception caught while parsing comm data");
-			}*/
 		}
 		else {
 			DebugDriverLog("Detected that arduino has disconnected! Stopping listener...");
