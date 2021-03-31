@@ -1,4 +1,5 @@
-# lucidgloves - LucidVR X Fngrs
+# OpenGloves Driver - LucidVR X Fngrs
+## 🚨 Please follow instructions in the <a href="https://github.com/LucidVR/opengloves-driver/wiki">wiki</a> for necessary configuration of the driver
 Developed by:
 * Danwillm
 * Lucas_VRTech
