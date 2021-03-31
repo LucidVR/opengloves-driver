@@ -3,11 +3,12 @@
 #include <windows.h>
 #include <thread>
 #include <functional>
-#include "driverlog.h"
-#include "bones.h"
-#include "Comm/SerialCommunicationManager.h"
-#include "ControllerPose.h"
-#include "DeviceConfiguration.h"
+#include <driverlog.h>
+#include <bones.h>
+#include <Comm/SerialCommunicationManager.h>
+#include <Encode/LegacyEncodingManager.h>
+#include <ControllerPose.h>
+#include <DeviceConfiguration.h>
 
 static const char* c_rightControllerSerialNumber = "lucidgloves-right";
 static const char* c_leftControllerSerialNumber = "lucidgloves-left";
@@ -109,6 +110,7 @@ private:
 	uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
+	std::unique_ptr<IEncodingManager> m_encodingManager;
 	std::unique_ptr<ControllerPose> m_controllerPose;
 
 	VRDeviceConfiguration_t m_configuration;

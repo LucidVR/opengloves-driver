@@ -23,7 +23,10 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 	return vr::VRInitError_None;
 }
 VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerRole role) {
-	const int protocol = vr::VRSettings()->GetInt32(c_settingsSection, "protocol");
+	const VRCommunicationProtocol communicationProtocol = (VRCommunicationProtocol)vr::VRSettings()->GetInt32(c_settingsSection, "communication_protocol");
+	const VREncodingProtocol encodingProtocol = (VREncodingProtocol)vr::VRSettings()->GetInt32(c_settingsSection, "encoding_protocol");
+
+	const int adcCounts = vr::VRSettings()->GetInt32(c_settingsSection, "adc_counts");
 
 	const float offsetX = vr::VRSettings()->GetFloat(c_settingsSection, "x_offset");
 	const float offsetY = vr::VRSettings()->GetFloat(c_settingsSection, "y_offset");
@@ -60,13 +63,13 @@ VRDeviceConfiguration_t DeviceProvider::GetConfiguration(vr::ETrackedControllerR
 	const float poseOffset = vr::VRSettings()->GetFloat(c_settingsSection, "pose_offset");
 
 
-	switch (protocol) {
-	case VRDeviceProtocol::SERIAL:
+	switch (communicationProtocol) {
+	case VRCommunicationProtocol::SERIAL:
 		char port[16];
 		vr::VRSettings()->GetString(c_settingsSection, role == vr::TrackedControllerRole_RightHand ? "serial_right_port" : "serial_left_port", port, sizeof(port));
 
     VRSerialConfiguration_t serialSettings(port);
-    VRDeviceConfiguration_t deviceSettings(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, serialSettings);
+    VRDeviceConfiguration_t deviceSettings(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, adcCounts, communicationProtocol, encodingProtocol, serialSettings);
 
 		return deviceSettings;
 	}
