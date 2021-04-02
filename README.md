@@ -59,6 +59,6 @@ We are actively welcoming contributions, feel free to open a pull request.
 
 If you run into issues, you are more than welcome to open a GitHub issue/discussion, or contact us directly on Discord: 
 
-`danwillm#8254` - Fngrs
+`danwillm#8254`
 
-`LucidVR#0001` - LucidGloves
+`LucidVR#0001`
