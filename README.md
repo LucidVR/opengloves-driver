@@ -1,12 +1,15 @@
-# lucidgloves - LucidVR X Fngrs
+# OpenGloves Driver - LucidVR X Fngrs
+## 🚨 Please follow instructions in the <a href="https://github.com/LucidVR/opengloves-driver/wiki">wiki</a> for necessary configuration of the driver
+The driver won't work unless you configure the SteamVR input bindings and the driver settings.
+
 Developed by:
 * Danwillm
-* Lucas_VRTech
+* Lucas_VRTech (LucidVR)
 
 ## What is this?
 This repository contains the OpenVR(SteamVR) driver for a DIY VR Haptic Glove.
 
-__This Repository is a *very early* work in progress. Binaries are not up yet and many things are likely to change.__
+__This Repository is a *very early* work in progress. Many things are likely to change.__
 Things in this repo are subject to rapid changes and currently is not in a stable release state.
 
 Pre-Built binaries are available in the releases section.
@@ -39,7 +42,6 @@ That said, we are more than happy to help with issues that may arise, skip to th
 * Force feedback haptics
 * Communication Protocols:
   - 2.4ghz wifi
-  - Single port serial
   - Hex compression for serial
 
 ### Games tested:
@@ -57,6 +59,6 @@ We are actively welcoming contributions, feel free to open a pull request.
 
 If you run into issues, you are more than welcome to open a GitHub issue/discussion, or contact us directly on Discord: 
 
-`danwillm#8254` - Driver maintainer
+`danwillm#8254`
 
-`LucidVR#0001` - Hardware maintainer
+`LucidVR#0001`
