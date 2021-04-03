@@ -1,10 +1,19 @@
 #pragma once
 #include "ControllerPose.h"
 
-ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRDeviceConfiguration_t configuration, uint32_t driverId) : m_configuration(configuration), m_shadowDeviceOfRole(shadowDeviceOfRole), m_driverId(driverId), m_thisDeviceManufacturer(thisDeviceManufacturer) {
-	const vr::HmdVector3_t angleOffset = m_configuration.angleOffsetVector;
+ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
+							   std::string thisDeviceManufacturer,
+							   vr::HmdVector3_t offsetVector,
+							   vr::HmdVector3_t angleOffsetVector,
+							   uint32_t driverId) :
+	m_shadowDeviceOfRole(shadowDeviceOfRole),
+	m_driverId(driverId),
+	m_thisDeviceManufacturer(thisDeviceManufacturer),
+	m_offsetVector(offsetVector) {
+
+	const vr::HmdVector3_t angleOffset = angleOffsetVector;
 	m_offsetQuaternion = EulerToQuaternion(DegToRad(angleOffset.v[0]), DegToRad(angleOffset.v[1]), DegToRad(angleOffset.v[2]));
-	
+
 	DebugDriverLog("Offset calculated! {%.2f, %.2f, %.2f, %.2f}", m_offsetQuaternion.w, m_offsetQuaternion.x, m_offsetQuaternion.y, m_offsetQuaternion.z);
 }
 
@@ -21,13 +30,13 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 
 			//get the matrix that represents the position of the controller that we are shadowing
 			vr::HmdMatrix34_t controllerMatrix = trackedDevicePoses[m_shadowControllerId].mDeviceToAbsoluteTracking;
-			
+
 			//get only the rotation (3x3 matrix), as the 3x4 matrix also includes position
 			vr::HmdMatrix33_t controllerRotationMatrix = GetRotationMatrix(controllerMatrix);
-			
+
 			//multiply the rotation matrix by the offset vector set that is the offset of the controller relative to the hand
-			vr::HmdVector3_t vectorOffset = MultiplyMatrix(controllerRotationMatrix, m_configuration.offsetVector); 
-			
+			vr::HmdVector3_t vectorOffset = MultiplyMatrix(controllerRotationMatrix, m_offsetVector);
+
 			//combine these positions to get the resultant position
 			vr::HmdVector3_t newControllerPosition = CombinePosition(controllerMatrix, vectorOffset);
 

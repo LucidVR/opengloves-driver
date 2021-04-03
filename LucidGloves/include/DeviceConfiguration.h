@@ -1,10 +1,12 @@
 #pragma once
-#include "openvr_driver.h"
-#include "Encode/EncodingManager.h"
 #include "Communication/CommunicationManager.h"
 #include "DeviceDriver/DeviceDriver.h"
+#include "Encode/EncodingManager.h"
+#include "openvr_driver.h"
+#include <memory>
 
-static const char* c_settingsSection = "driver_opengloves";
+static const char* c_driverSettingsSection = "driver_opengloves";
+static const char* c_poseSettingsSection = "pose_settings";
 
 enum VRCommunicationProtocol {
 	SERIAL = 0,
@@ -27,21 +29,24 @@ struct VRSerialConfiguration_t {
 
 
 struct VRDeviceConfiguration_t {
+
 	VRDeviceConfiguration_t(vr::ETrackedControllerRole role,
 							bool enabled,
 							vr::HmdVector3_t offsetVector,
 							vr::HmdVector3_t angleOffsetVector,
 							float poseOffset,
-							ICommunicationManager* communicationManager,
-							IEncodingManager* encodingManager,
-							VRDeviceDriver selectedDeviceDriver) :
+							std::unique_ptr<ICommunicationManager> communicationManager,
+							VRDeviceDriver selectedDeviceDriver,
+							std::string serialNumber) :
 		role(role),
 		enabled(enabled),
 		offsetVector(offsetVector),
 		angleOffsetVector(angleOffsetVector),
 		poseOffset(poseOffset),
-		communicationProtocol(communicationProtocol),
-		encodingProtocol(encodingProtocol) {};
+		communicationManager(std::move(communicationManager)),
+		selectedDeviceDriver(selectedDeviceDriver),
+		serialNumber(serialNumber)
+	{};
 
 	vr::ETrackedControllerRole role;
 	bool enabled;
@@ -49,7 +54,8 @@ struct VRDeviceConfiguration_t {
 	vr::HmdVector3_t angleOffsetVector;
 	float poseOffset;
 
-	ICommunicationManager* communicationProtocol;
-	IEncodingManager* encodingProtocol;
+	std::unique_ptr<ICommunicationManager> communicationManager;
 	VRDeviceDriver selectedDeviceDriver;
+
+	std::string serialNumber;
 };

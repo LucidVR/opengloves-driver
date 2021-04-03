@@ -13,8 +13,9 @@
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
 
-static const char* c_rightControllerSerialNumber = "lucidgloves-right";
-static const char* c_leftControllerSerialNumber = "lucidgloves-left";
+static const std::string c_rightControllerSerialNumber = "lucidgloves-right";
+static const std::string c_leftControllerSerialNumber = "lucidgloves-left";
+
 static const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
 static const char* c_deviceControllerType = "lucidgloves";
 static const char* c_deviceModelNumber = "lucidgloves1";
@@ -51,7 +52,7 @@ class too. Those comment blocks have some good information.
 **/
 class LucidGloveDeviceDriver : public IDeviceDriver {
 public:
-	LucidGloveDeviceDriver(const VRDeviceConfiguration_t& configuration);
+	LucidGloveDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration);
 
 	vr::EVRInitError Activate(uint32_t unObjectId);
 	void Deactivate();
@@ -62,14 +63,14 @@ public:
 	vr::DriverPose_t GetPose();
 	void RunFrame();
 
-	bool m_hasActivated;
-
-	const char* m_serialNumber;
-private:
-	uint32_t m_driverId;
-	
+	std::string GetSerialNumber();
+	bool IsActive();
+private:	
 	void StartDevice();
 	bool IsRightHand() const;
+
+	bool m_hasActivated;
+	uint32_t m_driverId;
 
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle{};
 	vr::VRInputComponentHandle_t m_inputComponentHandles[14]{};
@@ -78,10 +79,7 @@ private:
 
 	uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
-	std::unique_ptr<ICommunicationManager> m_communicationManager;
-	std::unique_ptr<IEncodingManager> m_encodingManager;
-	std::unique_ptr<ControllerPose> m_controllerPose;
+	std::unique_ptr<VRDeviceConfiguration_t> m_configuration;
 
-	VRDeviceConfiguration_t m_configuration;
-	
+	std::unique_ptr<ControllerPose> m_controllerPose;
 };

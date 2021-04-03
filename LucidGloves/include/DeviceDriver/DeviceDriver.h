@@ -47,10 +47,6 @@ public:
 	**/
 	virtual void RunFrame() = 0;
 
-	bool m_hasActivated;
-
-	const char* m_serialNumber;
-
-private:
-	uint32_t m_driverId;
+	virtual std::string GetSerialNumber() = 0;
+	virtual bool IsActive() = 0;
 };

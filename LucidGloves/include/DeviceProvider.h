@@ -61,12 +61,12 @@ public:
 	void LeaveStandby();
 
 private:
-	IDeviceDriver* m_leftHand;
-	IDeviceDriver* m_rightHand;
+	std::unique_ptr<IDeviceDriver> m_leftHand;
+	std::unique_ptr<IDeviceDriver> m_rightHand;
 	/**
 	* returns the configuration set in VRSettings for the device role given
 	**/
-	VRDeviceConfiguration_t GetConfiguration(vr::ETrackedControllerRole role);
+	std::unique_ptr<VRDeviceConfiguration_t> GetConfiguration(vr::ETrackedControllerRole role);
 
-	IDeviceDriver* InstantiateDeviceDriver(const VRDeviceConfiguration_t& configuration);
+	std::unique_ptr<IDeviceDriver> InstantiateDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration);
 };

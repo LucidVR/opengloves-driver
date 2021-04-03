@@ -1,37 +1,43 @@
 #include "DeviceDriver/LucidGloveDriver.h"
 
-LucidGloveDeviceDriver::LucidGloveDeviceDriver(const VRDeviceConfiguration_t& configuration)
-	: m_configuration(configuration),
+LucidGloveDeviceDriver::LucidGloveDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration)
+	: m_configuration(std::move(configuration)),
 	m_driverId(-1),
-	m_hasActivated(false),
-	m_serialNumber(configuration.role == vr::TrackedControllerRole_RightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber) {
+	m_hasActivated(false) {
 
 	//copy a default bone transform to our hand transform for use in finger positioning later
 	std::copy(
-		std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
-		std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
+		std::begin(m_configuration->role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
+		std::end(m_configuration->role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
 		std::begin(m_handTransforms)
 	);
+
 }
 
 
 bool LucidGloveDeviceDriver::IsRightHand() const {
-	return m_configuration.role == vr::TrackedControllerRole_RightHand;
+	return m_configuration->role == vr::TrackedControllerRole_RightHand;
 }
 
+std::string LucidGloveDeviceDriver::GetSerialNumber() {
+	return m_configuration->serialNumber;
+}
+bool LucidGloveDeviceDriver::IsActive() {
+	return m_hasActivated;
+}
 vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
-	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d, enabled: %s", unObjectId, m_configuration.role, m_configuration.enabled ? "true" : "false");
+	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d, enabled: %s", unObjectId, m_configuration->role, m_configuration->enabled ? "true" : "false");
 	const bool isRightHand = IsRightHand();
 
 	m_driverId = unObjectId; //unique ID for your driver
-	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer), m_configuration, m_driverId);
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration->role, std::string(c_deviceManufacturer), m_configuration->offsetVector, m_configuration->angleOffsetVector, m_driverId);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)2147483647);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, c_inputProfilePath); //tell OpenVR where to get your driver's Input Profile
-	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_configuration.role); //tells OpenVR what kind of device this is
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, isRightHand ? c_rightControllerSerialNumber : c_leftControllerSerialNumber);
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_configuration->role); //tells OpenVR what kind of device this is
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, m_configuration->serialNumber.c_str());
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, (int32_t)vr::TrackedDeviceClass_Controller);
@@ -83,11 +89,11 @@ vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
 
 //This could do with a rename, its a bit vague as to what it does
 void LucidGloveDeviceDriver::StartDevice() {
-	m_communicationManager->Connect();
+	m_configuration->communicationManager->Connect();
 	//DebugDriverLog("Getting ready to connect:");
-	if (m_communicationManager->IsConnected()) {
+	if (m_configuration->communicationManager->IsConnected()) {
 		//DebugDriverLog("Connected successfully");
-		m_communicationManager->BeginListener([&](VRCommData_t datas) {
+		m_configuration->communicationManager->BeginListener([&](VRCommData_t datas) {
 			try {
 				//Compute each finger transform
 				for (int i = 0; i < NUM_BONES; i++) {
@@ -144,7 +150,7 @@ void LucidGloveDeviceDriver::RunFrame() {
 
 void LucidGloveDeviceDriver::Deactivate() {
 	if (m_hasActivated) {
-		m_communicationManager->Disconnect();
+		m_configuration->communicationManager->Disconnect();
 		m_driverId = vr::k_unTrackedDeviceIndexInvalid;
 	}
 }

@@ -4,6 +4,7 @@
 #include "DeviceConfiguration.h"
 #include <windows.h>
 #include <iostream>
+#include <memory>
 #include <thread>
 #include <atomic>
 #include <chrono>
@@ -15,7 +16,7 @@
 
 class SerialCommunicationManager : public ICommunicationManager {
 public:
-	SerialCommunicationManager(const VRSerialConfiguration_t& configuration, IEncodingManager* encodingManager) : m_serialConfiguration(configuration), m_encodingManager(encodingManager), m_isConnected(false), m_hSerial(0), m_errors(0) {};
+	SerialCommunicationManager(const VRSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager) : m_serialConfiguration(configuration), m_encodingManager(std::move(encodingManager)), m_isConnected(false), m_hSerial(0), m_errors(0) {};
 	//connect to the device using serial
 	void Connect();
 	//start a thread that listens for updates from the device and calls the callback with data
@@ -41,5 +42,5 @@ private:
 
 	VRSerialConfiguration_t m_serialConfiguration;
 
-	IEncodingManager* m_encodingManager;
+	std::unique_ptr<IEncodingManager> m_encodingManager;
 };
