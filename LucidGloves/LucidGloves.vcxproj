@@ -20,29 +20,30 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Bones.h" />
-    <ClInclude Include="include\Comm\CommunicationManager.h" />
-    <ClInclude Include="include\Comm\SerialCommunicationManager.h" />
-    <ClInclude Include="include\ControllerDriver.h" />
+    <ClInclude Include="include\Communication\CommunicationManager.h" />
+    <ClInclude Include="include\Communication\SerialCommunicationManager.h" />
     <ClInclude Include="include\ControllerPose.h" />
     <ClInclude Include="include\DeviceConfiguration.h" />
+    <ClInclude Include="include\DeviceDriver\DeviceDriver.h" />
     <ClInclude Include="include\DeviceProvider.h" />
     <ClInclude Include="include\DriverLog.h" />
     <ClInclude Include="include\Encode\EncodingManager.h" />
     <ClInclude Include="include\openvr.h" />
     <ClInclude Include="include\openvr_capi.h" />
     <ClInclude Include="include\openvr_driver.h" />
+    <ClInclude Include="include\DeviceDriver\LucidGloveDriver.h" />
     <ClInclude Include="include\Quaternion.h" />
     <ClInclude Include="include\Encode\LegacyEncodingManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Encode\LegacyEncodingManager.cpp" />
     <ClCompile Include="src\Bones.cpp" />
-    <ClCompile Include="src\Comm\SerialCommunicationManager.cpp" />
+    <ClCompile Include="src\Communication\SerialCommunicationManager.cpp" />
     <ClCompile Include="src\ControllerPose.cpp" />
     <ClCompile Include="src\DriverLog.cpp" />
-    <ClCompile Include="src\ControllerDriver.cpp" />
     <ClCompile Include="src\DeviceFactory.cpp" />
     <ClCompile Include="src\DeviceProvider.cpp" />
+    <ClCompile Include="src\DeviceDriver\LucidGloveDriver.cpp" />
     <ClCompile Include="src\Quaternion.cpp" />
   </ItemGroup>
   <ItemGroup>

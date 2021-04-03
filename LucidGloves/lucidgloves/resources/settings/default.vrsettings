@@ -1,10 +1,11 @@
 {
-	"driver_lucidgloves": {
+	"driver_opengloves": {
 		"left_enabled": true,
 		"right_enabled": true,
 		"communication_protocol": 0,
+		"device_provider": 0,
 		"encoding_protocol": 0,
-		"adc_counts":  1023,
+		"max_analog_value":  1023,
 		"serial_left_port": "\\\\.\\COM4",
 		"serial_right_port": "\\\\.\\COM5",
 		"x_offset": -0.07,

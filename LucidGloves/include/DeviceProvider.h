@@ -1,8 +1,18 @@
 #pragma once
-#include <ControllerDriver.h>
 #include <openvr_driver.h>
 #include <windows.h>
 #include <memory>
+#include "DeviceConfiguration.h"
+#include "DriverLog.h"
+
+#include "Communication/CommunicationManager.h"
+#include "Communication/SerialCommunicationManager.h"
+
+#include "Encode/EncodingManager.h"
+#include "Encode/LegacyEncodingManager.h"
+
+#include "DeviceDriver/DeviceDriver.h"
+#include "DeviceDriver/LucidGloveDriver.h"
 
 /**
 This class instantiates all the device drivers you have, meaning if you've
@@ -19,11 +29,6 @@ public:
 	Initiailze and add your drivers to OpenVR here.
 	**/
 	vr::EVRInitError Init(vr::IVRDriverContext* pDriverContext);
-
-	/**
-	* returns the configuration set in VRSettings for the device role given
-	**/
-	VRDeviceConfiguration_t GetConfiguration(vr::ETrackedControllerRole role);
 
 	/**
 	Called right before your driver is unloaded.
@@ -56,6 +61,12 @@ public:
 	void LeaveStandby();
 
 private:
-	std::unique_ptr<ControllerDriver> m_leftHand;
-	std::unique_ptr<ControllerDriver> m_rightHand;
+	IDeviceDriver* m_leftHand;
+	IDeviceDriver* m_rightHand;
+	/**
+	* returns the configuration set in VRSettings for the device role given
+	**/
+	VRDeviceConfiguration_t GetConfiguration(vr::ETrackedControllerRole role);
+
+	IDeviceDriver* InstantiateDeviceDriver(const VRDeviceConfiguration_t& configuration);
 };

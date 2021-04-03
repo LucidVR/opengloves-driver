@@ -1,11 +1,11 @@
-#include <Comm/SerialCommunicationManager.h>
+#include <Communication/SerialCommunicationManager.h>
 
-void SerialManager::Connect() {
+void SerialCommunicationManager::Connect() {
 	//We're not yet connected
 	m_isConnected = false;
 
 	//Try to connect to the given port throuh CreateFile
-	m_hSerial = CreateFile(m_configuration.port.c_str(),
+	m_hSerial = CreateFile(m_serialConfiguration.port.c_str(),
 						   GENERIC_READ | GENERIC_WRITE,
 						   0,
 						   NULL,
@@ -55,24 +55,25 @@ void SerialManager::Connect() {
 	}
 }
 
-void SerialManager::BeginListener(const std::function<void(std::string)>& callback) {
+void SerialCommunicationManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
 	//DebugDriverLog("Begun listener");
 	m_threadActive = true;
-	m_serialThread = std::thread(&SerialManager::ListenerThread, this, callback);
+	m_serialThread = std::thread(&SerialCommunicationManager::ListenerThread, this, callback);
 }
 
-void SerialManager::ListenerThread(const std::function<void(std::string)>& callback) {
+void SerialCommunicationManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
 	//DebugDriverLog("In listener thread");
 	std::this_thread::sleep_for(std::chrono::milliseconds(ARDUINO_WAIT_TIME));
 	PurgeBuffer();
-	std::string receivedString;
 
 	while (m_threadActive) {
+		std::string receivedString;
 		bool readSuccessful = ReceiveNextPacket(receivedString);
 		
 		if (readSuccessful) {
-			callback(receivedString);
-			receivedString.clear();
+			VRCommData_t commData = m_encodingManager->Decode(receivedString);
+
+			callback(commData);
 		}
 		else {
 			DebugDriverLog("Detected that arduino has disconnected! Stopping listener...");
@@ -84,7 +85,7 @@ void SerialManager::ListenerThread(const std::function<void(std::string)>& callb
 	}
 }
 
-bool SerialManager::ReceiveNextPacket(std::string& buff) {
+bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 	DWORD dwCommEvent;
 	DWORD dwRead = 0;
 
@@ -114,11 +115,11 @@ bool SerialManager::ReceiveNextPacket(std::string& buff) {
 
 	return true;
 }
-bool SerialManager::PurgeBuffer() {
+bool SerialCommunicationManager::PurgeBuffer() {
 	return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
 }
 
-void SerialManager::Disconnect() {
+void SerialCommunicationManager::Disconnect() {
 	if (m_isConnected) {
 		if (m_threadActive) {
 			m_threadActive = false;
@@ -132,6 +133,6 @@ void SerialManager::Disconnect() {
 	}
 }
 //May want to get a heartbeat here instead?
-bool SerialManager::IsConnected() {
+bool SerialCommunicationManager::IsConnected() {
 	return m_isConnected;
 }
