@@ -90,7 +90,7 @@ std::unique_ptr<VRDeviceConfiguration_t> DeviceProvider::GetConfiguration(vr::ET
 		DriverLog("No communication protocol set. Using serial.");
 	case VRCommunicationProtocol::SERIAL:
 		char port[16];
-		vr::VRSettings()->GetString("serial_settings", role == vr::TrackedControllerRole_RightHand ? "serial_right_port" : "serial_left_port", port, sizeof(port));
+		vr::VRSettings()->GetString("communication_serial", role == vr::TrackedControllerRole_RightHand ? "right_port" : "left_port", port, sizeof(port));
 		VRSerialConfiguration_t serialSettings(port);
 
 		communicationManager = std::make_unique<SerialCommunicationManager>(serialSettings, std::move(encodingManager));
