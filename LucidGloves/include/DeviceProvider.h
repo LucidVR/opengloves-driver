@@ -13,6 +13,7 @@
 
 #include "DeviceDriver/DeviceDriver.h"
 #include "DeviceDriver/LucidGloveDriver.h"
+#include "DeviceDriver/KnuckleDriver.h"
 
 /**
 This class instantiates all the device drivers you have, meaning if you've

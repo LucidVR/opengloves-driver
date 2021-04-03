@@ -26,6 +26,8 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
 std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration) {
 	switch (configuration->selectedDeviceDriver) {
+	case VRDeviceDriver::EMULATED_KNUCKLES:
+		return std::make_unique<KnuckleDeviceDriver>(std::move(configuration));
 	default:
 		DriverLog("No device driver selected. Using lucidgloves.");
 	case VRDeviceDriver::LUCIDGLOVES:
@@ -98,15 +100,25 @@ std::unique_ptr<VRDeviceConfiguration_t> DeviceProvider::GetConfiguration(vr::ET
 	}
 
 	switch (deviceDriver) {
+	case VRDeviceDriver::EMULATED_KNUCKLES:
+	{
+		char buffer[32];
+		vr::VRSettings()->GetString("device_knuckles", role == vr::TrackedControllerRole_RightHand ? "right_serial_number" : "left_serial_number", buffer, sizeof(buffer));
+
+		return std::make_unique<VRDeviceConfiguration_t>(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, std::move(communicationManager), deviceDriver, buffer);
+	}
+
 	default:
 		DriverLog("No device driver selected. Using lucidgloves.");
 	case VRDeviceDriver::LUCIDGLOVES:
+	{
 		char buffer[32];
 		vr::VRSettings()->GetString("device_lucidgloves", role == vr::TrackedControllerRole_RightHand ? "right_serial_number" : "left_serial_number", buffer, sizeof(buffer));
 
 		return std::make_unique<VRDeviceConfiguration_t>(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, std::move(communicationManager), deviceDriver, buffer);
 	}
-	
+	}
+
 }
 void DeviceProvider::Cleanup() {}
 const char* const* DeviceProvider::GetInterfaceVersions() {

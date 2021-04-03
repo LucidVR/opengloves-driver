@@ -1,4 +1,5 @@
 #pragma once
+#pragma once
 #include <openvr_driver.h>
 #include <windows.h>
 #include <thread>
@@ -13,19 +14,9 @@
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
 
-/**
-This class controls the behavior of the controller. This is where you
-tell OpenVR what your controller has (buttons, joystick, trackpad, etc.).
-This is also where you inform OpenVR when the state of your controller
-changes (for example, a button is pressed).
-
-For the methods, take a look at the comment blocks for the ITrackedDeviceServerDriver
-class too. Those comment blocks have some good information.
-
-**/
-class LucidGloveDeviceDriver : public IDeviceDriver {
+class KnuckleDeviceDriver : public IDeviceDriver {
 public:
-	LucidGloveDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration);
+	KnuckleDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration);
 
 	vr::EVRInitError Activate(uint32_t unObjectId);
 	void Deactivate();
@@ -38,7 +29,7 @@ public:
 
 	std::string GetSerialNumber();
 	bool IsActive();
-private:	
+private:
 	void StartDevice();
 	bool IsRightHand() const;
 
@@ -46,7 +37,9 @@ private:
 	uint32_t m_driverId;
 
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle{};
-	vr::VRInputComponentHandle_t m_inputComponentHandles[23]{};
+	vr::VRInputComponentHandle_t m_inputComponentHandles[14]{};
+
+	vr::VRInputComponentHandle_t m_haptic{};
 
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
 

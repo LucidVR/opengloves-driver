@@ -1,5 +1,29 @@
 #include "DeviceDriver/LucidGloveDriver.h"
 
+const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
+const char* c_deviceControllerType = "lucidgloves";
+const char* c_deviceModelNumber = "lucidgloves1";
+const char* c_basePosePath = "/pose/raw";
+const char* c_inputProfilePath = "{lucidgloves}/input/lucidgloves_profile.json";
+const char* c_renderModelPath = "{lucidgloves}/rendermodels/lucidgloves";
+
+static const enum ComponentIndex : int {
+	COMP_JOY_X = 0,
+	COMP_JOY_Y = 1,
+	COMP_JOY_BTN = 2,
+	COMP_BTN_TRG = 3,
+	COMP_BTN_A = 4,
+	COMP_BTN_B = 5,
+	COMP_GES_GRAB = 6,
+	COMP_GES_PINCH = 7,
+	COMP_HAPTIC = 8,
+	COMP_TRG_THUMB = 9,
+	COMP_TRG_INDEX = 10,
+	COMP_TRG_MIDDLE = 11,
+	COMP_TRG_RING = 12,
+	COMP_TRG_PINKY = 13
+};
+
 LucidGloveDeviceDriver::LucidGloveDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration)
 	: m_configuration(std::move(configuration)),
 	m_driverId(-1),

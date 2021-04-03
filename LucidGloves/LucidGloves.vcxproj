@@ -25,6 +25,7 @@
     <ClInclude Include="include\ControllerPose.h" />
     <ClInclude Include="include\DeviceConfiguration.h" />
     <ClInclude Include="include\DeviceDriver\DeviceDriver.h" />
+    <ClInclude Include="include\DeviceDriver\KnuckleDriver.h" />
     <ClInclude Include="include\DeviceProvider.h" />
     <ClInclude Include="include\DriverLog.h" />
     <ClInclude Include="include\Encode\EncodingManager.h" />
@@ -36,6 +37,7 @@
     <ClInclude Include="include\Encode\LegacyEncodingManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\DeviceDriver\KnuckleDriver.cpp" />
     <ClCompile Include="src\Encode\LegacyEncodingManager.cpp" />
     <ClCompile Include="src\Bones.cpp" />
     <ClCompile Include="src\Communication\SerialCommunicationManager.cpp" />

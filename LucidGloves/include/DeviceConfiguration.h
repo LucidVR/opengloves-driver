@@ -56,6 +56,5 @@ struct VRDeviceConfiguration_t {
 
 	std::unique_ptr<ICommunicationManager> communicationManager;
 	VRDeviceDriver selectedDeviceDriver;
-
 	std::string serialNumber;
 };
