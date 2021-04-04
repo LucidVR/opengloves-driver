@@ -1,7 +1,6 @@
 #include "DeviceDriver/KnuckleDriver.h"
 namespace knuckleDevice {
 	const char* c_deviceManufacturer = "Valve";
-
 }
 
 static const enum ComponentIndex : int {
@@ -30,15 +29,17 @@ static const enum ComponentIndex : int {
 	FINGER_PINKY
 };
 
-KnuckleDeviceDriver::KnuckleDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration)
-	: m_configuration(std::move(configuration)),
+KnuckleDeviceDriver::KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager, std::string serialNumber)
+	: m_configuration(configuration),
+	m_communicationManager(std::move(communicationManager)),
+	m_serialNumber(serialNumber),
 	m_driverId(-1),
 	m_hasActivated(false) {
 
 	//copy a default bone transform to our hand transform for use in finger positioning later
 	std::copy(
-		std::begin(m_configuration->role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
-		std::end(m_configuration->role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
+		std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
+		std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
 		std::begin(m_handTransforms)
 	);
 
@@ -46,26 +47,26 @@ KnuckleDeviceDriver::KnuckleDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t
 
 
 bool KnuckleDeviceDriver::IsRightHand() const {
-	return m_configuration->role == vr::TrackedControllerRole_RightHand;
+	return m_configuration.role == vr::TrackedControllerRole_RightHand;
 }
 
 std::string KnuckleDeviceDriver::GetSerialNumber() {
-	return m_configuration->serialNumber;
+	return m_serialNumber;
 }
 bool KnuckleDeviceDriver::IsActive() {
 	return m_hasActivated;
 }
 vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
-	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d, enabled: %s", unObjectId, m_configuration->role, m_configuration->enabled ? "true" : "false");
+	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d, enabled: %s", unObjectId, m_configuration.role, m_configuration.enabled ? "true" : "false");
 	const bool isRightHand = IsRightHand();
 	m_driverId = unObjectId; //unique ID for your driver
-	m_controllerPose = std::make_unique<ControllerPose>(m_configuration->role, std::string(knuckleDevice::c_deviceManufacturer), m_configuration->offsetVector, m_configuration->angleOffsetVector, m_driverId);
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(knuckleDevice::c_deviceManufacturer), m_configuration.offsetVector, m_configuration.angleOffsetVector, m_driverId);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)2147483647);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_TrackingSystemName_String, "lighthouse");
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, m_configuration->serialNumber.c_str());
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, GetSerialNumber().c_str());
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_WillDriftInYaw_Bool, false);
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_DeviceIsWireless_Bool, true);
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_DeviceIsCharging_Bool, false);
@@ -166,9 +167,9 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 
 //This could do with a rename, its a bit vague as to what it does
 void KnuckleDeviceDriver::StartDevice() {
-	m_configuration->communicationManager->Connect();
-	if (m_configuration->communicationManager->IsConnected()) {
-		m_configuration->communicationManager->BeginListener([&](VRCommData_t datas) {
+	m_communicationManager->Connect();
+	if (m_communicationManager->IsConnected()) {
+		m_communicationManager->BeginListener([&](VRCommData_t datas) {
 			try {
 				//Compute each finger transform
 				for (int i = 0; i < NUM_BONES; i++) {
@@ -234,23 +235,12 @@ void KnuckleDeviceDriver::RunFrame() {
 
 void KnuckleDeviceDriver::Deactivate() {
 	if (m_hasActivated) {
-		m_configuration->communicationManager->Disconnect();
+		m_communicationManager->Disconnect();
 		m_driverId = vr::k_unTrackedDeviceIndexInvalid;
 	}
 }
 
 void* KnuckleDeviceDriver::GetComponent(const char* pchComponentNameAndVersion) {
-	//I found that if this method just returns null always, it works fine. But I'm leaving the if statement in since it doesn't hurt.
-	//Check out the IVRDriverInput_Version declaration in openvr_driver.h. You can search that file for other _Version declarations 
-	//to see other components that are available. You could also put a log in this class and output the value passed into this 
-	//method to see what OpenVR is looking for.
-
-	/*if (strcmp(vr::IVRDriverInput_Version, pchComponentNameAndVersion) == 0)
-	{
-		return this;
-	}
-	return NULL;*/
-
 	return nullptr;
 }
 

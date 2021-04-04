@@ -4,10 +4,12 @@
 #include <windows.h>
 #include <thread>
 #include <functional>
+#include <memory>
+
 #include "driverlog.h"
 #include "bones.h"
 
-#include "Communication/SerialCommunicationManager.h"
+#include "Communication/CommunicationManager.h"
 #include "Encode/LegacyEncodingManager.h"
 #include "DeviceDriver/DeviceDriver.h"
 
@@ -16,7 +18,7 @@
 
 class KnuckleDeviceDriver : public IDeviceDriver {
 public:
-	KnuckleDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration);
+	KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager, std::string serialNumber);
 
 	vr::EVRInitError Activate(uint32_t unObjectId);
 	void Deactivate();
@@ -45,7 +47,9 @@ private:
 
 	uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
-	std::unique_ptr<VRDeviceConfiguration_t> m_configuration;
+	VRDeviceConfiguration_t m_configuration;
+	std::unique_ptr<ICommunicationManager> m_communicationManager;
+	std::string m_serialNumber;
 
 	std::unique_ptr<ControllerPose> m_controllerPose;
 };

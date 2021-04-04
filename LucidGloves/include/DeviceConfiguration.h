@@ -29,32 +29,29 @@ struct VRSerialConfiguration_t {
 
 
 struct VRDeviceConfiguration_t {
-
 	VRDeviceConfiguration_t(vr::ETrackedControllerRole role,
 							bool enabled,
 							vr::HmdVector3_t offsetVector,
 							vr::HmdVector3_t angleOffsetVector,
 							float poseOffset,
-							std::unique_ptr<ICommunicationManager> communicationManager,
-							VRDeviceDriver selectedDeviceDriver,
-							std::string serialNumber) :
+							VREncodingProtocol encodingProtocol,
+							VRCommunicationProtocol communicationProtocol,
+							VRDeviceDriver deviceDriver) :
 		role(role),
 		enabled(enabled),
 		offsetVector(offsetVector),
 		angleOffsetVector(angleOffsetVector),
 		poseOffset(poseOffset),
-		communicationManager(std::move(communicationManager)),
-		selectedDeviceDriver(selectedDeviceDriver),
-		serialNumber(serialNumber)
-	{};
+		communicationProtocol(communicationProtocol),
+		deviceDriver(deviceDriver) {};
 
 	vr::ETrackedControllerRole role;
 	bool enabled;
 	vr::HmdVector3_t offsetVector;
 	vr::HmdVector3_t angleOffsetVector;
 	float poseOffset;
-
-	std::unique_ptr<ICommunicationManager> communicationManager;
-	VRDeviceDriver selectedDeviceDriver;
-	std::string serialNumber;
+	
+	VREncodingProtocol encodingProtocol;
+	VRCommunicationProtocol communicationProtocol;
+	VRDeviceDriver deviceDriver;
 };

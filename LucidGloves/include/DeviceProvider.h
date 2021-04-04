@@ -67,7 +67,7 @@ private:
 	/**
 	* returns the configuration set in VRSettings for the device role given
 	**/
-	std::unique_ptr<VRDeviceConfiguration_t> GetConfiguration(vr::ETrackedControllerRole role);
+	VRDeviceConfiguration_t GetDeviceConfiguration(vr::ETrackedControllerRole role);
 
-	std::unique_ptr<IDeviceDriver> InstantiateDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration);
+	std::unique_ptr<IDeviceDriver> InstantiateDeviceDriver(VRDeviceConfiguration_t configuration);
 };

@@ -9,32 +9,71 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 	InitDriverLog(vr::VRDriverLog());
 	DebugDriverLog("Initializing LucidGloves");
 
-	std::unique_ptr<VRDeviceConfiguration_t> leftConfiguration = GetConfiguration(vr::TrackedControllerRole_LeftHand);
-	std::unique_ptr<VRDeviceConfiguration_t> rightConfiguration = GetConfiguration(vr::TrackedControllerRole_RightHand);
+	VRDeviceConfiguration_t leftConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_LeftHand);
+	VRDeviceConfiguration_t rightConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_RightHand);
 
-	if (leftConfiguration->enabled) {
-		m_leftHand = InstantiateDeviceDriver(std::move(leftConfiguration));
+	if (leftConfiguration.enabled) {
+		m_leftHand = InstantiateDeviceDriver(leftConfiguration);
 		vr::VRServerDriverHost()->TrackedDeviceAdded(m_leftHand->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, m_leftHand.get());
 	}
-	if (rightConfiguration->enabled) {
-		m_rightHand = InstantiateDeviceDriver(std::move(rightConfiguration));
+	if (rightConfiguration.enabled) {
+		m_rightHand = InstantiateDeviceDriver(rightConfiguration);
 		vr::VRServerDriverHost()->TrackedDeviceAdded(m_rightHand->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, m_rightHand.get());
 	}
 
 	return vr::VRInitError_None;
 }
 
-std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(std::unique_ptr<VRDeviceConfiguration_t> configuration) {
-	switch (configuration->selectedDeviceDriver) {
+std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceConfiguration_t configuration) {
+
+	std::unique_ptr<ICommunicationManager> communicationManager;
+	std::unique_ptr<IEncodingManager> encodingManager;
+
+	bool isRightHand = configuration.role == vr::TrackedControllerRole_RightHand;
+
+	switch (configuration.encodingProtocol) {
+	default:
+		DriverLog("No encoding protocol set. Using legacy.");
+	case VREncodingProtocol::LEGACY:
+		const int maxAnalogValue = vr::VRSettings()->GetInt32("encoding_legacy", "max_analog_value");
+		encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
+		break;
+	}
+
+	switch (configuration.communicationProtocol) {
+	default:
+		DriverLog("No communication protocol set. Using serial.");
+	case VRCommunicationProtocol::SERIAL:
+		char port[16];
+		vr::VRSettings()->GetString("communication_serial", isRightHand ? "right_port" : "left_port", port, sizeof(port));
+		VRSerialConfiguration_t serialSettings(port);
+
+		communicationManager = std::make_unique<SerialCommunicationManager>(serialSettings, std::move(encodingManager));
+		break;
+	}
+
+	switch (configuration.deviceDriver) {
 	case VRDeviceDriver::EMULATED_KNUCKLES:
-		return std::make_unique<KnuckleDeviceDriver>(std::move(configuration));
+	{
+		char serialNumber[32];
+		vr::VRSettings()->GetString("device_knuckles", isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof(serialNumber));
+
+		return std::make_unique<KnuckleDeviceDriver>(configuration, std::move(communicationManager), serialNumber);
+	}
+
 	default:
 		DriverLog("No device driver selected. Using lucidgloves.");
 	case VRDeviceDriver::LUCIDGLOVES:
-		return std::make_unique<LucidGloveDeviceDriver>(std::move(configuration));
+	{
+		char serialNumber[32];
+		vr::VRSettings()->GetString("device_lucidgloves", isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof(serialNumber));
+
+		return std::make_unique<LucidGloveDeviceDriver>(configuration, std::move(communicationManager), serialNumber);
 	}
+	}
+
 }
-std::unique_ptr<VRDeviceConfiguration_t> DeviceProvider::GetConfiguration(vr::ETrackedControllerRole role) {
+VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedControllerRole role) {
 	const VRCommunicationProtocol communicationProtocol = (VRCommunicationProtocol)vr::VRSettings()->GetInt32(c_driverSettingsSection, "communication_protocol");
 	const VREncodingProtocol encodingProtocol = (VREncodingProtocol)vr::VRSettings()->GetInt32(c_driverSettingsSection, "encoding_protocol");
 	const VRDeviceDriver deviceDriver = (VRDeviceDriver)vr::VRSettings()->GetInt32(c_driverSettingsSection, "device_driver");
@@ -74,50 +113,7 @@ std::unique_ptr<VRDeviceConfiguration_t> DeviceProvider::GetConfiguration(vr::ET
 
 	const float poseOffset = vr::VRSettings()->GetFloat(c_poseSettingsSection, "pose_offset");
 
-	std::unique_ptr<ICommunicationManager> communicationManager;
-	std::unique_ptr<IEncodingManager> encodingManager;
-
-
-	switch (encodingProtocol) {
-	default:
-		DriverLog("No encoding protocol set. Using legacy.");
-	case VREncodingProtocol::LEGACY:
-		const int maxAnalogValue = vr::VRSettings()->GetInt32("encoding_legacy", "max_analog_value");
-		encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
-		break;
-	}
-
-	switch (communicationProtocol) {
-	default:
-		DriverLog("No communication protocol set. Using serial.");
-	case VRCommunicationProtocol::SERIAL:
-		char port[16];
-		vr::VRSettings()->GetString("communication_serial", role == vr::TrackedControllerRole_RightHand ? "right_port" : "left_port", port, sizeof(port));
-		VRSerialConfiguration_t serialSettings(port);
-
-		communicationManager = std::make_unique<SerialCommunicationManager>(serialSettings, std::move(encodingManager));
-		break;
-	}
-
-	switch (deviceDriver) {
-	case VRDeviceDriver::EMULATED_KNUCKLES:
-	{
-		char buffer[32];
-		vr::VRSettings()->GetString("device_knuckles", role == vr::TrackedControllerRole_RightHand ? "right_serial_number" : "left_serial_number", buffer, sizeof(buffer));
-
-		return std::make_unique<VRDeviceConfiguration_t>(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, std::move(communicationManager), deviceDriver, buffer);
-	}
-
-	default:
-		DriverLog("No device driver selected. Using lucidgloves.");
-	case VRDeviceDriver::LUCIDGLOVES:
-	{
-		char buffer[32];
-		vr::VRSettings()->GetString("device_lucidgloves", role == vr::TrackedControllerRole_RightHand ? "right_serial_number" : "left_serial_number", buffer, sizeof(buffer));
-
-		return std::make_unique<VRDeviceConfiguration_t>(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, std::move(communicationManager), deviceDriver, buffer);
-	}
-	}
+	return VRDeviceConfiguration_t(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, encodingProtocol, communicationProtocol, deviceDriver);
 
 }
 void DeviceProvider::Cleanup() {}
