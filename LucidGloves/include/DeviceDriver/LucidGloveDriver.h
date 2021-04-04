@@ -46,7 +46,7 @@ private:
 	uint32_t m_driverId;
 
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle{};
-	vr::VRInputComponentHandle_t m_inputComponentHandles[23]{};
+	vr::VRInputComponentHandle_t m_inputComponentHandles[14]{};
 
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
 

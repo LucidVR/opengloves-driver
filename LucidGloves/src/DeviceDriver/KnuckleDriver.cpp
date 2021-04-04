@@ -58,12 +58,12 @@ bool KnuckleDeviceDriver::IsActive() {
 vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d, enabled: %s", unObjectId, m_configuration->role, m_configuration->enabled ? "true" : "false");
 	const bool isRightHand = IsRightHand();
-
 	m_driverId = unObjectId; //unique ID for your driver
 	m_controllerPose = std::make_unique<ControllerPose>(m_configuration->role, std::string(knuckleDevice::c_deviceManufacturer), m_configuration->offsetVector, m_configuration->angleOffsetVector, m_driverId);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)2147483647);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_TrackingSystemName_String, "lighthouse");
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, m_configuration->serialNumber.c_str());
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_WillDriftInYaw_Bool, false);
@@ -78,8 +78,8 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_Firmware_ManualUpdate_Bool, false);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_Firmware_ManualUpdateURL_String, "https://developer.valvesoftware.com/wiki/SteamVR/HowTo_Update_Firmware");
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_DeviceProvidesBatteryStatus_Bool, true);
-	vr::VRProperties()->SetBoolProperty(props, vr::Prop_DeviceCanPowerOff_Bool, true);
-	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, vr::TrackedDeviceClass_Controller);
+	vr::VRProperties()->SetBoolProperty(props, vr::Prop_DeviceCanPowerOff_Bool, false);
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, (int32_t)vr::TrackedDeviceClass_Controller);
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_Firmware_ForceUpdateRequired_Bool, false);
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_Identifiable_Bool, true);
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_Firmware_RemindUpdate_Bool, false);
@@ -90,7 +90,7 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_HasCameraComponent_Bool, false);
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_HasDriverDirectModeComponent_Bool, false);
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_HasVirtualDisplayComponent_Bool, false);
-	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, 0);
+	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)2147483647);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, IsRightHand() ? "Knuckles Right" : "Knuckles Left");
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, IsRightHand() ? "{indexcontroller}valve_controller_knu_1_0_right" : "{indexcontroller}valve_controller_knu_1_0_left");
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, "Valve");
@@ -108,14 +108,14 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_RegisteredDeviceType_String, IsRightHand() ? "valve/index_controllerLHR-E217CD01" : "valve/index_controllerLHR-E217CD00");
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{indexcontroller}/input/index_controller_profile.json");
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_Axis2Type_Int32, vr::k_eControllerAxis_Trigger);
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceOff_String, !IsRightHand() ? "{indexcontroller}/icons/left_controller_status_off.png" : "{indexcontroller}/icons/right_controller_status_off.png");
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearching_String, !IsRightHand() ? "{indexcontroller}/icons/left_controller_status_searching.gif" : "{indexcontroller}/icons/right_controller_status_searching.gif");
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearchingAlert_String, !IsRightHand() ? "{indexcontroller}/icons/left_controller_status_searching_alert.gif" : "{indexcontroller}/icons//right_controller_status_searching_alert.gif");
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, !IsRightHand() ? "{indexcontroller}/icons/left_controller_status_ready.png" : "{indexcontroller}/icons//right_controller_status_ready.png");
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReadyAlert_String, !IsRightHand() ? "{indexcontroller}/icons/left_controller_status_ready_alert.png" : "{indexcontroller}/icons//right_controller_status_ready_alert.png");
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceNotReady_String, !IsRightHand() ? "{indexcontroller}/icons/left_controller_status_error.png" : "{indexcontroller}/icons//right_controller_status_error.png");
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceStandby_String, !IsRightHand() ? "{indexcontroller}/icons/left_controller_status_off.png" : "{indexcontroller}/icons//right_controller_status_off.png");
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, !IsRightHand() ? "{indexcontroller}/icons/left_controller_status_ready_low.png" : "{indexcontroller}/icons//right_controller_status_ready_low.png");
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceOff_String, IsRightHand() ? "{indexcontroller}/icons/right_controller_status_off.png" : "{indexcontroller}/icons/left_controller_status_off.png");
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearching_String, IsRightHand() ? "{indexcontroller}/icons/right_controller_status_searching.gif" : "{indexcontroller}/icons/left_controller_status_searching.gif");
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearchingAlert_String, IsRightHand() ? "{indexcontroller}/icons/right_controller_status_searching_alert.gif" : "{indexcontroller}/icons/left_controller_status_searching_alert.gif");
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, IsRightHand() ? "{indexcontroller}/icons/right_controller_status_ready.png" : "{indexcontroller}/icons/left_controller_status_ready.png");
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReadyAlert_String, IsRightHand() ? "{indexcontroller}/icons/right_controller_status_ready_alert.png" : "{indexcontroller}/icons/left_controller_status_ready_alert.png");
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceNotReady_String, IsRightHand() ? "{indexcontroller}/icons/right_controller_status_error.png" : "{indexcontroller}/icons/left_controller_status_error.png");
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceStandby_String, IsRightHand() ? "{indexcontroller}/icons/right_controller_status_off.png" : "{indexcontroller}/icons/left_controller_status_off.png");
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, IsRightHand() ? "{indexcontroller}/icons/right_controller_status_ready_low.png" : "{indexcontroller}/icons/left_controller_status_ready_low.png");
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, "knuckles");
 
 
@@ -154,7 +154,6 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 		&m_skeletalComponentHandle);
 
 	if (error != vr::VRInputError_None) {
-		// Handle failure case
 		DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", error);
 	}
 
@@ -168,9 +167,7 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 //This could do with a rename, its a bit vague as to what it does
 void KnuckleDeviceDriver::StartDevice() {
 	m_configuration->communicationManager->Connect();
-	//DebugDriverLog("Getting ready to connect:");
 	if (m_configuration->communicationManager->IsConnected()) {
-		//DebugDriverLog("Connected successfully");
 		m_configuration->communicationManager->BeginListener([&](VRCommData_t datas) {
 			try {
 				//Compute each finger transform
@@ -190,7 +187,7 @@ void KnuckleDeviceDriver::StartDevice() {
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_TOUCH], datas.joyButton, 0);
 
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_CLICK], datas.trgButton, 0);
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_VALUE], datas.trgButton, 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_VALUE], datas.trgButton, 0);
 
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_CLICK], datas.aButton, 0);
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_TOUCH], datas.aButton, 0);
@@ -200,7 +197,7 @@ void KnuckleDeviceDriver::StartDevice() {
 
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_FORCE], datas.grab, 0);
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_TOUCH], datas.grab, 0);
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_VALUE], datas.grab, 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::GRIP_VALUE], datas.grab, 0);
 
 				//We don't have a thumb on the index
 				//vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMB], datas.flexion[0], 0);

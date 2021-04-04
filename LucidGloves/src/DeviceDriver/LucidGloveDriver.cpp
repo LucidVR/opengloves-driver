@@ -1,11 +1,14 @@
 #include "DeviceDriver/LucidGloveDriver.h"
 
-const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
-const char* c_deviceControllerType = "lucidgloves";
-const char* c_deviceModelNumber = "lucidgloves1";
-const char* c_basePosePath = "/pose/raw";
-const char* c_inputProfilePath = "{lucidgloves}/input/lucidgloves_profile.json";
-const char* c_renderModelPath = "{lucidgloves}/rendermodels/lucidgloves";
+namespace lucidGlove {
+	const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
+	const char* c_deviceControllerType = "lucidgloves";
+	const char* c_deviceModelNumber = "lucidgloves1";
+	const char* c_basePosePath = "/pose/raw";
+	const char* c_inputProfilePath = "{lucidgloves}/input/lucidgloves_profile.json";
+	const char* c_renderModelPath = "{lucidgloves}/rendermodels/lucidgloves";
+
+}
 
 static const enum ComponentIndex : int {
 	COMP_JOY_X = 0,
@@ -54,18 +57,18 @@ vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
 	const bool isRightHand = IsRightHand();
 
 	m_driverId = unObjectId; //unique ID for your driver
-	m_controllerPose = std::make_unique<ControllerPose>(m_configuration->role, std::string(c_deviceManufacturer), m_configuration->offsetVector, m_configuration->angleOffsetVector, m_driverId);
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration->role, std::string(lucidGlove::c_deviceManufacturer), m_configuration->offsetVector, m_configuration->angleOffsetVector, m_driverId);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)2147483647);
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, c_inputProfilePath); //tell OpenVR where to get your driver's Input Profile
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, lucidGlove::c_inputProfilePath); //tell OpenVR where to get your driver's Input Profile
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, m_configuration->role); //tells OpenVR what kind of device this is
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, m_configuration->serialNumber.c_str());
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, lucidGlove::c_deviceModelNumber);
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, lucidGlove::c_deviceManufacturer);
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, (int32_t)vr::TrackedDeviceClass_Controller);
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, c_deviceControllerType);
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, lucidGlove::c_deviceControllerType);
 
 	vr::VRDriverInput()->CreateScalarComponent(props, "/input/joystick/x", &m_inputComponentHandles[ComponentIndex::COMP_JOY_X], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedTwoSided);
 	vr::VRDriverInput()->CreateScalarComponent(props, "/input/joystick/y", &m_inputComponentHandles[ComponentIndex::COMP_JOY_Y], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedTwoSided);

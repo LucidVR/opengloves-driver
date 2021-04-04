@@ -37,7 +37,7 @@ private:
 	uint32_t m_driverId;
 
 	vr::VRInputComponentHandle_t m_skeletalComponentHandle{};
-	vr::VRInputComponentHandle_t m_inputComponentHandles[14]{};
+	vr::VRInputComponentHandle_t m_inputComponentHandles[23]{};
 
 	vr::VRInputComponentHandle_t m_haptic{};
 
