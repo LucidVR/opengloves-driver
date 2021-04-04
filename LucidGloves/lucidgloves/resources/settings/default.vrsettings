@@ -3,17 +3,22 @@
 		"left_enabled": true,
 		"right_enabled": true,
 		"communication_protocol": 0,
-		"device_driver": 0,
+		"device_driver": 1,
 		"encoding_protocol": 0
 	},
+	
+	//device_driver = 0
 	"device_lucidgloves": {
 		"left_serial_number": "lucidgloves-left",
 		"right_serial_number": "lucidgloves-right"
 	},
+	
+	//device_driver = 1
 	"device_knuckles": {
 		"left_serial_number": "LHR-E217CD00",
 		"right_serial_number": "LHR-E217CD01"
 	},
+	
 	"pose_settings": {
 		"x_offset": -0.10,
 		"y_offset": -0.08,
@@ -29,10 +34,14 @@
 		"left_flipped_rot_y": false,
 		"left_flipped_rot_z": true
 	},
+	
+	//communication_protocol = 0
 	"communication_serial": {
 		"left_port": "\\\\.\\COM4",
 		"right_port": "\\\\.\\COM5"
 	},
+	
+	//encoding_protocol = 0
 	"encoding_legacy": {
 		"max_analog_value": 1023
 	}
