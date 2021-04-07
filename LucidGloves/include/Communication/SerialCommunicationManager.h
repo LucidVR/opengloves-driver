@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Comm/CommunicationManager.h"
+#include "CommunicationManager.h"
+#include "DeviceConfiguration.h"
 #include <windows.h>
 #include <iostream>
+#include <memory>
 #include <thread>
 #include <atomic>
 #include <chrono>
@@ -10,29 +12,21 @@
 #include <sstream>
 #include "DriverLog.h"
 
-#define ARDUINO_WAIT_TIME 2000
+#define ARDUINO_WAIT_TIME 1000
 
-static constexpr float c_maxAnalogValue = 1023;
-
-struct VRSerialConfiguration_t {
-	std::string port;
-
-	VRSerialConfiguration_t(std::string port) : port(port) {};
-};
-
-class SerialManager : public ICommunicationManager {
+class SerialCommunicationManager : public ICommunicationManager {
 public:
-	SerialManager(VRSerialConfiguration_t configuration) : m_configuration(configuration), m_isConnected(false), m_hSerial(0), m_errors(0) {};
+	SerialCommunicationManager(const VRSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager) : m_serialConfiguration(configuration), m_encodingManager(std::move(encodingManager)), m_isConnected(false), m_hSerial(0), m_errors(0) {};
 	//connect to the device using serial
 	void Connect();
 	//start a thread that listens for updates from the device and calls the callback with data
-	void BeginListener(const std::function<void(std::string)>& callback);
+	void BeginListener(const std::function<void(VRCommData_t)>& callback);
 	//returns if connected or not
 	bool IsConnected();
 	//close the serial port
 	void Disconnect();
 private:
-    void ListenerThread(const std::function<void(std::string)>& callback);
+    void ListenerThread(const std::function<void(VRCommData_t)>& callback);
     bool ReceiveNextPacket(std::string &buff);
     bool PurgeBuffer();
 
@@ -46,5 +40,7 @@ private:
 	std::atomic<bool> m_threadActive;
 	std::thread m_serialThread;
 
-	VRSerialConfiguration_t m_configuration;
+	VRSerialConfiguration_t m_serialConfiguration;
+
+	std::unique_ptr<IEncodingManager> m_encodingManager;
 };
