@@ -122,9 +122,9 @@ const char* const* DeviceProvider::GetInterfaceVersions() {
 }
 
 void DeviceProvider::RunFrame() {
-	if (m_leftHand->IsActive())
+	if (m_leftHand && m_leftHand->IsActive())
 		m_leftHand->RunFrame();
-	if (m_rightHand->IsActive())
+	if (m_rightHand && m_rightHand->IsActive())
 		m_rightHand->RunFrame();
 }
 
