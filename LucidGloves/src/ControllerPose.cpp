@@ -5,11 +5,13 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
 							   std::string thisDeviceManufacturer,
 							   vr::HmdVector3_t offsetVector,
 							   vr::HmdVector3_t angleOffsetVector,
+							   int controllerIdOverride,
 							   uint32_t driverId) :
 	m_shadowDeviceOfRole(shadowDeviceOfRole),
 	m_driverId(driverId),
 	m_thisDeviceManufacturer(thisDeviceManufacturer),
-	m_offsetVector(offsetVector) {
+	m_offsetVector(offsetVector),
+	m_controllerIdOverride(controllerIdOverride){
 
 	const vr::HmdVector3_t angleOffset = angleOffsetVector;
 	m_offsetQuaternion = EulerToQuaternion(DegToRad(angleOffset.v[0]), DegToRad(angleOffset.v[1]), DegToRad(angleOffset.v[2]));
@@ -79,19 +81,25 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 }
 void ControllerPose::DiscoverController() {
 	//omit id 0, as this is always the headset pose
-	for (int i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
-		vr::ETrackedPropertyError err;
+	if (m_controllerIdOverride == -1) {
+		for (int i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
+			vr::ETrackedPropertyError err;
 
-		vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(i);
+			vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(i);
 
-		std::string foundDeviceManufacturer = vr::VRProperties()->GetStringProperty(container, vr::Prop_ManufacturerName_String, &err);
-		int32_t deviceControllerRole = vr::VRProperties()->GetInt32Property(container, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32, &err);
+			std::string foundDeviceManufacturer = vr::VRProperties()->GetStringProperty(container, vr::Prop_ManufacturerName_String, &err);
+			int32_t deviceControllerRole = vr::VRProperties()->GetInt32Property(container, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32, &err);
 
-		//We have a device which identifies itself as a tracked device that we want to be searching for, and that device is not this one.
-		if (deviceControllerRole == m_shadowDeviceOfRole && foundDeviceManufacturer != m_thisDeviceManufacturer) {
-			DebugDriverLog("Discovered a controller! Id: %i, Manufacturer: %s", i, foundDeviceManufacturer.c_str());
-			m_shadowControllerId = i;
-			break;
+			//We have a device which identifies itself as a tracked device that we want to be searching for, and that device is not this one.
+			if (deviceControllerRole == m_shadowDeviceOfRole && foundDeviceManufacturer != m_thisDeviceManufacturer) {
+				DebugDriverLog("Discovered a controller! Id: %i, Manufacturer: %s", i, foundDeviceManufacturer.c_str());
+				m_shadowControllerId = i;
+				break;
+			}
 		}
+	}
+	else {
+		DebugDriverLog("Controller ID override set! Id: %i", m_controllerIdOverride);
+		m_shadowControllerId = m_controllerIdOverride;
 	}
 }

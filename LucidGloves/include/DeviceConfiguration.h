@@ -34,6 +34,7 @@ struct VRDeviceConfiguration_t {
 							vr::HmdVector3_t offsetVector,
 							vr::HmdVector3_t angleOffsetVector,
 							float poseOffset,
+							int controllerIdOverride,
 							VREncodingProtocol encodingProtocol,
 							VRCommunicationProtocol communicationProtocol,
 							VRDeviceDriver deviceDriver) :
@@ -41,6 +42,7 @@ struct VRDeviceConfiguration_t {
 		enabled(enabled),
 		offsetVector(offsetVector),
 		angleOffsetVector(angleOffsetVector),
+		controllerIdOverride(controllerIdOverride),
 		poseOffset(poseOffset),
 		communicationProtocol(communicationProtocol),
 		deviceDriver(deviceDriver) {};
@@ -50,6 +52,7 @@ struct VRDeviceConfiguration_t {
 	vr::HmdVector3_t offsetVector;
 	vr::HmdVector3_t angleOffsetVector;
 	float poseOffset;
+	int controllerIdOverride;
 	
 	VREncodingProtocol encodingProtocol;
 	VRCommunicationProtocol communicationProtocol;

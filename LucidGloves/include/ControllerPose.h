@@ -9,7 +9,8 @@ public:
 	ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
 							   std::string thisDeviceManufacturer,
 							   vr::HmdVector3_t offsetVector,
-							   vr::HmdVector3_t angleOffsetVector,
+							   vr::HmdVector3_t angleOffsetVector, 
+							   int controllerIdOverride,
 							   uint32_t driverId);
 	vr::DriverPose_t UpdatePose();
 private:
@@ -20,6 +21,8 @@ private:
 	//We don't have our own tracking system, so we fetch positioning from the propriety controllers/trackers.
 	//This member variable is the id of the controller we are "shadowing" and receiving positioning from.
 	short int m_shadowControllerId = -1;
+
+	int m_controllerIdOverride;
 
 	vr::HmdQuaternion_t m_offsetQuaternion;
 
