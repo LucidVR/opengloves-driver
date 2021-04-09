@@ -51,7 +51,7 @@ That said, we are more than happy to help with issues that may arise, skip to th
 * Aperture Hand Lab (compatible)
 * Pavlov (compatible)
 * Boneworks (compatible **with** knuckles emulation)
-* Blade and Sorcery (known issues)
+* Blade and Sorcery (compatible **with** knuckles emulation)
 * VRChat (compatible **with** knuckles emulation)
 * Have a game you've tested that does/doesn't work? Please let us know!
 
