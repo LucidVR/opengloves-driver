@@ -116,7 +116,7 @@ VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedContr
 
 	const float poseOffset = vr::VRSettings()->GetFloat(c_poseSettingsSection, "pose_offset");
 
-	return VRDeviceConfiguration_t(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, controllerIdOverride, encodingProtocol, communicationProtocol, deviceDriver);
+	return VRDeviceConfiguration_t(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, controllerIdOverride, isControllerOverride, encodingProtocol, communicationProtocol, deviceDriver);
 
 }
 void DeviceProvider::Cleanup() {}

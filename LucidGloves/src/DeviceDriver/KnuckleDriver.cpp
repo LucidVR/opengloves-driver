@@ -60,7 +60,7 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d, enabled: %s", unObjectId, m_configuration.role, m_configuration.enabled ? "true" : "false");
 	const bool isRightHand = IsRightHand();
 	m_driverId = unObjectId; //unique ID for your driver
-	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(knuckleDevice::c_deviceManufacturer), m_configuration.offsetVector, m_configuration.angleOffsetVector, m_configuration.controllerIdOverride, m_driverId);
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(knuckleDevice::c_deviceManufacturer), m_configuration.offsetVector, m_configuration.angleOffsetVector, m_configuration.controllerIdOverride, m_configuration.isControllerOverride, m_driverId);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
@@ -188,7 +188,7 @@ void KnuckleDeviceDriver::StartDevice() {
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_TOUCH], datas.joyButton, 0);
 
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_CLICK], datas.trgButton, 0);
-				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_VALUE], datas.trgButton, 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_VALUE], datas.flexion[1], 0);
 
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_CLICK], datas.aButton, 0);
 				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_TOUCH], datas.aButton, 0);

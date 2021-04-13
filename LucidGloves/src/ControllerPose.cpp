@@ -6,12 +6,14 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
 							   vr::HmdVector3_t offsetVector,
 							   vr::HmdVector3_t angleOffsetVector,
 							   int controllerIdOverride,
+							   bool isControllerOverride,
 							   uint32_t driverId) :
 	m_shadowDeviceOfRole(shadowDeviceOfRole),
 	m_driverId(driverId),
 	m_thisDeviceManufacturer(thisDeviceManufacturer),
 	m_offsetVector(offsetVector),
-	m_controllerIdOverride(controllerIdOverride){
+	m_controllerIdOverride(controllerIdOverride),
+	m_isControllerOverride(isControllerOverride){
 
 	const vr::HmdVector3_t angleOffset = angleOffsetVector;
 	m_offsetQuaternion = EulerToQuaternion(DegToRad(angleOffset.v[0]), DegToRad(angleOffset.v[1]), DegToRad(angleOffset.v[2]));
@@ -81,7 +83,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 }
 void ControllerPose::DiscoverController() {
 	//omit id 0, as this is always the headset pose
-	if (m_controllerIdOverride == -1) {
+	if (!m_isControllerOverride) {
 		for (int i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
 			vr::ETrackedPropertyError err;
 

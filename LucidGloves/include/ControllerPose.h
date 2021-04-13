@@ -11,6 +11,7 @@ public:
 							   vr::HmdVector3_t offsetVector,
 							   vr::HmdVector3_t angleOffsetVector, 
 							   int controllerIdOverride,
+							   bool isControllerOverride,
 							   uint32_t driverId);
 	vr::DriverPose_t UpdatePose();
 private:
@@ -23,7 +24,7 @@ private:
 	short int m_shadowControllerId = -1;
 
 	int m_controllerIdOverride;
-
+	bool m_isControllerOverride;
 	vr::HmdQuaternion_t m_offsetQuaternion;
 
 	vr::ETrackedControllerRole m_shadowDeviceOfRole = vr::TrackedControllerRole_Invalid;
