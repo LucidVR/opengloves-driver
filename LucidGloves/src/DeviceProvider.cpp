@@ -97,6 +97,9 @@ VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedContr
 
 	const bool isRightHand = role == vr::TrackedControllerRole_RightHand;
 
+	const bool isControllerOverride = vr::VRSettings()->GetBool(c_poseSettingsSection, "controller_override");
+	const int  controllerIdOverride = isControllerOverride?vr::VRSettings()->GetInt32(c_poseSettingsSection, isRightHand?"controller_override_right":"controller_override_left"):-1;
+
 	const bool isEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, isRightHand ? "right_enabled" : "left_enabled");
 
 	//x axis may be flipped for the different hands
@@ -113,7 +116,7 @@ VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedContr
 
 	const float poseOffset = vr::VRSettings()->GetFloat(c_poseSettingsSection, "pose_offset");
 
-	return VRDeviceConfiguration_t(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, encodingProtocol, communicationProtocol, deviceDriver);
+	return VRDeviceConfiguration_t(role, isEnabled, offsetVector, angleOffsetVector, poseOffset, controllerIdOverride, isControllerOverride, encodingProtocol, communicationProtocol, deviceDriver);
 
 }
 void DeviceProvider::Cleanup() {}

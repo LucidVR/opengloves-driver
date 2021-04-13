@@ -57,7 +57,7 @@ vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
 	const bool isRightHand = IsRightHand();
 
 	m_driverId = unObjectId; //unique ID for your driver
-	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(lucidGlove::c_deviceManufacturer), m_configuration.offsetVector, m_configuration.angleOffsetVector, m_driverId);
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(lucidGlove::c_deviceManufacturer), m_configuration.offsetVector, m_configuration.angleOffsetVector, m_configuration.controllerIdOverride, m_configuration.isControllerOverride, m_driverId);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 

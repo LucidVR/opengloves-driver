@@ -32,7 +32,10 @@
 		"left_flipped_pos_z": false,
 		"left_flipped_rot_x": false,
 		"left_flipped_rot_y": false,
-		"left_flipped_rot_z": true
+		"left_flipped_rot_z": true,
+		"controller_override": false,
+		"controller_override_left": 3,
+		"controller_override_right": 4
 	},
 	
 	//communication_protocol = 0
