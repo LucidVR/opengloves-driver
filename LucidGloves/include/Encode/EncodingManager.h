@@ -2,24 +2,7 @@
 #include <string>
 #include <functional>
 #include <array>
-/*
-	Input Structure:
 
-	fin_thumb
-	fin_index
-	fin_middle
-	fin_ring
-	fin_middle
-	fin_pinky
-	joy_x
-	joy_y
-	joy_btn
-	btn_trg
-	btn_a
-	btn_b
-	ges_grab --
-	ges_pinch | -- up for debate if these should be done arduino/driver side, but probably arduino side
-*/
 struct VRCommData_t {
 	VRCommData_t(std::array<float, 5> flexion, std::array<float, 5> splay, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch) :
 		flexion(flexion),
@@ -61,13 +44,10 @@ enum VRCommDataInputPosition {
 	GES_PINCH = 12,
 };
 
-class ICommunicationManager {
+class IEncodingManager {
 public:
-	virtual void Connect() = 0;
-	virtual void BeginListener(const std::function<void(VRCommData_t)>& callback) = 0;
-	virtual bool IsConnected() = 0;
-	virtual void Disconnect() = 0;
-	virtual ~ICommunicationManager() {};
+	virtual VRCommData_t Decode(std::string input) = 0;
+	virtual ~IEncodingManager() {};
 private:
-	bool is_connected_;
+	float m_maxAnalogValue;
 };

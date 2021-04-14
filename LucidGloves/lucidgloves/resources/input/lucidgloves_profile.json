@@ -50,7 +50,17 @@
       "binding_image_point": [ 67, 81 ],
       "order": 4
     },
+	"/input/B/click": {
+      "type": "button",
+      "binding_image_point": [ 67, 81 ],
+      "order": 4
+    },
     "/input/grab/click": {
+      "type": "button",
+      "binding_image_point": [ 67, 81 ],
+      "order": 5
+    },
+	"/input/pinch/click": {
       "type": "button",
       "binding_image_point": [ 67, 81 ],
       "order": 5
