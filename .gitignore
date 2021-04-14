@@ -462,4 +462,4 @@ MigrationBackup/
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
 
-!openglove/bin/win64/DLL GOES HERE.txt
+!openglove/*
