@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LucidGloves", "LucidGloves\LucidGloves.vcxproj", "{E9F07C0E-B5A2-4119-8473-BD3783CE73A0}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "OpenGloves", "OpenGloves.vcxproj", "{E9F07C0E-B5A2-4119-8473-BD3783CE73A0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

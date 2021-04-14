@@ -5,7 +5,7 @@ namespace lucidGlove {
 	const char* c_deviceControllerType = "lucidgloves";
 	const char* c_deviceModelNumber = "lucidgloves1";
 	const char* c_basePosePath = "/pose/raw";
-	const char* c_inputProfilePath = "{lucidgloves}/input/lucidgloves_profile.json";
+	const char* c_inputProfilePath = "{lucidgloves}/input/openglove_profile.json";
 	const char* c_renderModelPath = "{lucidgloves}/rendermodels/lucidgloves";
 
 }

@@ -1,0 +1,6 @@
+[submodule "libraries/openvr"]
+	path = libraries/openvr
+	url = https://github.com/ValveSoftware/openvr.git
+[submodule "libraries/asio"]
+	path = libraries/asio
+	url = https://github.com/chriskohlhoff/asio.git

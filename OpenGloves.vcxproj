@@ -29,9 +29,7 @@
     <ClInclude Include="include\DeviceProvider.h" />
     <ClInclude Include="include\DriverLog.h" />
     <ClInclude Include="include\Encode\EncodingManager.h" />
-    <ClInclude Include="include\openvr.h" />
-    <ClInclude Include="include\openvr_capi.h" />
-    <ClInclude Include="include\openvr_driver.h" />
+    <ClInclude Include="libraries\openvr\headers\openvr_driver.h" />
     <ClInclude Include="include\DeviceDriver\LucidGloveDriver.h" />
     <ClInclude Include="include\Quaternion.h" />
     <ClInclude Include="include\Encode\LegacyEncodingManager.h" />
@@ -49,24 +47,21 @@
     <ClCompile Include="src\Quaternion.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="include\openvr_api.cs" />
-    <None Include="include\openvr_api.json" />
-    <None Include="LucidGloves\resources\input\lucidgloves_profile.json" />
+    <None Include="resources\input\openglove_profile.json" />
     <None Include="resources\controller_profile.json" />
     <None Include="resources\driver.vrdrivermanifest" />
     <None Include="resources\game_controller.svg" />
-    <None Include="resources\legacy_bindings_lucidgloves.json" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="lib\openvr_api.lib" />
+    <Library Include="libraries\openvr\lib\win64\openvr_api.lib" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{e9f07c0e-b5a2-4119-8473-bd3783ce73a0}</ProjectGuid>
-    <RootNamespace>LucidGloves</RootNamespace>
+    <RootNamespace>OpenGloves</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>LucidGloves</ProjectName>
+    <ProjectName>OpenGloves</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -124,7 +119,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <TargetName>driver_$(ProjectName.toLower())</TargetName>
-    <OutDir>C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers\lucidgloves\bin\win64\</OutDir>
+    <OutDir>C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers\openglove\bin\win64\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
@@ -177,7 +172,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>include;libraries\openvr\headers</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
