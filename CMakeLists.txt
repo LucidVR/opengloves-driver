@@ -10,8 +10,6 @@ set(ASIO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/asio/asio/include")
 
 set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
 
-include(cmake/steamvrPaths.cmake)
-
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(PROCESSOR_ARCH "64")
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -61,12 +59,4 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:${OPENGLOVE_PROJECT}>
         $<TARGET_FILE_DIR:${OPENGLOVE_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${OPENGLOVE_PROJECT}>
-)
-
-add_custom_command(
-        TARGET ${OPENGLOVE_PROJECT}
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        $<TARGET_FILE_DIR:${OPENGLOVE_PROJECT}>/${DRIVER_NAME}
-        ${STEAMVR_DRIVER_DIR}/${DRIVER_NAME}
 )
