@@ -10,6 +10,8 @@ set(ASIO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/asio/asio/include")
 
 set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
 
+include(cmake/steamvrPaths.cmake)
+
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(PROCESSOR_ARCH "64")
 elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -26,10 +28,8 @@ endif()
 
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
 
-# Example Driver
 set(DRIVER_NAME "openglove")
 set(OPENGLOVE_PROJECT "driver_${DRIVER_NAME}")
-set(STEAMVR_DRIVER_DIR "C:/Program Files (x86)/Steam/steamapps/common/SteamVR/drivers")
 
 file(GLOB_RECURSE HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
