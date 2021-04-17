@@ -1,3 +1,5 @@
+Binaries are (or will) be provided in the Releases in this Repository, but if you would prefer to build the driver yourself instructions are documented below.
+
 # Setting Up
 * Clone the repo **(including submodules)**
   * `git clone --recursive https://github.com/LucidVR/opengloves-driver.git` 
