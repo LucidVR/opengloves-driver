@@ -1,6 +1,7 @@
 # Setting Up
-* Clone the repo (including submodules)
-  * `git clone --recursive https://github.com/LucidVR/opengloves-driver.git`  
+* Clone the repo **(including submodules)**
+  * `git clone --recursive https://github.com/LucidVR/opengloves-driver.git` 
+    *If this doesn't clone the submodules correctly, try `git submodule update --init --recursive`   
 
 ## Generate Project Files
 * Ensure that you have cmake installed (along with the path variable set)
