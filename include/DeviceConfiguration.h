@@ -5,7 +5,7 @@
 #include "openvr_driver.h"
 #include <memory>
 
-static const char* c_driverSettingsSection = "driver_opengloves";
+static const char* c_driverSettingsSection = "driver_openglove";
 static const char* c_poseSettingsSection = "pose_settings";
 
 enum VRCommunicationProtocol {

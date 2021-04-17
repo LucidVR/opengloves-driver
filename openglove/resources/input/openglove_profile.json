@@ -1,14 +1,14 @@
 {
   "jsonid": "input_profile",
-  "controller_type": "lucidgloves",
+  "controller_type": "openglove",
   "input_bindingui_mode" : "controller_handed",
   "input_bindingui_left" :
   {
-    "image": "{lucidgloves}/icons/lucidgloves.svg"
+    "image": "{openglove}/icons/openglove.svg"
   },
   "input_bindingui_right" :
   {
-    "image": "{lucidgloves}/icons/lucidgloves.svg"
+    "image": "{openglove}/icons/openglove.svg"
   },
   "input_source": {
     "/pose/raw": {

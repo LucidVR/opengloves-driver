@@ -1,9 +1,15 @@
-**/bin/**/*.*
-**/Debug/**/*.*
-**/Release/**/*.*
-**/.vs/**/*.*
-*.vcxproj.user
-*.dll
-!/LucidGloves/lucidgloves/bin/win64/DLL GOES HERE.txt
-lucidgloves-cppcheck-build-dir
-LucidGloves/lucidgloves.cppcheck
+.idea/
+.vs/
+
+CMakeFiles/
+cmake-build-*/
+Debug/
+Release/
+Build/
+
+*.sln
+*.vcxproj
+*.vcxproj.*
+
+CMakeCache.txt
+cmake_install.cmake

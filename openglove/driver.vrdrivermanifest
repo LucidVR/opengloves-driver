@@ -1,6 +1,6 @@
 {
 	"alwaysActivate": true,
-	"name" : "lucidgloves",
+	"name" : "openglove",
 	"directory" : "",
 	"resourceOnly" : false,
 	"prefersUpperDeviceIndices" :  false,

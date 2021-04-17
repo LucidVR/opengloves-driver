@@ -1,22 +1,72 @@
 Binaries are (or will) be provided in the Releases in this Repository, but if you would prefer to build the driver yourself instructions are documented below.
 
-To build the driver, you will need:
-* Visual Studio 2019 (https://visualstudio.microsoft.com/)
+# Setting Up
+* Clone the repo **(including submodules)**
+  * `git clone --recursive https://github.com/LucidVR/opengloves-driver.git` 
+    *If this doesn't clone the submodules correctly, try `git submodule update --init --recursive`   
 
-This repo contains everything required to build the driver. Either clone/download zip and extract to your desired location
+## Generate Project Files
+* Ensure that you have cmake installed (along with the path variable set)
+  * https://cmake.org/download/
+* Ensure that you have `C++ CMake tools for Windows` installed
+  * Modify Visual Studio in Visual Studio installer
+* Navigate into the project folder
+  * `cd opengloves-driver`
+* Run CMake
+  * `cmake .`
 
-Once downloaded, open the driver from the Visual Studio dashboard by clicking Open Project/Solution. Navigate to where you downloaded the repo, go through to `LucidGloves` and open the `.sln` file.
+This should generate Visual Studio project files, which you can then open.
 
-Once opened, choose the `Release` configuration (debugging is covered on `Debugging the Driver` page). Press `Ctrl+Shift+B` to build without running. You should see the build successfully complete.
+# Building with Visual Studio  
+* You should alread have the ability to build the driver by pressing `Ctrl + Shift + B`
+  * The artifacts of the build will be outputted to `Debug/`, or `Release/` depending on build configuration
+* You can copy the `openglove` fodler into the steamvr drivers folder
+  * Usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers`
+* Running SteamVR you should see the driver activate two new controllers
 
-The binaries are built to the top level of the project, navigate into it and copy the `.dll`.
+# Debugging with Visual Studio  
+If you want to make changes to the code and would like to use a debugger/not have to copy builds by hand, you are able to do so with the following steps:
 
-Inside the project folder `LucidGloves`, there is a folder named `lucidgloves`, which is the folder containing all files needed for the driver to operate.
+* Navigate to `C:\Users\<user>\AppData\Local\openvr`
+  * Open `openvrpaths.vrpath`.
+* Append the build output path of the project to `external_drivers`. For example:
 
-The `.dll` needs to be copied there, at the location: `lucidgloves/bin/win64/`.
+```
+{
+	"config" : 
+	[
+		"C:\\Program Files (x86)\\Steam\\config"
+	],
+	"external_drivers" : 
+	[
+		"E:\\opengloves-driver\\Debug" <=================
+	],
+	"jsonid" : "vrpathreg",
+	"log" : 
+	[
+		"C:\\Program Files (x86)\\Steam\\logs"
+	],
+	"runtime" : 
+	[
+		"C:\\Program Files (x86)\\Steam\\steamapps\\common\\SteamVR"
+	],
+	"version" : 1
+}
+```
 
-Make sure that the filename of the dll is `driver_lucidgloves.dll`.
+## Setup the Debugger
+* Install the Microsoft Process Debugging Tool
+  * https://marketplace.visualstudio.com/items?itemName=vsdbgplat.MicrosoftChildProcessDebuggingPowerTool
+* Navigate to `Debug>Other Debug Targets>Child Process Debug Settings`
+  * Check `Enable child process debugging`
+  * On the first row (with the process name `<All other processes>`, make sure that the `Action` is set to `Do not debug`.  
+  * Add a new row (double click on the empty `Process name` underneath `<All other processes>`.  
+  * Add `vrserver.exe` as the process name 
+  * Ensure that `Action` is set to `Attach Debugger`.
 
-Copy this whole folder (`lucidgloves`) to the location you installed SteamVR to, inside the `driver` folder. This is usually located at `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers`.
-
-Carry out the steps located in `Configuring the Driver`.
+## Launch SteamVR when building through Visual Studio
+* Right click on the project `driver_openglove`
+  * Select `properties`. 
+  * Navigate to the `Debugger` Property (under Configuration Properties)
+  * Set `Command` to the location of `vrstartup.exe`
+    * This is usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrstartup.exe`

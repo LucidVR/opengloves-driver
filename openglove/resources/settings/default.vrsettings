@@ -1,5 +1,5 @@
 {
-	"driver_opengloves": {
+	"driver_openglove": {
 		"left_enabled": true,
 		"right_enabled": true,
 		"communication_protocol": 0,
