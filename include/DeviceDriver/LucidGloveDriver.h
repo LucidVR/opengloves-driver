@@ -50,8 +50,6 @@ private:
 
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
 
-	uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
-
 	VRDeviceConfiguration_t m_configuration;
 	std::unique_ptr<ICommunicationManager> m_communicationManager;
 	std::string m_serialNumber;

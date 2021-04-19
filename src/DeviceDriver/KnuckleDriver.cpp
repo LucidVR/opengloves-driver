@@ -1,9 +1,11 @@
 #include "DeviceDriver/KnuckleDriver.h"
 
+#include <utility>
+
 #include "DriverLog.h"
 
 namespace knuckleDevice {
-	const char* c_deviceManufacturer = "Valve";
+	const char* c_deviceManufacturer = "FluidControlObject";
 }
 
 static const enum ComponentIndex : int {
@@ -35,7 +37,7 @@ static const enum ComponentIndex : int {
 KnuckleDeviceDriver::KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager, std::string serialNumber)
 	: m_configuration(configuration),
 	m_communicationManager(std::move(communicationManager)),
-	m_serialNumber(serialNumber),
+	m_serialNumber(std::move(serialNumber)),
 	m_driverId(-1),
 	m_hasActivated(false) {
 
@@ -60,10 +62,9 @@ bool KnuckleDeviceDriver::IsActive() {
 	return m_hasActivated;
 }
 vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
-	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d, enabled: %s", unObjectId, m_configuration.role, m_configuration.enabled ? "true" : "false");
 	const bool isRightHand = IsRightHand();
 	m_driverId = unObjectId; //unique ID for your driver
-	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(knuckleDevice::c_deviceManufacturer), m_configuration.offsetVector, m_configuration.angleOffsetVector, m_configuration.controllerIdOverride, m_configuration.isControllerOverride, m_driverId);
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(knuckleDevice::c_deviceManufacturer), m_configuration.poseConfiguration);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
@@ -97,7 +98,7 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)2147483647);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, IsRightHand() ? "Knuckles Right" : "Knuckles Left");
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, IsRightHand() ? "{indexcontroller}valve_controller_knu_1_0_right" : "{indexcontroller}valve_controller_knu_1_0_left");
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, "Valve");
+	vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, knuckleDevice::c_deviceManufacturer);
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_TrackingFirmwareVersion_String, "1562916277 watchman@ValveBuilder02 2019-07-12 FPGA 538(2.26/10/2) BL 0 VRC 1562916277 Radio 1562882729");
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_HardwareRevision_String, "product 17 rev 14.1.9 lot 2019/4/20 0");
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_ConnectedWirelessDongle_String, "C2F75F5986-DIY");
