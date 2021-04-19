@@ -1,12 +1,17 @@
 #pragma once
+
+#undef _WINSOCKAPI_
+#define _WINSOCKAPI_
+
 #include <openvr_driver.h>
-#include <windows.h>
+//#include <windows.h>
 #include <memory>
 #include "DeviceConfiguration.h"
 #include "DriverLog.h"
 
 #include "Communication/CommunicationManager.h"
 #include "Communication/SerialCommunicationManager.h"
+#include "Communication/BTSerialCommunicationManager.h"
 
 #include "Encode/EncodingManager.h"
 #include "Encode/LegacyEncodingManager.h"
