@@ -1,5 +1,7 @@
 #include "DeviceDriver/LucidGloveDriver.h"
 
+#include "DriverLog.h"
+
 namespace lucidGlove {
 	const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
 	const char* c_deviceControllerType = "lucidgloves";

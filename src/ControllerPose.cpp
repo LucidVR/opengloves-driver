@@ -1,5 +1,8 @@
-#pragma once
 #include "ControllerPose.h"
+
+#include "DriverLog.h"
+#include "Quaternion.h"
+
 
 ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
 							   std::string thisDeviceManufacturer,

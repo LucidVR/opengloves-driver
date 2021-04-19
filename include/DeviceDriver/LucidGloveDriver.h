@@ -1,15 +1,13 @@
 #pragma once
 #include <openvr_driver.h>
-#include <windows.h>
-#include <thread>
 #include <functional>
 #include <memory>
-#include "driverlog.h"
-#include "bones.h"
 
-#include "Communication/SerialCommunicationManager.h"
+#include "Communication/CommunicationManager.h"
 #include "Encode/LegacyEncodingManager.h"
 #include "DeviceDriver/DeviceDriver.h"
+
+#include "Bones.h"
 
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"

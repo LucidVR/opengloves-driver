@@ -1,5 +1,8 @@
 #include <Encode/LegacyEncodingManager.h>
 
+#include <sstream>
+#include <vector>
+
 VRCommData_t LegacyEncodingManager::Decode(std::string input) {
 	std::string buf;
 	std::stringstream ss(input);

@@ -1,4 +1,7 @@
 #include "DeviceDriver/KnuckleDriver.h"
+
+#include "DriverLog.h"
+
 namespace knuckleDevice {
 	const char* c_deviceManufacturer = "Valve";
 }

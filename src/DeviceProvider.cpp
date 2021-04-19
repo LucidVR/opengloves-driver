@@ -1,4 +1,11 @@
 #include <DeviceProvider.h>
+#include "DriverLog.h"
+
+#include "DeviceDriver/LucidGloveDriver.h"
+#include "DeviceDriver/KnuckleDriver.h"
+
+#include "Communication/SerialCommunicationManager.h"
+
 
 vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 	vr::EVRInitError initError = InitServerDriverContext(pDriverContext);

@@ -1,19 +1,10 @@
 #pragma once
 #include <openvr_driver.h>
-#include <windows.h>
 #include <memory>
 #include "DeviceConfiguration.h"
-#include "DriverLog.h"
-
-#include "Communication/CommunicationManager.h"
-#include "Communication/SerialCommunicationManager.h"
-
-#include "Encode/EncodingManager.h"
-#include "Encode/LegacyEncodingManager.h"
 
 #include "DeviceDriver/DeviceDriver.h"
-#include "DeviceDriver/LucidGloveDriver.h"
-#include "DeviceDriver/KnuckleDriver.h"
+
 
 /**
 This class instantiates all the device drivers you have, meaning if you've
