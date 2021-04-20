@@ -1,5 +1,8 @@
 #include <Communication/SerialCommunicationManager.h>
 
+#include <chrono>
+#include "DriverLog.h"
+
 void SerialCommunicationManager::Connect() {
 	//We're not yet connected
 	m_isConnected = false;

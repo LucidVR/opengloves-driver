@@ -1,4 +1,5 @@
 #include "Quaternion.h"
+#include <cmath>
 
 double DegToRad(int degrees) {
 	return degrees * M_PI / 180;

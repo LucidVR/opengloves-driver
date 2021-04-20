@@ -1,8 +1,6 @@
 #define _USE_MATH_DEFINES
 
 #include "openvr_driver.h"
-#include <iostream>
-#include <cmath>
 
 double DegToRad(int degrees);
 double RadToDeg(double rad);
