@@ -4,10 +4,13 @@ OpenGlove is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's dri
 
 ## Installation and Usage
 
-Download the latest [Release](https://github.com/LucidVR/opengloves-driver/releases).
+**Download the latest [Release](https://github.com/LucidVR/opengloves-driver/releases).**
 
-Follow the wiki guide for configuring the driver
+**Follow the wiki guide for configuring the driver**
 * https://github.com/LucidVR/opengloves-driver/wiki/Configuring-the-Driver
+* The driver will not work correctly unless you configure it properly.
+
+See [SteamVR Input Instructions](https://github.com/LucidVR/opengloves-driver/wiki/Configuring-SteamVR-Input) for how to properly configure bindings.
 
 ## Building
 If you want to use the driver as-is, refer to [Installation and Usage](#Installation-and-Usage).  
@@ -21,6 +24,7 @@ If you are planning on modifying source files, refer to [BUILDING.md](https://gi
 
 ### Compatible Games
 * Refer to [Game Compatibility List](https://github.com/LucidVR/opengloves-driver/wiki/Game-Compatibility-List)
+* As this is an OpenVR driver, it is strictly compatible with games that take input from the OpenVR API. Only the games in the list above have been tested to work properly.
 
 ### Current features included in the driver
 * Finger flexion tracking
@@ -28,6 +32,12 @@ If you are planning on modifying source files, refer to [BUILDING.md](https://gi
 * Button/Joystick inputs
 * Communication Protocols:
   * Serial USB
+
+### Planned features
+* Bluetooth Serial / BLE Communication
+* Finger splay tracking
+* Force feedback haptics
+* Vibration haptics
 
 
 ## Contributing
@@ -37,10 +47,3 @@ Pull requests are very welcome. For major changes, please open an issue first to
 
 * Danwillm (`danwillm#8254`)
 * Lucas VRTech (`LucidVR#0001`)
-
-## Acknowledgements
-
-* [Spayne](https://github.com/spayne) - [right_hand_test](https://github.com/spayne/right_hand_test)
-
-## License
-[MIT](https://choosealicense.com/licenses/mit/)
