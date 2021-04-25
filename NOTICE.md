@@ -5,7 +5,7 @@
 
 ## Acknowledgements
 
-* [Spayne](https://github.com/spayne) - [right_hand_test](https://github.com/spayne/right_hand_test)
+* [Spayne](https://github.com/spayne) - [soft_knuckles](https://github.com/spayne/soft_knuckles)
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
