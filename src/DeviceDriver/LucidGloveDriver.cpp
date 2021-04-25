@@ -12,7 +12,7 @@ namespace lucidGlove {
 
 }
 
-static const enum ComponentIndex : int {
+enum ComponentIndex : int {
 	COMP_JOY_X = 0,
 	COMP_JOY_Y = 1,
 	COMP_JOY_BTN = 2,
