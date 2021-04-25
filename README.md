@@ -1,72 +1,49 @@
-# OpenGloves Driver - LucidVR X Fngrs
-## 🚨 Please follow instructions in the <a href="https://github.com/LucidVR/opengloves-driver/wiki">wiki</a> for necessary configuration of the driver
-The driver won't work unless you configure the SteamVR input bindings and the driver settings.
+# OpenGlove Driver
 
-Developed by:
-* Danwillm
-* Lucas_VRTech (LucidVR)
+OpenGlove is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's driver interface we are able to provide support for many SteamVR/OpenVR games.
 
-## What is this?
-This repository contains the OpenVR(SteamVR) driver for a DIY VR Haptic Glove.
+## Installation and Usage
 
-__This Repository is a *very early* work in progress. Many things are likely to change.__
-Things in this repo are subject to rapid changes and currently is not in a stable release state.
+**Download the latest [Release](https://github.com/LucidVR/opengloves-driver/releases).**
 
-Pre-Built binaries are available in the releases section.
-Instructions for building from source code are in the Wiki.
+**Follow the wiki guide for configuring the driver**
+* https://github.com/LucidVR/opengloves-driver/wiki/Configuring-the-Driver
+* The driver will not work correctly unless you configure it properly.
 
-Releases will be available on Steam once the repo hits a stable release.
+See [SteamVR Input Instructions](https://github.com/LucidVR/opengloves-driver/wiki/Configuring-SteamVR-Input) for how to properly configure bindings.
 
-That said, we are more than happy to help with issues that may arise, skip to the bottom for how to contact us.
+## Building
+If you want to use the driver as-is, refer to [Installation and Usage](#Installation-and-Usage).  
+If you are planning on modifying source files, refer to [BUILDING.md](https://github.com/LucidVR/opengloves-driver/blob/develop/BUILDING.md).
 
-## Officically Compatible Hardware:
-* LucidVR Gloves - Prototype 3+
-* Fngrs by danwillm
-* If you've made you're own, we would love to know and incorporate into this project!
+## Compatibility
+### Compatible Hardware
+* [LucidVR Gloves](https://github.com/LucidVR/lucidgloves-hardware) - Lucas VRTech
+* [Fngrs](https://github.com/danwillm/Fngrs/) - danwillm
+* Have your own hardware you want to feature here? Let us know!
 
-## Currently supported:
+### Compatible Games
+* Refer to [Game Compatibility List](https://github.com/LucidVR/opengloves-driver/wiki/Game-Compatibility-List)
+* As this is an OpenVR driver, it is strictly compatible with games that take input from the OpenVR API. Only the games in the list above have been tested to work properly.
+
+### Current features included in the driver
 * Finger flexion tracking
-* Positioning from a controller
-* Button and joystick inputs
+* Positioning from controllers + trackers
+* Button/Joystick inputs
 * Communication Protocols:
-  - Serial over USB
+  * Serial USB
 
-## Features that are almost certainly going to be supported:
-* Positioning from a tracker (If you have some available and don't mind running test driver builds, please do contact us!)
-* Communication Protocols:
-  - Bluetooth LE
-  - Single port serial
-
-### Considered additions:
+### Planned features
+* Bluetooth Serial / BLE Communication
 * Finger splay tracking
 * Force feedback haptics
-* Communication Protocols:
-  - 2.4ghz wifi
-  - Hex compression for serial
+* Vibration haptics
 
-## Games tested:
-* Half Life Alyx (compatible)
-* SteamVR Home (compatible) (finger tracking compatible **with** knuckles emulation)
-* The Lab (compatible)
-* Aperture Hand Lab (compatible)
-* Pavlov (compatible)
-* Boneworks (compatible **with** knuckles emulation)
-* Blade and Sorcery (compatible **with** knuckles emulation)
-* VRChat (compatible **with** knuckles emulation)
-* Have a game you've tested that does/doesn't work? Please let us know!
 
-### What's knuckles emulation?
-Some applications are picky with the controllers they support, we've found this to be the case with Boneworks and VRChat. To get around this issue, we "emulate" a knuckle controller and pass in the values expected for the skeleton, buttons, joysticks etc.
-This should make the gloves compatible with any game that is able to use an index controller, with finger tracking as an added bonus.
-You are welcome to emulate knuckle controllers for all games, but we recommend switching back to using the lucidglove controllers in the games compatible with it listed above.
+## Contributing
+Pull requests are very welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-#### How do I enable knuckles emulation?
-To enable knuckle emulation go to `resources/settings/default.vrsettings` and set `device_driver` to `1`. When launching SteamVR you should see the knuckle icons appear, as well as the controllers appear in game.  
-To switch back to using the lucidglove controllers, set `device_driver` to `0`.
+## Authors
 
-## Contributions
-We are actively welcoming contributions, feel free to open a pull request.
-## Issues
-If you run into issues, you are more than welcome to open a GitHub issue/discussion, or contact us directly on Discord: 
-`danwillm#8254`  
-`LucidVR#0001`
+* Danwillm (`danwillm#8254`)
+* Lucas VRTech (`LucidVR#0001`)
