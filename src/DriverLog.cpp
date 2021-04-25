@@ -7,10 +7,6 @@
 
 static vr::IVRDriverLog* s_pLogFile = NULL;
 
-#if !defined( WIN32)
-#define vsnprintf_s vsnprintf
-#endif
-
 bool InitDriverLog(vr::IVRDriverLog* pDriverLog) {
 	if (s_pLogFile)
 		return false;
@@ -24,7 +20,7 @@ void CleanupDriverLog() {
 
 static void DriverLogVarArgs(const char* pMsgFormat, va_list args) {
 	char buf[1024];
-	vsnprintf_s(buf, sizeof(buf), pMsgFormat, args);
+    vsnprintf(buf, sizeof(buf), pMsgFormat, args);
 
 	if (s_pLogFile)
 		s_pLogFile->Log(buf);
