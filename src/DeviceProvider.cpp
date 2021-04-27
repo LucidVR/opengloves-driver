@@ -42,13 +42,15 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceC
 
 	switch (configuration.communicationProtocol) {
 	case VRCommunicationProtocol::BTSERIAL:
-		char port[16];
-
-		communicationManager = std::make_unique<BTSerialCommunicationManager>(std::move(encodingManager));
-		break;
+		if (!isRightHand) {
+			DriverLog("Communication set to BTSerial");
+			communicationManager = std::make_unique<BTSerialCommunicationManager>(std::move(encodingManager));
+			break;
+		}
 	default:
 		DriverLog("No communication protocol set. Using serial.");
 	case VRCommunicationProtocol::SERIAL:
+		char port[16];
 		vr::VRSettings()->GetString("communication_serial", isRightHand ? "right_port" : "left_port", port, sizeof(port));
 		VRSerialConfiguration_t serialSettings(port);
 

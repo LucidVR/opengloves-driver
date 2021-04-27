@@ -74,7 +74,7 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 		//printf("Message recieved - \r\n");
 		//DebugDriverLog("Length of buffer: %d, nextchar: %c", buff.length(), nextChar[0]);
 	} while (nextChar[0] != '\n');
-	//DebugDriverLog("Packet received! Length: %d", buff.length());
+	//DebugDriverLog("Packet received! Length: %d, Packet: %s", buff.length(), buff);
 	
 	/*DWORD dwCommEvent;
 	DWORD dwRead = 0;

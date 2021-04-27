@@ -7,10 +7,7 @@
 #include <memory>
 #include <thread>
 #include <atomic>
-#include <chrono>
-#include <vector>
-#include <sstream>
-#include "DriverLog.h"
+
 
 #define ARDUINO_WAIT_TIME 1000
 

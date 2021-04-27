@@ -2,7 +2,6 @@
 
 #include "CommunicationManager.h"
 #include "DeviceConfiguration.h"
-#include <iostream>
 #include <memory>
 #include <thread>
 #include <atomic>
