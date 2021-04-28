@@ -76,34 +76,7 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 	} while (nextChar[0] != '\n');
 	//DebugDriverLog("Packet received! Length: %d, Packet: %s", buff.length(), buff);
 	
-	/*DWORD dwCommEvent;
-	DWORD dwRead = 0;
-
-	if (!SetCommMask(m_hSerial, EV_RXCHAR)) {
-		DebugDriverLog("Error setting comm mask");
-		return false;
-	}
-
-	char nextChar;
-	int bytesRead = 0;
-	if (WaitCommEvent(m_hSerial, &dwCommEvent, NULL)) {
-		do {
-			if (ReadFile(m_hSerial, &nextChar, 1, &dwRead, NULL)) {
-				buff += nextChar;
-				bytesRead++;
-			}
-			else {
-				DebugDriverLog("Read file error");
-				return false;
-			}
-		} while (nextChar != '\n');
-	}
-	else {
-		DebugDriverLog("Error in comm event");
-		return false;
-	}
-
-	*/return true;
+	return true;
 }
 bool BTSerialCommunicationManager::PurgeBuffer() {
 	return true;//PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
