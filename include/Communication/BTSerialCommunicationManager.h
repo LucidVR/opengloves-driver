@@ -19,7 +19,7 @@
 
 class BTSerialCommunicationManager : public ICommunicationManager {
 public:
-	BTSerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager) : m_encodingManager(std::move(encodingManager)), m_isConnected(false) {};
+	BTSerialCommunicationManager(const VRBTSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager);
 	//connect to the device using serial
 	void Connect();
 	//start a thread that listens for updates from the device and calls the callback with data
@@ -44,8 +44,11 @@ private:
 
 	std::unique_ptr<IEncodingManager> m_encodingManager;
 
+	VRBTSerialConfiguration_t m_btSerialConfiguration;
+
 	BTH_ADDR esp32BtAddress;
 	SOCKADDR_BTH btSocketAddress;
 	SOCKET btClientSocket;
+	WCHAR* wcDeviceName;
 
 };

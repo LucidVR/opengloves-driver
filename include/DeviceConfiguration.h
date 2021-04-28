@@ -28,6 +28,12 @@ struct VRSerialConfiguration_t {
 	VRSerialConfiguration_t(std::string port) : port(port) {};
 };
 
+struct VRBTSerialConfiguration_t {
+	std::string name;
+
+	VRBTSerialConfiguration_t(std::string name) : name(name) {};
+};
+
 
 struct VRDeviceConfiguration_t {
 	VRDeviceConfiguration_t(vr::ETrackedControllerRole role,

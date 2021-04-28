@@ -2,6 +2,20 @@
 
 //Adapted from Finally Functional's SerialBT implementation
 
+BTSerialCommunicationManager::BTSerialCommunicationManager(const VRBTSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager) 
+	: m_btSerialConfiguration(configuration), 
+	m_encodingManager(std::move(encodingManager)), 
+	m_isConnected(false) 
+{
+	//convert the bluetooth device name from settings into wide
+	const char* name = configuration.name.c_str();
+	size_t newsize = strlen(name) + 1;
+	wcDeviceName = new WCHAR[newsize];
+	size_t convertedChars = 0;
+	mbstowcs_s(&convertedChars, wcDeviceName, newsize, name, _TRUNCATE);
+
+};
+
 void BTSerialCommunicationManager::Connect() {
 	DriverLog("Trying to connect to bluetooth");
 	
@@ -125,7 +139,9 @@ bool BTSerialCommunicationManager::getPairedEsp32BtAddress() {
 	}
 	do {
 		//wprintf(L"Checking %s.\r\n", btDeviceInfo.szName);
-		if (wcsncmp(btDeviceInfo.szName, L"ESP32", 5) == 0) {
+
+
+		if (wcsncmp(btDeviceInfo.szName, wcDeviceName, /*wcslen(wcDeviceName)*/ 5) == 0) {
 			DebugDriverLog("ESP32 found!\r\n");
 			if (btDeviceInfo.fAuthenticated)  //I found that if fAuthenticated is true it means the device is paired.
 			{
@@ -139,7 +155,7 @@ bool BTSerialCommunicationManager::getPairedEsp32BtAddress() {
 		}
 	} while (BluetoothFindNextDevice(btDevice, &btDeviceInfo)); //loop through remaining BT devices connected to this machine
 
-	DebugDriverLog("Could not find a paired ESP32.\r\n");
+	DebugDriverLog("Could not find a paired ESP32 with name %s", m_btSerialConfiguration.name.c_str());
 	return false;
 }
 
