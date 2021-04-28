@@ -36,7 +36,6 @@ private:
 	bool startupWindowsSocket();
 	bool connectToEsp32();
 	bool sendMessageToEsp32();
-	bool recieveMessageFromEsp32();
 
 	bool m_isConnected;
 	std::atomic<bool> m_threadActive;
@@ -46,9 +45,9 @@ private:
 
 	VRBTSerialConfiguration_t m_btSerialConfiguration;
 
-	BTH_ADDR esp32BtAddress;
-	SOCKADDR_BTH btSocketAddress;
-	SOCKET btClientSocket;
-	WCHAR* wcDeviceName;
+	BTH_ADDR m_esp32BtAddress;
+	SOCKADDR_BTH m_btSocketAddress;
+	SOCKET m_btClientSocket;
+	WCHAR* m_wcDeviceName;
 
 };

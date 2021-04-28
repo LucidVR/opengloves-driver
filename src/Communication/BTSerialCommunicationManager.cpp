@@ -10,9 +10,9 @@ BTSerialCommunicationManager::BTSerialCommunicationManager(const VRBTSerialConfi
 	//convert the bluetooth device name from settings into wide
 	const char* name = configuration.name.c_str();
 	size_t newsize = strlen(name) + 1;
-	wcDeviceName = new WCHAR[newsize];
+	m_wcDeviceName = new WCHAR[newsize];
 	size_t convertedChars = 0;
-	mbstowcs_s(&convertedChars, wcDeviceName, newsize, name, _TRUNCATE);
+	mbstowcs_s(&convertedChars, m_wcDeviceName, newsize, name, _TRUNCATE);
 
 };
 
@@ -79,7 +79,7 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 	char nextChar[1];
 	do {
 		int recievedMessageLength = 1;
-		int recieveResult = recv(btClientSocket, nextChar, recievedMessageLength, 0); //if your socket is blocking, this will block until a
+		int recieveResult = recv(m_btClientSocket, nextChar, recievedMessageLength, 0); //if your socket is blocking, this will block until a
 		if (recieveResult < 0)                                                               //a message is recieved. If not, it will return right 
 		{                                                                                    //away
 			continue;
@@ -141,12 +141,12 @@ bool BTSerialCommunicationManager::getPairedEsp32BtAddress() {
 		//wprintf(L"Checking %s.\r\n", btDeviceInfo.szName);
 
 
-		if (wcsncmp(btDeviceInfo.szName, wcDeviceName, /*wcslen(wcDeviceName)*/ 5) == 0) {
+		if (wcsncmp(btDeviceInfo.szName, m_wcDeviceName, /*wcslen(wcDeviceName)*/ 5) == 0) {
 			DebugDriverLog("ESP32 found!\r\n");
 			if (btDeviceInfo.fAuthenticated)  //I found that if fAuthenticated is true it means the device is paired.
 			{
 				DebugDriverLog("ESP32 is authenticated.\r\n");
-				esp32BtAddress = btDeviceInfo.Address.ullLong;
+				m_esp32BtAddress = btDeviceInfo.Address.ullLong;
 				return true;
 			}
 			else {
@@ -178,19 +178,19 @@ bool BTSerialCommunicationManager::startupWindowsSocket() {
 /// Sets up bluetooth socket to communicate with ESP32.
 /// </summary>
 bool BTSerialCommunicationManager::connectToEsp32() {
-	btClientSocket = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM); //initialize BT windows socket
-	memset(&btSocketAddress, 0, sizeof(btSocketAddress));
-	btSocketAddress.addressFamily = AF_BTH;
-	btSocketAddress.serviceClassId = RFCOMM_PROTOCOL_UUID;
-	btSocketAddress.port = 0; //port needs to be 0 if the remote device is a client. See references.
-	btSocketAddress.btAddr = esp32BtAddress; //this is the BT address of the remote device.
-	if (connect(btClientSocket, (SOCKADDR*)&btSocketAddress, sizeof(btSocketAddress)) != 0) //connect to the BT device.
+	m_btClientSocket = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM); //initialize BT windows socket
+	memset(&m_btSocketAddress, 0, sizeof(m_btSocketAddress));
+	m_btSocketAddress.addressFamily = AF_BTH;
+	m_btSocketAddress.serviceClassId = RFCOMM_PROTOCOL_UUID;
+	m_btSocketAddress.port = 0; //port needs to be 0 if the remote device is a client. See references.
+	m_btSocketAddress.btAddr = m_esp32BtAddress; //this is the BT address of the remote device.
+	if (connect(m_btClientSocket, (SOCKADDR*)&m_btSocketAddress, sizeof(m_btSocketAddress)) != 0) //connect to the BT device.
 	{
 		DebugDriverLog("Could not connect socket to ESP32. Error %ld", WSAGetLastError());
 		return false;
 	}
 	unsigned long nonBlockingMode = 1;
-	if (ioctlsocket(btClientSocket, FIONBIO, (unsigned long*)&nonBlockingMode) != 0) //set the socket to be non-blocking, meaning
+	if (ioctlsocket(m_btClientSocket, FIONBIO, (unsigned long*)&nonBlockingMode) != 0) //set the socket to be non-blocking, meaning
 	{                                                                                //it will return right away when sending/recieving
 		DebugDriverLog("Could not set socket to be non-blocking.");
 		return false;
@@ -200,10 +200,10 @@ bool BTSerialCommunicationManager::connectToEsp32() {
 
 bool BTSerialCommunicationManager::sendMessageToEsp32() {
 	const char* message = "Message from Windows\r\n";
-	int sendResult = send(btClientSocket, message, (int)strlen(message), 0); //send your message to the BT device
+	int sendResult = send(m_btClientSocket, message, (int)strlen(message), 0); //send your message to the BT device
 	if (sendResult == SOCKET_ERROR) {
 		DebugDriverLog("Sending to ESP32 failed. Error code %d", WSAGetLastError());
-		closesocket(btClientSocket);
+		closesocket(m_btClientSocket);
 		WSACleanup();
 		return false;
 	}
