@@ -8,7 +8,7 @@ namespace knuckleDevice {
 	const char* c_deviceManufacturer = "FluidControlObject";
 }
 
-static const enum ComponentIndex : int {
+enum ComponentIndex : int {
 	SYSTEM_CLICK,
 	SYSTEM_TOUCH,
 	TRIGGER_CLICK,
