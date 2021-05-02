@@ -8,10 +8,11 @@ OpenGlove is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's dri
 
 **Follow the wiki guide for configuring the driver**
 * https://github.com/LucidVR/opengloves-driver/wiki/Configuring-the-Driver
-* The driver will not work correctly unless you configure it properly.
+* The driver will not work correctly unless you configure it properly.  
 
-See [SteamVR Input Instructions](https://github.com/LucidVR/opengloves-driver/wiki/Configuring-SteamVR-Input) for how to properly configure bindings.
-
+**Problems?**
+* Check [Troubleshooting](https://github.com/LucidVR/opengloves-driver/wiki/Troubleshooting)
+  * Didn't help? Contact us on the [Discord Server](https://discord.com/invite/Y6XTvnHDUC)
 ## Building
 If you want to use the driver as-is, refer to [Installation and Usage](#Installation-and-Usage).  
 If you are planning on modifying source files, refer to [BUILDING.md](https://github.com/LucidVR/opengloves-driver/blob/develop/BUILDING.md).
@@ -47,3 +48,6 @@ Pull requests are very welcome. For major changes, please open an issue first to
 
 * Danwillm (`danwillm#8254`)
 * Lucas VRTech (`LucidVR#0001`)
+
+## Discord
+https://discord.com/invite/Y6XTvnHDUC
