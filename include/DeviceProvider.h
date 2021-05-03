@@ -4,7 +4,6 @@
 #define _WINSOCKAPI_
 
 #include <openvr_driver.h>
-//#include <windows.h>
 #include <memory>
 #include "DeviceConfiguration.h"
 #include "DriverLog.h"

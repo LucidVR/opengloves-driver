@@ -53,7 +53,6 @@ void BTSerialCommunicationManager::BeginListener(const std::function<void(VRComm
 void BTSerialCommunicationManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
 	//DebugDriverLog("In listener thread");
 	std::this_thread::sleep_for(std::chrono::milliseconds(ARDUINO_WAIT_TIME));
-	PurgeBuffer();
 
 	while (m_threadActive) {
 		std::string receivedString;
@@ -75,7 +74,6 @@ void BTSerialCommunicationManager::ListenerThread(const std::function<void(VRCom
 }
 
 bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
-	//DebugDriverLog("Waiting to recieve a message");
 	char nextChar[1];
 	do {
 		int recievedMessageLength = 1;
@@ -85,15 +83,9 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 			continue;
 		}
 		buff += nextChar[0];
-		//printf("Message recieved - \r\n");
-		//DebugDriverLog("Length of buffer: %d, nextchar: %c", buff.length(), nextChar[0]);
 	} while (nextChar[0] != '\n');
-	//DebugDriverLog("Packet received! Length: %d, Packet: %s", buff.length(), buff);
 	
 	return true;
-}
-bool BTSerialCommunicationManager::PurgeBuffer() {
-	return true;//PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
 }
 
 void BTSerialCommunicationManager::Disconnect() {

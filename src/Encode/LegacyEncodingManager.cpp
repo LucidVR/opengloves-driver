@@ -4,9 +4,6 @@ VRCommData_t LegacyEncodingManager::Decode(std::string input) {
 	std::string buf;
 	std::stringstream ss(input);
 
-	//DebugDriverLog("String recieved: %s", input.c_str());
-
-
 	std::vector<float> tokens;
 	while (getline(ss, buf, '&')) tokens.push_back(std::stof(buf));
 
