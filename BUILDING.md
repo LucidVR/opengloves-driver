@@ -12,15 +12,26 @@ Binaries are (or will) be provided in the Releases in this Repository, but if yo
   * Modify Visual Studio in Visual Studio installer
 * Navigate into the project folder
   * `cd opengloves-driver`
+* Make a build directory and enter it
+    * `mkdir build`
+    * `cd build`
 * Run CMake
-  * `cmake .`
+  * `cmake ..`
 
-This should generate Visual Studio project files, which you can then open.
+This should generate Visual Studio project files in the `build/` folder, which you can then compile.
 
-# Building with Visual Studio  
-* You should alread have the ability to build the driver by pressing `Ctrl + Shift + B`
-  * The artifacts of the build will be outputted to `Debug/`, or `Release/` depending on build configuration
-* You can copy the `openglove` fodler into the steamvr drivers folder
+# Building with Visual Studio IDE
+* Open the Visual Studio project (.sln file) in the `build/` folder
+* You should already have the ability to build the driver by pressing `Ctrl + Shift + B`
+  * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
+
+# Building with Visual Studio Build Tools
+* run a cmake build in the `build/` folder
+  * `cmake --build . --config Release`
+  * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
+
+# Adding driver to Steam
+* Copy the `openglove` folder into the steamvr drivers folder
   * Usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers`
 * Running SteamVR you should see the driver activate two new controllers
 
@@ -39,7 +50,7 @@ If you want to make changes to the code and would like to use a debugger/not hav
 	],
 	"external_drivers" : 
 	[
-		"E:\\opengloves-driver\\Debug" <=================
+		"E:\\opengloves-driver\\build\\Debug" <=================
 	],
 	"jsonid" : "vrpathreg",
 	"log" : 

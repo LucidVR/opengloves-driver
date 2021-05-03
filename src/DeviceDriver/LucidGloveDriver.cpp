@@ -1,5 +1,7 @@
 #include "DeviceDriver/LucidGloveDriver.h"
 
+#include "DriverLog.h"
+
 namespace lucidGlove {
 	const char* c_deviceManufacturer = "Lucas_VRTech&Danwillm";
 	const char* c_deviceControllerType = "lucidgloves";
@@ -10,7 +12,7 @@ namespace lucidGlove {
 
 }
 
-static const enum ComponentIndex : int {
+enum ComponentIndex : int {
 	COMP_JOY_X = 0,
 	COMP_JOY_Y = 1,
 	COMP_JOY_BTN = 2,
@@ -53,11 +55,10 @@ bool LucidGloveDeviceDriver::IsActive() {
 	return m_hasActivated;
 }
 vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
-	DebugDriverLog("Activating lucidgloves... ID: %d, role: %d, enabled: %s", unObjectId, m_configuration.role, m_configuration.enabled ? "true" : "false");
 	const bool isRightHand = IsRightHand();
 
 	m_driverId = unObjectId; //unique ID for your driver
-	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(lucidGlove::c_deviceManufacturer), m_configuration.offsetVector, m_configuration.angleOffsetVector, m_configuration.controllerIdOverride, m_configuration.isControllerOverride, m_driverId);
+    m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(lucidGlove::c_deviceManufacturer), m_configuration.poseConfiguration);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 

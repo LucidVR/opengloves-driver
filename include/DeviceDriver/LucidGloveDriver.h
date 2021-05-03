@@ -1,15 +1,13 @@
 #pragma once
 #include <openvr_driver.h>
-#include <windows.h>
-#include <thread>
 #include <functional>
 #include <memory>
-#include "driverlog.h"
-#include "bones.h"
 
-#include "Communication/SerialCommunicationManager.h"
+#include "Communication/CommunicationManager.h"
 #include "Encode/LegacyEncodingManager.h"
 #include "DeviceDriver/DeviceDriver.h"
+
+#include "Bones.h"
 
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
@@ -51,8 +49,6 @@ private:
 	vr::VRInputComponentHandle_t m_inputComponentHandles[14]{};
 
 	vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
-
-	uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
 	VRDeviceConfiguration_t m_configuration;
 	std::unique_ptr<ICommunicationManager> m_communicationManager;

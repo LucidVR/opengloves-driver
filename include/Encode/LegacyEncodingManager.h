@@ -1,14 +1,6 @@
 #pragma once
 
 #include <Encode/EncodingManager.h>
-#include <windows.h>
-#include <iostream>
-#include <thread>
-#include <atomic>
-#include <chrono>
-#include <vector>
-#include <sstream>
-#include <DriverLog.h>
 
 class LegacyEncodingManager : public IEncodingManager {
 public:
