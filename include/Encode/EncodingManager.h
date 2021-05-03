@@ -28,19 +28,20 @@ struct VRCommData_t {
 };
 
 enum VRCommDataInputPosition {
-	FIN_PINKY = 0,
-	FIN_RING = 1,
-	FIN_MIDDLE = 2,
-	FIN_INDEX = 3,
-	FIN_THUMB = 4,
-	JOY_X = 5,
-	JOY_Y = 6,
-	JOY_BTN = 7,
-	BTN_TRG = 8,
-	BTN_A = 9,
-	BTN_B = 10,
-	GES_GRAB = 11,
-	GES_PINCH = 12,
+	FIN_PINKY,
+	FIN_RING,
+	FIN_MIDDLE,
+	FIN_INDEX,
+	FIN_THUMB,
+	JOY_X,
+	JOY_Y,
+	JOY_BTN,
+	BTN_TRG,
+	BTN_A,
+	BTN_B,
+	GES_GRAB,
+	GES_PINCH,
+	MAX
 };
 
 class IEncodingManager {

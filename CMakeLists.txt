@@ -6,6 +6,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # Deps
 set(OPENVR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/headers")
+set(ASIO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/asio/asio/include")
 
 set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
 
@@ -33,7 +34,7 @@ file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library("${OPENGLOVE_PROJECT}" SHARED "${HEADERS}" "${SOURCES}")
 
-target_include_directories("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_INCLUDE_DIR}")
+target_include_directories("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_INCLUDE_DIR}" "${ASIO_INCLUDE_DIR}")
 
 target_include_directories("${OPENGLOVE_PROJECT}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
 target_link_libraries("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_LIB}")

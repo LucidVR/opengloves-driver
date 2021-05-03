@@ -4,7 +4,7 @@
     "__title": "OpenGlove Configuration",
     "left_enabled": true,
     "right_enabled": true,
-    "communication_protocol": 0, //title:Communication Protocol
+    "communication_protocol": 2, //title:Communication Protocol
     "device_driver": 1, //title: Device Driver
     "encoding_protocol": 0 //title:Encoding Protocol
   },
