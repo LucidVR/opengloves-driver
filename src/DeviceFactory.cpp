@@ -1,5 +1,4 @@
 #include <openvr_driver.h>
-#include <windows.h>
 
 #include "DriverLog.h"
 #include "DeviceProvider.h"
