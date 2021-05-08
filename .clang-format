@@ -1,2 +1,4 @@
 BasedOnStyle: Google
 Language: Cpp
+AlignAfterOpenBracket: AlwaysBreak
+ColumnLimit: 120

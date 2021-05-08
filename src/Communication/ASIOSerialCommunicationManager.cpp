@@ -1,11 +1,10 @@
 #include "Communication/ASIOSerialCommunicationManager.h"
+
 #include "DriverLog.h"
 
 ASIOSerialCommunicationManager::ASIOSerialCommunicationManager(
-    const VRSerialConfiguration_t &configuration,
-    std::unique_ptr<IEncodingManager> encodingManager)
-    : m_serialConfiguration(configuration),
-      m_encodingManager(std::move(encodingManager)), m_io(), m_serialPort(m_io){};
+    const VRSerialConfiguration_t &configuration, std::unique_ptr<IEncodingManager> encodingManager)
+    : m_serialConfiguration(configuration), m_encodingManager(std::move(encodingManager)), m_io(), m_serialPort(m_io){};
 
 bool ASIOSerialCommunicationManager::Connect() {
   asio::error_code ec;
@@ -31,7 +30,6 @@ void ASIOSerialCommunicationManager::BeginListener(const std::function<void(VRCo
 void ASIOSerialCommunicationManager::ListenerThread(const std::function<void(VRCommData_t)> &callback) {
   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   while (m_active) {
-
     std::string result;
     bool success = ReceiveNextPacket(result);
 
@@ -41,7 +39,7 @@ void ASIOSerialCommunicationManager::ListenerThread(const std::function<void(VRC
       callback(data);
     } else {
       DriverLog("Device disconnected unexpectedly!");
-     // vr::VRServerDriverHost()->RequestRestart("One device has disconnected unexpectedly!", "", "", "");
+      // vr::VRServerDriverHost()->RequestRestart("One device has disconnected unexpectedly!", "", "", "");
       Disconnect();
     }
   }
@@ -64,18 +62,15 @@ bool ASIOSerialCommunicationManager::ReceiveNextPacket(std::string &result) {
   return false;
 }
 
-bool ASIOSerialCommunicationManager::IsConnected() {
-  return m_serialPort.is_open();
-}
+bool ASIOSerialCommunicationManager::IsConnected() { return m_serialPort.is_open(); }
 
 void ASIOSerialCommunicationManager::Disconnect() {
   if (m_active) {
     m_active = false;
 
-    m_serialThread.join();
-
     if (m_serialPort.is_open()) {
       m_serialPort.close();
     }
+    m_serialThread.join();
   }
 }

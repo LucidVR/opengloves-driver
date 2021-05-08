@@ -7,29 +7,28 @@
 #endif
 #define ASIO_STANDALONE
 
-#include "CommunicationManager.h"
-#include "DeviceConfiguration.h"
+#include <asio.hpp>
 #include <atomic>
 #include <iostream>
 #include <memory>
 #include <thread>
 
-#include <asio.hpp>
+#include "CommunicationManager.h"
+#include "DeviceConfiguration.h"
 
 class ASIOSerialCommunicationManager : public ICommunicationManager {
-public:
+ public:
   ASIOSerialCommunicationManager(
-      const VRSerialConfiguration_t &configuration,
-      std::unique_ptr<IEncodingManager> encodingManager);
+      const VRSerialConfiguration_t &configuration, std::unique_ptr<IEncodingManager> encodingManager);
 
   bool Connect();
   void BeginListener(const std::function<void(VRCommData_t)> &callback);
   bool IsConnected();
   void Disconnect();
 
-private:
+ private:
   void ListenerThread(const std::function<void(VRCommData_t)> &callback);
-  bool ReceiveNextPacket(std::string& result);
+  bool ReceiveNextPacket(std::string &result);
 
   std::atomic<bool> m_active;
   std::thread m_serialThread;
