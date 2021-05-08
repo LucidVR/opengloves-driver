@@ -21,19 +21,15 @@ public:
   ASIOSerialCommunicationManager(
       const VRSerialConfiguration_t &configuration,
       std::unique_ptr<IEncodingManager> encodingManager);
-  // connect to the device using serial
+
   bool Connect();
-  // start a thread that listens for updates from the device and calls the
-  // callback with data
   void BeginListener(const std::function<void(VRCommData_t)> &callback);
-  // returns if connected or not
   bool IsConnected();
-  // close the serial port
   void Disconnect();
 
 private:
   void ListenerThread(const std::function<void(VRCommData_t)> &callback);
-  std::string ReceiveNextPacket();
+  bool ReceiveNextPacket(std::string& result);
 
   std::atomic<bool> m_active;
   std::thread m_serialThread;

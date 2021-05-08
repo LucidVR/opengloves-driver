@@ -31,26 +31,37 @@ void ASIOSerialCommunicationManager::BeginListener(const std::function<void(VRCo
 void ASIOSerialCommunicationManager::ListenerThread(const std::function<void(VRCommData_t)> &callback) {
   std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   while (m_active) {
-    std::string result = ReceiveNextPacket();
-    VRCommData_t data = m_encodingManager->Decode(result);
 
-    callback(data);
+    std::string result;
+    bool success = ReceiveNextPacket(result);
+
+    if (success) {
+      VRCommData_t data = m_encodingManager->Decode(result);
+
+      callback(data);
+    } else {
+      DriverLog("Device disconnected unexpectedly!");
+     // vr::VRServerDriverHost()->RequestRestart("One device has disconnected unexpectedly!", "", "", "");
+      Disconnect();
+    }
   }
-  /*DriverLog("Device disconnected unexpectedly!");
-  vr::VRServerDriverHost()->RequestRestart("One device has disconnected unexpectedly!", "", "", "");
-  Disconnect();*/
 }
 
-std::string ASIOSerialCommunicationManager::ReceiveNextPacket() {
+bool ASIOSerialCommunicationManager::ReceiveNextPacket(std::string &result) {
   asio::streambuf buf;
-  asio::read_until(m_serialPort, buf, '\n');
+  asio::error_code ec;
 
-  std::stringstream ss(asio::buffer_cast<const char *>(buf.data()));
-  std::string result;
+  asio::read_until(m_serialPort, buf, '\n', ec);
 
-  std::getline(ss, result);
+  if (!ec) {
+    std::stringstream ss(asio::buffer_cast<const char *>(buf.data()));
 
-  return result;
+    std::getline(ss, result);
+
+    return true;
+  }
+
+  return false;
 }
 
 bool ASIOSerialCommunicationManager::IsConnected() {

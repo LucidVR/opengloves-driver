@@ -1,3 +1,2 @@
-BasedOnStyle: LLVM
+BasedOnStyle: Google
 Language: Cpp
-ColumnLimit: 0
