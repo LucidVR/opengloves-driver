@@ -9,6 +9,7 @@ set(OPENVR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/headers")
 set(ASIO_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/asio/asio/include")
 
 set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
+link_libraries(ws2_32 wsock32)
 
 if(CMAKE_SIZEOF_VOID_P EQUAL 8)
     set(PROCESSOR_ARCH "64")
@@ -17,6 +18,7 @@ elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 
 if(WIN32)
+    add_definitions(-D _WIN32_WINNT=0x0A00)
     set(PLATFORM_NAME "win")
 elseif(UNIX AND NOT APPLE)
     set(PLATFORM_NAME "linux")
