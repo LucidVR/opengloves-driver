@@ -53,6 +53,7 @@ private:
 	BTH_ADDR m_esp32BtAddress;
 	SOCKADDR_BTH m_btSocketAddress;
 	SOCKET m_btClientSocket;
-	WCHAR* m_wcDeviceName;
+	//WCHAR* m_wcDeviceName;
+	std::unique_ptr<WCHAR*> m_wcDeviceName;
 
 };
