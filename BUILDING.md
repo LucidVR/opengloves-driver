@@ -76,8 +76,13 @@ If you want to make changes to the code and would like to use a debugger/not hav
   * Ensure that `Action` is set to `Attach Debugger`.
 
 ## Launch SteamVR when building through Visual Studio
-* Right click on the project `driver_openglove`
-  * Select `properties`. 
-  * Navigate to the `Debugger` Property (under Configuration Properties)
-  * Set `Command` to the location of `vrstartup.exe`
+It's usually quite useful to build then automatically launch SteamVR for debugging purposes.  
+To launch SteamVR for debugging:  
+* Click on the arrow next to `Local Windows Debugger`
+* Select `ALL_BUILD Debug Properties`
+* Navigate to the `Debugger` Property (under Configuration Properties)
+* Set `Command` to the location of `vrstartup.exe`
     * This is usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrstartup.exe`
+
+![Debug Properties](https://cdn.discordapp.com/attachments/790676300552994826/840985376679002172/unknown.png)
+![Debugging Configuration Properties](https://cdn.discordapp.com/attachments/790676300552994826/840985404202549318/unknown.png)
