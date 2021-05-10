@@ -14,7 +14,9 @@ BTSerialCommunicationManager::BTSerialCommunicationManager(const VRBTSerialConfi
 	//size_t convertedChars = 0;
 	//mbstowcs_s(&convertedChars, m_wcDeviceName, newsize, name, _TRUNCATE);
 
-	m_wcDeviceName = (WCHAR*)std::wstring(configuration.name.begin(), configuration.name.end()).c_str();
+	//std::wstring thiswstring = std::wstring(configuration.name.begin(), configuration.name.end());
+
+	//m_wcDeviceName = (WCHAR*)(thiswstring.c_str());
 
 
 };
@@ -135,8 +137,10 @@ bool BTSerialCommunicationManager::getPairedEsp32BtAddress() {
 	do {
 		//wprintf(L"Checking %s.\r\n", btDeviceInfo.szName);
 
+		std::wstring thiswstring = std::wstring(m_btSerialConfiguration.name.begin(), m_btSerialConfiguration.name.end());
 
-		if (wcsncmp(btDeviceInfo.szName, m_wcDeviceName, /*wcslen(wcDeviceName)*/ 5) == 0) {
+		m_wcDeviceName = (WCHAR*)(thiswstring.c_str());
+		if (wcsncmp(btDeviceInfo.szName, m_wcDeviceName, /*wcslen(wcDeviceName)*/ 5) == 0) {//
 			DebugDriverLog("ESP32 found!\r\n");
 			if (btDeviceInfo.fAuthenticated)  //I found that if fAuthenticated is true it means the device is paired.
 			{
