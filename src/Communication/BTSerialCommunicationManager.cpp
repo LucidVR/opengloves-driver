@@ -8,11 +8,14 @@ BTSerialCommunicationManager::BTSerialCommunicationManager(const VRBTSerialConfi
 	m_isConnected(false) 
 {
 	//convert the bluetooth device name from settings into wide
-	const char* name = configuration.name.c_str();
-	size_t newsize = strlen(name) + 1;
-	m_wcDeviceName = new WCHAR[newsize];
-	size_t convertedChars = 0;
-	mbstowcs_s(&convertedChars, m_wcDeviceName, newsize, name, _TRUNCATE);
+	//const char* name = configuration.name.c_str();
+	//size_t newsize = strlen(name) + 1;
+	//m_wcDeviceName = new WCHAR[newsize];
+	//size_t convertedChars = 0;
+	//mbstowcs_s(&convertedChars, m_wcDeviceName, newsize, name, _TRUNCATE);
+
+	m_wcDeviceName = (WCHAR*)std::wstring(configuration.name.begin(), configuration.name.end()).c_str();
+
 
 };
 
