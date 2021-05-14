@@ -8,11 +8,16 @@ BTSerialCommunicationManager::BTSerialCommunicationManager(const VRBTSerialConfi
 	m_isConnected(false) 
 {
 	//convert the bluetooth device name from settings into wide
-	const char* name = configuration.name.c_str();
-	size_t newsize = strlen(name) + 1;
-	m_wcDeviceName = std::make_unique<WCHAR*>();
-	size_t convertedChars = 0;
-	mbstowcs_s(&convertedChars, *m_wcDeviceName.get() , newsize, name, _TRUNCATE);
+	//const char* name = configuration.name.c_str();
+	//size_t newsize = strlen(name) + 1;
+	//m_wcDeviceName = new WCHAR[newsize];
+	//size_t convertedChars = 0;
+	//mbstowcs_s(&convertedChars, m_wcDeviceName, newsize, name, _TRUNCATE);
+
+	//std::wstring thiswstring = std::wstring(configuration.name.begin(), configuration.name.end());
+
+	//m_wcDeviceName = (WCHAR*)(thiswstring.c_str());
+
 
 };
 
@@ -132,8 +137,10 @@ bool BTSerialCommunicationManager::getPairedEsp32BtAddress() {
 	do {
 		//wprintf(L"Checking %s.\r\n", btDeviceInfo.szName);
 
+		std::wstring thiswstring = std::wstring(m_btSerialConfiguration.name.begin(), m_btSerialConfiguration.name.end());
 
-		if (wcsncmp(btDeviceInfo.szName, *m_wcDeviceName.get(), /*wcslen(wcDeviceName)*/ 5) == 0) {
+		m_wcDeviceName = (WCHAR*)(thiswstring.c_str());
+		if (wcsncmp(btDeviceInfo.szName, m_wcDeviceName, /*wcslen(wcDeviceName)*/ 5) == 0) {//
 			DebugDriverLog("ESP32 found!\r\n");
 			if (btDeviceInfo.fAuthenticated)  //I found that if fAuthenticated is true it means the device is paired.
 			{
