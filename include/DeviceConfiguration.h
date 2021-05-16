@@ -9,7 +9,8 @@ static const char *c_driverSettingsSection = "driver_openglove";
 static const char *c_poseSettingsSection = "pose_settings";
 
 enum VRCommunicationProtocol {
-    SERIAL = 0,
+	SERIAL = 0,
+	BTSERIAL = 1,
 };
 
 enum VREncodingProtocol {
@@ -25,6 +26,12 @@ struct VRSerialConfiguration_t {
     std::string port;
 
     VRSerialConfiguration_t(std::string port) : port(port) {};
+};
+
+struct VRBTSerialConfiguration_t {
+	std::string name;
+
+	VRBTSerialConfiguration_t(std::string name) : name(name) {};
 };
 
 struct VRPoseConfiguration_t {

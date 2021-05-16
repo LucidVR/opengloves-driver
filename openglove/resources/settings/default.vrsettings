@@ -49,6 +49,12 @@
     "left_port": "\\\\.\\COM4",
     "right_port": "\\\\.\\COM5"
   },
+	"communication_btserial": {
+    "__type": "communication_protocol:1",
+    "__title": "Bluetooth Serial",
+		"left_name": "lucidgloves-left",
+		"right_name": "lucidgloves-right"
+	},
   "encoding_legacy":
   {
     "__type": "encoding_protocol: 0",
