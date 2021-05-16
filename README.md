@@ -33,9 +33,10 @@ If you are planning on modifying source files, refer to [BUILDING.md](https://gi
 * Button/Joystick inputs
 * Communication Protocols:
   * Serial USB
+  * Serial over Bluetooth
 
 ### Planned features
-* Bluetooth Serial / BLE Communication
+* BLE Communication
 * Finger splay tracking
 * Force feedback haptics
 * Vibration haptics
