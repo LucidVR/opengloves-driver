@@ -64,9 +64,13 @@ void BTSerialCommunicationManager::ListenerThread(const std::function<void(VRCom
 		bool readSuccessful = ReceiveNextPacket(receivedString);
 		
 		if (readSuccessful) {
-			VRCommData_t commData = m_encodingManager->Decode(receivedString);
-
-			callback(commData);
+			try {
+				VRCommData_t commData = m_encodingManager->Decode(receivedString);
+				callback(commData);
+			}
+			catch (const std::invalid_argument& ia) {
+				DriverLog("Received error from encoding manager. Skipping...");
+			}
 		}
 		else {
 			DebugDriverLog("Detected that arduino has disconnected! Stopping listener...");
