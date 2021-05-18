@@ -13,7 +13,7 @@ VRCommData_t LegacyEncodingManager::Decode(std::string input) {
 
     try {
         short i = 0;
-        while (getline(ss, buf, ',')) {
+        while (getline(ss, buf, '&')) {
             tokens[i] = std::stof(buf);
             i++;
         }
