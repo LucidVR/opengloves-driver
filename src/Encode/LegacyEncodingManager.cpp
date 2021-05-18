@@ -11,18 +11,10 @@ VRCommData_t LegacyEncodingManager::Decode(std::string input) {
     std::vector<float> tokens(VRCommDataInputPosition::MAX);
     std::fill(tokens.begin(), tokens.begin() + VRCommDataInputPosition::MAX, 0.0f);
 
-    try {
-        short i = 0;
-        while (getline(ss, buf, '&')) {
-            tokens[i] = std::stof(buf);
-            i++;
-        }
-    }
-    catch (const std::invalid_argument& ia) {
-        DriverLog("Received error trying to decode. Skipping...");
-        //VRCommData_t data;
-
-        //return data;
+    short i = 0;
+    while (getline(ss, buf, '&')) {
+        tokens[i] = std::stof(buf);
+        i++;
     }
 
     std::array<float, 5> flexion;
