@@ -83,23 +83,6 @@ vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, cons
 	return quat;
 }
 
-/*vr::HmdQuaternion_t EulerToQuaternion(const double& x, const double& y, const double& z) {
-	vr::HmdQuaternion_t quat0 = QuaternionFromAngle(1, 0, 0, x);
-	vr::HmdQuaternion_t quat1 = MultiplyQuaternion(quat0, QuaternionFromAngle(0, 1, 0, y));
-	vr::HmdQuaternion_t quat2 = MultiplyQuaternion(quat1, QuaternionFromAngle(0, 0, 1, z));
-	return quat2;
-}*/
-
-/*vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, const double& roll) {
-	vr::HmdQuaternion_t result;
-	result.x = sin(roll / 2) * cos(pitch / 2) * cos(yaw / 2) - cos(roll / 2) * sin(pitch / 2) * sin(yaw / 2);
-	result.y = cos(roll / 2) * sin(pitch / 2) * cos(yaw / 2) + sin(roll / 2) * cos(pitch / 2) * sin(yaw / 2);
-	result.z = cos(roll / 2) * cos(pitch / 2) * sin(yaw / 2) - sin(roll / 2) * sin(pitch / 2) * cos(yaw / 2);
-	result.w = cos(roll / 2) * cos(pitch / 2) * cos(yaw / 2) + sin(roll / 2) * sin(pitch / 2) * sin(yaw / 2);
-
-	return result;
-}*/
-
 //Adapted from libGDX
 vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, const double& roll) {
 	vr::HmdQuaternion_t result;
