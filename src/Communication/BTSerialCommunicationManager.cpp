@@ -104,6 +104,11 @@ void BTSerialCommunicationManager::Disconnect() {
 
 
 		//Disconnect
+		if (shutdown(m_btClientSocket, 2) == SOCKET_ERROR) {
+			DebugDriverLog("Could not disconnect socket from ESP32. Error %ld", WSAGetLastError());
+		}
+		else
+			DebugDriverLog("Disconnected from socket successfully.");
 	}
 }
 //May want to get a heartbeat here instead?
@@ -140,7 +145,7 @@ bool BTSerialCommunicationManager::getPairedEsp32BtAddress() {
 		std::wstring thiswstring = std::wstring(m_btSerialConfiguration.name.begin(), m_btSerialConfiguration.name.end());
 
 		m_wcDeviceName = (WCHAR*)(thiswstring.c_str());
-		if (wcsncmp(btDeviceInfo.szName, m_wcDeviceName, /*wcslen(wcDeviceName)*/ 5) == 0) {//
+		if (wcscmp(btDeviceInfo.szName, m_wcDeviceName)) {//
 			DebugDriverLog("ESP32 found!\r\n");
 			if (btDeviceInfo.fAuthenticated)  //I found that if fAuthenticated is true it means the device is paired.
 			{
