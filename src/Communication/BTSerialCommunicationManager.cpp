@@ -104,7 +104,7 @@ void BTSerialCommunicationManager::Disconnect() {
 
 
 		//Disconnect
-		if (!shutdown(m_btClientSocket, 2)) {
+		if (shutdown(m_btClientSocket, 2) == SOCKET_ERROR) {
 			DebugDriverLog("Could not disconnect socket from ESP32. Error %ld", WSAGetLastError());
 		}
 		else
