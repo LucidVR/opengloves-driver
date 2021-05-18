@@ -120,6 +120,9 @@ void ControllerPose::DiscoverController() {
                     }
                 }
             }
+            if (!idSetCorrectly) {
+                DebugDriverLog("Did not find controllers :(");
+            }
         }
 
     } else {
