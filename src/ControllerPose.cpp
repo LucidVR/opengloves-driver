@@ -91,7 +91,7 @@ void ControllerPose::DiscoverController() {
 
             //We have a device which identifies itself as a tracked device that we want to be searching for, and that device is not this one.
             if (deviceControllerRole == m_shadowDeviceOfRole && foundDeviceManufacturer != m_thisDeviceManufacturer) {
-                DebugDriverLog("Discovered a controller! Id: %i, Manufacturer: %s", i, foundDeviceManufacturer.c_str());
+                DriverLog("Discovered a controller! Id: %i, Manufacturer: %s", i, foundDeviceManufacturer.c_str());
                 m_shadowControllerId = i;
                 idSetCorrectly = true;
                 break;
@@ -111,22 +111,21 @@ void ControllerPose::DiscoverController() {
                     int32_t deviceClass = vr::VRProperties()->GetInt32Property(container, vr::Prop_DeviceClass_Int32, &err);
 
                     //This is an opted out controller like a vive wand
-                    if (deviceClass == vr::TrackedDeviceClass_Controller && deviceControllerRole == vr::TrackedControllerRole_OptOut && foundDeviceManufacturer != m_thisDeviceManufacturer) {
-                        DebugDriverLog("Discovered an *OPTED OUT* controller! Id: %i, Manufacturer: %s", i, foundDeviceManufacturer.c_str());
+                    if (deviceClass == vr::TrackedDeviceClass_Controller && deviceControllerRole != vr::TrackedControllerRole_LeftHand && deviceControllerRole != vr::TrackedControllerRole_RightHand && foundDeviceManufacturer != m_thisDeviceManufacturer) {
+                        DriverLog("Discovered an *OPTED OUT* controller! Id: %i, Manufacturer: %s", i, foundDeviceManufacturer.c_str());
                         vr::VRProperties()->SetInt32Property(container, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32, m_shadowDeviceOfRole);
                         m_shadowControllerId = i;
                         idSetCorrectly = true;
                         break;
                     }
+                    else if (deviceClass == vr::TrackedDeviceClass_Controller && foundDeviceManufacturer != m_thisDeviceManufacturer)
+                        DriverLog("ID: %i was not opted out. Class: %i Role: %i ", i, deviceClass, deviceControllerRole);
                 }
-            }
-            if (!idSetCorrectly) {
-                DebugDriverLog("Did not find controllers :(");
             }
         }
 
     } else {
-        DebugDriverLog("Controller ID override set to id: %i", m_poseConfiguration.controllerIdOverride);
+        DriverLog("Controller ID override set to id: %i", m_poseConfiguration.controllerIdOverride);
         m_shadowControllerId = m_poseConfiguration.controllerIdOverride;
     }
 }
