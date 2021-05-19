@@ -96,31 +96,31 @@ void ControllerPose::DiscoverController() {
                 idSetCorrectly = true;
                 break;
             }
-            if (!idSetCorrectly) {
-                for (int i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
-                    vr::ETrackedPropertyError err;
+        }
+        if (!idSetCorrectly) {
+            for (int i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
+                vr::ETrackedPropertyError err;
 
-                    vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(i);
+                vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(i);
 
-                    std::string foundDeviceManufacturer = vr::VRProperties()->GetStringProperty(container,
-                                                                                                vr::Prop_ManufacturerName_String,
-                                                                                                &err);
-                    int32_t deviceControllerRole = vr::VRProperties()->GetInt32Property(container,
-                                                                                        vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32,
-                                                                                        &err);
-                    int32_t deviceClass = vr::VRProperties()->GetInt32Property(container, vr::Prop_DeviceClass_Int32, &err);
+                std::string foundDeviceManufacturer = vr::VRProperties()->GetStringProperty(container,
+                                                                                            vr::Prop_ManufacturerName_String,
+                                                                                            &err);
+                int32_t deviceControllerRole = vr::VRProperties()->GetInt32Property(container,
+                                                                                    vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32,
+                                                                                    &err);
+                int32_t deviceClass = vr::VRProperties()->GetInt32Property(container, vr::Prop_DeviceClass_Int32, &err);
 
-                    //This is an opted out controller like a vive wand
-                    if (deviceClass == vr::TrackedDeviceClass_Controller && deviceControllerRole != vr::TrackedControllerRole_LeftHand && deviceControllerRole != vr::TrackedControllerRole_RightHand && foundDeviceManufacturer != m_thisDeviceManufacturer) {
-                        DriverLog("Discovered an *OPTED OUT* controller! Id: %i, Manufacturer: %s", i, foundDeviceManufacturer.c_str());
-                        vr::VRProperties()->SetInt32Property(container, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32, m_shadowDeviceOfRole);
-                        m_shadowControllerId = i;
-                        idSetCorrectly = true;
-                        break;
-                    }
-                    else if (deviceClass == vr::TrackedDeviceClass_Controller && foundDeviceManufacturer != m_thisDeviceManufacturer)
-                        DriverLog("ID: %i was not opted out. Class: %i Role: %i ", i, deviceClass, deviceControllerRole);
+                //This is an opted out controller like a vive wand
+                if (deviceClass == vr::TrackedDeviceClass_Controller && deviceControllerRole != vr::TrackedControllerRole_LeftHand && deviceControllerRole != vr::TrackedControllerRole_RightHand && foundDeviceManufacturer != m_thisDeviceManufacturer) {
+                    DriverLog("Discovered an *OPTED OUT* controller! Id: %i, Manufacturer: %s", i, foundDeviceManufacturer.c_str());
+                    vr::VRProperties()->SetInt32Property(container, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32, m_shadowDeviceOfRole);
+                    m_shadowControllerId = i;
+                    idSetCorrectly = true;
+                    break;
                 }
+                else if (deviceClass == vr::TrackedDeviceClass_Controller && foundDeviceManufacturer != m_thisDeviceManufacturer)
+                    DriverLog("ID: %i was not opted out. Class: %i Role: %i ", i, deviceClass, deviceControllerRole);
             }
         }
 
