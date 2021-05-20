@@ -114,27 +114,21 @@ void ControllerPose::DiscoverController() {
             otherTaken = true;
             continue;
         }
-        else if (foundDeviceClass == vr::ETrackedDeviceClass::TrackedDeviceClass_Controller) {
-        //Otherwise this is a generic controller, fill backup
-        backupDevices.push(std::make_pair(2, i));
-        continue;
+        //otherwise fill backup
+        switch (foundDeviceClass) {
+        case vr::ETrackedDeviceClass::TrackedDeviceClass_Controller:
+            backupDevices.push(std::make_pair(2, i)); //this is a generic controller like a vive wand
+            break;
+        case vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker:
+            backupDevices.push(std::make_pair(1, i)); //this is a generic tracker
+            break;
+        /*default:
+            backupDevices.push(std::make_pair(0, i)); //currently not considering other devices
+        */
         }
-        //if it's a generic tracker, fill the backup
-        else if (foundDeviceClass == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker) {
-            backupDevices.push(std::make_pair(1, i));
-            continue;
-        }
-        //don't even consider anything else to avoid unwanted devices (or uncomment the following 2 lines)
-        //else
-        //    backupDevices.push(std::make_pair(0, i));
     }
     
     //If we haven't already picked something, use the backup
-    
-    //If left hand still needs a controller then let it have first pick
-    //if ((m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) && !otherTaken && !backupDevices.empty()) {
-    //    backupDevices.pop();
-    //}
     if (!backupDevices.empty()) {
         m_shadowControllerId = backupDevices.top().second;
         DriverLog("Selected a controller/tracker from backup. Id: %i, Priority: %i", m_shadowControllerId, backupDevices.top().first);
