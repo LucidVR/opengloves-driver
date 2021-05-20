@@ -1,0 +1,64 @@
+{
+  "driver_openglove":
+  {
+    "__title": "OpenGlove Configuration",
+    "left_enabled": true,
+    "right_enabled": true,
+    "communication_protocol": 0, //title:Communication Protocol
+    "device_driver": 1, //title: Device Driver
+    "encoding_protocol": 0 //title:Encoding Protocol
+  },
+  "device_lucidgloves":
+  {
+    "__title": "Lucid Glove",
+    "__type": "device_driver:0",
+    "left_serial_number": "lucidgloves-left",
+    "right_serial_number": "lucidgloves-right"
+  },
+  "device_knuckles":
+  {
+    "__title": "Knuckle Driver",
+    "__type": "device_driver:1",
+    "left_serial_number": "LHR-E217CD00",
+    "right_serial_number": "LHR-E217CD01"
+  },
+  "pose_settings":
+  {
+    "__title": "Pose settings",
+    "right_x_offset_position": -0.1,
+    "right_y_offset_position": -0.08,
+    "right_z_offset_position": -0.03,
+    "right_x_offset_degrees": -40,
+    "right_y_offset_degrees": 0,
+    "right_z_offset_degrees": 0,
+    "left_x_offset_position": 0.1,
+    "left_y_offset_position": -0.08,
+    "left_z_offset_position": -0.03,
+    "left_x_offset_degrees": -40,
+    "left_y_offset_degrees": 0,
+    "left_z_offset_degrees": 0,
+    "pose_offset": -0.01,
+    "controller_override": false,
+    "controller_override_left": 3,
+    "controller_override_right": 4
+  },
+  "communication_serial":
+  {
+    "__type": "communication_protocol:0",
+    "__title": "USB Serial",
+    "left_port": "\\\\.\\COM4",
+    "right_port": "\\\\.\\COM5"
+  },
+	"communication_btserial": {
+    "__type": "communication_protocol:1",
+    "__title": "Bluetooth Serial",
+		"left_name": "lucidgloves-left",
+		"right_name": "lucidgloves-right"
+	},
+  "encoding_legacy":
+  {
+    "__type": "encoding_protocol: 0",
+    "__title": "Encoding Protocol",
+    "max_analog_value": 1023
+  }
+}
