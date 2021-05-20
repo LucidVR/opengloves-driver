@@ -110,8 +110,8 @@ void ControllerPose::DiscoverController() {
                 return;
             }
             //If this belongs to the other hand, then skip it
-            else if (foundControllerRole == m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ?
-                vr::ETrackedControllerRole::TrackedControllerRole_LeftHand : vr::ETrackedControllerRole::TrackedControllerRole_RightHand) {
+            else if (foundControllerRole == ((m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) ?
+                vr::ETrackedControllerRole::TrackedControllerRole_LeftHand : vr::ETrackedControllerRole::TrackedControllerRole_RightHand)) {
                 otherTaken = true;
                 continue;
             }
@@ -132,12 +132,14 @@ void ControllerPose::DiscoverController() {
             //    backupDevices.push(std::make_pair(0, i));
         }
     }
+    
     //If we haven't already picked something, use the backup
+    
+    //If left hand still needs a controller then let it have first pick
+    if ((m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) && !otherTaken && !backupDevices.empty()) {
+        backupDevices.pop();
+    }
     if (!backupDevices.empty()) {
-        //If left hand still needs a controller then let it have first pick
-        if (m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand && !otherTaken)
-            backupDevices.pop();
-
         m_shadowControllerId = backupDevices.top().second;
         DriverLog("Selected a controller/tracker from backup. Id: %i, Priority: %i", m_shadowControllerId, backupDevices.top().first);
     }
