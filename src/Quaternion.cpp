@@ -83,11 +83,29 @@ vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, cons
 	return quat;
 }
 
-vr::HmdQuaternion_t EulerToQuaternion(const double& x, const double& y, const double& z) {
-	vr::HmdQuaternion_t quat0 = QuaternionFromAngle(1, 0, 0, x);
-	vr::HmdQuaternion_t quat1 = MultiplyQuaternion(quat0, QuaternionFromAngle(0, 1, 0, y));
-	vr::HmdQuaternion_t quat2 = MultiplyQuaternion(quat1, QuaternionFromAngle(0, 0, 1, z));
-	return quat2;
+//Adapted from libGDX
+vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, const double& roll) {
+	vr::HmdQuaternion_t result;
+	
+	double hr = roll * 0.5f;
+	double shr = sin(hr);
+	double chr = cos(hr);
+	double hp = pitch * 0.5f;
+	double shp = sin(hp);
+	double chp = cos(hp);
+	double hy = yaw * 0.5f;
+	double shy = sin(hy);
+	double chy = cos(hy);
+	double chy_shp = chy * shp;
+	double shy_chp = shy * chp;
+	double chy_chp = chy * chp;
+	double shy_shp = shy * shp;
+
+	result.x = (chy_shp * chr) + (shy_chp * shr);
+	result.y = (shy_chp * chr) - (chy_shp * shr);
+	result.z = (chy_chp * shr) - (shy_shp * chr);
+	result.w = (chy_chp * chr) + (shy_shp * shr);
+	return result;
 }
 
 vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::HmdQuaternion_t& r) {

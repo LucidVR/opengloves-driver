@@ -73,10 +73,15 @@ void SerialCommunicationManager::ListenerThread(const std::function<void(VRCommD
 		std::string receivedString;
 		bool readSuccessful = ReceiveNextPacket(receivedString);
 		
-		if (readSuccessful) {
-			VRCommData_t commData = m_encodingManager->Decode(receivedString);
 
-			callback(commData);
+		if (readSuccessful) {
+			try {
+				VRCommData_t commData = m_encodingManager->Decode(receivedString);
+				callback(commData);
+			}
+			catch (const std::invalid_argument& ia) {
+				DriverLog("Received error from encoding manager. Skipping...");
+			}
 		}
 		else {
 			DebugDriverLog("Detected that arduino has disconnected! Stopping listener...");
