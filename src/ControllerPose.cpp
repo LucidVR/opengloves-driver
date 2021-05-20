@@ -73,6 +73,14 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
     return newPose;
 }
 
+//Checks if a role is the opposite hand from the current hand
+bool ControllerPose::IsOtherRole(int32_t test) {
+    if (m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand)
+        return test == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand;
+    else
+        return test == vr::ETrackedControllerRole::TrackedControllerRole_RightHand;
+}
+
 void ControllerPose::DiscoverController() {
     //if there's an override, default to that
     if (m_poseConfiguration.controllerOverrideEnabled) {
@@ -109,8 +117,7 @@ void ControllerPose::DiscoverController() {
             return;
         }
         //If this belongs to the other hand, then skip it
-        else if (foundControllerRole == ((m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) ?
-            vr::ETrackedControllerRole::TrackedControllerRole_LeftHand : vr::ETrackedControllerRole::TrackedControllerRole_RightHand)) {
+        else if (IsOtherRole(foundControllerRole)) {
             otherTaken = true;
             continue;
         }
@@ -134,14 +141,6 @@ void ControllerPose::DiscoverController() {
         DriverLog("Selected a controller/tracker from backup. Id: %i, Priority: %i", m_shadowControllerId, backupDevices.top().first);
         vr::ETrackedPropertyError err;
         vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_shadowControllerId);
-        std::string foundDeviceManufacturer = vr::VRProperties()->GetStringProperty(container,
-                                                                                    vr::Prop_ManufacturerName_String,
-                                                                                    &err);
-        const int32_t foundDeviceClass = vr::VRProperties()->GetInt32Property(container, vr::ETrackedDeviceProperty::Prop_DeviceClass_Int32, &err);
-
-        int32_t foundControllerRole = vr::VRProperties()->GetInt32Property(container,
-                                                                vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32,
-                                                                &err);
         /*
         * There really needs to be a better way to ensure we're attached to the right generic controller, 
         * but unfortunately we have not found a practical solution for this yet which works with vive wands. :(
