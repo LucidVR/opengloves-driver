@@ -93,55 +93,66 @@ void ControllerPose::DiscoverController() {
                                                                                     &err);
         const int32_t foundDeviceClass = vr::VRProperties()->GetInt32Property(container, vr::ETrackedDeviceProperty::Prop_DeviceClass_Int32, &err);
 
+        int32_t foundControllerRole = vr::VRProperties()->GetInt32Property(container,
+                                                                vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32,
+                                                                &err);
+
         //make sure we're not trying to find our own controllers
         if (m_thisDeviceManufacturer == foundDeviceManufacturer) continue;
 
-        //If we're looking at a controller
-        if (foundDeviceClass == vr::ETrackedDeviceClass::TrackedDeviceClass_Controller) {
-            int32_t foundControllerRole = vr::VRProperties()->GetInt32Property(container,
-                                                                            vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32,
-                                                                            &err);
-            //We have a controller which identifies itself as the correct role, and that device is not this one.
-            if (foundControllerRole == m_shadowDeviceOfRole) {
-                DriverLog("Discovered a %s handed controller! Id: %i, Manufacturer: %s",
-                          m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left",
-                          i, foundDeviceManufacturer.c_str());
-                m_shadowControllerId = i;
-                return;
-            }
-            //If this belongs to the other hand, then skip it
-            else if (foundControllerRole == ((m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) ?
-                vr::ETrackedControllerRole::TrackedControllerRole_LeftHand : vr::ETrackedControllerRole::TrackedControllerRole_RightHand)) {
-                otherTaken = true;
-                continue;
-            }
-            else {
-                //Otherwise this is a generic controller, fill backup
-                backupDevices.push(std::make_pair(2, i));
-                continue;
-            }
+        //We have a device which identifies itself as the correct role, and that device is not this one.
+        if (foundControllerRole == m_shadowDeviceOfRole) {
+            DriverLog("Discovered a %s handed controller! Id: %i, Manufacturer: %s",
+                        m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left",
+                        i, foundDeviceManufacturer.c_str());
+            m_shadowControllerId = i;
+            return;
         }
-        else {
-            //if it's a tracker, fill the backup
-            if (foundDeviceClass == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker) {
-                backupDevices.push(std::make_pair(1, i));
-                continue;
-            }
-            //don't even consider anything else to avoid stations (or uncomment the following 2 lines)
-            //else
-            //    backupDevices.push(std::make_pair(0, i));
+        //If this belongs to the other hand, then skip it
+        else if (foundControllerRole == ((m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) ?
+            vr::ETrackedControllerRole::TrackedControllerRole_LeftHand : vr::ETrackedControllerRole::TrackedControllerRole_RightHand)) {
+            otherTaken = true;
+            continue;
         }
+        else if (foundDeviceClass == vr::ETrackedDeviceClass::TrackedDeviceClass_Controller) {
+        //Otherwise this is a generic controller, fill backup
+        backupDevices.push(std::make_pair(2, i));
+        continue;
+        }
+        //if it's a generic tracker, fill the backup
+        else if (foundDeviceClass == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker) {
+            backupDevices.push(std::make_pair(1, i));
+            continue;
+        }
+        //don't even consider anything else to avoid unwanted devices (or uncomment the following 2 lines)
+        //else
+        //    backupDevices.push(std::make_pair(0, i));
     }
     
     //If we haven't already picked something, use the backup
     
     //If left hand still needs a controller then let it have first pick
-    if ((m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) && !otherTaken && !backupDevices.empty()) {
-        backupDevices.pop();
-    }
+    //if ((m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) && !otherTaken && !backupDevices.empty()) {
+    //    backupDevices.pop();
+    //}
     if (!backupDevices.empty()) {
         m_shadowControllerId = backupDevices.top().second;
         DriverLog("Selected a controller/tracker from backup. Id: %i, Priority: %i", m_shadowControllerId, backupDevices.top().first);
+        vr::ETrackedPropertyError err;
+        vr::PropertyContainerHandle_t container = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_shadowControllerId);
+        std::string foundDeviceManufacturer = vr::VRProperties()->GetStringProperty(container,
+                                                                                    vr::Prop_ManufacturerName_String,
+                                                                                    &err);
+        const int32_t foundDeviceClass = vr::VRProperties()->GetInt32Property(container, vr::ETrackedDeviceProperty::Prop_DeviceClass_Int32, &err);
+
+        int32_t foundControllerRole = vr::VRProperties()->GetInt32Property(container,
+                                                                vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32,
+                                                                &err);
+        /*
+        * There really needs to be a better way to ensure we're attached to the right generic controller, 
+        * but unfortunately we have not found a practical solution for this yet which works with vive wands. :(
+        */
+        vr::VRProperties()->SetInt32Property(container, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32, m_shadowDeviceOfRole);
     }
     else
         DebugDriverLog("No suitable devices to attach to!");
