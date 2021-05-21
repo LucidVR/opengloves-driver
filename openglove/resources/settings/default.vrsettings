@@ -4,8 +4,8 @@
     "__title": "OpenGlove Configuration",
     "left_enabled": true,
     "right_enabled": true,
-    "communication_protocol": 0, //title:Communication Protocol
-    "device_driver": 1, //title: Device Driver
+    "communication_protocol": 0, //title:Communication Method
+    "device_driver": 1, //title:Device Driver Emulation
     "encoding_protocol": 0 //title:Encoding Protocol
   },
   "device_lucidgloves":
@@ -17,7 +17,7 @@
   },
   "device_knuckles":
   {
-    "__title": "Knuckle Driver",
+    "__title": "Knuckles Emulation",
     "__type": "device_driver:1",
     "left_serial_number": "LHR-E217CD00",
     "right_serial_number": "LHR-E217CD01"
