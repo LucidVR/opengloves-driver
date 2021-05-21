@@ -147,6 +147,6 @@ void ControllerPose::DiscoverController() {
         */
         vr::VRProperties()->SetInt32Property(container, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32, m_shadowDeviceOfRole);
     }
-    else
-        DebugDriverLog("No suitable devices to attach to!");
+    //else
+        //DebugDriverLog("No suitable devices to attach to!");//
 }
