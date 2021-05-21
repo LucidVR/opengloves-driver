@@ -5,11 +5,11 @@ OpenGlove is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's dri
 ## Installation and Usage
 
 
-**Release on Steam:**
- * https://store.steampowered.com/app/1574050/OpenGloves
- * We strongly recommend downloading the driver off of Steam, to recieve automatic updates and UI settings.
+### Download on Steam:
+[![Steam Release](https://cdn.discordapp.com/attachments/790676300552994826/845412304219537439/openglovessteam.png)](https://store.steampowered.com/app/1574050/OpenGloves)
+ * We strongly recommend downloading the driver from Steam, to recieve automatic updates and UI settings.
 
-**Download the latest on GitHub:**
+*Or download the latest on GitHub:*
  * https://github.com/LucidVR/opengloves-driver/releases
 
 **Follow the wiki guide for configuring the driver**
