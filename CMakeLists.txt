@@ -36,7 +36,7 @@ add_library("${OPENGLOVE_PROJECT}" SHARED "${HEADERS}" "${SOURCES}")
 target_include_directories("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_INCLUDE_DIR}")
 
 target_include_directories("${OPENGLOVE_PROJECT}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
-target_link_libraries("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_LIB}")
+target_link_libraries("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_LIB}" wsock32.lib ws2_32.lib Bthprops.lib)
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${HEADERS})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" PREFIX "Source Files" FILES ${SOURCES})
