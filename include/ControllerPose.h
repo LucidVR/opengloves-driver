@@ -20,6 +20,6 @@ private:
 
 	std::string m_thisDeviceManufacturer;
 
-	bool ControllerPose::IsOtherRole(int32_t test);
+	bool IsOtherRole(int32_t test);
 
 };
