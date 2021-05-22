@@ -30,11 +30,6 @@ This should generate Visual Studio project files in the `build/` folder, which y
   * `cmake --build . --config Release`
   * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
 
-# Adding driver to Steam
-* Copy the `openglove` folder into the steamvr drivers folder
-  * Usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers`
-* Running SteamVR you should see the driver activate two new controllers
-
 # Debugging with Visual Studio  
 If you want to make changes to the code and would like to use a debugger/not have to copy builds by hand, you are able to do so with the following steps:
 
