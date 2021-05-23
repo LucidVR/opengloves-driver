@@ -25,6 +25,13 @@ This should generate Visual Studio project files in the `build/` folder, which y
 * You should already have the ability to build the driver by pressing `Ctrl + Shift + B`
   * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
 
+# Adding driver to Steam
+**Note:** For a more streamlined debugging environment, refer to [Debugging with Visual Studio](https://github.com/LucidVR/opengloves-driver/blob/develop/BUILDING.md#debugging-with-visual-studio).  
+This step is for people who may not necessarily want to setup a debugging environment, or are testing release builds.  
+* Copy the `openglove` folder into the steamvr drivers folder
+  * Usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers`
+* Running SteamVR you should see the driver activate two new controllers
+
 # Building with Visual Studio Build Tools
 * run a cmake build in the `build/` folder
   * `cmake --build . --config Release`
