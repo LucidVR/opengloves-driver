@@ -15,13 +15,7 @@
 #include <Ws2bth.h>
 #include <BluetoothAPIs.h>
 
-#ifdef _WIN32
-	#pragma comment(lib, "Ws2_32.lib")
-	#pragma comment(lib, "Bthprops.lib")
-#endif
-
 #define ARDUINO_WAIT_TIME 1000
-
 class BTSerialCommunicationManager : public ICommunicationManager {
 public:
 	BTSerialCommunicationManager(const VRBTSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager);
