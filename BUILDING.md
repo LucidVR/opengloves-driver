@@ -20,17 +20,19 @@ Binaries are (or will) be provided in the Releases in this Repository, but if yo
 
 This should generate Visual Studio project files in the `build/` folder, which you can then compile.
 
-# Building with Visual Studio IDE
-* Open the Visual Studio project (.sln file) in the `build/` folder
-* You should already have the ability to build the driver by pressing `Ctrl + Shift + B`
-  * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
-
 # Building with Visual Studio Build Tools
 * run a cmake build in the `build/` folder
   * `cmake --build . --config Release`
   * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
 
+# Building with Visual Studio IDE
+* Open the Visual Studio project (.sln file) in the `build/` folder
+* You should already have the ability to build the driver by pressing `Ctrl + Shift + B`
+  * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
+
 # Adding driver to Steam
+**Note:** For a more streamlined debugging environment, refer to [Debugging with Visual Studio](https://github.com/LucidVR/opengloves-driver/blob/develop/BUILDING.md#debugging-with-visual-studio).  
+This step is for people who may not necessarily want to setup a debugging environment, or are testing release builds.  
 * Copy the `openglove` folder into the steamvr drivers folder
   * Usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers`
 * Running SteamVR you should see the driver activate two new controllers
@@ -73,7 +75,7 @@ If you want to make changes to the code and would like to use a debugger/not hav
   * On the first row (with the process name `<All other processes>`, make sure that the `Action` is set to `Do not debug`.  
   * Add a new row (double click on the empty `Process name` underneath `<All other processes>`.  
   * Add `vrserver.exe` as the process name 
-  * Ensure that `Action` is set to `Attach Debugger`.
+  * Ensure that `Action` is set to `Attach Debugger`.  
 
 ## Launch SteamVR when building through Visual Studio
 It's usually quite useful to build then automatically launch SteamVR for debugging purposes.  
