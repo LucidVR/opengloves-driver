@@ -32,11 +32,6 @@ This step is for people who may not necessarily want to setup a debugging enviro
   * Usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers`
 * Running SteamVR you should see the driver activate two new controllers
 
-# Building with Visual Studio Build Tools
-* run a cmake build in the `build/` folder
-  * `cmake --build . --config Release`
-  * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
-
 # Debugging with Visual Studio  
 If you want to make changes to the code and would like to use a debugger/not have to copy builds by hand, you are able to do so with the following steps:
 
@@ -76,6 +71,11 @@ If you want to make changes to the code and would like to use a debugger/not hav
   * Add a new row (double click on the empty `Process name` underneath `<All other processes>`.  
   * Add `vrserver.exe` as the process name 
   * Ensure that `Action` is set to `Attach Debugger`.
+
+# Building with Visual Studio Build Tools
+* run a cmake build in the `build/` folder
+  * `cmake --build . --config Release`
+  * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
 
 ## Launch SteamVR when building through Visual Studio
 It's usually quite useful to build then automatically launch SteamVR for debugging purposes.  
