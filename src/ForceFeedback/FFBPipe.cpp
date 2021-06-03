@@ -46,23 +46,22 @@ VOID WINAPI CompletedReadRoutine(DWORD dwErr, DWORD cbBytesRead, LPOVERLAPPED lp
     DebugDriverLog("Received force feedback request: %d", lpPipeInst->chRequest.indexCurl);
     lpPipeInst->callback(lpPipeInst->chRequest);
   }
+
 }
 
 // Returns true if pending, false if the operation has completed.
-bool FFBPipe::CreateAndConnectInstance(LPOVERLAPPED lpo) {
-  LPTSTR lpszPipename = TEXT("\\\\.\\pipe\\application\\ffb");
-
-  m_hPipe = CreateNamedPipe(lpszPipename,                // pipe name
-                          PIPE_ACCESS_DUPLEX |         // read/write access
-                              FILE_FLAG_OVERLAPPED,    // overlapped mode
-                          PIPE_TYPE_MESSAGE |          // message-type pipe
-                              PIPE_READMODE_MESSAGE |  // message read mode
-                              PIPE_WAIT,               // blocking mode
-                          PIPE_UNLIMITED_INSTANCES,    // unlimited instances
-                          sizeof(VRFFBData_t),     // output buffer size
-                          sizeof(VRFFBData_t),         // input buffer size
-                          5000,                // client time-out
-                          NULL);                       // default security attributes
+bool FFBPipe::CreateAndConnectInstance(LPOVERLAPPED lpo, std::string &pipeName) {
+  m_hPipe = CreateNamedPipe(pipeName.c_str(),            // pipe name
+                            PIPE_ACCESS_DUPLEX |         // read/write access
+                                FILE_FLAG_OVERLAPPED,    // overlapped mode
+                            PIPE_TYPE_MESSAGE |          // message-type pipe
+                                PIPE_READMODE_MESSAGE |  // message read mode
+                                PIPE_WAIT,               // blocking mode
+                            PIPE_UNLIMITED_INSTANCES,    // unlimited instances
+                            sizeof(VRFFBData_t),         // output buffer size
+                            sizeof(VRFFBData_t),         // input buffer size
+                            5000,                        // client time-out
+                            NULL);                       // default security attributes
   if (m_hPipe == INVALID_HANDLE_VALUE) {
     DriverLog("CreateNamedPipe failed with with error: %s.\n", GetLastErrorAsString().c_str());
     return 0;
@@ -74,39 +73,35 @@ bool FFBPipe::CreateAndConnectInstance(LPOVERLAPPED lpo) {
 }
 
 bool FFBPipe::ConnectToNewClient(LPOVERLAPPED lpo) {
-  BOOL fConnected, fPendingIO = FALSE; 
- 
-// Start an overlapped connection for this pipe instance. 
-   fConnected = ConnectNamedPipe(&m_hPipe, lpo); 
- 
-// Overlapped ConnectNamedPipe should return zero. 
-   if (fConnected) 
-   {
-      printf("ConnectNamedPipe failed with %d.\n", GetLastError()); 
+  BOOL fConnected, fPendingIO = FALSE;
+
+  // Start an overlapped connection for this pipe instance.
+  fConnected = ConnectNamedPipe(&m_hPipe, lpo);
+
+  // Overlapped ConnectNamedPipe should return zero.
+  if (fConnected) {
+    printf("ConnectNamedPipe failed with %d.\n", GetLastError());
+    return 0;
+  }
+
+  switch (GetLastError()) {
+      // The overlapped connection in progress.
+    case ERROR_IO_PENDING:
+      fPendingIO = TRUE;
+      break;
+
+      // Client is already connected, so signal an event.
+
+    case ERROR_PIPE_CONNECTED:
+      if (SetEvent(lpo->hEvent)) break;
+
+      // If an error occurs during the connect operation...
+    default: {
+      printf("ConnectNamedPipe failed with %d.\n", GetLastError());
       return 0;
-   }
- 
-   switch (GetLastError()) 
-   { 
-   // The overlapped connection in progress. 
-      case ERROR_IO_PENDING: 
-         fPendingIO = TRUE; 
-         break; 
- 
-   // Client is already connected, so signal an event. 
- 
-      case ERROR_PIPE_CONNECTED: 
-         if (SetEvent(lpo->hEvent)) 
-            break; 
- 
-   // If an error occurs during the connect operation... 
-      default: 
-      {
-         printf("ConnectNamedPipe failed with %d.\n", GetLastError());
-         return 0;
-      }
-   } 
-   return fPendingIO; 
+    }
+  }
+  return fPendingIO;
 }
 
 void FFBPipe::PipeListenerThread(const std::function<void(VRFFBData_t)> &callback, vr::ETrackedControllerRole handedness) {
@@ -125,8 +120,11 @@ void FFBPipe::PipeListenerThread(const std::function<void(VRFFBData_t)> &callbac
     return;
   }
 
+  std::string pipeName = "\\\\.\\pipe\\vrapplication\\ffb\\curl\\";
+  pipeName.append((handedness == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) ? "right" : "left");
+  DebugDriverLog("Creating pipe: %s", pipeName.c_str());
 
-  fPendingIO = CreateAndConnectInstance(&oConnect);
+  fPendingIO = CreateAndConnectInstance(&oConnect, pipeName);
 
   while (m_listenerActive) {
     dwWait = WaitForSingleObjectEx(hConnectEvent,  // event object to wait for
@@ -170,6 +168,13 @@ void FFBPipe::PipeListenerThread(const std::function<void(VRFFBData_t)> &callbac
         bool fRead = ReadFileEx(m_lpPipeInst->hPipeInst, &m_lpPipeInst->chRequest, sizeof(VRFFBData_t), (LPOVERLAPPED)m_lpPipeInst,
                                 (LPOVERLAPPED_COMPLETION_ROUTINE)CompletedReadRoutine);
 
+        switch (GetLastError()) {
+            //Disconnect if the client did so and reopen
+          case ERROR_BROKEN_PIPE:
+            DisconnectAndClose();
+            PipeListenerThread(callback, handedness);
+            break;
+        }
       }
 
       break;

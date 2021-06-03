@@ -9,13 +9,14 @@
 #include "openvr_driver.h"
 
 struct VRFFBData_t {
+  VRFFBData_t(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl)
+      : thumbCurl(thumbCurl), indexCurl(indexCurl), middleCurl(middleCurl), ringCurl(ringCurl), pinkyCurl(pinkyCurl){};
+
   short thumbCurl;
   short indexCurl;
   short middleCurl;
   short ringCurl;
   short pinkyCurl;
-
-  vr::ETrackedControllerRole handedness;
 };
 typedef struct {
   OVERLAPPED oOverlap;
@@ -35,7 +36,7 @@ class FFBPipe {
  private:
   void PipeListenerThread(const std::function<void(VRFFBData_t)>& callback, vr::ETrackedControllerRole handedness);
   void DisconnectAndClose();
-  bool CreateAndConnectInstance(LPOVERLAPPED lpo);
+  bool CreateAndConnectInstance(LPOVERLAPPED lpo, std::string& pipeName);
   bool ConnectToNewClient(LPOVERLAPPED lpo);
   HANDLE m_hPipe;
 

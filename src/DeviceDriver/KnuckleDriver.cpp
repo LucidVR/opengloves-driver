@@ -186,9 +186,12 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 // This could do with a rename, its a bit vague as to what it does
 void KnuckleDeviceDriver::StartDevice() {
   m_ffbProvider = std::make_unique<FFBPipe>();
-  m_ffbProvider->Start([&](VRFFBData_t data) { 
-                       
-                       }, m_configuration.role);
+  m_ffbProvider->Start(
+      [&](VRFFBData_t data) {
+        // Queue the force feedback data for sending.
+        m_communicationManager->QueueSend(data);
+      },
+      m_configuration.role);
   m_communicationManager->Connect();
   if (m_communicationManager->IsConnected()) {
     m_communicationManager->BeginListener([&](VRCommData_t datas) {
