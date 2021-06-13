@@ -1,5 +1,4 @@
 #pragma once
-
 #undef _WINSOCKAPI_
 #define _WINSOCKAPI_
 
@@ -10,6 +9,7 @@
 
 #include "Communication/CommunicationManager.h"
 #include "Communication/SerialCommunicationManager.h"
+#include "Communication/WifiCommunicationManager.h"
 #include "Communication/BTSerialCommunicationManager.h"
 
 #include "Encode/EncodingManager.h"

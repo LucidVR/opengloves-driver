@@ -49,6 +49,15 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceC
 
 
 	switch (configuration.communicationProtocol) {
+		case VRCommunicationProtocol::WIFISERIAL: {
+            DriverLog("Communication set to WifiSerial");
+
+			VRBTSerialConfiguration_t wifiSerialSettings();
+
+			communicationManager = std::make_unique<WifiCommunicationManager>(
+                            wifiSerialSettings, std::move(encodingManager));
+            break;
+		}
 	case VRCommunicationProtocol::BTSERIAL:
 	{
 		DriverLog("Communication set to BTSerial");

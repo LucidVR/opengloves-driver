@@ -1,5 +1,9 @@
 #pragma once
 
+#define ASIO_STANDALONE
+#include <websocketpp/config/asio_no_tls.hpp>
+#include <websocketpp/server.hpp>
+
 #include "CommunicationManager.h"
 #include "DeviceConfiguration.h"
 #include <memory>
@@ -14,8 +18,9 @@
 #include <Winsock2.h>
 #include <Ws2bth.h>
 #include <BluetoothAPIs.h>
-#include <websocketpp/config/asio_no_tls.hpp>
-#include <websocketpp/server.hpp>
+
+typedef websocketpp::server<websocketpp::config::asio> server;
+
 
 class WifiCommunicationManager : public ICommunicationManager {
  public:
@@ -39,17 +44,8 @@ class WifiCommunicationManager : public ICommunicationManager {
   bool connectToEsp32();
   bool sendMessageToEsp32();
 
+  server m_endpoint;
   bool m_isConnected;
   std::atomic<bool> m_threadActive;
   std::thread m_serialThread;
-
-  std::unique_ptr<IEncodingManager> m_encodingManager;
-
-  VRBTSerialConfiguration_t m_btSerialConfiguration;
-
-  BTH_ADDR m_esp32BtAddress;
-  SOCKADDR_BTH m_btSocketAddress;
-  SOCKET m_btClientSocket;
-  WCHAR* m_wcDeviceName;
-  // std::unique_ptr<WCHAR*> m_wcDeviceName;
 };

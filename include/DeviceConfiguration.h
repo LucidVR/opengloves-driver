@@ -11,6 +11,7 @@ static const char *c_poseSettingsSection = "pose_settings";
 enum VRCommunicationProtocol {
 	SERIAL = 0,
 	BTSERIAL = 1,
+    WIFISERIAL = 2,
 };
 
 enum VREncodingProtocol {

@@ -4,7 +4,7 @@
     "__title": "OpenGlove Configuration",
     "left_enabled": true,
     "right_enabled": true,
-    "communication_protocol": 0, //title:Communication Method
+    "communication_protocol": 2, //title:Communication Method
     "device_driver": 1, //title:Device Driver Emulation
     "encoding_protocol": 0 //title:Encoding Protocol
   },
@@ -50,10 +50,14 @@
     "right_port": "\\\\.\\COM5"
   },
 	"communication_btserial": {
-    "__type": "communication_protocol:1",
-    "__title": "Bluetooth Serial",
+	"__type": "communication_protocol:1",
+	"__title": "Bluetooth Serial",
 		"left_name": "lucidgloves-left",
 		"right_name": "lucidgloves-right"
+	},
+	"communication_wifiserial": {
+		"__type": "communication_protocol:2",
+		"__title": "Wifi Serial"
 	},
   "encoding_legacy":
   {
