@@ -8,6 +8,7 @@ class ControllerPose {
  public:
   ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer,
                  VRPoseConfiguration_t poseConfiguration);
+
   vr::DriverPose_t UpdatePose();
 
  private:

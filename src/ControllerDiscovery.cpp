@@ -30,13 +30,13 @@ std::string GetLastErrorAsString() {
   return message;
 }
 
-ControllerDiscoveryPipe::ControllerDiscoveryPipe() : m_listenerActive(false), m_hPipe(0), m_lpPipeInst(0){};
+ControllerDiscoveryPipe::ControllerDiscoveryPipe()
+    : m_listenerActive(false), m_hPipe(0), m_lpPipeInst(0){};
 
 bool ControllerDiscoveryPipe::Start(const std::function<void(ControllerPipeData)> &callback,
                                     vr::ETrackedControllerRole role) {
   m_listenerActive = true;
-  m_pipeThread =
-      std::thread(&ControllerDiscoveryPipe::PipeListenerThread, this, callback, role);
+  m_pipeThread = std::thread(&ControllerDiscoveryPipe::PipeListenerThread, this, callback, role);
 
   return true;
 }
@@ -81,26 +81,20 @@ bool ControllerDiscoveryPipe::ConnectToNewClient(LPOVERLAPPED lpo) {
   // Start an overlapped connection for this pipe instance.
   fConnected = ConnectNamedPipe(&m_hPipe, lpo);
 
-  // Overlapped ConnectNamedPipe should return zero.
   if (fConnected) {
     DriverLog("ConnectNamedPipe failed with %c.\n", GetLastErrorAsString().c_str());
     return 0;
   }
 
   switch (GetLastError()) {
-      // The overlapped connection in progress.
     case ERROR_IO_PENDING:
       fPendingIO = TRUE;
       break;
 
-      // Client is already connected, so signal an event.
-
     case ERROR_PIPE_CONNECTED:
       if (SetEvent(lpo->hEvent)) break;
-
-      // If an error occurs during the connect operation...
     default: {
-      printf("ConnectNamedPipe failed with %d.\n", GetLastError());
+      DriverLog("ConnectNamedPipe failed with: %s", GetLastErrorAsString().c_str());
       return 0;
     }
   }
@@ -139,12 +133,7 @@ void ControllerDiscoveryPipe::PipeListenerThread(
                                    INFINITE,       // waits indefinitely
                                    TRUE);          // alertable wait enabled
     switch (dwWait) {
-        // The wait conditions are satisfied by a completed connect
-        // operation.
       case 0: {
-        // If an operation is pending, get the result of the
-        // connect operation.
-
         if (fPendingIO) {
           fSuccess = GetOverlappedResult(m_hPipe,    // pipe handle
                                          &oConnect,  // OVERLAPPED structure
@@ -155,9 +144,6 @@ void ControllerDiscoveryPipe::PipeListenerThread(
             return;
           }
         }
-
-        // Allocate storage for this instance.
-
         m_lpPipeInst = (LPPIPEINST)GlobalAlloc(GPTR, sizeof(PIPEINST));
 
         if (m_lpPipeInst == NULL) {
@@ -167,10 +153,6 @@ void ControllerDiscoveryPipe::PipeListenerThread(
 
         m_lpPipeInst->hPipeInst = m_hPipe;
 
-        // Start the read operation for this client.
-        // Note that this same routine is later used as a
-        // completion routine after a write operation.
-
         m_lpPipeInst->cbToWrite = 0;
         m_lpPipeInst->callback = callback;
         bool fRead = ReadFileEx(m_lpPipeInst->hPipeInst, &m_lpPipeInst->chRequest,
@@ -178,19 +160,13 @@ void ControllerDiscoveryPipe::PipeListenerThread(
                                 (LPOVERLAPPED_COMPLETION_ROUTINE)CompletedReadRoutine);
 
         switch (GetLastError()) {
-            // Disconnect if the client did so and reopen
           case ERROR_BROKEN_PIPE:
             DisconnectAndClose();
             PipeListenerThread(callback, role);
             break;
         }
+        break;
       }
-
-      break;
-
-        // The wait is satisfied by a completed read or write
-        // operation. This allows the system to execute the
-        // completion routine.
       case WAIT_IO_COMPLETION: {
         break;
       }
@@ -212,7 +188,6 @@ void ControllerDiscoveryPipe::DisconnectAndClose() {
     DebugDriverLog("DisconnectNamedPipe failed with error: %s.\n", GetLastErrorAsString().c_str());
   }
 
-  // Close the handle to the pipe instance.
   CloseHandle(m_lpPipeInst->hPipeInst);
 
   // Release the storage for the pipe instance.
@@ -220,8 +195,10 @@ void ControllerDiscoveryPipe::DisconnectAndClose() {
 }
 
 void ControllerDiscoveryPipe::Stop() {
-  DriverLog("Disconnecting FFB");
+  DriverLog("Disconnecting controller pipe...");
   m_listenerActive = false;
   m_pipeThread.join();
   DisconnectAndClose();
 }
+
+ControllerDiscoveryPipe::~ControllerDiscoveryPipe() { Stop(); };

@@ -12,11 +12,18 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
     : m_shadowDeviceOfRole(shadowDeviceOfRole),
       m_thisDeviceManufacturer(std::move(thisDeviceManufacturer)),
       m_poseConfiguration(poseConfiguration) {
-  m_controllerDiscoverer = std::make_unique<ControllerDiscoveryPipe>();
 
-  m_controllerDiscoverer->Start([&](ControllerPipeData data) { 
-      m_shadowControllerId = data.controllerId;
-  }, m_shadowDeviceOfRole);
+
+  if (m_poseConfiguration.controllerOverrideEnabled) {
+    m_shadowControllerId = m_poseConfiguration.controllerIdOverride;
+  } else {
+    m_controllerDiscoverer = std::make_unique<ControllerDiscoveryPipe>();
+
+    m_controllerDiscoverer->Start(
+        [&](ControllerPipeData data) { m_shadowControllerId = data.controllerId; },
+        m_shadowDeviceOfRole);
+  }
+  
 }
 
 vr::DriverPose_t ControllerPose::UpdatePose() {
@@ -82,12 +89,4 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
     newPose.result = vr::TrackingResult_Uninitialized;
   }
   return newPose;
-}
-
-// Checks if a role is the opposite hand from the current hand
-bool ControllerPose::IsOtherRole(int32_t test) {
-  if (m_shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand)
-    return test == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand;
-  else
-    return test == vr::ETrackedControllerRole::TrackedControllerRole_RightHand;
 }

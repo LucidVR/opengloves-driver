@@ -23,6 +23,8 @@ typedef struct {
 class ControllerDiscoveryPipe {
  public:
   ControllerDiscoveryPipe();
+  ~ControllerDiscoveryPipe();
+
   bool Start(const std::function<void(ControllerPipeData)>& callback, vr::ETrackedControllerRole role);
   void Stop();
 
