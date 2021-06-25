@@ -2,8 +2,6 @@
 #include <openvr.h>
 #include <windows.h>
 
-#include <iostream>
-
 struct ControllerPipeData {
   short controllerId;
 };

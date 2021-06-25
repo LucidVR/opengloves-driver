@@ -1,8 +1,8 @@
 #include "main.h"
-#include <thread>
-#include <chrono>
-#include <atomic>
 
+#include <atomic>
+#include <chrono>
+#include <thread>
 
 std::atomic<bool> appActive = true;
 
@@ -28,32 +28,7 @@ std::string GetLastErrorAsString() {
   return message;
 }
 
-int32_t DiscoverController(vr::ETrackedControllerRole role) {
-  while (appActive) {
-    for (int32_t i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
-      vr::ETrackedDeviceClass deviceClass = vr::VRSystem()->GetTrackedDeviceClass(i);
-
-      char thisManufacturer[1024];
-      uint32_t err = vr::VRSystem()->GetStringTrackedDeviceProperty(
-          i, vr::ETrackedDeviceProperty::Prop_ManufacturerName_String, thisManufacturer,
-          sizeof(thisManufacturer));
-
-      std::string sThisManufacturer(thisManufacturer);
-
-      if (ourManufacturer == sThisManufacturer) continue;
-
-      short deviceRole = vr::VRSystem()->GetControllerRoleForTrackedDeviceIndex(i);
-
-      if (deviceRole == role) return i;
-    }
-    std::cout << "Could not find a controller... Sleeping" << std::endl;
-    std::this_thread::sleep_for(std::chrono::milliseconds(500));
-  }
-}
-
-void GetAndSendControllerId(vr::ETrackedControllerRole role) {
-  int id = DiscoverController(role);
-
+void GetAndSendControllerId(int id, vr::ETrackedControllerRole role) {
   std::unique_ptr<PipeHelper> pipeHelper = std::make_unique<PipeHelper>();
   std::string pipeName;
 
@@ -69,25 +44,49 @@ void GetAndSendControllerId(vr::ETrackedControllerRole role) {
   pipeHelper->ConnectAndSendPipe(pipeName, data);
 }
 
-int main() {
+
+int32_t DiscoverController(vr::ETrackedControllerRole role) {
+  int last = -1;
+  while (appActive) {
+    for (int32_t i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
+      vr::ETrackedDeviceClass deviceClass = vr::VRSystem()->GetTrackedDeviceClass(i);
+
+      char thisManufacturer[1024];
+      uint32_t err = vr::VRSystem()->GetStringTrackedDeviceProperty(
+          i, vr::ETrackedDeviceProperty::Prop_ManufacturerName_String, thisManufacturer,
+          sizeof(thisManufacturer));
+
+      std::string sThisManufacturer(thisManufacturer);
+
+      if (ourManufacturer == sThisManufacturer) continue;
+
+      short deviceRole = vr::VRSystem()->GetControllerRoleForTrackedDeviceIndex(i);
+
+      if (deviceRole == role && last != i) {
+        last = i;
+        GetAndSendControllerId(i, role);
+      };
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(500));
+  }
+}
+
+int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
   vr::EVRInitError error;
   VR_Init(&error, vr::VRApplication_Overlay);
 
   if (error == vr::EVRInitError::VRInitError_None) {
-    std::cout << "Initialised..." << std::endl;
-
     std::thread leftControllerThread = std::thread(
-        &GetAndSendControllerId, vr::ETrackedControllerRole::TrackedControllerRole_LeftHand);
+        &DiscoverController, vr::ETrackedControllerRole::TrackedControllerRole_LeftHand);
 
     std::thread rightControllerThread = std::thread(
-        &GetAndSendControllerId, vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
+        &DiscoverController, vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
 
     while (appActive) {
       vr::VREvent_t event;
       while (vr::VRSystem() && vr::VRSystem()->PollNextEvent(&event, sizeof event)) {
         switch (event.eventType) {
           case vr::VREvent_Quit:
-            std::cout << "Received a shutdown command" << std::endl;
 
             appActive = false;
             vr::VRSystem()->AcknowledgeQuit_Exiting();
@@ -95,17 +94,16 @@ int main() {
             leftControllerThread.join();
             rightControllerThread.join();
             vr::VR_Shutdown();
-            return 1;
+            return 0;
         }
       }
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
     }
   } else {
-    std::cout << "Error initialising openvr: " << error << std::endl;
     vr::VR_Shutdown();
   }
+  return 0;
 }
-
 
 PipeHelper::PipeHelper() {}
 
@@ -120,12 +118,11 @@ bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeD
                               0,              // default attributes
                               NULL);          // no template file
 
-      if (m_pipeHandle != INVALID_HANDLE_VALUE) break;
+    if (m_pipeHandle != INVALID_HANDLE_VALUE) break;
 
     // Exit if an error other than ERROR_PIPE_BUSY occurs.
 
     if (GetLastError() != ERROR_PIPE_BUSY) {
-        std::cout << "error!" << std::endl;
       return -1;
     }
 
@@ -134,10 +131,9 @@ bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeD
     if (!WaitNamedPipe(pipeName.c_str(), 20000)) {
       printf("Could not open pipe: 20 second wait timed out.");
       return -1;
-    } 
+    }
   }
 
-  std::cout << "Writing to pipe..." << std::endl;
   DWORD dwWritten;
 
   WriteFile(m_pipeHandle, (LPCVOID)&data, sizeof(ControllerPipeData), &dwWritten, NULL);

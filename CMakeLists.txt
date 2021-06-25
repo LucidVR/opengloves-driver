@@ -25,7 +25,7 @@ endif()
 
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
 
-add_subdirectory("openglove_overlay")
+add_subdirectory("overlay")
 
 set(DRIVER_NAME "openglove")
 set(OPENGLOVE_PROJECT "driver_${DRIVER_NAME}")
