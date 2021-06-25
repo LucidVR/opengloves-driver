@@ -24,7 +24,7 @@
 * 
 */
 
-std::string getArgumentSubstring(std::string str, char del) { 
+std::string AlphaEncodingManager::getArgumentSubstring(std::string str, char del) { 
     int start = str.find(del);
     if (start == std::string::npos)
         return NULL;

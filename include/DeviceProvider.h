@@ -14,6 +14,7 @@
 
 #include "Encode/EncodingManager.h"
 #include "Encode/LegacyEncodingManager.h"
+#include "Encode/AlphaEncodingManager.h"
 
 #include "DeviceDriver/DeviceDriver.h"
 
