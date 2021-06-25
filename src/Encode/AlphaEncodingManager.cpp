@@ -4,7 +4,8 @@
 #include <vector>
 #include "DriverLog.h"
 
-/*
+
+/* Alpha encoding uses the wasted data in the delimiter from legacy to allow for optional arguments and redundancy over smaller packets
 *Alpha Encoding Manager Arguments:
 * A - Pinky Finger Position
 * B - Ring Finger Position
@@ -13,12 +14,12 @@
 * E - Thumb Finger Position
 * F - Joystick X
 * G - Joystick Y
-* - Joystick click
-* - Trigger button
-* - A button
-* - B button
-* - Grab button
-* - Pinch button
+* H - Joystick click
+* I - Trigger button
+* J - A button
+* K - B button
+* L - Grab button
+* M - Pinch button
 * - Calibration Reset button
 * 
 */
@@ -62,12 +63,12 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
         splay,
         joyX,
         joyY,
-        tokens[VRCommDataInputPosition::JOY_BTN] == 1,
-        tokens[VRCommDataInputPosition::BTN_TRG] == 1,
-        tokens[VRCommDataInputPosition::BTN_A] == 1,
-        tokens[VRCommDataInputPosition::BTN_B] == 1,
-        tokens[VRCommDataInputPosition::GES_GRAB] == 1,
-        tokens[VRCommDataInputPosition::GES_PINCH] == 1
+        argValid(input, 'H'), //joystick click
+        argValid(input, 'I'), //trigger
+        argValid(input, 'J'), //A button
+        argValid(input, 'K'), //B button
+        argValid(input, 'L'), //grab
+        argValid(input, 'M') //pinch
     );
 
     return commData;
