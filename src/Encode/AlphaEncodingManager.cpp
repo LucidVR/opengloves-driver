@@ -39,6 +39,11 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
     std::array<float, 5> flexion;
     std::array<float, 5> splay;
 
+    for (int i = 0; i < 5; i++) { //splay tracking not yet supported
+        flexion[i] = -1; // 0.5;
+        splay[i] = 0.5;
+    }
+
     if (argValid(input, 'A'))
       flexion[0] = stof(getArgumentSubstring(input, 'A')) / m_maxAnalogValue;
     if (argValid(input, 'B'))
@@ -50,13 +55,13 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
     if (argValid(input, 'E'))
       flexion[4] = stof(getArgumentSubstring(input, 'E')) / m_maxAnalogValue;
 
-    float joyX;
-    float joyY;
+    float joyX = 0;
+    float joyY = 0;
 
     if (argValid(input, 'F'))
-      joyX = stof(getArgumentSubstring(input, 'E')) / m_maxAnalogValue;
+      joyX = 2 * stof(getArgumentSubstring(input, 'E')) / m_maxAnalogValue - 1;
     if (argValid(input, 'G'))
-      joyY = stof(getArgumentSubstring(input, 'G')) / m_maxAnalogValue;
+      joyY = 2 * stof(getArgumentSubstring(input, 'G')) / m_maxAnalogValue - 1;
 
     VRCommData_t commData(
         flexion,
@@ -68,7 +73,7 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
         argValid(input, 'J'), //A button
         argValid(input, 'K'), //B button
         argValid(input, 'L'), //grab
-        argValid(input, 'M') //pinch
+        argValid(input, 'M')  //pinch
     );
 
     return commData;
