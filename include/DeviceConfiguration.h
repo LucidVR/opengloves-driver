@@ -15,6 +15,7 @@ enum VRCommunicationProtocol {
 
 enum VREncodingProtocol {
     LEGACY = 0,
+    ALPHA = 1,
 };
 
 enum VRDeviceDriver {
