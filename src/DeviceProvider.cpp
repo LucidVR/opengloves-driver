@@ -5,8 +5,8 @@
 #include "DeviceDriver/KnuckleDriver.h"
 
 #include "Communication/SerialCommunicationManager.h"
+#include "Communication/BTSerialCommunicationManager.h"
 
-#include "Encode/EncodingManager.h"
 #include "Encode/LegacyEncodingManager.h"
 #include "Encode/AlphaEncodingManager.h"
 
