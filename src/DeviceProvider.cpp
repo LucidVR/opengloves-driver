@@ -6,6 +6,10 @@
 
 #include "Communication/SerialCommunicationManager.h"
 
+#include "Encode/EncodingManager.h"
+#include "Encode/LegacyEncodingManager.h"
+#include "Encode/AlphaEncodingManager.h"
+
 #include "Quaternion.h"
 
 vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {

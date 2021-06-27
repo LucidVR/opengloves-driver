@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Encode/EncodingManager.h>
+#include "Encode/EncodingManager.h"
 
 class AlphaEncodingManager : public IEncodingManager {
 public:
@@ -12,5 +12,5 @@ private:
     std::string getArgumentSubstring(std::string str, char del);
 
 	float m_maxAnalogValue;
-	const char* alphabet = "ABCDE";  // expand as more letters are added to manager
+	const char* alphabet = "ABCDEFGHIJKLM";  // expand as more letters are added to manager
 };
