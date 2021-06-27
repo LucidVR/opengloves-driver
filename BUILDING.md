@@ -85,7 +85,7 @@ To launch SteamVR for debugging:
 * Click on the arrow next to `Local Windows Debugger`
 * Select `ALL_BUILD Debug Properties`
 * Navigate to the `Debugger` Property (under Configuration Properties)
-* Set `Command` to the location of `vrstartup.exe` (to start just SteamVR) or the Overlay Exe (to start the Ovlerlay and SteamVR).
+* Set `Command` to the location of `vrstartup.exe` (to start just SteamVR) or the Overlay exe (to start the Ovlerlay and SteamVR).
     * SteamVR's entry point (`vrstartup.exe`) is usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrstartup.exe`
     * OpenGlove's Overlay is usually found in the build folder, `overlay\Debug\openglove_overlay.exe`
     	* Provide the full or relative path to the executable, such as `E:\opengloves-driver\build\overlay\Debug\openglove_overlay.exe`, or `$(solutionDir)overlay\Debug\openglove_overlay.exe`
