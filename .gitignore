@@ -13,3 +13,4 @@ Build/
 
 CMakeCache.txt
 cmake_install.cmake
+clion_build/
