@@ -32,7 +32,7 @@ std::string AlphaEncodingManager::getArgumentSubstring(std::string str, char del
     return str.substr(start, end - start);
 }
 
-bool argValid(std::string str, char del) { return str.find(del) == std::string::npos; }
+bool argValid(std::string str, char del) { return str.find(del) != std::string::npos; }
 
 VRCommData_t AlphaEncodingManager::Decode(std::string input) {
 
@@ -45,23 +45,28 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
     }
 
     if (argValid(input, 'A'))
-      flexion[0] = stof(getArgumentSubstring(input, 'A')) / m_maxAnalogValue;
+      flexion[0] =
+          stof(getArgumentSubstring(input, 'A').substr(1, std::string::npos)) / m_maxAnalogValue;
     if (argValid(input, 'B'))
-      flexion[1] = stof(getArgumentSubstring(input, 'B')) / m_maxAnalogValue;
+      flexion[1] =
+          stof(getArgumentSubstring(input, 'B').substr(1, std::string::npos)) / m_maxAnalogValue;
     if (argValid(input, 'C'))
-      flexion[2] = stof(getArgumentSubstring(input, 'C')) / m_maxAnalogValue;
+      flexion[2] =
+          stof(getArgumentSubstring(input, 'C').substr(1, std::string::npos)) / m_maxAnalogValue;
     if (argValid(input, 'D'))
-      flexion[3] = stof(getArgumentSubstring(input, 'D')) / m_maxAnalogValue;
+      flexion[3] =
+          stof(getArgumentSubstring(input, 'D').substr(1, std::string::npos)) / m_maxAnalogValue;
     if (argValid(input, 'E'))
-      flexion[4] = stof(getArgumentSubstring(input, 'E')) / m_maxAnalogValue;
+      flexion[4] =
+          stof(getArgumentSubstring(input, 'E').substr(1, std::string::npos)) / m_maxAnalogValue;
 
     float joyX = 0;
     float joyY = 0;
 
     if (argValid(input, 'F'))
-      joyX = 2 * stof(getArgumentSubstring(input, 'E')) / m_maxAnalogValue - 1;
+      joyX = 2 * stof(getArgumentSubstring(input, 'E').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
     if (argValid(input, 'G'))
-      joyY = 2 * stof(getArgumentSubstring(input, 'G')) / m_maxAnalogValue - 1;
+      joyY = 2 * stof(getArgumentSubstring(input, 'G').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
 
     VRCommData_t commData(
         flexion,

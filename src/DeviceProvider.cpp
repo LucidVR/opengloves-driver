@@ -45,8 +45,8 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceC
 		encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
 		break;
     case VREncodingProtocol::ALPHA:
-          encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
-          break;
+        encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
+        break;
 	}
 
 
