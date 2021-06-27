@@ -36,17 +36,20 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceC
 	std::unique_ptr<IEncodingManager> encodingManager;
 
 	bool isRightHand = configuration.role == vr::TrackedControllerRole_RightHand;
-    
-	const int maxAnalogValue = vr::VRSettings()->GetInt32("encoding_legacy", "max_analog_value");
 	switch (configuration.encodingProtocol) {
 	default:
 		DriverLog("No encoding protocol set. Using legacy.");
-	case VREncodingProtocol::LEGACY:
-		encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
-		break;
-    case VREncodingProtocol::ALPHA:
-        encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
-        break;
+    case VREncodingProtocol::LEGACY: {
+          const int maxAnalogValue =
+              vr::VRSettings()->GetInt32("encoding_legacy", "max_analog_value");
+          encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
+          break;
+        }
+    case VREncodingProtocol::ALPHA: {
+			const int maxAnalogValue = vr::VRSettings()->GetInt32("encoding_alpha", "max_analog_value");//
+			encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
+			break;
+		}
 	}
 
 
