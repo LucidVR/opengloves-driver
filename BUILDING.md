@@ -77,14 +77,18 @@ If you want to make changes to the code and would like to use a debugger/not hav
   * Add `vrserver.exe` as the process name 
   * Ensure that `Action` is set to `Attach Debugger`.  
 
-## Launch SteamVR when building through Visual Studio
-It's usually quite useful to build then automatically launch SteamVR for debugging purposes.  
+## Launch SteamVR/Overlay when building through Visual Studio
+It's usually quite useful to build then automatically launch SteamVR/Overlay for debugging purposes.  
+The projcets includes both a driver and overlay (found in `overlay/`). Running the overlay exe automatically launches SteamVR.  
+The overlay is used for utilising methods that are not found in the OpenVR Driver API, such as discovering controllers. If you do not need this functionality, you can simply launch SteamVR.
 To launch SteamVR for debugging:  
 * Click on the arrow next to `Local Windows Debugger`
 * Select `ALL_BUILD Debug Properties`
 * Navigate to the `Debugger` Property (under Configuration Properties)
-* Set `Command` to the location of `vrstartup.exe`
-    * This is usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrstartup.exe`
+* Set `Command` to the location of `vrstartup.exe` (to start just SteamVR) or the Overlay Exe (to start the Ovlerlay and SteamVR).
+    * SteamVR's entry point (`vrstartup.exe`) is usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrstartup.exe`
+    * OpenGlove's Overlay is usually found in the build folder, `overlay\Debug\openglove_overlay.exe`
+    	* Provide the full or relative path to the executable, such as `E:\opengloves-driver\build\overlay\Debug\openglove_overlay.exe`, or `$(solutionDir)overlay\Debug\openglove_overlay.exe`
 
 ![Debug Properties](https://cdn.discordapp.com/attachments/790676300552994826/840985376679002172/unknown.png)
 ![Debugging Configuration Properties](https://cdn.discordapp.com/attachments/790676300552994826/840985404202549318/unknown.png)

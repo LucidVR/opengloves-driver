@@ -120,9 +120,9 @@ void ControllerDiscoveryPipe::PipeListenerThread(
   std::string pipeName;
 
   if (role == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand) {
-    pipeName = "\\\\.\\pipe\\vrapplication\\discovery\\right";
-  } else {
     pipeName = "\\\\.\\pipe\\vrapplication\\discovery\\left";
+  } else {
+    pipeName = "\\\\.\\pipe\\vrapplication\\discovery\\right";
   }
   DebugDriverLog("Creating pipe: %s", pipeName.c_str());
 

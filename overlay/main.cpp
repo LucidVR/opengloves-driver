@@ -44,13 +44,11 @@ void GetAndSendControllerId(int id, vr::ETrackedControllerRole role) {
   pipeHelper->ConnectAndSendPipe(pipeName, data);
 }
 
-
-int32_t DiscoverController(vr::ETrackedControllerRole role) {
-  int last = -1;
+void DiscoverController(vr::ETrackedControllerRole role) {
+  int lastFound = -1;
+  int curFound = -1;
   while (appActive) {
     for (int32_t i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
-      vr::ETrackedDeviceClass deviceClass = vr::VRSystem()->GetTrackedDeviceClass(i);
-
       char thisManufacturer[1024];
       uint32_t err = vr::VRSystem()->GetStringTrackedDeviceProperty(
           i, vr::ETrackedDeviceProperty::Prop_ManufacturerName_String, thisManufacturer,
@@ -62,10 +60,23 @@ int32_t DiscoverController(vr::ETrackedControllerRole role) {
 
       short deviceRole = vr::VRSystem()->GetControllerRoleForTrackedDeviceIndex(i);
 
-      if (deviceRole == role && last != i) {
-        last = i;
-        GetAndSendControllerId(i, role);
+      if (deviceRole == role) {
+        curFound = i;
+        break;
       };
+       
+      int32_t controllerHint = vr::VRSystem()->GetInt32TrackedDeviceProperty(
+          i, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32);
+
+      if (controllerHint == role) {
+        curFound = i;
+        break;
+      }
+    }
+
+    if (curFound != lastFound) {
+      GetAndSendControllerId(curFound, role);
+      lastFound = curFound;
     }
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
@@ -120,16 +131,11 @@ bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeD
 
     if (m_pipeHandle != INVALID_HANDLE_VALUE) break;
 
-    // Exit if an error other than ERROR_PIPE_BUSY occurs.
-
     if (GetLastError() != ERROR_PIPE_BUSY) {
       return -1;
     }
 
-    // All pipe instances are busy, so wait for 20 seconds.
-
-    if (!WaitNamedPipe(pipeName.c_str(), 20000)) {
-      printf("Could not open pipe: 20 second wait timed out.");
+    if (!WaitNamedPipe(pipeName.c_str(), 1000)) {
       return -1;
     }
   }
