@@ -6,7 +6,7 @@
     "right_enabled": true,
     "communication_protocol": 0, //title:Communication Method
     "device_driver": 1, //title:Device Driver Emulation
-    "encoding_protocol": 0 //title:Encoding Protocol
+    "encoding_protocol": 1 //title:Encoding Protocol
   },
   "device_lucidgloves":
   {
@@ -28,13 +28,13 @@
     "right_x_offset_position": -0.1,
     "right_y_offset_position": -0.08,
     "right_z_offset_position": -0.03,
-    "right_x_offset_degrees": -40,
+    "right_x_offset_degrees": 0,
     "right_y_offset_degrees": 0,
     "right_z_offset_degrees": 0,
     "left_x_offset_position": 0.1,
     "left_y_offset_position": -0.08,
     "left_z_offset_position": -0.03,
-    "left_x_offset_degrees": -40,
+    "left_x_offset_degrees": 0,
     "left_y_offset_degrees": 0,
     "left_z_offset_degrees": 0,
     "pose_offset": -0.01,
@@ -49,16 +49,23 @@
     "left_port": "\\\\.\\COM4",
     "right_port": "\\\\.\\COM5"
   },
-	"communication_btserial": {
+  "communication_btserial": 
+  {
     "__type": "communication_protocol:1",
     "__title": "Bluetooth Serial",
-		"left_name": "lucidgloves-left",
-		"right_name": "lucidgloves-right"
-	},
+	"left_name": "lucidgloves-left",
+  	"right_name": "lucidgloves-right"
+  },
   "encoding_legacy":
   {
     "__type": "encoding_protocol: 0",
-    "__title": "Encoding Protocol",
+    "__title": "Legacy Encoding",
+    "max_analog_value": 1023
+  },
+  "encoding_alpha":
+  {
+    "__type": "encoding_protocol: 1",
+    "__title": "Alpha Protocol",
     "max_analog_value": 1023
   }
 }

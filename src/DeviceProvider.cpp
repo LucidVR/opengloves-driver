@@ -5,6 +5,10 @@
 #include "DeviceDriver/KnuckleDriver.h"
 
 #include "Communication/SerialCommunicationManager.h"
+#include "Communication/BTSerialCommunicationManager.h"
+
+#include "Encode/LegacyEncodingManager.h"
+#include "Encode/AlphaEncodingManager.h"
 
 #include "Quaternion.h"
 
@@ -14,6 +18,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
 	VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
 	InitDriverLog(vr::VRDriverLog());
+    DebugDriverLog("openglove is running in DEBUG mode");
 
 	VRDeviceConfiguration_t leftConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_LeftHand);
 	VRDeviceConfiguration_t rightConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_RightHand);
@@ -36,14 +41,20 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceC
 	std::unique_ptr<IEncodingManager> encodingManager;
 
 	bool isRightHand = configuration.role == vr::TrackedControllerRole_RightHand;
-
 	switch (configuration.encodingProtocol) {
 	default:
 		DriverLog("No encoding protocol set. Using legacy.");
-	case VREncodingProtocol::LEGACY:
-		const int maxAnalogValue = vr::VRSettings()->GetInt32("encoding_legacy", "max_analog_value");
-		encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
-		break;
+    case VREncodingProtocol::LEGACY: {
+          const int maxAnalogValue =
+              vr::VRSettings()->GetInt32("encoding_legacy", "max_analog_value");
+          encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
+          break;
+        }
+    case VREncodingProtocol::ALPHA: {
+			const int maxAnalogValue = vr::VRSettings()->GetInt32("encoding_alpha", "max_analog_value");//
+			encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
+			break;
+		}
 	}
 
 

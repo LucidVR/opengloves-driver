@@ -9,11 +9,8 @@
 #include "DriverLog.h"
 
 #include "Communication/CommunicationManager.h"
-#include "Communication/SerialCommunicationManager.h"
-#include "Communication/BTSerialCommunicationManager.h"
 
 #include "Encode/EncodingManager.h"
-#include "Encode/LegacyEncodingManager.h"
 
 #include "DeviceDriver/DeviceDriver.h"
 
