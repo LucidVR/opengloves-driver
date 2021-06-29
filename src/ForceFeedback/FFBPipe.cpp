@@ -1,10 +1,10 @@
 #include "ForceFeedback/FFBPipe.h"
 
 #include <chrono>
-
+#include "Pipe.h"
 #include "DriverLog.h"
 
-std::string GetLastErrorAsString() {
+/*std::string GetLastErrorAsString() {
   // Get the error message ID, if any.
   DWORD errorMessageID = ::GetLastError();
   if (errorMessageID == 0) {
@@ -25,7 +25,7 @@ std::string GetLastErrorAsString() {
   LocalFree(messageBuffer);
 
   return message;
-}
+}*/
 
 FFBPipe::FFBPipe() : m_listenerActive(false), m_hPipe(0){};
 
@@ -36,7 +36,8 @@ bool FFBPipe::Start(const std::function<void(VRFFBData_t)> &callback, vr::ETrack
   return true;
 }
 
-VOID WINAPI CompletedReadRoutine(DWORD dwErr, DWORD cbBytesRead, LPOVERLAPPED lpOverLap) {
+
+VOID WINAPI CompletedReadRoutineFFB(DWORD dwErr, DWORD cbBytesRead, LPOVERLAPPED lpOverLap) {
   LPPIPEINSTFFB lpPipeInst;
   BOOL fWrite = FALSE;
 
@@ -166,7 +167,7 @@ void FFBPipe::PipeListenerThread(const std::function<void(VRFFBData_t)> &callbac
         m_lpPipeInst->cbToWrite = 0;
         m_lpPipeInst->callback = callback;
         bool fRead = ReadFileEx(m_lpPipeInst->hPipeInst, &m_lpPipeInst->chRequest, sizeof(VRFFBData_t), (LPOVERLAPPED)m_lpPipeInst,
-                                (LPOVERLAPPED_COMPLETION_ROUTINE)CompletedReadRoutine);
+                                (LPOVERLAPPED_COMPLETION_ROUTINE)CompletedReadRoutineFFB);
 
         switch (GetLastError()) {
             //Disconnect if the client did so and reopen
