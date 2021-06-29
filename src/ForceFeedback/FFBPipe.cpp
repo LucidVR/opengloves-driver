@@ -37,10 +37,10 @@ bool FFBPipe::Start(const std::function<void(VRFFBData_t)> &callback, vr::ETrack
 }
 
 VOID WINAPI CompletedReadRoutine(DWORD dwErr, DWORD cbBytesRead, LPOVERLAPPED lpOverLap) {
-  LPPIPEINST lpPipeInst;
+  LPPIPEINSTFFB lpPipeInst;
   BOOL fWrite = FALSE;
 
-  lpPipeInst = (LPPIPEINST)lpOverLap;
+  lpPipeInst = (LPPIPEINSTFFB)lpOverLap;
 
   if ((dwErr == 0) && (cbBytesRead != 0)) {
     DebugDriverLog("Received force feedback request: %d", lpPipeInst->chRequest.indexCurl);
@@ -150,7 +150,7 @@ void FFBPipe::PipeListenerThread(const std::function<void(VRFFBData_t)> &callbac
 
         // Allocate storage for this instance.
 
-        m_lpPipeInst = (LPPIPEINST)GlobalAlloc(GPTR, sizeof(PIPEINST));
+        m_lpPipeInst = (LPPIPEINSTFFB)GlobalAlloc(GPTR, sizeof(PIPEINSTFFB));
 
         if (m_lpPipeInst == NULL) {
           DriverLog("GlobalAlloc failed with error: %s.\n", GetLastErrorAsString().c_str());

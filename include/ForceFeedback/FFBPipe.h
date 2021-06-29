@@ -25,7 +25,7 @@ typedef struct {
   DWORD cbRead;
   DWORD cbToWrite;
   std::function<void(VRFFBData_t)> callback;
-} PIPEINST, *LPPIPEINST;
+} PIPEINSTFFB, *LPPIPEINSTFFB;
 
 class FFBPipe {
  public:
@@ -45,5 +45,5 @@ class FFBPipe {
   std::atomic<bool> m_listenerActive;
   std::atomic<bool> m_clientConnected;
 
-  LPPIPEINST m_lpPipeInst;
+  LPPIPEINSTFFB m_lpPipeInst;
 };
