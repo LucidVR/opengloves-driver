@@ -30,6 +30,7 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
 }
 
 vr::DriverPose_t ControllerPose::UpdatePose() {
+  if (m_isCalibrating) return m_maintainPose;
   vr::DriverPose_t newPose = {0};
   newPose.qWorldFromDriverRotation.w = 1;
   newPose.qDriverFromHeadRotation.w = 1;
@@ -95,3 +96,17 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 
   return newPose;
 }
+
+void ControllerPose::StartCalibration() {
+    m_isCalibrating = true;
+    m_maintainPose = UpdatePose();
+}
+
+void ControllerPose::FinishCalibration() {
+    m_isCalibrating = false;
+    vr::DriverPose_t finishPose = UpdatePose();
+    //add logic for calculating and updating pose settings
+    //vr::VRSettings()->SetInt32()..., logic may need to move to the DeviceProvider
+}
+
+void ControllerPose::CancelCalibration() { m_isCalibrating = false; }

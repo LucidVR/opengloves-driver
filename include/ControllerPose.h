@@ -11,6 +11,13 @@ class ControllerPose {
 
   vr::DriverPose_t UpdatePose();
 
+  void StartCalibration();
+
+  void FinishCalibration();
+
+  void CancelCalibration();
+
+
  private:
   uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
@@ -21,5 +28,10 @@ class ControllerPose {
   std::string m_thisDeviceManufacturer;
 
   bool IsOtherRole(int32_t test);
+
+  //calibration
+  vr::DriverPose_t m_maintainPose;
+  bool m_isCalibrating;
+
   std::unique_ptr<ControllerDiscoveryPipe> m_controllerDiscoverer;
 };
