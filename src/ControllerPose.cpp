@@ -117,15 +117,11 @@ void ControllerPose::FinishCalibration() {
     // get the matrix that represents the position of the controller that we are shadowing
     vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
 
-    // get only the rotation (3x3 matrix), as the 3x4 matrix also includes position
-    vr::HmdMatrix33_t controllerRotationMatrix = GetRotationMatrix(controllerMatrix);
-
-
     //add logic for calculating and updating pose settings
     //vr::VRSettings()->SetInt32()..., logic may need to move to the DeviceProvider
 
 
-    vr::HmdQuaternion_t controllerQuat = controllerPose.qRotation;
+    vr::HmdQuaternion_t controllerQuat = GetRotation(controllerMatrix);
     vr::HmdQuaternion_t handQuat = m_maintainPose.qRotation;
     
 
@@ -143,25 +139,24 @@ void ControllerPose::FinishCalibration() {
     float handNorm = QuatNorm(handQuat);
     float offsetNorm = QuatNorm(m_poseConfiguration.angleOffsetQuaternion);
     if (contNorm) {
-        DebugDriverLog("Non unit quat!");
+        DebugDriverLog("Non unit quat from controller!");
     }
     if (handNorm) {
-        DebugDriverLog("Non unit quat!");
+        DebugDriverLog("Non unit quat from hand!");
     }
     if (offsetNorm) {
-        DebugDriverLog("Non unit quat!");
+        DebugDriverLog("Non unit quat from offset!");
     }
 
-    vr::HmdVector3_t differenceVector = { controllerPose.vecPosition[0] - m_maintainPose.vecPosition[0],
-                                    controllerPose.vecPosition[1] - m_maintainPose.vecPosition[1],
-                                    controllerPose.vecPosition[2] - m_maintainPose.vecPosition[2] };
+    vr::HmdVector3_t differenceVector = { m_maintainPose.vecPosition[0] - controllerMatrix.m[0][3],
+                                          m_maintainPose.vecPosition[1] - controllerMatrix.m[1][3],
+                                          m_maintainPose.vecPosition[2] - controllerMatrix.m[2][3] };
 
-    vr::HmdQuaternion_t transformInverse = QuatInverse(transformQuat);
+    vr::HmdQuaternion_t transformInverse = QuatConjugate(controllerQuat);
     vr::HmdMatrix33_t transformMatrix = QuaternionToMatrix(transformInverse);
-
     vr::HmdVector3_t transformVector = MultiplyMatrix(transformMatrix, differenceVector);
 
-    //m_poseConfiguration.offsetVector = transformVector;
+    m_poseConfiguration.offsetVector = transformVector;
 
 }
 
