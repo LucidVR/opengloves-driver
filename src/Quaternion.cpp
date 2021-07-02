@@ -83,6 +83,26 @@ vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, cons
 	return quat;
 }
 
+double QuatNorm(const vr::HmdQuaternion_t q) {
+	return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+}
+
+vr::HmdQuaternion_t QuatConjugate(const vr::HmdQuaternion_t q) {
+	vr::HmdQuaternion_t quat = { q.w,-q.x,-q.y,-q.z };
+	return quat;
+}
+
+vr::HmdQuaternion_t QuatInverse(const vr::HmdQuaternion_t q) {
+	double abs = QuatNorm(q);
+	double d = abs * abs;
+
+	vr::HmdQuaternion_t conj = QuatConjugate(q);
+
+	vr::HmdQuaternion_t quat = { conj.w / d,conj.x / d,conj.y / d, conj.z / d };
+	return quat;
+
+}
+
 //Adapted from libGDX
 vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, const double& roll) {
 	vr::HmdQuaternion_t result;

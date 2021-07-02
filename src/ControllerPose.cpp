@@ -104,9 +104,17 @@ void ControllerPose::StartCalibration() {
 
 void ControllerPose::FinishCalibration() {
     m_isCalibrating = false;
-    vr::DriverPose_t finishPose = UpdatePose();
+    vr::DriverPose_t controllerPose = UpdatePose();
     //add logic for calculating and updating pose settings
     //vr::VRSettings()->SetInt32()..., logic may need to move to the DeviceProvider
+
+
+    //qC * qT = qH   -> qC*qC^-1 * qT = qH * qC^-1   -> qT = qH * qC^-1
+    vr::HmdQuaternion_t controllerQuat = controllerPose.qRotation;
+    vr::HmdQuaternion_t handQuat = m_maintainPose.qRotation;
+
+
+
 }
 
 void ControllerPose::CancelCalibration() { m_isCalibrating = false; }
