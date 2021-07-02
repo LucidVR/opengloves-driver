@@ -130,3 +130,7 @@ void ControllerPose::FinishCalibration() {
 }
 
 void ControllerPose::CancelCalibration() { m_isCalibrating = false; }
+
+bool ControllerPose::isCalibrating() {
+    return m_isCalibrating;
+}

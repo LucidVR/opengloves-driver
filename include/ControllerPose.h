@@ -17,6 +17,7 @@ class ControllerPose {
 
   void CancelCalibration();
 
+  bool isCalibrating();
 
  private:
   uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
