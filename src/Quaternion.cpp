@@ -90,6 +90,8 @@ vr::HmdMatrix33_t QuaternionToMatrix(const vr::HmdQuaternion_t q) {
 		{2*q.x*q.y + 2*q.z*q.w, 1 - 2*q.x*q.x - 2 * q.z*q.z, 2*q.y*q.z - 2*q.x*q.w},
 		{2*q.x*q.z - 2*q.y*q.w, 2*q.y*q.z + 2*q.x*q.w, 1 - 2*q.x*q.x - 2*q.y*q.y}
 		} };
+
+	return result;
 }
 
 double QuatNorm(const vr::HmdQuaternion_t q) {
