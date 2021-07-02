@@ -32,7 +32,7 @@ class ControllerPose {
 
   //calibration
   vr::DriverPose_t m_maintainPose;
-  bool m_isCalibrating;
+  bool m_isCalibrating = false;
 
   std::unique_ptr<ControllerDiscoveryPipe> m_controllerDiscoverer;
 };

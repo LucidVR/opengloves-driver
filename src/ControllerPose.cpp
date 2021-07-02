@@ -30,7 +30,15 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
 }
 
 vr::DriverPose_t ControllerPose::UpdatePose() {
-  if (m_isCalibrating) return m_maintainPose;
+    if (m_isCalibrating) {
+        m_maintainPose.vecVelocity[0] = 0;
+        m_maintainPose.vecVelocity[1] = 0;
+        m_maintainPose.vecVelocity[2] = 0;
+        m_maintainPose.vecAngularVelocity[0] = 0;
+        m_maintainPose.vecAngularVelocity[1] = 0;
+        m_maintainPose.vecAngularVelocity[2] = 0;
+        return m_maintainPose;
+    }
   vr::DriverPose_t newPose = {0};
   newPose.qWorldFromDriverRotation.w = 1;
   newPose.qDriverFromHeadRotation.w = 1;
@@ -98,8 +106,8 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 }
 
 void ControllerPose::StartCalibration() {
+    m_maintainPose = UpdatePose();  
     m_isCalibrating = true;
-    m_maintainPose = UpdatePose();
 }
 
 void ControllerPose::FinishCalibration() {
@@ -112,9 +120,29 @@ void ControllerPose::FinishCalibration() {
     vr::HmdQuaternion_t controllerQuat = controllerPose.qRotation;
     vr::HmdQuaternion_t handQuat = m_maintainPose.qRotation;
     
+
     //qC * qT = qH   -> qC*qC^-1 * qT = qH * qC^-1   -> qT = qH * qC^-1
-    vr::HmdQuaternion_t transformQuat = MultiplyQuaternion(handQuat, QuatInverse(controllerQuat));
-    m_poseConfiguration.angleOffsetQuaternion = transformQuat;
+    vr::HmdQuaternion_t transformQuat = MultiplyQuaternion(handQuat, QuatConjugate(controllerQuat));
+    //m_poseConfiguration.angleOffsetQuaternion = transformQuat;
+    {
+        m_poseConfiguration.angleOffsetQuaternion.w = transformQuat.w;
+        m_poseConfiguration.angleOffsetQuaternion.x = transformQuat.x;
+        m_poseConfiguration.angleOffsetQuaternion.y = transformQuat.y;
+        m_poseConfiguration.angleOffsetQuaternion.z = transformQuat.z;
+    }
+    
+    float contNorm = QuatNorm(controllerQuat);
+    float handNorm = QuatNorm(handQuat);
+    float offsetNorm = QuatNorm(m_poseConfiguration.angleOffsetQuaternion);
+    if (contNorm) {
+        DebugDriverLog("Non unit quat!");
+    }
+    if (handNorm) {
+        DebugDriverLog("Non unit quat!");
+    }
+    if (offsetNorm) {
+        DebugDriverLog("Non unit quat!");
+    }
 
     vr::HmdVector3_t differenceVector = { controllerPose.vecPosition[0] - m_maintainPose.vecPosition[0],
                                     controllerPose.vecPosition[1] - m_maintainPose.vecPosition[1],
@@ -125,7 +153,7 @@ void ControllerPose::FinishCalibration() {
 
     vr::HmdVector3_t transformVector = MultiplyMatrix(transformMatrix, differenceVector);
 
-    m_poseConfiguration.offsetVector = transformVector;
+    //m_poseConfiguration.offsetVector = transformVector;
 
 }
 
