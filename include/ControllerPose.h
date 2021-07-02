@@ -28,6 +28,8 @@ class ControllerPose {
 
   std::string m_thisDeviceManufacturer;
 
+  vr::TrackedDevicePose_t GetControllerPose();
+
   bool IsOtherRole(int32_t test);
 
   //calibration
