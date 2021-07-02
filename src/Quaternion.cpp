@@ -83,6 +83,15 @@ vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, cons
 	return quat;
 }
 
+vr::HmdMatrix33_t QuaternionToMatrix(const vr::HmdQuaternion_t q) {
+	
+	vr::HmdMatrix33_t result = { {
+		{1 - 2*q.y*q.y - 2*q.z*q.z, 2*q.x*q.y - 2*q.z*q.w, 2*q.x*q.z + 2*q.y*q.w},
+		{2*q.x*q.y + 2*q.z*q.w, 1 - 2*q.x*q.x - 2 * q.z*q.z, 2*q.y*q.z - 2*q.x*q.w},
+		{2*q.x*q.z - 2*q.y*q.w, 2*q.y*q.z + 2*q.x*q.w, 1 - 2*q.x*q.x - 2*q.y*q.y}
+		} };
+}
+
 double QuatNorm(const vr::HmdQuaternion_t q) {
 	return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
 }
