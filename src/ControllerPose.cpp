@@ -116,6 +116,16 @@ void ControllerPose::FinishCalibration() {
     vr::HmdQuaternion_t transformQuat = MultiplyQuaternion(handQuat, QuatInverse(controllerQuat));
     m_poseConfiguration.angleOffsetQuaternion = transformQuat;
 
+    vr::HmdVector3_t differenceVector = { controllerPose.vecPosition[0] - m_maintainPose.vecPosition[0],
+                                    controllerPose.vecPosition[1] - m_maintainPose.vecPosition[1],
+                                    controllerPose.vecPosition[2] - m_maintainPose.vecPosition[2] };
+
+    vr::HmdQuaternion_t transformInverse = QuatInverse(transformQuat);
+    vr::HmdMatrix33_t transformMatrix = QuaternionToMatrix(transformInverse);
+
+    vr::HmdVector3_t transformVector = MultiplyMatrix(transformMatrix, differenceVector);
+
+    m_poseConfiguration.offsetVector = transformVector;
 
 }
 
