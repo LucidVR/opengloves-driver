@@ -109,10 +109,12 @@ void ControllerPose::FinishCalibration() {
     //vr::VRSettings()->SetInt32()..., logic may need to move to the DeviceProvider
 
 
-    //qC * qT = qH   -> qC*qC^-1 * qT = qH * qC^-1   -> qT = qH * qC^-1
     vr::HmdQuaternion_t controllerQuat = controllerPose.qRotation;
     vr::HmdQuaternion_t handQuat = m_maintainPose.qRotation;
-
+    
+    //qC * qT = qH   -> qC*qC^-1 * qT = qH * qC^-1   -> qT = qH * qC^-1
+    vr::HmdQuaternion_t transformQuat = MultiplyQuaternion(handQuat, QuatInverse(controllerQuat));
+    m_poseConfiguration.angleOffsetQuaternion = transformQuat;
 
 
 }
