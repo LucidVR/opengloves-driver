@@ -150,7 +150,7 @@ vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::H
 	return result;
 }
 
-vr::HmdVector3_t QuaternionToAngle(vr::HmdQuaternion_t q) {
+vr::HmdVector3_t QuaternionToEuler(vr::HmdQuaternion_t q) {
 	vr::HmdVector3_t result = { 0,0,0 };
 	double test = q.x * q.y + q.z * q.w;
 	if (test > 0.499) { // singularity at north pole

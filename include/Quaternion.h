@@ -25,4 +25,4 @@ double QuatNorm(const vr::HmdQuaternion_t q);
 vr::HmdQuaternion_t QuatConjugate(const vr::HmdQuaternion_t q);
 vr::HmdQuaternion_t QuatInverse(const vr::HmdQuaternion_t q);
 
-vr::HmdVector3_t QuaternionToAngle(const vr::HmdQuaternion_t q);
+vr::HmdVector3_t QuaternionToEuler(const vr::HmdQuaternion_t q);

@@ -8,10 +8,10 @@
 
 ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
                                std::string thisDeviceManufacturer,
-                               VRPoseConfiguration_t poseConfiguration)
+                               VRPoseConfiguration_t poseConfiguration, bool isRightHand)
     : m_shadowDeviceOfRole(shadowDeviceOfRole),
       m_thisDeviceManufacturer(std::move(thisDeviceManufacturer)),
-      m_poseConfiguration(poseConfiguration) {
+      m_poseConfiguration(poseConfiguration), m_isRightHand(isRightHand) {
 
 
   if (m_poseConfiguration.controllerOverrideEnabled) {
@@ -157,6 +157,17 @@ void ControllerPose::FinishCalibration() {
     vr::HmdVector3_t transformVector = MultiplyMatrix(transformMatrix, differenceVector);
 
     m_poseConfiguration.offsetVector = transformVector;
+
+    vr::VRSettings()->SetFloat(c_poseSettingsSection, m_isRightHand ? "right_x_offset_position" : "left_x_offset_position", transformVector.v[0]);
+    vr::VRSettings()->SetFloat(c_poseSettingsSection, m_isRightHand ? "right_y_offset_position" : "left_y_offset_position", transformVector.v[1]);
+    vr::VRSettings()->SetFloat(c_poseSettingsSection, m_isRightHand ? "right_z_offset_position" : "left_z_offset_position", transformVector.v[2]);
+
+    vr::HmdVector3_t eulerOffset = QuaternionToEuler(transformQuat);
+
+    vr::VRSettings()->SetFloat(c_poseSettingsSection, m_isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees", eulerOffset.v[0]);
+    vr::VRSettings()->SetFloat(c_poseSettingsSection, m_isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees", eulerOffset.v[1]);
+    vr::VRSettings()->SetFloat(c_poseSettingsSection, m_isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees", eulerOffset.v[2]);
+
 
 }
 

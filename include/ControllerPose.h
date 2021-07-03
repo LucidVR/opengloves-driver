@@ -7,7 +7,7 @@
 class ControllerPose {
  public:
   ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer,
-                 VRPoseConfiguration_t poseConfiguration);
+                 VRPoseConfiguration_t poseConfiguration, bool isRightHand);
 
   vr::DriverPose_t UpdatePose();
 
@@ -27,6 +27,8 @@ class ControllerPose {
   vr::ETrackedControllerRole m_shadowDeviceOfRole = vr::TrackedControllerRole_Invalid;
 
   std::string m_thisDeviceManufacturer;
+
+  bool m_isRightHand;
 
   vr::TrackedDevicePose_t GetControllerPose();
 
