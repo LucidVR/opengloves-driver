@@ -126,7 +126,7 @@ void ControllerPose::FinishCalibration() {
     
 
     //qC * qT = qH   -> qC*qC^-1 * qT = qH * qC^-1   -> qT = qH * qC^-1
-    vr::HmdQuaternion_t transformQuat = MultiplyQuaternion(handQuat, QuatConjugate(controllerQuat));
+    vr::HmdQuaternion_t transformQuat = MultiplyQuaternion(QuatConjugate(controllerQuat), handQuat);
     //m_poseConfiguration.angleOffsetQuaternion = transformQuat;
     {
         m_poseConfiguration.angleOffsetQuaternion.w = transformQuat.w;
