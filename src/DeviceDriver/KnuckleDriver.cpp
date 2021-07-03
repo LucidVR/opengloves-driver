@@ -64,7 +64,7 @@ bool KnuckleDeviceDriver::IsActive() {
 vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 	const bool isRightHand = IsRightHand();
 	m_driverId = unObjectId; //unique ID for your driver
-	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(knuckleDevice::c_deviceManufacturer), m_configuration.poseConfiguration, isRightHand);
+	m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(knuckleDevice::c_deviceManufacturer), m_configuration.poseConfiguration);
 
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 

@@ -68,10 +68,6 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
     if (argValid(input, 'G'))
       joyY = 2 * stof(getArgumentSubstring(input, 'G').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
 
-    if (argValid(input, 'O')) {
-        DebugDriverLog("O Valid");
-    }
-
     VRCommData_t commData(
         flexion,
         splay,

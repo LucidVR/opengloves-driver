@@ -30,7 +30,7 @@
     "right_z_offset_position": -0.03,
     "right_x_offset_degrees": 0.0,
     "right_y_offset_degrees": 0.0,
-    "right_z_offset_degrees": 0.,
+    "right_z_offset_degrees": 0.0,
     "left_x_offset_position": 0.1,
     "left_y_offset_position": -0.08,
     "left_z_offset_position": -0.03,

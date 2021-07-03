@@ -103,17 +103,6 @@ vr::HmdQuaternion_t QuatConjugate(const vr::HmdQuaternion_t q) {
 	return quat;
 }
 
-vr::HmdQuaternion_t QuatInverse(const vr::HmdQuaternion_t q) {
-	double abs = QuatNorm(q);
-	double d = abs * abs;
-
-	vr::HmdQuaternion_t conj = QuatConjugate(q);
-
-	vr::HmdQuaternion_t quat = { conj.w / d,conj.x / d,conj.y / d, conj.z / d };
-	return quat;
-
-}
-
 //Adapted from libGDX
 vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, const double& roll) {
 	vr::HmdQuaternion_t result;
