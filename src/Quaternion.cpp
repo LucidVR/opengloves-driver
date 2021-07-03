@@ -149,3 +149,28 @@ vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::H
 
 	return result;
 }
+
+vr::HmdVector3_t QuaternionToAngle(vr::HmdQuaternion_t q) {
+	vr::HmdVector3_t result = { 0,0,0 };
+	double test = q.x * q.y + q.z * q.w;
+	if (test > 0.499) { // singularity at north pole
+		result.v[0] = 2 * atan2(q.x, q.w);
+		result.v[1] = M_PI / 2;
+		result.v[2] = 0;
+		return result;
+	}
+	if (test < -0.499) { // singularity at south pole
+		result.v[0] = -2 * atan2(q.x, q.w);
+		result.v[1] = -M_PI / 2;
+		result.v[2] = 0;
+		return result;
+	}
+	double sqx = q.x * q.x;
+	double sqy = q.y * q.y;
+	double sqz = q.z * q.z;
+	result.v[0] = atan2(2 * q.y * q.w - 2 * q.x * q.z, 1 - 2 * sqy - 2 * sqz);
+	result.v[1] = asin(2 * test);
+	result.v[2] = atan2(2 * q.x * q.w - 2 * q.y * q.z, 1 - 2 * sqx - 2 * sqz);
+
+	return result;
+}

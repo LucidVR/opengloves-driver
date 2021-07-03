@@ -5,6 +5,8 @@
 double DegToRad(int degrees);
 double RadToDeg(double rad);
 
+
+
 //get the quaternion for roation from a matrix
 vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t& matrix);
 vr::HmdVector3_t GetPosition(const vr::HmdMatrix34_t& matrix);
@@ -22,3 +24,5 @@ vr::HmdMatrix33_t QuaternionToMatrix(const vr::HmdQuaternion_t q);
 double QuatNorm(const vr::HmdQuaternion_t q);
 vr::HmdQuaternion_t QuatConjugate(const vr::HmdQuaternion_t q);
 vr::HmdQuaternion_t QuatInverse(const vr::HmdQuaternion_t q);
+
+vr::HmdVector3_t QuaternionToAngle(const vr::HmdQuaternion_t q);
