@@ -49,7 +49,6 @@ void DiscoverController(vr::ETrackedControllerRole role) {
   int curFound = -1;
 
   while (appActive) {
-    bool reservedRightHand = false;
     for (int32_t i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
       char thisManufacturer[1024];
       uint32_t err = vr::VRSystem()->GetStringTrackedDeviceProperty(
