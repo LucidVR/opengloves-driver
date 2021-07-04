@@ -13,7 +13,6 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
       m_thisDeviceManufacturer(std::move(thisDeviceManufacturer)),
       m_poseConfiguration(poseConfiguration) {
 
-    m_calibration = std::make_unique<Calibration>();
   if (m_poseConfiguration.controllerOverrideEnabled) {
     m_shadowControllerId = m_poseConfiguration.controllerIdOverride;
   } else {
@@ -26,7 +25,7 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
         },
         m_shadowDeviceOfRole);
   }
-  
+  m_calibration = std::make_unique<Calibration>();
 }
 
 vr::TrackedDevicePose_t ControllerPose::GetControllerPose() {
@@ -105,6 +104,11 @@ void ControllerPose::StartCalibration() {
 }
 
 void ControllerPose::FinishCalibration() {
+    if (m_shadowControllerId == vr::k_unTrackedDeviceIndexInvalid) {
+        DebugDriverLog("Index invalid");
+        CancelCalibration();
+        return;
+    }
     m_calibration->FinishCalibration(GetControllerPose(), m_poseConfiguration, isRightHand());
 }
 

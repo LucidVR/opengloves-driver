@@ -6,7 +6,9 @@
 #include "DriverLog.h"
 #include "Quaternion.h"
 
-Calibration::Calibration() {}
+Calibration::Calibration() {
+    m_isCalibrating = false;
+}
 
 void Calibration::StartCalibration(vr::DriverPose_t maintainPose) {
     m_maintainPose = maintainPose;  
