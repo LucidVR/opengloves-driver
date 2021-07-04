@@ -47,6 +47,7 @@ void GetAndSendControllerId(int id, vr::ETrackedControllerRole role) {
 void DiscoverController(vr::ETrackedControllerRole role) {
   int lastFound = -1;
   int curFound = -1;
+
   while (appActive) {
     for (int32_t i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
       char thisManufacturer[1024];
@@ -60,11 +61,6 @@ void DiscoverController(vr::ETrackedControllerRole role) {
 
       short deviceRole = vr::VRSystem()->GetControllerRoleForTrackedDeviceIndex(i);
 
-      if (deviceRole == role) {
-        curFound = i;
-        break;
-      };
-       
       int32_t controllerHint = vr::VRSystem()->GetInt32TrackedDeviceProperty(
           i, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32);
 
@@ -72,6 +68,17 @@ void DiscoverController(vr::ETrackedControllerRole role) {
         curFound = i;
         break;
       }
+      
+      int controllerType = vr::VRSystem()->GetInt32TrackedDeviceProperty(
+          i, vr::ETrackedDeviceProperty::Prop_DeviceClass_Int32);
+
+      if (controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker ||
+          controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_Controller) {
+        if (role == deviceRole) {
+            curFound = i;
+        }
+      }
+      
     }
 
     if (curFound != lastFound) {

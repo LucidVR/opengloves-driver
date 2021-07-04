@@ -1,6 +1,6 @@
-# OpenGlove Driver
+# OpenGloves Driver
 
-OpenGlove is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's driver interface we are able to provide support for many SteamVR/OpenVR games.
+OpenGloves is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's driver interface we are able to provide support for many SteamVR/OpenVR games.
 
 ## Installation and Usage
 
@@ -18,7 +18,7 @@ OpenGlove is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's dri
 
 **Problems?**
 * Check [Troubleshooting](https://github.com/LucidVR/opengloves-driver/wiki/Troubleshooting)
-  * Didn't help? Contact us on the [Discord Server](https://discord.com/invite/Y6XTvnHDUC)
+  * Didn't help? Contact us on the [Community Discord Server](https://discord.com/invite/Y6XTvnHDUC)
 ## Building
 If you want to use the driver as-is, refer to [Installation and Usage](#Installation-and-Usage).  
 If you are planning on modifying source files, refer to [BUILDING.md](https://github.com/LucidVR/opengloves-driver/blob/develop/BUILDING.md).
