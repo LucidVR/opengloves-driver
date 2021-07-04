@@ -109,7 +109,7 @@ void ControllerPose::FinishCalibration() {
         CancelCalibration();
         return;
     }
-    m_calibration->FinishCalibration(GetControllerPose(), m_poseConfiguration, isRightHand());
+    m_poseConfiguration = m_calibration->FinishCalibration(GetControllerPose(), m_poseConfiguration, isRightHand());
 }
 
 void ControllerPose::CancelCalibration() { m_calibration->CancelCalibration(); }
