@@ -3,6 +3,7 @@
 #include <memory>
 #include "DeviceConfiguration.h"
 #include "ControllerDiscovery.h"
+#include "Calibration.h"
 
 class ControllerPose {
  public:
@@ -32,11 +33,8 @@ class ControllerPose {
 
   bool IsOtherRole(int32_t test);
 
-  //calibration
-  vr::DriverPose_t m_maintainPose;
-  bool m_isCalibrating = false;
-
   bool isRightHand();
 
   std::unique_ptr<ControllerDiscoveryPipe> m_controllerDiscoverer;
+  std::unique_ptr<Calibration> m_calibration;
 };
