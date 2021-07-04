@@ -80,11 +80,14 @@ void DiscoverController(vr::ETrackedControllerRole role) {
 
       if (controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker ||
           controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_Controller) {
-        if (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ||
+        /*if (role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ||
             reservedRightHand) {
           curFound = i;
         } else if (role == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand) {
           reservedRightHand = true;
+        }*/
+        if (role == deviceRole) {
+            curFound = i;
         }
       }
       
