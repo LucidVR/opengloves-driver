@@ -62,10 +62,10 @@ void DiscoverController(vr::ETrackedControllerRole role) {
 
       short deviceRole = vr::VRSystem()->GetControllerRoleForTrackedDeviceIndex(i);
 
-      if (deviceRole == role) {
+      /*if (deviceRole == role) {
         curFound = i;
         break;
-      };
+      };*/
 
       int32_t controllerHint = vr::VRSystem()->GetInt32TrackedDeviceProperty(
           i, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32);
