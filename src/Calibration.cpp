@@ -11,6 +11,12 @@ Calibration::Calibration() {
 }
 
 void Calibration::StartCalibration(vr::DriverPose_t maintainPose) {
+    maintainPose.vecVelocity[0] = 0;
+    maintainPose.vecVelocity[1] = 0;
+    maintainPose.vecVelocity[2] = 0;
+    maintainPose.vecAngularVelocity[0] = 0;
+    maintainPose.vecAngularVelocity[1] = 0;
+    maintainPose.vecAngularVelocity[2] = 0;
     m_maintainPose = maintainPose;  
     m_isCalibrating = true;
 }
@@ -63,12 +69,6 @@ bool Calibration::isCalibrating() {
 }
 
 vr::DriverPose_t Calibration::GetMaintainPose() {
-    m_maintainPose.vecVelocity[0] = 0;
-    m_maintainPose.vecVelocity[1] = 0;
-    m_maintainPose.vecVelocity[2] = 0;
-    m_maintainPose.vecAngularVelocity[0] = 0;
-    m_maintainPose.vecAngularVelocity[1] = 0;
-    m_maintainPose.vecAngularVelocity[2] = 0;
     return m_maintainPose;
 }
 
