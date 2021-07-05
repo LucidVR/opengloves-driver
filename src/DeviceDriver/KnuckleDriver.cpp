@@ -225,16 +225,27 @@ void KnuckleDeviceDriver::StartDevice() {
         vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_TOUCH], datas.grab, 0);
         vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::GRIP_VALUE], datas.grab, 0);
 
-        // We don't have a thumb on the index
-        // vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMB], datas.flexion[0], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_INDEX], datas.flexion[1], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_MIDDLE], datas.flexion[2], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_RING], datas.flexion[3], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_PINKY], datas.flexion[4], 0);
-      } catch (const std::exception& e) {
-        DebugDriverLog("Exception caught while parsing comm data");
-      }
-    });
+				//We don't have a thumb on the index
+				//vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMB], datas.flexion[0], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_INDEX], datas.flexion[1], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_MIDDLE], datas.flexion[2], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_RING], datas.flexion[3], 0);
+				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_PINKY], datas.flexion[4], 0);
+			
+				if (datas.calibrate) {
+					if (!m_controllerPose->isCalibrating())
+						m_controllerPose->StartCalibration();
+				}
+				else
+				{
+					if (m_controllerPose->isCalibrating())
+						m_controllerPose->FinishCalibration();
+				}
+			}
+			catch (const std::exception& e) {
+				DebugDriverLog("Exception caught while parsing comm data");
+			}
+		});
 
   } else {
     DebugDriverLog("Device did not connect successfully");

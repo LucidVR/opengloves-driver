@@ -29,9 +29,19 @@ VRCommData_t LegacyEncodingManager::Decode(std::string input) {
   const float joyX = (2 * tokens[VRCommDataInputPosition::JOY_X] / m_maxAnalogValue) - 1;
   const float joyY = (2 * tokens[VRCommDataInputPosition::JOY_Y] / m_maxAnalogValue) - 1;
 
-  VRCommData_t commData(flexion, splay, joyX, joyY, tokens[VRCommDataInputPosition::JOY_BTN] == 1, tokens[VRCommDataInputPosition::BTN_TRG] == 1,
-                        tokens[VRCommDataInputPosition::BTN_A] == 1, tokens[VRCommDataInputPosition::BTN_B] == 1, tokens[VRCommDataInputPosition::GES_GRAB] == 1,
-                        tokens[VRCommDataInputPosition::GES_PINCH] == 1);
+    VRCommData_t commData(
+        flexion,
+        splay,
+        joyX,
+        joyY,
+        tokens[VRCommDataInputPosition::JOY_BTN] == 1,
+        tokens[VRCommDataInputPosition::BTN_TRG] == 1,
+        tokens[VRCommDataInputPosition::BTN_A] == 1,
+        tokens[VRCommDataInputPosition::BTN_B] == 1,
+        tokens[VRCommDataInputPosition::GES_GRAB] == 1,
+        tokens[VRCommDataInputPosition::GES_PINCH] == 1,
+        false
+    );
 
   return commData;
 }
