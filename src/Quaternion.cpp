@@ -142,7 +142,7 @@ vr::HmdVector3_t QuaternionToEuler(vr::HmdQuaternion_t q) {
 	// pitch (y-axis rotation)
 	double sinp = 2 * (q.w * q.y - q.z * q.x);
 	if (std::abs(sinp) >= 1)
-		angles.v[1] = std::copysign(3.14159265358979 / 2, sinp); // use 90 degrees if out of range
+		angles.v[1] = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
 	else
 		angles.v[1] = std::asin(sinp);
 
