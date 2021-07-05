@@ -116,9 +116,9 @@ VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedContr
     const float offsetYPos = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_position" : "left_y_offset_position");
     const float offsetZPos = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_position" : "left_z_offset_position");
 
-    const int offsetXRot = vr::VRSettings()->GetInt32(c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees");
-    const int offsetYRot = vr::VRSettings()->GetInt32(c_poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees");
-    const int offsetZRot = vr::VRSettings()->GetInt32(c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees");
+    const float offsetXRot = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees");
+    const float offsetYRot = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees");
+    const float offsetZRot = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees");
 
 	const bool controllerOverrideEnabled = vr::VRSettings()->GetBool(c_poseSettingsSection, "controller_override");
 	const int controllerIdOverride = controllerOverrideEnabled ? vr::VRSettings()->GetInt32(c_poseSettingsSection, isRightHand ? "controller_override_right" : "controller_override_left"):-1;

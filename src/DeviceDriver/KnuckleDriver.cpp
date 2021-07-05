@@ -211,6 +211,16 @@ void KnuckleDeviceDriver::StartDevice() {
 				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_MIDDLE], datas.flexion[2], 0);
 				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_RING], datas.flexion[3], 0);
 				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_PINKY], datas.flexion[4], 0);
+			
+				if (datas.calibrate) {
+					if (!m_controllerPose->isCalibrating())
+						m_controllerPose->StartCalibration();
+				}
+				else
+				{
+					if (m_controllerPose->isCalibrating())
+						m_controllerPose->FinishCalibration();
+				}
 			}
 			catch (const std::exception& e) {
 				DebugDriverLog("Exception caught while parsing comm data");
