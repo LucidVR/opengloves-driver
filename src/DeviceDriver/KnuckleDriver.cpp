@@ -69,7 +69,6 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 	vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId); //this gets a container object where you store all the information about your driver
 
 	vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, (int32_t)2147483647);
-	vr::VRProperties()->SetStringProperty(props, vr::Prop_TrackingSystemName_String, "lighthouse");
 	vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, GetSerialNumber().c_str());
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_WillDriftInYaw_Bool, false);
 	vr::VRProperties()->SetBoolProperty(props, vr::Prop_DeviceIsWireless_Bool, true);
