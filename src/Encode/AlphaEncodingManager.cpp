@@ -64,7 +64,7 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
     float joyY = 0;
 
     if (argValid(input, 'F'))
-      joyX = 2 * stof(getArgumentSubstring(input, 'E').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
+      joyX = 2 * stof(getArgumentSubstring(input, 'F').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
     if (argValid(input, 'G'))
       joyY = 2 * stof(getArgumentSubstring(input, 'G').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
 
