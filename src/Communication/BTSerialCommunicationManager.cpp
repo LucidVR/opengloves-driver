@@ -51,6 +51,7 @@ void BTSerialCommunicationManager::ListenerThread(const std::function<void(VRCom
       try {
         VRCommData_t commData = m_encodingManager->Decode(receivedString);
         callback(commData);
+        sendMessageToEsp32();
       } catch (const std::invalid_argument& ia) {
         DriverLog("Received error from encoding manager. Skipping...");
       }
@@ -80,7 +81,11 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   return true;
 }
 
-void BTSerialCommunicationManager::QueueSend(const VRFFBData_t& data) {}
+void BTSerialCommunicationManager::QueueSend(const VRFFBData_t& data) {
+    std::lock_guard<std::mutex> lock(m_writeMutex);
+
+    m_writeString = m_encodingManager->Encode(data);
+}
 
 void BTSerialCommunicationManager::Disconnect() {
   if (m_isConnected) {
@@ -178,7 +183,9 @@ bool BTSerialCommunicationManager::connectToEsp32() {
 }
 
 bool BTSerialCommunicationManager::sendMessageToEsp32() {
-  const char* message = "Message from Windows\r\n";
+  std::lock_guard<std::mutex> lock(m_writeMutex);
+  const char* message = m_writeString.c_str();
+  DebugDriverLog("Sending %s to ESP32.", m_writeString.c_str());
   int sendResult = send(m_btClientSocket, message, (int)strlen(message), 0);  // send your message to the BT device
   if (sendResult == SOCKET_ERROR) {
     DriverLog("Sending to ESP32 failed. Error code %d", WSAGetLastError());

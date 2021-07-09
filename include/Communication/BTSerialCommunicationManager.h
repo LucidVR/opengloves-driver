@@ -7,6 +7,8 @@
 #include <sstream>
 #include <thread>
 #include <vector>
+#include <mutex>
+
 #include "CommunicationManager.h"
 #include "DeviceConfiguration.h"
 #include "DriverLog.h"
@@ -50,4 +52,8 @@ class BTSerialCommunicationManager : public ICommunicationManager {
   SOCKADDR_BTH m_btSocketAddress;
   SOCKET m_btClientSocket;
   WCHAR* m_wcDeviceName;
+
+  std::mutex m_writeMutex;
+
+  std::string m_writeString;
 };
