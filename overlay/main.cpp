@@ -91,7 +91,7 @@ void DiscoverController(vr::ETrackedControllerRole role) {
 
 int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdLine, int nCmdShow) {
   vr::EVRInitError error;
-  VR_Init(&error, vr::VRApplication_Overlay);
+  VR_Init(&error, vr::VRApplication_Background);
 
   if (error == vr::EVRInitError::VRInitError_None) {
     std::thread leftControllerThread = std::thread(
