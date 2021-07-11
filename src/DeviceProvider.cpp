@@ -66,6 +66,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
   if (!CreateBackgroundProcess()) {
     DriverLog("Could not create background process");
+    return vr::VRInitError_Init_FileNotFound;
   }
   
   VRDeviceConfiguration_t leftConfiguration =
