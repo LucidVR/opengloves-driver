@@ -44,6 +44,7 @@ source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "Header Files" FI
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" PREFIX "Source Files" FILES ${SOURCES})
 set_property(TARGET "${OPENGLOVE_PROJECT}" PROPERTY CXX_STANDARD 17)
 
+
 # Copy driver assets to output folder
 add_custom_command(
         TARGET ${OPENGLOVE_PROJECT}
@@ -60,4 +61,12 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:${OPENGLOVE_PROJECT}>
         $<TARGET_FILE_DIR:${OPENGLOVE_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${OPENGLOVE_PROJECT}>
+)
+
+add_custom_command(
+        TARGET ${OPENGLOVE_PROJECT}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        $<TARGET_FILE_DIR:openglove_overlay>
+        $<TARGET_FILE_DIR:${OPENGLOVE_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}
 )
