@@ -46,7 +46,6 @@ void BTSerialCommunicationManager::ListenerThread(const std::function<void(VRCom
   while (m_threadActive) {
     std::string receivedString;
     bool readSuccessful = ReceiveNextPacket(receivedString);
-
     if (readSuccessful) {
       try {
         VRCommData_t commData = m_encodingManager->Decode(receivedString);
@@ -185,7 +184,7 @@ bool BTSerialCommunicationManager::connectToEsp32() {
 bool BTSerialCommunicationManager::sendMessageToEsp32() {
   std::lock_guard<std::mutex> lock(m_writeMutex);
   const char* message = m_writeString.c_str();
-  DebugDriverLog("Sending %s to ESP32.", m_writeString.c_str());
+  //DebugDriverLog("Sending %s to ESP32.", m_writeString.c_str());
   int sendResult = send(m_btClientSocket, message, (int)strlen(message), 0);  // send your message to the BT device
   if (sendResult == SOCKET_ERROR) {
     DriverLog("Sending to ESP32 failed. Error code %d", WSAGetLastError());

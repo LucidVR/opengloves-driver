@@ -55,5 +55,5 @@ class BTSerialCommunicationManager : public ICommunicationManager {
 
   std::mutex m_writeMutex;
 
-  std::string m_writeString;
+  std::string m_writeString = "\n";
 };
