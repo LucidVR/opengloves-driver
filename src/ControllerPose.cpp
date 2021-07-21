@@ -84,7 +84,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
 
       newPose.result = vr::TrackingResult_Running_OK;
 
-      newPose.poseTimeOffset = m_poseConfiguration.poseOffset;
+      newPose.poseTimeOffset = m_poseConfiguration.poseTimeOffset;
     } else {
       newPose.poseIsValid = false;
       newPose.deviceIsConnected = true;
