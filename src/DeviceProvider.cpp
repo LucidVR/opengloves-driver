@@ -172,7 +172,7 @@ VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedContr
   const auto deviceDriver =
       (VRDeviceDriver)vr::VRSettings()->GetInt32(c_driverSettingsSection, "device_driver");
 
-  const float poseOffset = vr::VRSettings()->GetFloat(c_poseSettingsSection, "pose_offset");
+  const float poseTimeOffset = vr::VRSettings()->GetFloat(c_poseSettingsSection, "pose_time_offset");
 
   const float offsetXPos = vr::VRSettings()->GetFloat(
       c_poseSettingsSection, isRightHand ? "right_x_offset_position" : "left_x_offset_position");
@@ -205,7 +205,7 @@ VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedContr
 
   return VRDeviceConfiguration_t(
       role, isEnabled,
-      VRPoseConfiguration_t(offsetVector, angleOffsetQuaternion, poseOffset,
+      VRPoseConfiguration_t(offsetVector, angleOffsetQuaternion, poseTimeOffset,
                             controllerOverrideEnabled, controllerIdOverride),
       encodingProtocol, communicationProtocol, deviceDriver);
 }
