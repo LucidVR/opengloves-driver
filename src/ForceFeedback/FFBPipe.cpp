@@ -168,14 +168,6 @@ void FFBPipe::PipeListenerThread(const std::function<void(VRFFBData_t)> &callbac
         m_lpPipeInst->callback = callback;
         bool fRead = ReadFileEx(m_lpPipeInst->hPipeInst, &m_lpPipeInst->chRequest, sizeof(VRFFBData_t), (LPOVERLAPPED)m_lpPipeInst,
                                 (LPOVERLAPPED_COMPLETION_ROUTINE)CompletedReadRoutineFFB);
-
-        switch (GetLastError()) {
-            //Disconnect if the client did so and reopen
-          case ERROR_BROKEN_PIPE:
-            DisconnectAndClose();
-            PipeListenerThread(callback, handedness);
-            break;
-        }
       }
 
       break;

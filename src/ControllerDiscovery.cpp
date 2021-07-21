@@ -160,13 +160,6 @@ void ControllerDiscoveryPipe::PipeListenerThread(
         bool fRead = ReadFileEx(m_lpPipeInst->hPipeInst, &m_lpPipeInst->chRequest,
                                 sizeof(ControllerPipeData), (LPOVERLAPPED)m_lpPipeInst,
                                 (LPOVERLAPPED_COMPLETION_ROUTINE)CompletedReadRoutine);
-
-        switch (GetLastError()) {
-          case ERROR_BROKEN_PIPE:
-            DisconnectAndClose();
-            PipeListenerThread(callback, role);
-            break;
-        }
         break;
       }
       case WAIT_IO_COMPLETION: {
