@@ -37,7 +37,7 @@
     "left_x_offset_degrees": 0.0,
     "left_y_offset_degrees": 0.0,
     "left_z_offset_degrees": 0.0,
-    "pose_offset": -0.01,
+    "pose_time_offset": -0.01,
     "controller_override": false,
     "controller_override_left": 3,
     "controller_override_right": 4
