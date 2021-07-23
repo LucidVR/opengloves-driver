@@ -1,8 +1,9 @@
 #include "ForceFeedback/FFBPipe.h"
 
 #include <chrono>
-#include "Pipe.h"
+
 #include "DriverLog.h"
+#include "Pipe.h"
 
 /*std::string GetLastErrorAsString() {
   // Get the error message ID, if any.
@@ -36,7 +37,6 @@ bool FFBPipe::Start(const std::function<void(VRFFBData_t)> &callback, vr::ETrack
   return true;
 }
 
-
 VOID WINAPI CompletedReadRoutineFFB(DWORD dwErr, DWORD cbBytesRead, LPOVERLAPPED lpOverLap) {
   LPPIPEINSTFFB lpPipeInst;
   BOOL fWrite = FALSE;
@@ -47,7 +47,6 @@ VOID WINAPI CompletedReadRoutineFFB(DWORD dwErr, DWORD cbBytesRead, LPOVERLAPPED
     DebugDriverLog("Received force feedback request: %d", lpPipeInst->chRequest.indexCurl);
     lpPipeInst->callback(lpPipeInst->chRequest);
   }
-
 }
 
 // Returns true if pending, false if the operation has completed.
@@ -150,7 +149,6 @@ void FFBPipe::PipeListenerThread(const std::function<void(VRFFBData_t)> &callbac
         }
 
         // Allocate storage for this instance.
-
         m_lpPipeInst = (LPPIPEINSTFFB)GlobalAlloc(GPTR, sizeof(PIPEINSTFFB));
 
         if (m_lpPipeInst == NULL) {
@@ -160,21 +158,26 @@ void FFBPipe::PipeListenerThread(const std::function<void(VRFFBData_t)> &callbac
 
         m_lpPipeInst->hPipeInst = m_hPipe;
 
-        // Start the read operation for this client.
-        // Note that this same routine is later used as a
-        // completion routine after a write operation.
-
         m_lpPipeInst->cbToWrite = 0;
         m_lpPipeInst->callback = callback;
         bool fRead = ReadFileEx(m_lpPipeInst->hPipeInst, &m_lpPipeInst->chRequest, sizeof(VRFFBData_t), (LPOVERLAPPED)m_lpPipeInst,
                                 (LPOVERLAPPED_COMPLETION_ROUTINE)CompletedReadRoutineFFB);
+        if (fRead) break;
+
+        switch (GetLastError()) {
+          case ERROR_BROKEN_PIPE:
+            DebugDriverLog("Client disconnected!");
+            DisconnectAndClose();
+            PipeListenerThread(callback, handedness);
+            break;
+        }
       }
 
       break;
 
-        // The wait is satisfied by a completed read or write
-        // operation. This allows the system to execute the
-        // completion routine.
+      // The wait is satisfied by a completed read or write
+      // operation. This allows the system to execute the
+      // completion routine.
       case WAIT_IO_COMPLETION: {
         break;
       }
