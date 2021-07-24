@@ -3,7 +3,6 @@
 #include <chrono>
 
 #include "DriverLog.h"
-#include "Pipe.h"
 #include "Quaternion.h"
 /*
 std::string GetLastErrorAsString() {
