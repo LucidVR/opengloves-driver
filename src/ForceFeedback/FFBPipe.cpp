@@ -3,9 +3,8 @@
 #include <chrono>
 
 #include "DriverLog.h"
-#include "Pipe.h"
 
-/*std::string GetLastErrorAsString() {
+static std::string GetLastErrorAsString() {
   // Get the error message ID, if any.
   DWORD errorMessageID = ::GetLastError();
   if (errorMessageID == 0) {
@@ -26,7 +25,7 @@
   LocalFree(messageBuffer);
 
   return message;
-}*/
+}
 
 FFBPipe::FFBPipe() : m_listenerActive(false), m_hPipe(0){};
 
