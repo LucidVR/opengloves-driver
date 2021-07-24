@@ -16,14 +16,12 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole,
   if (m_poseConfiguration.controllerOverrideEnabled) {
     m_shadowControllerId = m_poseConfiguration.controllerIdOverride;
   } else {
-    m_controllerDiscoverer = std::make_unique<ControllerDiscoveryPipe>();
+    m_controllerDiscoverer = std::make_unique<ControllerDiscovery>(shadowDeviceOfRole, [&](ControllerDiscoveryPipeData_t data) {
+      m_shadowControllerId = data.controllerId;
+      DriverLog("Received controller id from overlay: %i", data.controllerId);
+    });
 
-    m_controllerDiscoverer->Start(
-        [&](ControllerPipeData data) { 
-            m_shadowControllerId = data.controllerId;
-          DebugDriverLog("Received message! %i", data.controllerId);
-        },
-        m_shadowDeviceOfRole);
+    m_controllerDiscoverer->Start();
   }
   m_calibration = std::make_unique<Calibration>();
 }

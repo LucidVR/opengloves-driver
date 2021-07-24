@@ -35,6 +35,6 @@ class ControllerPose {
 
   bool isRightHand();
 
-  std::unique_ptr<ControllerDiscoveryPipe> m_controllerDiscoverer;
+  std::unique_ptr<ControllerDiscovery> m_controllerDiscoverer;
   std::unique_ptr<Calibration> m_calibration;
 };

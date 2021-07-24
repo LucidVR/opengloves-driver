@@ -11,7 +11,7 @@
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
 #include "Encode/LegacyEncodingManager.h"
-#include "ForceFeedback/FFBPipe.h"
+#include "ForceFeedback.h"
 
 class KnuckleDeviceDriver : public IDeviceDriver {
  public:
@@ -48,5 +48,5 @@ class KnuckleDeviceDriver : public IDeviceDriver {
   std::string m_serialNumber;
 
   std::unique_ptr<ControllerPose> m_controllerPose;
-  std::unique_ptr<FFBPipe> m_ffbProvider;
+  std::unique_ptr<FFBListener> m_ffbProvider;
 };

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Encode/EncodingManager.h>
-#include "ForceFeedback/FFBPipe.h"
+#include "ForceFeedback.h"
 
 class LegacyEncodingManager : public IEncodingManager {
  public:
