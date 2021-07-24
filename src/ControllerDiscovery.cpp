@@ -3,10 +3,9 @@
 #include <chrono>
 
 #include "DriverLog.h"
-#include "Pipe.h"
 #include "Quaternion.h"
-/*
-std::string GetLastErrorAsString() {
+
+static std::string GetLastErrorAsString() {
   // Get the error message ID, if any.
   DWORD errorMessageID = ::GetLastError();
   if (errorMessageID == 0) {
@@ -30,7 +29,7 @@ std::string GetLastErrorAsString() {
   LocalFree(messageBuffer);
 
   return message;
-}*/
+}
 
 ControllerDiscoveryPipe::ControllerDiscoveryPipe()
     : m_listenerActive(false), m_hPipe(0), m_lpPipeInst(0){};
