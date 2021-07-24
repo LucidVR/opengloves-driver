@@ -5,7 +5,6 @@
 #include "DriverLog.h"
 
 static std::string GetLastErrorAsString() {
-
   // Get the error message ID, if any.
   DWORD errorMessageID = ::GetLastError();
 
