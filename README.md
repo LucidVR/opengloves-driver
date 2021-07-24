@@ -35,7 +35,9 @@ If you are planning on modifying source files, refer to [BUILDING.md](https://gi
 
 ### Current features included in the driver
 * Finger flexion tracking
+* Force feedback haptics
 * Positioning from controllers + trackers
+  * Automatic Calibration
 * Button/Joystick inputs
 * Communication Protocols:
   * Serial USB
@@ -44,7 +46,6 @@ If you are planning on modifying source files, refer to [BUILDING.md](https://gi
 ### Planned features
 * BLE Communication
 * Finger splay tracking
-* Force feedback haptics
 * Vibration haptics
 
 
