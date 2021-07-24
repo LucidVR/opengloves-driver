@@ -23,7 +23,7 @@ static std::string GetLastErrorAsString() {
   return message;
 };
 
-VOID WINAPI CompletedReadRoutine(DWORD dwErr, DWORD cbBytesRead, LPOVERLAPPED lpOverLap) {
+static VOID WINAPI CompletedReadRoutine(DWORD dwErr, DWORD cbBytesRead, LPOVERLAPPED lpOverLap) {
   LPPIPEINST lpPipeInst;
   BOOL fWrite = FALSE;
 
