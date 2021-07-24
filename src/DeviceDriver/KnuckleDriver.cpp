@@ -9,58 +9,48 @@ namespace knuckleDevice {
 }
 
 enum ComponentIndex : int {
-	SYSTEM_CLICK,
-	SYSTEM_TOUCH,
-	TRIGGER_CLICK,
-	TRIGGER_VALUE,
-	TRACKPAD_X,
-	TRACKPAD_Y,
-	TRACKPAD_TOUCH,
-	TRACKPAD_FORCE,
-	GRIP_TOUCH,
-	GRIP_FORCE,
-	GRIP_VALUE,
-	THUMBSTICK_CLICK,
-	THUMBSTICK_TOUCH,
-	THUMBSTICK_X,
-	THUMBSTICK_Y,
-	A_CLICK,
-	A_TOUCH,
-	B_CLICK,
-	B_TOUCH,
-	FINGER_INDEX,
-	FINGER_MIDDLE,
-	FINGER_RING,
-	FINGER_PINKY
+  SYSTEM_CLICK,
+  SYSTEM_TOUCH,
+  TRIGGER_CLICK,
+  TRIGGER_VALUE,
+  TRACKPAD_X,
+  TRACKPAD_Y,
+  TRACKPAD_TOUCH,
+  TRACKPAD_FORCE,
+  GRIP_TOUCH,
+  GRIP_FORCE,
+  GRIP_VALUE,
+  THUMBSTICK_CLICK,
+  THUMBSTICK_TOUCH,
+  THUMBSTICK_X,
+  THUMBSTICK_Y,
+  A_CLICK,
+  A_TOUCH,
+  B_CLICK,
+  B_TOUCH,
+  FINGER_INDEX,
+  FINGER_MIDDLE,
+  FINGER_RING,
+  FINGER_PINKY
 };
 
 KnuckleDeviceDriver::KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager, std::string serialNumber)
-	: m_configuration(configuration),
-	m_communicationManager(std::move(communicationManager)),
-	m_serialNumber(std::move(serialNumber)),
-	m_driverId(-1),
-	m_hasActivated(false) {
-
-	//copy a default bone transform to our hand transform for use in finger positioning later
-	std::copy(
-		std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
-		std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
-		std::begin(m_handTransforms)
-	);
-
+    : m_configuration(configuration),
+      m_communicationManager(std::move(communicationManager)),
+      m_serialNumber(std::move(serialNumber)),
+      m_driverId(-1),
+      m_hasActivated(false) {
+  // copy a default bone transform to our hand transform for use in finger positioning later
+  std::copy(std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
+            std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose), std::begin(m_handTransforms));
 }
 
+bool KnuckleDeviceDriver::IsRightHand() const { return m_configuration.role == vr::TrackedControllerRole_RightHand; }
 
-bool KnuckleDeviceDriver::IsRightHand() const {
-	return m_configuration.role == vr::TrackedControllerRole_RightHand;
-}
+std::string KnuckleDeviceDriver::GetSerialNumber() { return m_serialNumber; }
 
-std::string KnuckleDeviceDriver::GetSerialNumber() {
-	return m_serialNumber;
-}
-bool KnuckleDeviceDriver::IsActive() {
-	return m_hasActivated;
-}
+bool KnuckleDeviceDriver::IsActive() { return m_hasActivated; }
+
 vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 	const bool isRightHand = IsRightHand();
 	m_driverId = unObjectId; //unique ID for your driver
@@ -169,40 +159,47 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 	return vr::VRInitError_None;
 }
 
-//This could do with a rename, its a bit vague as to what it does
+// This could do with a rename, its a bit vague as to what it does
 void KnuckleDeviceDriver::StartDevice() {
-	m_communicationManager->Connect();
-	if (m_communicationManager->IsConnected()) {
-		m_communicationManager->BeginListener([&](VRCommData_t datas) {
-			try {
-				//Compute each finger transform
-				for (int i = 0; i < NUM_BONES; i++) {
-					int fingerNum = FingerFromBone(i);
-					if (fingerNum != -1) {
-						ComputeBoneFlexion(&m_handTransforms[i], datas.flexion[fingerNum], i, IsRightHand());
-					}
-				}
-				vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
-				vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
+  m_ffbProvider = std::make_unique<FFBPipe>();
+  m_ffbProvider->Start(
+      [&](VRFFBData_t data) {
+        // Queue the force feedback data for sending.
+        m_communicationManager->QueueSend(data);
+      },
+      m_configuration.role);
+  m_communicationManager->Connect();
+  if (m_communicationManager->IsConnected()) {
+    m_communicationManager->BeginListener([&](VRCommData_t datas) {
+      try {
+        // Compute each finger transform
+        for (int i = 0; i < NUM_BONES; i++) {
+          int fingerNum = FingerFromBone(i);
+          if (fingerNum != -1) {
+            ComputeBoneFlexion(&m_handTransforms[i], datas.flexion[fingerNum], i, IsRightHand());
+          }
+        }
+        vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
+        vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
 
-				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_X], datas.joyX, 0);
-				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_Y], datas.joyY, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_X], datas.joyX, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_Y], datas.joyY, 0);
 
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_CLICK], datas.joyButton, 0);
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_TOUCH], datas.joyButton, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_CLICK], datas.joyButton, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_TOUCH], datas.joyButton, 0);
 
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_CLICK], datas.trgButton, 0);
-				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_VALUE], datas.flexion[1], 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_CLICK], datas.trgButton, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_VALUE], datas.flexion[1], 0);
 
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_CLICK], datas.aButton, 0);
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_TOUCH], datas.aButton, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_CLICK], datas.aButton, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_TOUCH], datas.aButton, 0);
 
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::B_CLICK], datas.bButton, 0);
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::B_TOUCH], datas.bButton, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::B_CLICK], datas.bButton, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::B_TOUCH], datas.bButton, 0);
 
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_FORCE], datas.grab, 0);
-				vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_TOUCH], datas.grab, 0);
-				vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::GRIP_VALUE], datas.grab, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_FORCE], datas.grab, 0);
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_TOUCH], datas.grab, 0);
+        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::GRIP_VALUE], datas.grab, 0);
 
 				//We don't have a thumb on the index
 				//vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMB], datas.flexion[0], 0);
@@ -226,42 +223,38 @@ void KnuckleDeviceDriver::StartDevice() {
 			}
 		});
 
-	}
-	else {
-		DebugDriverLog("Device did not connect successfully");
-		//Perhaps retry
-	}
+  } else {
+    DebugDriverLog("Device did not connect successfully");
+  }
 }
 
 vr::DriverPose_t KnuckleDeviceDriver::GetPose() {
-	if (m_hasActivated) return m_controllerPose->UpdatePose();
+  if (m_hasActivated) return m_controllerPose->UpdatePose();
 
-	vr::DriverPose_t pose = { 0 };
-	return pose;
+  vr::DriverPose_t pose = {0};
+  return pose;
 }
 
 void KnuckleDeviceDriver::RunFrame() {
-	if (m_hasActivated) {
-		vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
-	}
+  if (m_hasActivated) {
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
+  }
 }
-
 
 void KnuckleDeviceDriver::Deactivate() {
-	if (m_hasActivated) {
-		m_communicationManager->Disconnect();
-		m_driverId = vr::k_unTrackedDeviceIndexInvalid;
-	}
+  if (m_hasActivated) {
+    m_communicationManager->Disconnect();
+    m_ffbProvider->Stop();
+    m_driverId = vr::k_unTrackedDeviceIndexInvalid;
+  }
 }
 
-void* KnuckleDeviceDriver::GetComponent(const char* pchComponentNameAndVersion) {
-	return nullptr;
-}
+void* KnuckleDeviceDriver::GetComponent(const char* pchComponentNameAndVersion) { return nullptr; }
 
 void KnuckleDeviceDriver::EnterStandby() {}
 
 void KnuckleDeviceDriver::DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) {
-	if (unResponseBufferSize >= 1) {
-		pchResponseBuffer[0] = 0;
-	}
+  if (unResponseBufferSize >= 1) {
+    pchResponseBuffer[0] = 0;
+  }
 }

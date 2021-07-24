@@ -8,7 +8,9 @@ public:
 	
 	//decode the given string into a VRCommData_t
 	VRCommData_t Decode(std::string input);
-private:
+    std::string Encode(const VRFFBData_t& input);
+
+       private:
     std::string getArgumentSubstring(std::string str, char del);
 
 	float m_maxAnalogValue;
