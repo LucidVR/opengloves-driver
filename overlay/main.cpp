@@ -6,7 +6,7 @@
 
 std::atomic<bool> appActive = true;
 
-const std::string ourManufacturer = "LucasVRTech&Danwillm";
+const std::string ourManufacturer = "LucidVR";
 
 std::string GetLastErrorAsString() {
   DWORD errorMessageID = ::GetLastError();
