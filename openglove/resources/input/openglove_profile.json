@@ -94,6 +94,11 @@
       "type": "trigger",
       "visibility": "InputValueVisibility_AvailableButHidden",
       "binding_image_point": [ 56, 86 ]
-    }
+    },
+	"/input/menu/click": {
+      "type": "button",
+      "binding_image_point": [ 67, 81 ],
+      "order": 4
+    },
   }
 }
