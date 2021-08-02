@@ -12,7 +12,7 @@ void BTSerialCommunicationManager::Connect() {
   m_isConnected = false;
 
   // Try to connect
-  if (!getPairedEsp32BtAddress())  // find an ESP32 paired with this machine
+  if (!getPairedDeviceBtAddress())  // find an device paired with this machine
   {
     DriverLog("Error getting Bluetooth address");
     return;
@@ -22,7 +22,7 @@ void BTSerialCommunicationManager::Connect() {
     DriverLog("Error Initializing windows sockets");
     return;
   }
-  if (!connectToEsp32())  // initialize BT windows socket for connecting to ESP32
+  if (!connectToDevice())  // initialize BT windows socket for connecting to device
   {
     DriverLog("Error connecting to Bluetooth device");
     return;
@@ -50,7 +50,7 @@ void BTSerialCommunicationManager::ListenerThread(const std::function<void(VRCom
       try {
         VRCommData_t commData = m_encodingManager->Decode(receivedString);
         callback(commData);
-        sendMessageToEsp32();
+        sendMessageToDevice();
       } catch (const std::invalid_argument& ia) {
         DriverLog("Received error from encoding manager. Skipping...");
       }
@@ -97,7 +97,7 @@ void BTSerialCommunicationManager::Disconnect() {
 
     // Disconnect
     if (shutdown(m_btClientSocket, 2) == SOCKET_ERROR) {
-      DriverLog("Could not disconnect socket from ESP32. Error %ld", WSAGetLastError());
+      DriverLog("Could not disconnect socket from bluetooth device. Error %ld", WSAGetLastError());
     } else
       DriverLog("Disconnected from socket successfully.");
   }
@@ -107,9 +107,9 @@ bool BTSerialCommunicationManager::IsConnected() { return m_isConnected; }
 
 /// <summary>
 /// Gets the bluetooth devices paired with this machine and
-/// finds an ESP32. If it finds one, its BT address is stored.
+/// finds a device. If it finds one, its BT address is stored.
 /// </summary>
-bool BTSerialCommunicationManager::getPairedEsp32BtAddress() {
+bool BTSerialCommunicationManager::getPairedDeviceBtAddress() {
   BLUETOOTH_DEVICE_SEARCH_PARAMS btDeviceSearchParameters = {
       sizeof(BLUETOOTH_DEVICE_SEARCH_PARAMS),  // size of object
       1,                                       // return authenticated devices
@@ -132,19 +132,19 @@ bool BTSerialCommunicationManager::getPairedEsp32BtAddress() {
 
     m_wcDeviceName = (WCHAR*)(thiswstring.c_str());
     if (wcscmp(btDeviceInfo.szName, m_wcDeviceName) == 0) {  //
-      DriverLog("ESP32 found!\r\n");
+      DriverLog("Bluetooth Device found!\r\n");
       if (btDeviceInfo.fAuthenticated)  // I found that if fAuthenticated is true it means the device is paired.
       {
-        DriverLog("ESP32 is authenticated.\r\n");
-        m_esp32BtAddress = btDeviceInfo.Address.ullLong;
+        DriverLog("Bluetooth Device is authenticated.\r\n");
+        m_deviceBtAddress = btDeviceInfo.Address.ullLong;
         return true;
       } else {
-        DriverLog("This ESP32 is not authenticated. Please pair with it first.\r\n");
+        DriverLog("This Bluetooth Device is not authenticated. Please pair with it first.\r\n");
       }
     }
   } while (BluetoothFindNextDevice(btDevice, &btDeviceInfo));  // loop through remaining BT devices connected to this machine
 
-  DriverLog("Could not find a paired ESP32 with name %s", m_btSerialConfiguration.name.c_str());
+  DriverLog("Could not find a paired Bluetooth Device with name %s", m_btSerialConfiguration.name.c_str());
   return false;
 }
 
@@ -160,16 +160,16 @@ bool BTSerialCommunicationManager::startupWindowsSocket() {
   return true;
 }
 
-bool BTSerialCommunicationManager::connectToEsp32() {
+bool BTSerialCommunicationManager::connectToDevice() {
   m_btClientSocket = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);  // initialize BT windows socket
   memset(&m_btSocketAddress, 0, sizeof(m_btSocketAddress));
   m_btSocketAddress.addressFamily = AF_BTH;
   m_btSocketAddress.serviceClassId = RFCOMM_PROTOCOL_UUID;
   m_btSocketAddress.port = 0;                                                                    // port needs to be 0 if the remote device is a client. See references.
-  m_btSocketAddress.btAddr = m_esp32BtAddress;                                                   // this is the BT address of the remote device.
+  m_btSocketAddress.btAddr = m_deviceBtAddress;                                                   // this is the BT address of the remote device.
   if (connect(m_btClientSocket, (SOCKADDR*)&m_btSocketAddress, sizeof(m_btSocketAddress)) != 0)  // connect to the BT device.
   {
-    DriverLog("Could not connect socket to ESP32. Error %ld", WSAGetLastError());
+    DriverLog("Could not connect socket to Bluetooth Device. Error %ld", WSAGetLastError());
     return false;
   }
   unsigned long nonBlockingMode = 1;
@@ -181,13 +181,13 @@ bool BTSerialCommunicationManager::connectToEsp32() {
   return true;
 }
 
-bool BTSerialCommunicationManager::sendMessageToEsp32() {
+bool BTSerialCommunicationManager::sendMessageToDevice() {
   std::lock_guard<std::mutex> lock(m_writeMutex);
   const char* message = m_writeString.c_str();
-  //DebugDriverLog("Sending %s to ESP32.", m_writeString.c_str());
+  //DebugDriverLog("Sending %s to Bluetooth Device.", m_writeString.c_str());
   int sendResult = send(m_btClientSocket, message, (int)strlen(message), 0);  // send your message to the BT device
   if (sendResult == SOCKET_ERROR) {
-    DriverLog("Sending to ESP32 failed. Error code %d", WSAGetLastError());
+    DriverLog("Sending to Bluetooth Device failed. Error code %d", WSAGetLastError());
     closesocket(m_btClientSocket);
     WSACleanup();
     return false;
