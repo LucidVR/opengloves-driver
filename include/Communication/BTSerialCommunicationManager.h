@@ -36,10 +36,10 @@ class BTSerialCommunicationManager : public ICommunicationManager {
  private:
   void ListenerThread(const std::function<void(VRCommData_t)>& callback);
   bool ReceiveNextPacket(std::string& buff);
-  bool getPairedEsp32BtAddress();
+  bool getPairedDeviceBtAddress();
   bool startupWindowsSocket();
-  bool connectToEsp32();
-  bool sendMessageToEsp32();
+  bool connectToDevice();
+  bool sendMessageToDevice();
   bool m_isConnected;
   std::atomic<bool> m_threadActive;
   std::thread m_serialThread;
@@ -48,7 +48,7 @@ class BTSerialCommunicationManager : public ICommunicationManager {
 
   VRBTSerialConfiguration_t m_btSerialConfiguration;
 
-  BTH_ADDR m_esp32BtAddress;
+  BTH_ADDR m_deviceBtAddress;
   SOCKADDR_BTH m_btSocketAddress;
   SOCKET m_btClientSocket;
   WCHAR* m_wcDeviceName;
