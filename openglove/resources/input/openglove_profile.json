@@ -40,11 +40,6 @@
       "binding_image_point": [ 11, 60 ],
       "order": 2
     },
-    "/input/system/click": {
-      "type": "button",
-      "binding_image_point": [ 67, 81 ],
-      "order": 3
-    },
     "/input/A/click": {
       "type": "button",
       "binding_image_point": [ 67, 81 ],
@@ -95,10 +90,12 @@
       "visibility": "InputValueVisibility_AvailableButHidden",
       "binding_image_point": [ 56, 86 ]
     },
-	"/input/menu/click": {
-      "type": "button",
-      "binding_image_point": [ 67, 81 ],
-      "order": 4
-    },
+    "/input/system" : {
+      "type" : "button",
+      "click" : true,
+      "touch" : true,
+      "binding_image_point" : [ 34,45 ],
+      "order" : 1
+    }
   }
 }

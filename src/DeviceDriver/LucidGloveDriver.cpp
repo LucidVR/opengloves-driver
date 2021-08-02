@@ -86,10 +86,10 @@ vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/pinky", &m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], vr::VRScalarType_Absolute,
                                              vr::VRScalarUnits_NormalizedOneSided);
   
-  vr::VRDriverInput()->CreateBooleanComponent(props, "/input/menu/click", &m_inputComponentHandles[ComponentIndex::COMP_BTN_MENU]);
+  vr::VRDriverInput()->CreateBooleanComponent(props, "/input/system/click", &m_inputComponentHandles[ComponentIndex::COMP_BTN_MENU]);
 
 
-  // Create the skeletal component and save the handle for later use
+  // Create the skeletal component and save the handle for later use//
 
   vr::EVRInputError error = vr::VRDriverInput()->CreateSkeletonComponent(
       props, isRightHand ? "/input/skeleton/right" : "/input/skeleton/left", isRightHand ? "/skeleton/hand/right" : "/skeleton/hand/left", "/pose/raw",
@@ -143,7 +143,9 @@ void LucidGloveDeviceDriver::StartDevice() {
         vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], datas.flexion[4], 0);
         
         vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_MENU], datas.menu, 0);
-
+        if (datas.menu) {
+            DebugDriverLog("Menu selected!");
+        }
         if (datas.calibrate) {
           if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration();
         } else {
