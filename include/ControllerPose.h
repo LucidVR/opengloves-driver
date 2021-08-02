@@ -3,6 +3,7 @@
 #include <memory>
 #include "DeviceConfiguration.h"
 #include "ControllerDiscovery.h"
+#include "Calibration.h"
 
 class ControllerPose {
  public:
@@ -10,6 +11,14 @@ class ControllerPose {
                  VRPoseConfiguration_t poseConfiguration);
 
   vr::DriverPose_t UpdatePose();
+
+  void StartCalibration();
+
+  void FinishCalibration();
+
+  void CancelCalibration();
+
+  bool isCalibrating();
 
  private:
   uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
@@ -20,6 +29,12 @@ class ControllerPose {
 
   std::string m_thisDeviceManufacturer;
 
+  vr::TrackedDevicePose_t GetControllerPose();
+
   bool IsOtherRole(int32_t test);
-  std::unique_ptr<ControllerDiscoveryPipe> m_controllerDiscoverer;
+
+  bool isRightHand();
+
+  std::unique_ptr<ControllerDiscovery> m_controllerDiscoverer;
+  std::unique_ptr<Calibration> m_calibration;
 };

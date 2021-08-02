@@ -64,7 +64,7 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
     float joyY = 0;
 
     if (argValid(input, 'F'))
-      joyX = 2 * stof(getArgumentSubstring(input, 'E').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
+      joyX = 2 * stof(getArgumentSubstring(input, 'F').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
     if (argValid(input, 'G'))
       joyY = 2 * stof(getArgumentSubstring(input, 'G').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
 
@@ -79,8 +79,27 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
         argValid(input, 'K'), //B button
         argValid(input, 'L'), //grab
         argValid(input, 'M'), //pinch
-        argValid(input, 'N')  //menu
+        argValid(input, 'N'), //menu
+        argValid(input, 'O')  //calibration
     );
 
     return commData;
 }
+
+template <typename... Args>
+std::string string_format(const std::string& format, Args... args) {
+  int size_s = std::snprintf(nullptr, 0, format.c_str(), args...) + 1;  // Extra space for '\0'
+  if (size_s <= 0) {
+    DriverLog("Error decoding string");
+    return "";
+  }
+  auto size = static_cast<size_t>(size_s);
+  auto buf = std::make_unique<char[]>(size);
+  std::snprintf(buf.get(), size, format.c_str(), args...);
+  return std::string(buf.get(), buf.get() + size - 1);  // We don't want the '\0' inside
+}
+
+std::string AlphaEncodingManager::Encode(const VRFFBData_t& data) {
+  std::string result = string_format("A%dB%dC%dD%dE%d\n", data.thumbCurl, data.indexCurl, data.middleCurl, data.ringCurl, data.pinkyCurl);
+  return result;
+};
