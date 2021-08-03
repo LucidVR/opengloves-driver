@@ -14,8 +14,7 @@ void FFBListener::Start() {
   m_pipe->Start([&](LPVOID data) {
     VRFFBData_t *ffbData = (VRFFBData_t *)data;
 
-    VRFFBData_t result(*ffbData);
-    m_callback(result);
+    m_callback(*ffbData);
   });
 }
 

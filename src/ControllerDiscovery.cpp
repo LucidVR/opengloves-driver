@@ -14,8 +14,7 @@ void ControllerDiscovery::Start() {
   m_pipe->Start([&](LPVOID data) {
     ControllerDiscoveryPipeData_t *controllerPipeData = (ControllerDiscoveryPipeData_t *)data;
 
-    ControllerDiscoveryPipeData_t result(*controllerPipeData);
-    m_callback(result);
+    m_callback(*controllerPipeData);
   });
 };
 
