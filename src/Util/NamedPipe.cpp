@@ -152,7 +152,9 @@ void NamedPipeUtil::PipeListenerThread(const std::function<void(LPVOID)> &callba
         }
         break;
       }
-
+      case WAIT_IO_COMPLETION: {
+        break;
+      }
       default: {
         DriverLog("WaitForSingleObjectEx with error: %s.\n", GetLastErrorAsString().c_str());
         return;
