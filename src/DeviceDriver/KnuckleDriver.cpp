@@ -223,6 +223,9 @@ void KnuckleDeviceDriver::StartDevice() {
         vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_TOUCH], datas.grab, 0);
         vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::GRIP_VALUE], datas.grab, 0);
 
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::SYSTEM_CLICK], datas.menu, 0);
+
+
         // We don't have a thumb on the index
         // vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMB], datas.flexion[0], 0);
         vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_INDEX], datas.flexion[1], 0);

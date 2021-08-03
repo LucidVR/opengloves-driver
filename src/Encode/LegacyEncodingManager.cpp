@@ -40,6 +40,7 @@ VRCommData_t LegacyEncodingManager::Decode(std::string input) {
         tokens[VRCommDataInputPosition::BTN_B] == 1,
         tokens[VRCommDataInputPosition::GES_GRAB] == 1,
         tokens[VRCommDataInputPosition::GES_PINCH] == 1,
+        false,
         false
     );
 

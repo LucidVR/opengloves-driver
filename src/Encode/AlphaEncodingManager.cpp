@@ -79,7 +79,8 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
         argValid(input, 'K'), //B button
         argValid(input, 'L'), //grab
         argValid(input, 'M'), //pinch
-        argValid(input, 'O')  //calibration (N reserved for menu btn)
+        argValid(input, 'N'), //menu
+        argValid(input, 'O')  //calibration
     );
 
     return commData;

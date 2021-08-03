@@ -22,7 +22,8 @@ enum ComponentIndex : int {
   COMP_TRG_INDEX = 10,
   COMP_TRG_MIDDLE = 11,
   COMP_TRG_RING = 12,
-  COMP_TRG_PINKY = 13
+  COMP_TRG_PINKY = 13,
+  COMP_BTN_MENU = 14,
 };
 
 LucidGloveDeviceDriver::LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager,
@@ -84,8 +85,11 @@ vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
                                              vr::VRScalarUnits_NormalizedOneSided);
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/pinky", &m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], vr::VRScalarType_Absolute,
                                              vr::VRScalarUnits_NormalizedOneSided);
+  
+  vr::VRDriverInput()->CreateBooleanComponent(props, "/input/system/click", &m_inputComponentHandles[ComponentIndex::COMP_BTN_MENU]);
 
-  // Create the skeletal component and save the handle for later use
+
+  // Create the skeletal component and save the handle for later use//
 
   vr::EVRInputError error = vr::VRDriverInput()->CreateSkeletonComponent(
       props, isRightHand ? "/input/skeleton/right" : "/input/skeleton/left", isRightHand ? "/skeleton/hand/right" : "/skeleton/hand/left", "/pose/raw",
@@ -137,7 +141,8 @@ void LucidGloveDeviceDriver::StartDevice() {
         vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_MIDDLE], datas.flexion[2], 0);
         vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_RING], datas.flexion[3], 0);
         vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], datas.flexion[4], 0);
-
+        
+        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_MENU], datas.menu, 0);
         if (datas.calibrate) {
           if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration();
         } else {

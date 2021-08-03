@@ -4,7 +4,7 @@
 #include "ForceFeedback.h"
 
 struct VRCommData_t {
-    VRCommData_t(std::array<float, 5> flexion, std::array<float, 5> splay, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch, bool calibrate) :
+    VRCommData_t(std::array<float, 5> flexion, std::array<float, 5> splay, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch, bool menu, bool calibrate) :
         flexion(flexion),
         splay(splay),
         joyX(joyX),
@@ -15,7 +15,9 @@ struct VRCommData_t {
         bButton(bButton),
         grab(grab),
         pinch(pinch),
+        menu(menu),
         calibrate(calibrate){};
+
 
     std::array<float, 5> flexion;
     std::array<float, 5> splay;
@@ -27,6 +29,7 @@ struct VRCommData_t {
     bool bButton;
     bool grab;
     bool pinch;
+    bool menu;
     bool calibrate;
 };
 
