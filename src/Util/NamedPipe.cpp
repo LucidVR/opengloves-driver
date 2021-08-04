@@ -107,6 +107,7 @@ void NamedPipeUtil::PipeListenerThread(const std::function<void(LPVOID)> &callba
     return;
   }
 
+  oConnect.hEvent = hConnectEvent;
   DriverLog("Creating pipe: %s", m_pipeName.c_str());
 
   fPendingIO = CreateAndConnectInstance(&oConnect, m_pipeName);
@@ -127,6 +128,7 @@ void NamedPipeUtil::PipeListenerThread(const std::function<void(LPVOID)> &callba
             return;
           }
         }
+
         m_lpPipeInst = (LPPIPEINST)GlobalAlloc(GPTR, sizeof(PIPEINST));
 
         if (m_lpPipeInst == NULL) {
@@ -146,7 +148,7 @@ void NamedPipeUtil::PipeListenerThread(const std::function<void(LPVOID)> &callba
         switch (GetLastError()) {
           case ERROR_BROKEN_PIPE:
             DriverLog("Detected that a client disconnected for pipe: %s", m_pipeName.c_str());
-            DisconnectAndClose();
+            ClosePipe();
             PipeListenerThread(callback);
             break;
         }
@@ -164,10 +166,8 @@ void NamedPipeUtil::PipeListenerThread(const std::function<void(LPVOID)> &callba
   }
 }
 
-void NamedPipeUtil::DisconnectAndClose() {
+void NamedPipeUtil::ClosePipe() {
   DriverLog("Closing pipe: %s", m_pipeName.c_str());
-  if (m_listenerActive) m_listenerActive = false;
-
   if (!DisconnectNamedPipe(m_lpPipeInst->hPipeInst)) {
     DriverLog("DisconnectNamedPipe failed with error: %s.\n", GetLastErrorAsString().c_str());
   }
@@ -179,9 +179,11 @@ void NamedPipeUtil::DisconnectAndClose() {
 }
 
 void NamedPipeUtil::Stop() {
-  m_listenerActive = false;
-  m_pipeThread.join();
-  DisconnectAndClose();
+  if (m_listenerActive) {
+    m_listenerActive = false;
+    m_pipeThread.join();
+    ClosePipe();
+  }
 }
 
 NamedPipeUtil::~NamedPipeUtil() { Stop(); };
