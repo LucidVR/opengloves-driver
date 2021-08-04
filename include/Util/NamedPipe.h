@@ -23,7 +23,7 @@ class NamedPipeUtil {
 
  private:
   void PipeListenerThread(const std::function<void(LPVOID)>& callback);
-  void DisconnectAndClose();
+  void ClosePipe();
   bool CreateAndConnectInstance(LPOVERLAPPED lpo, std::string& pipeName);
   bool ConnectToNewClient(LPOVERLAPPED lpo);
 
