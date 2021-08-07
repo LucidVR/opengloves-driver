@@ -20,17 +20,19 @@ Binaries are (or will) be provided in the Releases in this Repository, but if yo
 
 This should generate Visual Studio project files in the `build/` folder, which you can then compile.
 
-# Building with Visual Studio IDE
-* Open the Visual Studio project (.sln file) in the `build/` folder
-* You should already have the ability to build the driver by pressing `Ctrl + Shift + B`
-  * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
-
 # Building with Visual Studio Build Tools
 * run a cmake build in the `build/` folder
   * `cmake --build . --config Release`
   * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
 
+# Building with Visual Studio IDE
+* Open the Visual Studio project (.sln file) in the `build/` folder
+* You should already have the ability to build the driver by pressing `Ctrl + Shift + B`
+  * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
+
 # Adding driver to Steam
+**Note:** For a more streamlined debugging environment, refer to [Debugging with Visual Studio](https://github.com/LucidVR/opengloves-driver/blob/develop/BUILDING.md#debugging-with-visual-studio).  
+This step is for people who may not necessarily want to setup a debugging environment, or are testing release builds.  
 * Copy the `openglove` folder into the steamvr drivers folder
   * Usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\drivers`
 * Running SteamVR you should see the driver activate two new controllers
@@ -73,16 +75,20 @@ If you want to make changes to the code and would like to use a debugger/not hav
   * On the first row (with the process name `<All other processes>`, make sure that the `Action` is set to `Do not debug`.  
   * Add a new row (double click on the empty `Process name` underneath `<All other processes>`.  
   * Add `vrserver.exe` as the process name 
-  * Ensure that `Action` is set to `Attach Debugger`.
+  * Ensure that `Action` is set to `Attach Debugger`.  
 
-## Launch SteamVR when building through Visual Studio
-It's usually quite useful to build then automatically launch SteamVR for debugging purposes.  
+## Launch SteamVR/Overlay when building through Visual Studio
+It's usually quite useful to build then automatically launch SteamVR/Overlay for debugging purposes.  
+The project includes both a SteamVR Driver & Overlay (found in `overlay/`). Running the overlay exe automatically launches SteamVR.  
+The overlay is used for utilising methods that are not found in the OpenVR Driver API, such as discovering controllers. If you do not need this functionality, you can simply launch SteamVR.
 To launch SteamVR for debugging:  
 * Click on the arrow next to `Local Windows Debugger`
 * Select `ALL_BUILD Debug Properties`
 * Navigate to the `Debugger` Property (under Configuration Properties)
-* Set `Command` to the location of `vrstartup.exe`
-    * This is usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrstartup.exe`
+* Set `Command` to the location of `vrstartup.exe` (to start just SteamVR) or the Overlay exe (to start the Ovlerlay and SteamVR).
+    * SteamVR's entry point (`vrstartup.exe`) is usually located `C:\Program Files (x86)\Steam\steamapps\common\SteamVR\bin\win64\vrstartup.exe`
+    * OpenGlove's Overlay is usually found in the build folder, `overlay\Debug\openglove_overlay.exe`
+    	* Provide the full or relative path to the executable, such as `E:\opengloves-driver\build\overlay\Debug\openglove_overlay.exe`, or `$(solutionDir)overlay\Debug\openglove_overlay.exe`
 
 ![Debug Properties](https://cdn.discordapp.com/attachments/790676300552994826/840985376679002172/unknown.png)
 ![Debugging Configuration Properties](https://cdn.discordapp.com/attachments/790676300552994826/840985404202549318/unknown.png)

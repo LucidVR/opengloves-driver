@@ -15,6 +15,7 @@ enum VRCommunicationProtocol {
 
 enum VREncodingProtocol {
     LEGACY = 0,
+    ALPHA = 1,
 };
 
 enum VRDeviceDriver {
@@ -35,16 +36,16 @@ struct VRBTSerialConfiguration_t {
 };
 
 struct VRPoseConfiguration_t {
-    VRPoseConfiguration_t(vr::HmdVector3_t offsetVector, vr::HmdQuaternion_t angleOffsetQuaternion, float poseOffset,
+    VRPoseConfiguration_t(vr::HmdVector3_t offsetVector, vr::HmdQuaternion_t angleOffsetQuaternion, float poseTimeOffset,
                           bool controllerOverrideEnabled, int controllerIdOverride) :
             offsetVector(offsetVector),
             angleOffsetQuaternion(angleOffsetQuaternion),
-            poseOffset(poseOffset),
+            poseTimeOffset(poseTimeOffset),
             controllerOverrideEnabled(controllerOverrideEnabled),
             controllerIdOverride(controllerIdOverride) {};
     vr::HmdVector3_t offsetVector;
     vr::HmdQuaternion_t angleOffsetQuaternion;
-    float poseOffset;
+    float poseTimeOffset;
     int controllerIdOverride;
     bool controllerOverrideEnabled;
 };

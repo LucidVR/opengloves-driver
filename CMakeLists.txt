@@ -25,6 +25,8 @@ endif()
 
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
 
+add_subdirectory("overlay")
+
 set(DRIVER_NAME "openglove")
 set(OPENGLOVE_PROJECT "driver_${DRIVER_NAME}")
 
@@ -36,11 +38,12 @@ add_library("${OPENGLOVE_PROJECT}" SHARED "${HEADERS}" "${SOURCES}")
 target_include_directories("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_INCLUDE_DIR}")
 
 target_include_directories("${OPENGLOVE_PROJECT}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
-target_link_libraries("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_LIB}")
+target_link_libraries("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_LIB}" setupapi wsock32 ws2_32 bthprops)
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${HEADERS})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" PREFIX "Source Files" FILES ${SOURCES})
 set_property(TARGET "${OPENGLOVE_PROJECT}" PROPERTY CXX_STANDARD 17)
+
 
 # Copy driver assets to output folder
 add_custom_command(
@@ -58,4 +61,12 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:${OPENGLOVE_PROJECT}>
         $<TARGET_FILE_DIR:${OPENGLOVE_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${OPENGLOVE_PROJECT}>
+)
+
+add_custom_command(
+        TARGET ${OPENGLOVE_PROJECT}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        $<TARGET_FILE_DIR:openglove_overlay>
+        $<TARGET_FILE_DIR:${OPENGLOVE_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}
 )

@@ -1,15 +1,16 @@
-# OpenGlove Driver
+# OpenGloves Driver
 
-OpenGlove is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's driver interface we are able to provide support for many SteamVR/OpenVR games.
+OpenGloves is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's driver interface we are able to provide support for many SteamVR/OpenVR games.
 
 ## Installation and Usage
 
-**Download the latest on GitHub:**
- * https://github.com/LucidVR/opengloves-driver/releases
 
-**Release on Steam (Not yet available):**
- * https://store.steampowered.com/app/1574050/OpenGloves
- * The driver will be available on the Steam store soon. Feel free to wishlist.
+### Download on Steam:
+[![Steam Release](https://cdn.discordapp.com/attachments/790676300552994826/845412304219537439/openglovessteam.png)](https://store.steampowered.com/app/1574050/OpenGloves)
+ * We strongly recommend downloading the driver from Steam, to recieve automatic updates and UI settings.
+
+*Or download the latest on GitHub:*
+ * https://github.com/LucidVR/opengloves-driver/releases
 
 **Follow the wiki guide for configuring the driver**
 * https://github.com/LucidVR/opengloves-driver/wiki/Configuring-the-Driver
@@ -17,7 +18,7 @@ OpenGlove is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's dri
 
 **Problems?**
 * Check [Troubleshooting](https://github.com/LucidVR/opengloves-driver/wiki/Troubleshooting)
-  * Didn't help? Contact us on the [Discord Server](https://discord.com/invite/Y6XTvnHDUC)
+  * Didn't help? Contact us on the [Community Discord Server](https://discord.gg/lucidvr)
 ## Building
 If you want to use the driver as-is, refer to [Installation and Usage](#Installation-and-Usage).  
 If you are planning on modifying source files, refer to [BUILDING.md](https://github.com/LucidVR/opengloves-driver/blob/develop/BUILDING.md).
@@ -34,8 +35,11 @@ If you are planning on modifying source files, refer to [BUILDING.md](https://gi
 
 ### Current features included in the driver
 * Finger flexion tracking
+* Force feedback haptics
 * Positioning from controllers + trackers
+  * Automatic Calibration
 * Button/Joystick inputs
+  * A/B/Menu buttons, Joystick X/Y/Click
 * Communication Protocols:
   * Serial USB
   * Serial over Bluetooth
@@ -43,7 +47,6 @@ If you are planning on modifying source files, refer to [BUILDING.md](https://gi
 ### Planned features
 * BLE Communication
 * Finger splay tracking
-* Force feedback haptics
 * Vibration haptics
 
 
@@ -56,4 +59,4 @@ Pull requests are very welcome. For major changes, please open an issue first to
 * Lucas VRTech (`LucidVR#0001`)
 
 ## Discord
-https://discord.gg/RjV9T8jN2G
+https://discord.gg/lucidvr

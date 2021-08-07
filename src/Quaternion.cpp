@@ -83,29 +83,24 @@ vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, cons
 	return quat;
 }
 
-//Adapted from libGDX
-vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, const double& roll) {
-	vr::HmdQuaternion_t result;
+vr::HmdMatrix33_t QuaternionToMatrix(const vr::HmdQuaternion_t q) {
 	
-	double hr = roll * 0.5f;
-	double shr = sin(hr);
-	double chr = cos(hr);
-	double hp = pitch * 0.5f;
-	double shp = sin(hp);
-	double chp = cos(hp);
-	double hy = yaw * 0.5f;
-	double shy = sin(hy);
-	double chy = cos(hy);
-	double chy_shp = chy * shp;
-	double shy_chp = shy * chp;
-	double chy_chp = chy * chp;
-	double shy_shp = shy * shp;
+	vr::HmdMatrix33_t result = { {
+		{1 - 2*q.y*q.y - 2*q.z*q.z, 2*q.x*q.y - 2*q.z*q.w, 2*q.x*q.z + 2*q.y*q.w},
+		{2*q.x*q.y + 2*q.z*q.w, 1 - 2*q.x*q.x - 2 * q.z*q.z, 2*q.y*q.z - 2*q.x*q.w},
+		{2*q.x*q.z - 2*q.y*q.w, 2*q.y*q.z + 2*q.x*q.w, 1 - 2*q.x*q.x - 2*q.y*q.y}
+		} };
 
-	result.x = (chy_shp * chr) + (shy_chp * shr);
-	result.y = (shy_chp * chr) - (chy_shp * shr);
-	result.z = (chy_chp * shr) - (shy_shp * chr);
-	result.w = (chy_chp * chr) + (shy_shp * shr);
 	return result;
+}
+
+double QuatNorm(const vr::HmdQuaternion_t q) {
+	return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+}
+
+vr::HmdQuaternion_t QuatConjugate(const vr::HmdQuaternion_t q) {
+	vr::HmdQuaternion_t quat = { q.w,-q.x,-q.y,-q.z };
+	return quat;
 }
 
 vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::HmdQuaternion_t& r) {
@@ -116,5 +111,45 @@ vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::H
 	result.y = (r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x);
 	result.z = (r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w);
 
+	return result;
+}
+
+vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, const double& roll) {
+	// Abbreviations for the various angular functions
+	double cy = cos(yaw * 0.5);
+	double sy = sin(yaw * 0.5);
+	double cp = cos(pitch * 0.5);
+	double sp = sin(pitch * 0.5);
+	double cr = cos(roll * 0.5);
+	double sr = sin(roll * 0.5);
+
+	vr::HmdQuaternion_t q;
+	q.w = cr * cp * cy + sr * sp * sy;
+	q.x = sr * cp * cy - cr * sp * sy;
+	q.y = cr * sp * cy + sr * cp * sy;
+	q.z = cr * cp * sy - sr * sp * cy;
+
+	return q;
+}
+vr::HmdVector3_t QuaternionToEuler(vr::HmdQuaternion_t q) {
+	vr::HmdVector3_t angles;
+
+	// roll (x-axis rotation)
+	double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+	double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+	angles.v[0] = std::atan2(sinr_cosp, cosr_cosp);
+
+	// pitch (y-axis rotation)
+	double sinp = 2 * (q.w * q.y - q.z * q.x);
+	if (std::abs(sinp) >= 1)
+		angles.v[1] = std::copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+	else
+		angles.v[1] = std::asin(sinp);
+
+	// yaw (z-axis rotation)
+	double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+	double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+	angles.v[2] = std::atan2(siny_cosp, cosy_cosp);
+	vr::HmdVector3_t result = { RadToDeg(angles.v[2]), RadToDeg(angles.v[1]), RadToDeg(angles.v[0]) };
 	return result;
 }

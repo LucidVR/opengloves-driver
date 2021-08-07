@@ -4,19 +4,14 @@
 #define _WINSOCKAPI_
 
 #include <openvr_driver.h>
+
 #include <memory>
-#include "DeviceConfiguration.h"
-#include "DriverLog.h"
 
 #include "Communication/CommunicationManager.h"
-#include "Communication/SerialCommunicationManager.h"
-#include "Communication/BTSerialCommunicationManager.h"
-
-#include "Encode/EncodingManager.h"
-#include "Encode/LegacyEncodingManager.h"
-
+#include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
-
+#include "DriverLog.h"
+#include "Encode/EncodingManager.h"
 
 /**
 This class instantiates all the device drivers you have, meaning if you've
@@ -27,50 +22,49 @@ Take a look at the comment blocks for all the methods in IServerTrackedDevicePro
 too.
 **/
 class DeviceProvider : public vr::IServerTrackedDeviceProvider {
-public:
+ public:
+  /**
+  Initiailze and add your drivers to OpenVR here.
+  **/
+  vr::EVRInitError Init(vr::IVRDriverContext* pDriverContext);
 
-	/**
-	Initiailze and add your drivers to OpenVR here.
-	**/
-	vr::EVRInitError Init(vr::IVRDriverContext* pDriverContext);
+  /**
+  Called right before your driver is unloaded.
+  **/
+  void Cleanup();
 
-	/**
-	Called right before your driver is unloaded.
-	**/
-	void Cleanup();
+  /**
+  Returns version of the openVR interface this driver works with.
+  **/
+  const char* const* GetInterfaceVersions();
 
-	/**
-	Returns version of the openVR interface this driver works with.
-	**/
-	const char* const* GetInterfaceVersions();
+  /**
+  Called every frame. Update your drivers here.
+  **/
+  void RunFrame();
 
-	/**
-	Called every frame. Update your drivers here.
-	**/
-	void RunFrame();
+  /**
+  Return true if standby mode should be blocked. False otherwise.
+  **/
+  bool ShouldBlockStandbyMode();
 
-	/**
-	Return true if standby mode should be blocked. False otherwise.
-	**/
-	bool ShouldBlockStandbyMode();
+  /**
+  Called when OpenVR goes into stand-by mode, so you can tell your devices to go into stand-by mode
+  **/
+  void EnterStandby();
 
-	/**
-	Called when OpenVR goes into stand-by mode, so you can tell your devices to go into stand-by mode
-	**/
-	void EnterStandby();
+  /**
+  Called when OpenVR leaves stand-by mode.
+  **/
+  void LeaveStandby();
 
-	/**
-	Called when OpenVR leaves stand-by mode.
-	**/
-	void LeaveStandby();
+ private:
+  std::unique_ptr<IDeviceDriver> m_leftHand;
+  std::unique_ptr<IDeviceDriver> m_rightHand;
+  /**
+   * returns the configuration set in VRSettings for the device role given
+   **/
+  VRDeviceConfiguration_t GetDeviceConfiguration(vr::ETrackedControllerRole role);
 
-private:
-	std::unique_ptr<IDeviceDriver> m_leftHand;
-	std::unique_ptr<IDeviceDriver> m_rightHand;
-	/**
-	* returns the configuration set in VRSettings for the device role given
-	**/
-	VRDeviceConfiguration_t GetDeviceConfiguration(vr::ETrackedControllerRole role);
-
-	std::unique_ptr<IDeviceDriver> InstantiateDeviceDriver(VRDeviceConfiguration_t configuration);
+  std::unique_ptr<IDeviceDriver> InstantiateDeviceDriver(VRDeviceConfiguration_t configuration);
 };

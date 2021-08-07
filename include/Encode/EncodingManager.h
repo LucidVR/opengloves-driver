@@ -1,9 +1,10 @@
 #pragma once
 #include <array>
 #include <string>
+#include "ForceFeedback.h"
 
 struct VRCommData_t {
-    VRCommData_t(std::array<float, 5> flexion, std::array<float, 5> splay, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch) :
+    VRCommData_t(std::array<float, 5> flexion, std::array<float, 5> splay, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch, bool menu, bool calibrate) :
         flexion(flexion),
         splay(splay),
         joyX(joyX),
@@ -13,7 +14,10 @@ struct VRCommData_t {
         aButton(aButton),
         bButton(bButton),
         grab(grab),
-        pinch(pinch) {};
+        pinch(pinch),
+        menu(menu),
+        calibrate(calibrate){};
+
 
     std::array<float, 5> flexion;
     std::array<float, 5> splay;
@@ -25,29 +29,33 @@ struct VRCommData_t {
     bool bButton;
     bool grab;
     bool pinch;
+    bool menu;
+    bool calibrate;
 };
 
 enum VRCommDataInputPosition {
-    FIN_PINKY,
-    FIN_RING,
-    FIN_MIDDLE,
-    FIN_INDEX,
-    FIN_THUMB,
-    JOY_X,
-    JOY_Y,
-    JOY_BTN,
-    BTN_TRG,
-    BTN_A,
-    BTN_B,
-    GES_GRAB,
-    GES_PINCH,
-    MAX,
+  FIN_PINKY,
+  FIN_RING,
+  FIN_MIDDLE,
+  FIN_INDEX,
+  FIN_THUMB,
+  JOY_X,
+  JOY_Y,
+  JOY_BTN,
+  BTN_TRG,
+  BTN_A,
+  BTN_B,
+  GES_GRAB,
+  GES_PINCH,
+  MAX,
 };
 
 class IEncodingManager {
-public:
-    virtual VRCommData_t Decode(std::string input) = 0;
-    virtual ~IEncodingManager() {};
-private:
-    float m_maxAnalogValue;
+ public:
+  virtual VRCommData_t Decode(std::string input) = 0;
+  virtual std::string Encode(const VRFFBData_t& data) = 0;
+  virtual ~IEncodingManager(){};
+
+ private:
+  float m_maxAnalogValue;
 };
