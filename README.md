@@ -39,6 +39,7 @@ If you are planning on modifying source files, refer to [BUILDING.md](https://gi
 * Positioning from controllers + trackers
   * Automatic Calibration
 * Button/Joystick inputs
+  * A/B/Menu buttons, Joystick X/Y/Click
 * Communication Protocols:
   * Serial USB
   * Serial over Bluetooth
