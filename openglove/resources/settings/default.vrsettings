@@ -47,7 +47,8 @@
     "__type": "communication_protocol:0",
     "__title": "USB Serial",
     "left_port": "\\\\.\\COM4",
-    "right_port": "\\\\.\\COM5"
+    "right_port": "\\\\.\\COM5",
+    "baud_rate": 115200
   },
   "communication_btserial": 
   {
