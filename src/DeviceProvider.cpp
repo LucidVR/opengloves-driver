@@ -128,7 +128,8 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
       char port[16];
       vr::VRSettings()->GetString("communication_serial", isRightHand ? "right_port" : "left_port",
                                   port, sizeof(port));
-      VRSerialConfiguration_t serialSettings(port);
+      const int baudRate = vr::VRSettings()->GetInt32("communication_serial", "baud_rate");
+      VRSerialConfiguration_t serialSettings(port, baudRate);
 
       communicationManager =
           std::make_unique<SerialCommunicationManager>(serialSettings, std::move(encodingManager));

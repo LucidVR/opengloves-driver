@@ -27,7 +27,7 @@ void SerialCommunicationManager::Connect() {
       DebugDriverLog("Serial error: failed to get current serial parameters!");
     } else {
       // Define serial connection parameters for the arduino board
-      dcbSerialParams.BaudRate = CBR_115200;
+      dcbSerialParams.BaudRate = m_serialConfiguration.baudRate;
       dcbSerialParams.ByteSize = 8;
       dcbSerialParams.StopBits = ONESTOPBIT;
       dcbSerialParams.Parity = NOPARITY;

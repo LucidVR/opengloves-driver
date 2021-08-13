@@ -25,8 +25,9 @@ enum VRDeviceDriver {
 
 struct VRSerialConfiguration_t {
     std::string port;
+    int baudRate;
 
-    VRSerialConfiguration_t(std::string port) : port(port) {};
+    VRSerialConfiguration_t(std::string port, int baudRate) : port(port), baudRate(baudRate) {};
 };
 
 struct VRBTSerialConfiguration_t {
