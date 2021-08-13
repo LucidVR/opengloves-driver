@@ -20,8 +20,8 @@
 * K - B button
 * L - Grab button
 * M - Pinch button
-* - Calibration Reset button
-* 
+* N - Menu button
+* O - Calibration Reset button
 */
 
 std::string AlphaEncodingManager::getArgumentSubstring(std::string str, char del) { 
@@ -29,7 +29,7 @@ std::string AlphaEncodingManager::getArgumentSubstring(std::string str, char del
     if (start == std::string::npos)
         return NULL;
     int end = str.find_first_of(alphabet, start + 1); //characters may not necessarily be in order, so end at any letter
-    return str.substr(start, end - start);
+    return str.substr(start + 1, end - (start + 1));
 }
 
 bool argValid(std::string str, char del) { return str.find(del) != std::string::npos; }
@@ -46,27 +46,27 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
 
     if (argValid(input, 'A'))
       flexion[0] =
-          stof(getArgumentSubstring(input, 'A').substr(1, std::string::npos)) / m_maxAnalogValue;
+          stof(getArgumentSubstring(input, 'A')) / m_maxAnalogValue;
     if (argValid(input, 'B'))
       flexion[1] =
-          stof(getArgumentSubstring(input, 'B').substr(1, std::string::npos)) / m_maxAnalogValue;
+          stof(getArgumentSubstring(input, 'B')) / m_maxAnalogValue;
     if (argValid(input, 'C'))
       flexion[2] =
-          stof(getArgumentSubstring(input, 'C').substr(1, std::string::npos)) / m_maxAnalogValue;
+          stof(getArgumentSubstring(input, 'C')) / m_maxAnalogValue;
     if (argValid(input, 'D'))
       flexion[3] =
-          stof(getArgumentSubstring(input, 'D').substr(1, std::string::npos)) / m_maxAnalogValue;
+          stof(getArgumentSubstring(input, 'D')) / m_maxAnalogValue;
     if (argValid(input, 'E'))
       flexion[4] =
-          stof(getArgumentSubstring(input, 'E').substr(1, std::string::npos)) / m_maxAnalogValue;
+          stof(getArgumentSubstring(input, 'E')) / m_maxAnalogValue;
 
     float joyX = 0;
     float joyY = 0;
 
     if (argValid(input, 'F'))
-      joyX = 2 * stof(getArgumentSubstring(input, 'F').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
+      joyX = 2 * stof(getArgumentSubstring(input, 'F')) / m_maxAnalogValue - 1;
     if (argValid(input, 'G'))
-      joyY = 2 * stof(getArgumentSubstring(input, 'G').substr(1, std::string::npos)) / m_maxAnalogValue - 1;
+      joyY = 2 * stof(getArgumentSubstring(input, 'G')) / m_maxAnalogValue - 1;
 
     VRCommData_t commData(
         flexion,
