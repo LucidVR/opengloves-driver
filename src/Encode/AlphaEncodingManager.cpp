@@ -43,7 +43,7 @@ const char VRCommDataAlphaEncodingCharacters[] = {
 	(char)0                                             // Turns into a null terminated string
 };
 
-std::string getArgumentSubstring(std::string str, char del) { 
+static std::string getArgumentSubstring(std::string str, char del) { 
     size_t start = str.find(del);
     if (start == std::string::npos)
         return std::string();
@@ -51,7 +51,7 @@ std::string getArgumentSubstring(std::string str, char del) {
     return str.substr(start + 1, end - (start + 1));
 }
 
-bool argValid(std::string str, char del) { return str.find(del) != std::string::npos; }
+static bool argValid(std::string str, char del) { return str.find(del) != std::string::npos; }
 
 VRCommData_t AlphaEncodingManager::Decode(std::string input) {
 
@@ -103,19 +103,6 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
     );
 
     return commData;
-}
-
-template <typename... Args>
-std::string string_format(const std::string& format, Args... args) {
-  int size_s = std::snprintf(nullptr, 0, format.c_str(), args...) + 1;  // Extra space for '\0'
-  if (size_s <= 0) {
-    DriverLog("Error decoding string");
-    return "";
-  }
-  auto size = static_cast<size_t>(size_s);
-  auto buf = std::make_unique<char[]>(size);
-  std::snprintf(buf.get(), size, format.c_str(), args...);
-  return std::string(buf.get(), buf.get() + size - 1);  // We don't want the '\0' inside
 }
 
 std::string AlphaEncodingManager::Encode(const VRFFBData_t& data) {
