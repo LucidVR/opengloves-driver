@@ -83,6 +83,12 @@ std::string string_format(const std::string& format, Args... args) {
 }
 
 std::string AlphaEncodingManager::Encode(const VRFFBData_t& data) {
-  std::string result = string_format("A%dB%dC%dD%dE%d\n", data.thumbCurl, data.indexCurl, data.middleCurl, data.ringCurl, data.pinkyCurl);
+  std::string result = string_format("%c%d%c%d%c%d%c%d%c%d\n",
+     (char)VRCommDataAlphaEncodingCharacter::FIN_THUMB, data.thumbCurl,
+     (char)VRCommDataAlphaEncodingCharacter::FIN_INDEX, data.indexCurl,
+     (char)VRCommDataAlphaEncodingCharacter::FIN_MIDDLE, data.middleCurl,
+     (char)VRCommDataAlphaEncodingCharacter::FIN_RING, data.ringCurl,
+     (char)VRCommDataAlphaEncodingCharacter::FIN_PINKY, data.pinkyCurl
+  );
   return result;
 };
