@@ -9,8 +9,8 @@ VRCommData_t LegacyEncodingManager::Decode(std::string input) {
   std::string buf;
   std::stringstream ss(input);
 
-  std::vector<float> tokens(VRCommDataInputPosition::MAX);
-  std::fill(tokens.begin(), tokens.begin() + VRCommDataInputPosition::MAX, 0.0f);
+  std::vector<float> tokens((int)VRCommDataLegacyEncodingPosition::MAX);
+  std::fill(tokens.begin(), tokens.begin() + (int)VRCommDataLegacyEncodingPosition::MAX, 0.0f);
 
   short i = 0;
   while (getline(ss, buf, '&')) {
@@ -26,20 +26,20 @@ VRCommData_t LegacyEncodingManager::Decode(std::string input) {
     splay[i] = 0.5;
   }
 
-  const float joyX = (2 * tokens[VRCommDataInputPosition::JOY_X] / m_maxAnalogValue) - 1;
-  const float joyY = (2 * tokens[VRCommDataInputPosition::JOY_Y] / m_maxAnalogValue) - 1;
+  const float joyX = (2 * tokens[(int)VRCommDataLegacyEncodingPosition::JOY_X] / m_maxAnalogValue) - 1;
+  const float joyY = (2 * tokens[(int)VRCommDataLegacyEncodingPosition::JOY_Y] / m_maxAnalogValue) - 1;
 
     VRCommData_t commData(
         flexion,
         splay,
         joyX,
         joyY,
-        tokens[VRCommDataInputPosition::JOY_BTN] == 1,
-        tokens[VRCommDataInputPosition::BTN_TRG] == 1,
-        tokens[VRCommDataInputPosition::BTN_A] == 1,
-        tokens[VRCommDataInputPosition::BTN_B] == 1,
-        tokens[VRCommDataInputPosition::GES_GRAB] == 1,
-        tokens[VRCommDataInputPosition::GES_PINCH] == 1,
+        tokens[(int)VRCommDataLegacyEncodingPosition::JOY_BTN] == 1,
+        tokens[(int)VRCommDataLegacyEncodingPosition::BTN_TRG] == 1,
+        tokens[(int)VRCommDataLegacyEncodingPosition::BTN_A] == 1,
+        tokens[(int)VRCommDataLegacyEncodingPosition::BTN_B] == 1,
+        tokens[(int)VRCommDataLegacyEncodingPosition::GES_GRAB] == 1,
+        tokens[(int)VRCommDataLegacyEncodingPosition::GES_PINCH] == 1,
         false,
         false
     );

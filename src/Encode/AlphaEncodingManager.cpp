@@ -5,34 +5,17 @@
 #include "DriverLog.h"
 
 
-/* Alpha encoding uses the wasted data in the delimiter from legacy to allow for optional arguments and redundancy over smaller packets
-*Alpha Encoding Manager Arguments:
-* A - Pinky Finger Position
-* B - Ring Finger Position
-* C - Middle Finger Position
-* D - Index Finger Position
-* E - Thumb Finger Position
-* F - Joystick X
-* G - Joystick Y
-* H - Joystick click
-* I - Trigger button
-* J - A button
-* K - B button
-* L - Grab button
-* M - Pinch button
-* N - Menu button
-* O - Calibration Reset button
-*/
+/* Alpha encoding uses the wasted data in the delimiter from legacy to allow for optional arguments and redundancy over smaller packets */
 
 std::string AlphaEncodingManager::getArgumentSubstring(std::string str, char del) { 
-    int start = str.find(del);
+    size_t start = str.find(del);
     if (start == std::string::npos)
-        return NULL;
-    int end = str.find_first_of(alphabet, start + 1); //characters may not necessarily be in order, so end at any letter
+        return std::string();
+    size_t end = str.find_first_of(VRCommDataAlphaEncodingCharacters, start + 1);  // characters may not necessarily be in order, so end at any letter
     return str.substr(start + 1, end - (start + 1));
 }
 
-bool argValid(std::string str, char del) { return str.find(del) != std::string::npos; }
+bool AlphaEncodingManager::argValid(std::string str, char del) { return str.find(del) != std::string::npos; }
 
 VRCommData_t AlphaEncodingManager::Decode(std::string input) {
 
@@ -44,43 +27,43 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
         splay[i] = 0.5;
     }
 
-    if (argValid(input, 'A'))
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_PINKY))
       flexion[0] =
-          stof(getArgumentSubstring(input, 'A')) / m_maxAnalogValue;
-    if (argValid(input, 'B'))
+          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_PINKY)) / m_maxAnalogValue;
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_RING))
       flexion[1] =
-          stof(getArgumentSubstring(input, 'B')) / m_maxAnalogValue;
-    if (argValid(input, 'C'))
+          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_RING)) / m_maxAnalogValue;
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_MIDDLE))
       flexion[2] =
-          stof(getArgumentSubstring(input, 'C')) / m_maxAnalogValue;
-    if (argValid(input, 'D'))
+          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_MIDDLE)) / m_maxAnalogValue;
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_INDEX))
       flexion[3] =
-          stof(getArgumentSubstring(input, 'D')) / m_maxAnalogValue;
-    if (argValid(input, 'E'))
+          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_INDEX)) / m_maxAnalogValue;
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_THUMB))
       flexion[4] =
-          stof(getArgumentSubstring(input, 'E')) / m_maxAnalogValue;
+          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_THUMB)) / m_maxAnalogValue;
 
     float joyX = 0;
     float joyY = 0;
 
-    if (argValid(input, 'F'))
-      joyX = 2 * stof(getArgumentSubstring(input, 'F')) / m_maxAnalogValue - 1;
-    if (argValid(input, 'G'))
-      joyY = 2 * stof(getArgumentSubstring(input, 'G')) / m_maxAnalogValue - 1;
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::JOY_X))
+      joyX = 2 * stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::JOY_X)) / m_maxAnalogValue - 1;
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::JOY_Y))
+      joyY = 2 * stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::JOY_Y)) / m_maxAnalogValue - 1;
 
     VRCommData_t commData(
         flexion,
         splay,
         joyX,
         joyY,
-        argValid(input, 'H'), //joystick click
-        argValid(input, 'I'), //trigger
-        argValid(input, 'J'), //A button
-        argValid(input, 'K'), //B button
-        argValid(input, 'L'), //grab
-        argValid(input, 'M'), //pinch
-        argValid(input, 'N'), //menu
-        argValid(input, 'O')  //calibration
+        argValid(input, (char)VRCommDataAlphaEncodingCharacter::JOY_BTN),
+        argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_TRG),
+        argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_A),
+        argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_B),
+        argValid(input, (char)VRCommDataAlphaEncodingCharacter::GES_GRAB),
+        argValid(input, (char)VRCommDataAlphaEncodingCharacter::GES_PINCH),
+        argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_MENU),
+        argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_CALIB)
     );
 
     return commData;

@@ -33,23 +33,6 @@ struct VRCommData_t {
     bool calibrate;
 };
 
-enum VRCommDataInputPosition {
-  FIN_PINKY,
-  FIN_RING,
-  FIN_MIDDLE,
-  FIN_INDEX,
-  FIN_THUMB,
-  JOY_X,
-  JOY_Y,
-  JOY_BTN,
-  BTN_TRG,
-  BTN_A,
-  BTN_B,
-  GES_GRAB,
-  GES_PINCH,
-  MAX,
-};
-
 class IEncodingManager {
  public:
   virtual VRCommData_t Decode(std::string input) = 0;
@@ -57,5 +40,5 @@ class IEncodingManager {
   virtual ~IEncodingManager(){};
 
  private:
-  float m_maxAnalogValue;
+  float m_maxAnalogValue = 0.0;
 };

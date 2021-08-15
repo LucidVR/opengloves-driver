@@ -8,17 +8,17 @@
 static const char *c_driverSettingsSection = "driver_openglove";
 static const char *c_poseSettingsSection = "pose_settings";
 
-enum VRCommunicationProtocol {
+enum class VRCommunicationProtocol {
 	SERIAL = 0,
 	BTSERIAL = 1,
 };
 
-enum VREncodingProtocol {
+enum class VREncodingProtocol {
     LEGACY = 0,
     ALPHA = 1,
 };
 
-enum VRDeviceDriver {
+enum class VRDeviceDriver {
     LUCIDGLOVES = 0,
     EMULATED_KNUCKLES = 1,
 };

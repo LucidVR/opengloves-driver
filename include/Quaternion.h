@@ -2,7 +2,7 @@
 
 #include "openvr_driver.h"
 
-double DegToRad(int degrees);
+double DegToRad(double degrees);
 double RadToDeg(double rad);
 
 

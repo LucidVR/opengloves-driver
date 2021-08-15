@@ -52,8 +52,8 @@ bool NamedPipeUtil::CreateAndConnectInstance(LPOVERLAPPED lpo, std::string &pipe
                                 PIPE_READMODE_MESSAGE |  // message read mode
                                 PIPE_WAIT,               // blocking mode
                             PIPE_UNLIMITED_INSTANCES,    // unlimited instances
-                            m_pipeSize,                  // output buffer size
-                            m_pipeSize,                  // input buffer size
+                            (DWORD)m_pipeSize,           // output buffer size
+                            (DWORD)m_pipeSize,           // input buffer size
                             5000,                        // client time-out
                             NULL);                       // default security attributes
   if (m_hPipe == INVALID_HANDLE_VALUE) {
@@ -84,6 +84,7 @@ bool NamedPipeUtil::ConnectToNewClient(LPOVERLAPPED lpo) {
 
     case ERROR_PIPE_CONNECTED:
       if (SetEvent(lpo->hEvent)) break;
+      // fall through
     default: {
       DriverLog("ConnectNamedPipe failed with: %s", GetLastErrorAsString().c_str());
       return 0;
@@ -93,7 +94,7 @@ bool NamedPipeUtil::ConnectToNewClient(LPOVERLAPPED lpo) {
 }
 
 void NamedPipeUtil::PipeListenerThread(const std::function<void(LPVOID)> &callback) {
-  OVERLAPPED oConnect;
+  OVERLAPPED oConnect{};
   HANDLE hConnectEvent;
   bool fPendingIO, fSuccess;
   DWORD dwWait, cbRet;
@@ -142,7 +143,7 @@ void NamedPipeUtil::PipeListenerThread(const std::function<void(LPVOID)> &callba
         m_lpPipeInst->callback = callback;
 
         bool fRead =
-            ReadFileEx(m_lpPipeInst->hPipeInst, &m_lpPipeInst->chRequest, m_pipeSize, (LPOVERLAPPED)m_lpPipeInst, (LPOVERLAPPED_COMPLETION_ROUTINE)CompletedReadRoutine);
+            ReadFileEx(m_lpPipeInst->hPipeInst, &m_lpPipeInst->chRequest, (DWORD)m_pipeSize, (LPOVERLAPPED)m_lpPipeInst, (LPOVERLAPPED_COMPLETION_ROUTINE)CompletedReadRoutine);
         if (fRead) break;
 
         switch (GetLastError()) {

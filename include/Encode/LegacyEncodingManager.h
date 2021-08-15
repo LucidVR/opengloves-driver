@@ -3,6 +3,23 @@
 #include <Encode/EncodingManager.h>
 #include "ForceFeedback.h"
 
+enum class VRCommDataLegacyEncodingPosition : int {
+  FIN_PINKY,
+  FIN_RING,
+  FIN_MIDDLE,
+  FIN_INDEX,
+  FIN_THUMB,
+  JOY_X,
+  JOY_Y,
+  JOY_BTN,
+  BTN_TRG,
+  BTN_A,
+  BTN_B,
+  GES_GRAB,
+  GES_PINCH,
+  MAX,
+};
+
 class LegacyEncodingManager : public IEncodingManager {
  public:
   LegacyEncodingManager(float maxAnalogValue) : m_maxAnalogValue(maxAnalogValue){};
