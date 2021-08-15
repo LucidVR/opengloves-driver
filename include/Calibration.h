@@ -19,5 +19,5 @@ public:
 
 private:
     vr::DriverPose_t m_maintainPose;
-    bool m_isCalibrating = false;
+    bool m_isCalibrating;
 };

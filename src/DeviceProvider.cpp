@@ -98,14 +98,15 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
   switch (configuration.encodingProtocol) {
     default:
       DriverLog("No encoding protocol set. Using legacy.");
+      // fall through
     case VREncodingProtocol::LEGACY: {
-      const int maxAnalogValue = vr::VRSettings()->GetInt32("encoding_legacy", "max_analog_value");
+      const float maxAnalogValue = vr::VRSettings()->GetFloat("encoding_legacy", "max_analog_value");
       encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
       break;
     }
     case VREncodingProtocol::ALPHA: {
-      const int maxAnalogValue =
-          vr::VRSettings()->GetInt32("encoding_alpha", "max_analog_value");  //
+      const float maxAnalogValue =
+          vr::VRSettings()->GetFloat("encoding_alpha", "max_analog_value");  //
       encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
       break;
     }
@@ -124,6 +125,7 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
     }
     default:
       DriverLog("No communication protocol set. Using serial.");
+      // fall through
     case VRCommunicationProtocol::SERIAL:
       char port[16];
       vr::VRSettings()->GetString("communication_serial", isRightHand ? "right_port" : "left_port",
@@ -149,6 +151,7 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
 
     default:
       DriverLog("No device driver selected. Using lucidgloves.");
+      // fall through
     case VRDeviceDriver::LUCIDGLOVES: {
       char serialNumber[32];
       vr::VRSettings()->GetString("device_lucidgloves",

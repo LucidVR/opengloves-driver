@@ -38,7 +38,7 @@ void GetAndSendControllerId(int id, vr::ETrackedControllerRole role) {
     pipeName = "\\\\.\\pipe\\vrapplication\\discovery\\right";
   }
 
-  ControllerPipeData data;
+  ControllerPipeData data{};
   data.controllerId = id;
 
   pipeHelper->ConnectAndSendPipe(pipeName, data);
@@ -123,7 +123,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
   return 0;
 }
 
-PipeHelper::PipeHelper() {}
+PipeHelper::PipeHelper() : m_pipeHandle(NULL) {}
 
 bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeData data) {
   while (1) {
@@ -139,11 +139,11 @@ bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeD
     if (m_pipeHandle != INVALID_HANDLE_VALUE) break;
 
     if (GetLastError() != ERROR_PIPE_BUSY) {
-      return -1;
+      return false;
     }
 
     if (!WaitNamedPipe(pipeName.c_str(), 1000)) {
-      return -1;
+      return false;
     }
   }
 

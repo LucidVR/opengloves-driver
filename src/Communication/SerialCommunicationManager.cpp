@@ -69,7 +69,7 @@ void SerialCommunicationManager::ListenerThread(const std::function<void(VRCommD
         callback(commData);
         
         Write();
-      } catch (const std::invalid_argument& ia) {
+      } catch (const std::invalid_argument&) {
         DriverLog("Received error from encoding manager. Skipping...");
       }
     } else {
@@ -82,7 +82,7 @@ void SerialCommunicationManager::ListenerThread(const std::function<void(VRCommD
 }
 
 bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
-  DWORD dwCommEvent;
+  DWORD dwCommEvent = 0;
   DWORD dwRead = 0;
 
   if (!SetCommMask(m_hSerial, EV_RXCHAR)) {
@@ -90,13 +90,11 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
     return false;
   }
 
-  char nextChar;
-  int bytesRead = 0;
+  char nextChar = 0;
   if (WaitCommEvent(m_hSerial, &dwCommEvent, NULL)) {
     do {
       if (ReadFile(m_hSerial, &nextChar, 1, &dwRead, NULL)) {
         buff += nextChar;
-        bytesRead++;
       } else {
         DebugDriverLog("Read file error");
         return false;
@@ -123,7 +121,7 @@ bool SerialCommunicationManager::Write() {
 
   DWORD bytesSend;
 
-  if (!WriteFile(this->m_hSerial, (void*)buf, strlen(buf), &bytesSend, 0)) {
+  if (!WriteFile(this->m_hSerial, (void*)buf, (DWORD)strlen(buf), &bytesSend, 0)) {
     ClearCommError(this->m_hSerial, &this->m_errors, &this->m_status);
 
     DebugDriverLog("Error connecting writing to Serial Port.");

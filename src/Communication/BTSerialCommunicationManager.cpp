@@ -3,7 +3,7 @@
 // Adapted from Finally Functional's SerialBT implementation
 
 BTSerialCommunicationManager::BTSerialCommunicationManager(const VRBTSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager)
-    : m_btSerialConfiguration(configuration), m_encodingManager(std::move(encodingManager)), m_isConnected(false){};
+    : m_btSerialConfiguration(configuration), m_encodingManager(std::move(encodingManager)), m_isConnected(false), m_btClientSocket(NULL), m_btSocketAddress(), m_deviceBtAddress(NULL), m_wcDeviceName(NULL){};
 
 void BTSerialCommunicationManager::Connect() {
   DriverLog("Trying to connect to bluetooth");
@@ -51,7 +51,7 @@ void BTSerialCommunicationManager::ListenerThread(const std::function<void(VRCom
         VRCommData_t commData = m_encodingManager->Decode(receivedString);
         callback(commData);
         sendMessageToDevice();
-      } catch (const std::invalid_argument& ia) {
+      } catch (const std::invalid_argument&) {
         DriverLog("Received error from encoding manager. Skipping...");
       }
     } else {
@@ -64,18 +64,15 @@ void BTSerialCommunicationManager::ListenerThread(const std::function<void(VRCom
 }
 
 bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
-  char nextChar[1];
+  char nextChar = 0;
   do {
-    int recievedMessageLength = 1;
-    int recieveResult = recv(m_btClientSocket, nextChar, recievedMessageLength, 0);  // if your socket is blocking, this will block until a
-    if (recieveResult < 0)                                                           // a message is recieved. If not, it will return right
-    {                                                                                // away
+    int recieveResult = recv(m_btClientSocket, &nextChar, 1, 0);  // if your socket is blocking, this will block until a
+    if (recieveResult < 0)                                        // a message is recieved. If not, it will return right
+    {                                                             // away
       continue;
     }
-    buff += nextChar[0];
-  } while (nextChar[0] != '\n' || buff.length() < 1);
-
-  //("Packet Recieved! Length: %i, %s", buff.length(), buff.c_str());
+    buff += nextChar;
+  } while (nextChar != '\n' || buff.length() < 1);
 
   return true;
 }
@@ -93,7 +90,6 @@ void BTSerialCommunicationManager::Disconnect() {
       m_serialThread.join();
     }
     m_isConnected = false;
-    // CloseHandle(m_hSerial);
 
     // Disconnect
     if (shutdown(m_btClientSocket, 2) == SOCKET_ERROR) {
@@ -184,7 +180,6 @@ bool BTSerialCommunicationManager::connectToDevice() {
 bool BTSerialCommunicationManager::sendMessageToDevice() {
   std::lock_guard<std::mutex> lock(m_writeMutex);
   const char* message = m_writeString.c_str();
-  //DebugDriverLog("Sending %s to Bluetooth Device.", m_writeString.c_str());
   int sendResult = send(m_btClientSocket, message, (int)strlen(message), 0);  // send your message to the BT device
   if (sendResult == SOCKET_ERROR) {
     DriverLog("Sending to Bluetooth Device failed. Error code %d", WSAGetLastError());
