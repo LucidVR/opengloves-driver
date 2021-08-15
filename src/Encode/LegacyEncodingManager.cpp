@@ -5,6 +5,23 @@
 
 #include "DriverLog.h"
 
+enum class VRCommDataLegacyEncodingPosition : int {
+  FIN_THUMB,
+  FIN_INDEX,
+  FIN_MIDDLE,
+  FIN_RING,
+  FIN_PINKY,
+  JOY_X,
+  JOY_Y,
+  JOY_BTN,
+  BTN_TRG,
+  BTN_A,
+  BTN_B,
+  GES_GRAB,
+  GES_PINCH,
+  MAX,
+};
+
 VRCommData_t LegacyEncodingManager::Decode(std::string input) {
   std::string buf;
   std::stringstream ss(input);
