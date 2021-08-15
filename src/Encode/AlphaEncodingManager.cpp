@@ -7,11 +7,11 @@
 
 /* Alpha encoding uses the wasted data in the delimiter from legacy to allow for optional arguments and redundancy over smaller packets
 *Alpha Encoding Manager Arguments:
-* A - Pinky Finger Position
-* B - Ring Finger Position
+* A - Thumb Finger Position
+* B - Index Finger Position
 * C - Middle Finger Position
-* D - Index Finger Position
-* E - Thumb Finger Position
+* D - Ring Finger Position
+* E - Pinky Finger Position
 * F - Joystick X
 * G - Joystick Y
 * H - Joystick click
