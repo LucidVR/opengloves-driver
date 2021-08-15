@@ -27,21 +27,21 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
         splay[i] = 0.5;
     }
 
-    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_PINKY))
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_THUMB))
       flexion[0] =
-          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_PINKY)) / m_maxAnalogValue;
-    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_RING))
+          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_THUMB)) / m_maxAnalogValue;
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_INDEX))
       flexion[1] =
-          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_RING)) / m_maxAnalogValue;
+          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_INDEX)) / m_maxAnalogValue;
     if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_MIDDLE))
       flexion[2] =
           stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_MIDDLE)) / m_maxAnalogValue;
-    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_INDEX))
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_RING))
       flexion[3] =
-          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_INDEX)) / m_maxAnalogValue;
-    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_THUMB))
+          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_RING)) / m_maxAnalogValue;
+    if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_PINKY))
       flexion[4] =
-          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_THUMB)) / m_maxAnalogValue;
+          stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_PINKY)) / m_maxAnalogValue;
 
     float joyX = 0;
     float joyY = 0;

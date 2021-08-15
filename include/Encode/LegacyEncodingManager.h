@@ -4,11 +4,11 @@
 #include "ForceFeedback.h"
 
 enum class VRCommDataLegacyEncodingPosition : int {
-  FIN_PINKY,
-  FIN_RING,
-  FIN_MIDDLE,
-  FIN_INDEX,
   FIN_THUMB,
+  FIN_INDEX,
+  FIN_MIDDLE,
+  FIN_RING,
+  FIN_PINKY,
   JOY_X,
   JOY_Y,
   JOY_BTN,

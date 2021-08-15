@@ -3,11 +3,11 @@
 #include "Encode/EncodingManager.h"
 
 enum class VRCommDataAlphaEncodingCharacter : char {
-	FIN_PINKY = 'A',
-	FIN_RING = 'B',
+	FIN_THUMB = 'A',
+	FIN_INDEX = 'B',
 	FIN_MIDDLE = 'C',
-	FIN_INDEX = 'D',
-	FIN_THUMB = 'E',
+	FIN_RING = 'D',
+	FIN_PINKY = 'E',
 	JOY_X = 'F',
 	JOY_Y = 'G',
 	JOY_BTN = 'H',
@@ -21,11 +21,11 @@ enum class VRCommDataAlphaEncodingCharacter : char {
 };
 
 const char VRCommDataAlphaEncodingCharacters[] = {
-	(char)VRCommDataAlphaEncodingCharacter::FIN_PINKY,
-	(char)VRCommDataAlphaEncodingCharacter::FIN_RING,
-	(char)VRCommDataAlphaEncodingCharacter::FIN_MIDDLE,
-	(char)VRCommDataAlphaEncodingCharacter::FIN_INDEX,
 	(char)VRCommDataAlphaEncodingCharacter::FIN_THUMB,
+	(char)VRCommDataAlphaEncodingCharacter::FIN_INDEX,
+	(char)VRCommDataAlphaEncodingCharacter::FIN_MIDDLE,
+	(char)VRCommDataAlphaEncodingCharacter::FIN_RING,
+	(char)VRCommDataAlphaEncodingCharacter::FIN_PINKY,
 	(char)VRCommDataAlphaEncodingCharacter::JOY_X,
 	(char)VRCommDataAlphaEncodingCharacter::JOY_Y,
 	(char)VRCommDataAlphaEncodingCharacter::JOY_BTN,
