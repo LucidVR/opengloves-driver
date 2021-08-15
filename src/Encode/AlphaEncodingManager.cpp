@@ -43,7 +43,7 @@ const char VRCommDataAlphaEncodingCharacters[] = {
 	(char)0                                             // Turns into a null terminated string
 };
 
-std::string AlphaEncodingManager::getArgumentSubstring(std::string str, char del) { 
+std::string getArgumentSubstring(std::string str, char del) { 
     size_t start = str.find(del);
     if (start == std::string::npos)
         return std::string();
@@ -51,7 +51,7 @@ std::string AlphaEncodingManager::getArgumentSubstring(std::string str, char del
     return str.substr(start + 1, end - (start + 1));
 }
 
-bool AlphaEncodingManager::argValid(std::string str, char del) { return str.find(del) != std::string::npos; }
+bool argValid(std::string str, char del) { return str.find(del) != std::string::npos; }
 
 VRCommData_t AlphaEncodingManager::Decode(std::string input) {
 
