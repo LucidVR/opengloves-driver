@@ -4,6 +4,8 @@
 
 #include "DriverLog.h"
 
+static const uint32_t c_listenerWaitTime = 1000;
+
 static std::string GetLastErrorAsString() {
   DWORD errorMessageID = ::GetLastError();
   if (errorMessageID == 0) {
@@ -67,7 +69,7 @@ bool SerialCommunicationManager::Connect() {
 
 void SerialCommunicationManager::WaitAttemptConnection() {
   while (m_threadActive && !IsConnected() && !Connect()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(c_listenerWaitTime));
   }
 }
 

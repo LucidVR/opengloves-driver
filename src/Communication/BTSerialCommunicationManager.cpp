@@ -1,6 +1,8 @@
 #include <Communication/BTSerialCommunicationManager.h>
 #include <string.h>
 
+static const uint32_t c_listenerWaitTime = 1000;
+
 // Adapted from Finally Functional's SerialBT implementation
 
 static std::string GetLastErrorAsString() {
@@ -120,7 +122,7 @@ bool BTSerialCommunicationManager::IsConnected() { return m_isConnected; }
 
 void BTSerialCommunicationManager::WaitAttemptConnection() {
   while (m_threadActive && !IsConnected() && !Connect()) {
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(c_listenerWaitTime));
   }
 }
 
