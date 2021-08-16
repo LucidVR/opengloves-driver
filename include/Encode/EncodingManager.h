@@ -1,12 +1,14 @@
 #pragma once
 #include <array>
 #include <string>
+
 #include "ForceFeedback.h"
 
 struct VRCommData_t {
-    VRCommData_t(std::array<float, 5> flexion, std::array<float, 5> splay, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch, bool menu, bool calibrate) :
-        flexion(flexion),
-        splay(splay),
+  VRCommData_t(){};
+  VRCommData_t(std::array<float, 5> flexion, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch, bool menu,
+               bool calibrate)
+      : flexion(flexion),
         joyX(joyX),
         joyY(joyY),
         joyButton(joyButton),
@@ -17,20 +19,17 @@ struct VRCommData_t {
         pinch(pinch),
         menu(menu),
         calibrate(calibrate){};
-
-
-    std::array<float, 5> flexion;
-    std::array<float, 5> splay;
-    float joyX;
-    float joyY;
-    bool joyButton;
-    bool trgButton;
-    bool aButton;
-    bool bButton;
-    bool grab;
-    bool pinch;
-    bool menu;
-    bool calibrate;
+  const std::array<float, 5> flexion = {0, 0, 0, 0, 0};
+  const float joyX = 500;
+  const float joyY = 500;
+  const bool joyButton = false;
+  const bool trgButton = false;
+  const bool aButton = false;
+  const bool bButton = false;
+  const bool grab = false;
+  const bool pinch = false;
+  const bool menu = false;
+  const bool calibrate = false;
 };
 
 class IEncodingManager {
