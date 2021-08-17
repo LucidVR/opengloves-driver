@@ -1,6 +1,9 @@
 #pragma once
 
+#include "DeviceConfiguration.h"
 #include "Encode/EncodingManager.h"
+
+static const char* c_alphaEncodingSettingsSection = OPENGLOVES_SECTION_PREFIX "encoding_alpha";
 
 class AlphaEncodingManager : public IEncodingManager {
 public:

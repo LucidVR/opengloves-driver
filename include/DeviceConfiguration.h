@@ -5,8 +5,9 @@
 #include "Encode/EncodingManager.h"
 #include "openvr_driver.h"
 
-static const char *c_driverSettingsSection = "driver_openglove";
-static const char *c_poseSettingsSection = "pose_settings";
+#define OPENGLOVES_SECTION_PREFIX "opengloves."
+static const char *c_driverSettingsSection = OPENGLOVES_SECTION_PREFIX "driver_openglove";
+static const char *c_poseSettingsSection = OPENGLOVES_SECTION_PREFIX "pose_settings";
 
 enum class VRCommunicationProtocol {
 	SERIAL = 0,

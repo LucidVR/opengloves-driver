@@ -16,6 +16,8 @@
 #include "DeviceConfiguration.h"
 #include "DriverLog.h"
 
+static const char* c_btSerialCommunicationSettingsSection = OPENGLOVES_SECTION_PREFIX "communication_btserial";
+
 class BTSerialCommunicationManager : public ICommunicationManager {
  public:
   BTSerialCommunicationManager(const VRBTSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager);

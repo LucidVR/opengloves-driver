@@ -1,5 +1,5 @@
 {
-  "driver_openglove":
+  "opengloves.driver_openglove":
   {
     "__title": "OpenGlove Configuration",
     "left_enabled": true,
@@ -8,21 +8,21 @@
     "device_driver": 1, //title:Device Driver Emulation
     "encoding_protocol": 1 //title:Encoding Protocol
   },
-  "device_lucidgloves":
+  "opengloves.device_lucidgloves":
   {
     "__title": "Lucid Glove",
     "__type": "device_driver:0",
     "left_serial_number": "lucidgloves-left",
     "right_serial_number": "lucidgloves-right"
   },
-  "device_knuckles":
+  "opengloves.device_knuckles":
   {
     "__title": "Knuckles Emulation",
     "__type": "device_driver:1",
     "left_serial_number": "LHR-E217CD00",
     "right_serial_number": "LHR-E217CD01"
   },
-  "pose_settings":
+  "opengloves.pose_settings":
   {
     "__title": "Pose settings",
     "right_x_offset_position": -0.1,
@@ -42,7 +42,7 @@
     "controller_override_left": 3,
     "controller_override_right": 4
   },
-  "communication_serial":
+  "opengloves.communication_serial":
   {
     "__type": "communication_protocol:0",
     "__title": "USB Serial",
@@ -50,20 +50,20 @@
     "right_port": "\\\\.\\COM5",
     "baud_rate": 115200
   },
-  "communication_btserial": 
+  "opengloves.communication_btserial": 
   {
     "__type": "communication_protocol:1",
     "__title": "Bluetooth Serial",
 	"left_name": "lucidgloves-left",
   	"right_name": "lucidgloves-right"
   },
-  "encoding_legacy":
+  "opengloves.encoding_legacy":
   {
     "__type": "encoding_protocol: 0",
     "__title": "Legacy Encoding",
     "max_analog_value": 1023
   },
-  "encoding_alpha":
+  "opengloves.encoding_alpha":
   {
     "__type": "encoding_protocol: 1",
     "__title": "Alpha Protocol",

@@ -98,15 +98,14 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
   switch (configuration.encodingProtocol) {
     default:
       DriverLog("No encoding protocol set. Using legacy.");
-      // fall through
     case VREncodingProtocol::LEGACY: {
-      const float maxAnalogValue = vr::VRSettings()->GetFloat("encoding_legacy", "max_analog_value");
+      const float maxAnalogValue = vr::VRSettings()->GetFloat(c_legacyEncodingSettingsSection, "max_analog_value");
       encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
       break;
     }
     case VREncodingProtocol::ALPHA: {
       const float maxAnalogValue =
-          vr::VRSettings()->GetFloat("encoding_alpha", "max_analog_value");  //
+          vr::VRSettings()->GetFloat(c_alphaEncodingSettingsSection, "max_analog_value");  //
       encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
       break;
     }
@@ -116,7 +115,7 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
     case VRCommunicationProtocol::BTSERIAL: {
       DriverLog("Communication set to BTSerial");
       char name[248];
-      vr::VRSettings()->GetString("communication_btserial",
+      vr::VRSettings()->GetString(c_btSerialCommunicationSettingsSection,
                                   isRightHand ? "right_name" : "left_name", name, sizeof(name));
       VRBTSerialConfiguration_t btSerialSettings(name);
       communicationManager = std::make_unique<BTSerialCommunicationManager>(
@@ -125,12 +124,11 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
     }
     default:
       DriverLog("No communication protocol set. Using serial.");
-      // fall through
     case VRCommunicationProtocol::SERIAL:
       char port[16];
-      vr::VRSettings()->GetString("communication_serial", isRightHand ? "right_port" : "left_port",
+      vr::VRSettings()->GetString(c_serialCommunicationSettingsSection, isRightHand ? "right_port" : "left_port",
                                   port, sizeof(port));
-      const int baudRate = vr::VRSettings()->GetInt32("communication_serial", "baud_rate");
+      const int baudRate = vr::VRSettings()->GetInt32(c_serialCommunicationSettingsSection, "baud_rate");
       VRSerialConfiguration_t serialSettings(port, baudRate);
 
       communicationManager =
@@ -141,7 +139,7 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
   switch (configuration.deviceDriver) {
     case VRDeviceDriver::EMULATED_KNUCKLES: {
       char serialNumber[32];
-      vr::VRSettings()->GetString("device_knuckles",
+      vr::VRSettings()->GetString(c_knuckleDeviceSettingsSection,
                                   isRightHand ? "right_serial_number" : "left_serial_number",
                                   serialNumber, sizeof(serialNumber));
 
@@ -151,10 +149,9 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
 
     default:
       DriverLog("No device driver selected. Using lucidgloves.");
-      // fall through
     case VRDeviceDriver::LUCIDGLOVES: {
       char serialNumber[32];
-      vr::VRSettings()->GetString("device_lucidgloves",
+      vr::VRSettings()->GetString(c_lucideGloveDeviceSettingsSection,
                                   isRightHand ? "right_serial_number" : "left_serial_number",
                                   serialNumber, sizeof(serialNumber));
 

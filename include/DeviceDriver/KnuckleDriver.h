@@ -13,6 +13,8 @@
 #include "Encode/LegacyEncodingManager.h"
 #include "ForceFeedback.h"
 
+static const char* c_knuckleDeviceSettingsSection = OPENGLOVES_SECTION_PREFIX "device_knuckles";
+
 class KnuckleDeviceDriver : public IDeviceDriver {
  public:
   KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager, std::string serialNumber);
