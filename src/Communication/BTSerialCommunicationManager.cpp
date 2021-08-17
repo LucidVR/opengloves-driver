@@ -33,19 +33,33 @@ BTSerialCommunicationManager::BTSerialCommunicationManager(const VRBTSerialConfi
       m_wcDeviceName(NULL){};
 
 bool BTSerialCommunicationManager::Connect() {
-  // We're not yet connected
-  m_isConnected = false;
+    DriverLog("Trying to connect to bluetooth");
 
-  if (!GetPairedDeviceBtAddress() || !StartupWindowsSocket() || !ConnectToDevice()) {
-    LogMessage("Failed to connect to device");
-    return false;
-  }
+    // We're not yet connected
+    m_isConnected = false;
 
-  // If everything went fine we're connected
-  m_isConnected = true;
-  LogMessage("Connected to bluetooth");
-
-  return true;
+    // Try to connect
+    if (!getPairedDeviceBtAddress())  // find an device paired with this machine
+    {
+        DriverLog("Error getting Bluetooth address");
+        return false;
+    }
+    if (!startupWindowsSocket())  // initialize windows sockets
+    {
+        DriverLog("Error Initializing windows sockets");
+        return false;
+    }
+    if (!connectToDevice())  // initialize BT windows socket for connecting to device
+    {
+        DriverLog("Error connecting to Bluetooth device");
+        return false;
+    }
+    else {
+        // If everything went fine we're connected
+        m_isConnected = true;
+        DriverLog("Connected to bluetooth!");
+    }
+    return true;
 }
 
 void BTSerialCommunicationManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
