@@ -44,6 +44,7 @@ bool BTSerialCommunicationManager::Connect() {
   // If everything went fine we're connected
   m_isConnected = true;
   LogMessage("Connected to bluetooth");
+  return true;
 }
 
 void BTSerialCommunicationManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
@@ -62,18 +63,17 @@ void BTSerialCommunicationManager::ListenerThread(const std::function<void(VRCom
         VRCommData_t commData = m_encodingManager->Decode(receivedString);
         callback(commData);
         SendMessageToDevice();
+        continue;
       } catch (const std::invalid_argument& ia) {
         DriverLog("Received error from encoding manager: %s", ia.what());
       }
     }
     LogMessage("Detected device error. Disconnecting socket and attempting reconnection....");
-
     if (DisconnectFromDevice()) {
-      WaitAttemptConnection();
-      LogMessage("Successfully reconnected to device.");
-      continue;
+        WaitAttemptConnection();
+        LogMessage("Successfully reconnected to device.");
+        continue;
     }
-
     LogMessage("Could not disconnect. Closing listener...");
     Disconnect();
   }
