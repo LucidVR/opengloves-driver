@@ -44,6 +44,7 @@ bool BTSerialCommunicationManager::Connect() {
   // If everything went fine we're connected
   m_isConnected = true;
   LogMessage("Connected to bluetooth");
+  return true;
 }
 
 void BTSerialCommunicationManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
