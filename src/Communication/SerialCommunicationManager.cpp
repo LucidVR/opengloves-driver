@@ -86,25 +86,25 @@ void SerialCommunicationManager::ListenerThread(const std::function<void(VRCommD
     bool readSuccessful = ReceiveNextPacket(receivedString);
 
     if (readSuccessful) {
-      try {
-        VRCommData_t commData = m_encodingManager->Decode(receivedString);
-        callback(commData);
-
-        Write();
-      } catch (const std::invalid_argument& ia) {
-        LogMessage(strcat("Received error from encoding manager: ", ia.what()));
-      }
-    } else {
-      LogMessage("Detected device error. Disconnecting device and attempting reconnection");
-      if (DisconnectFromDevice()) {
-        WaitAttemptConnection();
-        LogMessage("Sucessfully reconnected to device");
-        continue;
-      }
-
-      LogMessage("Could not connect to device. Closing listener");
-      Disconnect();
+        try {
+            VRCommData_t commData = m_encodingManager->Decode(receivedString);
+            callback(commData);
+            Write();
+            continue;
+        }
+        catch (const std::invalid_argument& ia) {
+            LogMessage(strcat("Received error from encoding manager: ", ia.what()));
+        }
     }
+    LogMessage("Detected device error. Disconnecting device and attempting reconnection");
+    if (DisconnectFromDevice()) {
+    WaitAttemptConnection();
+    LogMessage("Sucessfully reconnected to device");
+    continue;
+    }
+
+    LogMessage("Could not connect to device. Closing listener");
+    Disconnect();
   }
 }
 
