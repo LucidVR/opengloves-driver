@@ -236,8 +236,9 @@ void KnuckleDeviceDriver::StartDevice() {
       if (datas.calibrate) {
         if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration();
       } else {
-        if (m_controllerPose->isCalibrating()) m_controllerPose->FinishCalibration();
+        if (m_controllerPose->isCalibrating()) m_controllerPose->StopCalibration();
       }
+
     } catch (const std::exception&) {
       DebugDriverLog("Exception caught while parsing comm data");
     }

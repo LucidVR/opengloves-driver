@@ -9,7 +9,7 @@ public:
 
     void StartCalibration(vr::DriverPose_t maintainPose);
 
-    VRPoseConfiguration_t FinishCalibration(vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration_t poseConfiguration, bool isRightHand);
+    VRPoseConfiguration_t StopCalibration(vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration_t poseConfiguration, bool isRightHand);
 
     void CancelCalibration();
 
