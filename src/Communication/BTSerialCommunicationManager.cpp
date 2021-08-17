@@ -82,16 +82,18 @@ void BTSerialCommunicationManager::ListenerThread(const std::function<void(VRCom
         DriverLog("Received error from encoding manager: %s", ia.what());
       }
     }
-    LogMessage("Detected device error. Disconnecting socket and attempting reconnection....");
+    else {
+        LogMessage("Detected device error. Disconnecting socket and attempting reconnection....");
 
-    if (DisconnectFromDevice()) {
-      WaitAttemptConnection();
-      LogMessage("Successfully reconnected to device.");
-      continue;
+        if (DisconnectFromDevice()) {
+            WaitAttemptConnection();
+            LogMessage("Successfully reconnected to device.");
+            continue;
+        }
+
+        LogMessage("Could not disconnect. Closing listener...");
+        Disconnect();
     }
-
-    LogMessage("Could not disconnect. Closing listener...");
-    Disconnect();
   }
 }
 
