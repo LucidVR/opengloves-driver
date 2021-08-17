@@ -39,17 +39,17 @@ bool BTSerialCommunicationManager::Connect() {
     m_isConnected = false;
 
     // Try to connect
-    if (!getPairedDeviceBtAddress())  // find an device paired with this machine
+    if (!GetPairedDeviceBtAddress())  // find an device paired with this machine
     {
         DriverLog("Error getting Bluetooth address");
         return false;
     }
-    if (!startupWindowsSocket())  // initialize windows sockets
+    if (!StartupWindowsSocket())  // initialize windows sockets
     {
         DriverLog("Error Initializing windows sockets");
         return false;
     }
-    if (!connectToDevice())  // initialize BT windows socket for connecting to device
+    if (!ConnectToDevice())  // initialize BT windows socket for connecting to device
     {
         DriverLog("Error connecting to Bluetooth device");
         return false;
