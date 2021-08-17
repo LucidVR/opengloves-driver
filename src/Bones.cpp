@@ -164,13 +164,22 @@ vr::HmdVector4_t CalculatePosition(const float transform, const int boneIndex, c
   return result;
 }
 
+void ComputeHand(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool isRightHand) {
+  for (int i = 0; i < NUM_BONES; i++) {
+    int fingerNum = FingerFromBone(i);
+    if (fingerNum != -1) {
+      ComputeBoneFlexion(&skeleton[i], flexion[fingerNum], i, isRightHand);
+    }
+  }
+}
+
 // Transform should be between 0-1
-void ComputeBoneFlexion(vr::VRBoneTransform_t* bone_transform, float transform, int index, const bool isRightHand) {
+void ComputeBoneFlexion(vr::VRBoneTransform_t* boneTransform, float transform, int index, const bool isRightHand) {
   vr::VRBoneTransform_t* fist_pose = isRightHand ? rightFistPose : leftFistPose;
   vr::VRBoneTransform_t* open_pose = isRightHand ? rightOpenPose : leftOpenPose;
 
-  bone_transform->orientation = CalculateOrientation(transform, index, open_pose, fist_pose);
-  bone_transform->position = CalculatePosition(transform, index, open_pose, fist_pose);
+  boneTransform->orientation = CalculateOrientation(transform, index, open_pose, fist_pose);
+  boneTransform->position = CalculatePosition(transform, index, open_pose, fist_pose);
 }
 
 float Lerp(const float a, const float b, const float f) { return a + f * (b - a); }

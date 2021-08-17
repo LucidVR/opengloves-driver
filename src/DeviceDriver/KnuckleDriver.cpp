@@ -51,7 +51,8 @@ bool KnuckleDeviceDriver::IsActive() { return m_hasActivated; }
 
 vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
   const bool isRightHand = IsRightHand();
-  m_driverId = unObjectId;  // unique ID for your driver
+
+  m_driverId = unObjectId;
   m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceManufacturer), m_configuration.poseConfiguration);
 
   vr::PropertyContainerHandle_t props =
@@ -188,64 +189,59 @@ void KnuckleDeviceDriver::StartDevice() {
         m_communicationManager->QueueSend(data);
       },
       m_configuration.role);
-
   m_ffbProvider->Start();
-  m_communicationManager->Connect();
-  if (m_communicationManager->IsConnected()) {
-    m_communicationManager->BeginListener([&](VRCommData_t datas) {
-      try {
-        // Compute each finger transform
-        for (int i = 0; i < NUM_BONES; i++) {
-          int fingerNum = FingerFromBone(i);
-          if (fingerNum != -1) {
-            ComputeBoneFlexion(&m_handTransforms[i], datas.flexion[fingerNum], i, IsRightHand());
-          }
-        }
-        vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
-        vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
 
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_X], datas.joyX, 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_Y], datas.joyY, 0);
+  {
+    // OpenVR needs an initial skeleton for when the device is activated
+    ComputeHand(m_handTransforms, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, IsRightHand());
 
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_CLICK], datas.joyButton, 0);
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_TOUCH], datas.joyButton, 0);
-
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_CLICK], datas.trgButton, 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_VALUE], datas.flexion[1], 0);
-
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_CLICK], datas.aButton, 0);
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_TOUCH], datas.aButton, 0);
-
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::B_CLICK], datas.bButton, 0);
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::B_TOUCH], datas.bButton, 0);
-
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_FORCE], datas.grab, 0);
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_TOUCH], datas.grab, 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::GRIP_VALUE], datas.grab, 0);
-
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::SYSTEM_CLICK], datas.menu, 0);
-
-
-        // We don't have a thumb on the index
-        // vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMB], datas.flexion[0], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_INDEX], datas.flexion[1], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_MIDDLE], datas.flexion[2], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_RING], datas.flexion[3], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_PINKY], datas.flexion[4], 0);
-
-        if (datas.calibrate) {
-          if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration();
-        } else {
-          if (m_controllerPose->isCalibrating()) m_controllerPose->FinishCalibration();
-        }
-      } catch (const std::exception&) {
-        DebugDriverLog("Exception caught while parsing comm data");
-      }
-    });
-
-  } else {
-    DebugDriverLog("Device did not connect successfully");
+    vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
+    vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
   }
+
+  m_communicationManager->BeginListener([&](VRCommData_t datas) {
+    try {
+      ComputeHand(m_handTransforms, datas.flexion, IsRightHand());
+      vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
+      vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
+
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_X], datas.joyX, 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_Y], datas.joyY, 0);
+
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_CLICK], datas.joyButton, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::THUMBSTICK_TOUCH], datas.joyButton, 0);
+
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_CLICK], datas.trgButton, 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::TRIGGER_VALUE], datas.flexion[1], 0);
+
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_CLICK], datas.aButton, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::A_TOUCH], datas.aButton, 0);
+
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::B_CLICK], datas.bButton, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::B_TOUCH], datas.bButton, 0);
+
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_FORCE], datas.grab, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::GRIP_TOUCH], datas.grab, 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::GRIP_VALUE], datas.grab, 0);
+
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::SYSTEM_CLICK], datas.menu, 0);
+
+      // We don't have a thumb on the index
+      // vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::THUMB], datas.flexion[0], 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_INDEX], datas.flexion[1], 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_MIDDLE], datas.flexion[2], 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_RING], datas.flexion[3], 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::FINGER_PINKY], datas.flexion[4], 0);
+
+      if (datas.calibrate) {
+        if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration();
+      } else {
+        if (m_controllerPose->isCalibrating()) m_controllerPose->FinishCalibration();
+      }
+    } catch (const std::exception&) {
+      DebugDriverLog("Exception caught while parsing comm data");
+    }
+  });
 }
 
 vr::DriverPose_t KnuckleDeviceDriver::GetPose() {

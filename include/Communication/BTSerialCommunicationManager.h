@@ -1,29 +1,25 @@
 #pragma once
 #include <Winsock2.h>
+#include <Ws2bth.h>
+#include <bluetoothapis.h>
+#include <windows.h>
 
 #include <atomic>
 #include <chrono>
 #include <memory>
+#include <mutex>
 #include <sstream>
 #include <thread>
 #include <vector>
-#include <mutex>
 
 #include "CommunicationManager.h"
 #include "DeviceConfiguration.h"
 #include "DriverLog.h"
 
-#include <windows.h>
-#include <bluetoothapis.h>
-#include <Ws2bth.h>
-
-
-#define ARDUINO_WAIT_TIME 1000
 class BTSerialCommunicationManager : public ICommunicationManager {
  public:
   BTSerialCommunicationManager(const VRBTSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager);
-  // connect to the device using serial
-  void Connect();
+
   // start a thread that listens for updates from the device and calls the callback with data
   void BeginListener(const std::function<void(VRCommData_t)>& callback);
   // returns if connected or not
@@ -34,13 +30,19 @@ class BTSerialCommunicationManager : public ICommunicationManager {
   void QueueSend(const VRFFBData_t& data);
 
  private:
+  bool Connect();
   void ListenerThread(const std::function<void(VRCommData_t)>& callback);
   bool ReceiveNextPacket(std::string& buff);
-  bool getPairedDeviceBtAddress();
-  bool startupWindowsSocket();
-  bool connectToDevice();
-  bool sendMessageToDevice();
-  bool m_isConnected;
+  bool GetPairedDeviceBtAddress();
+  bool StartupWindowsSocket();
+  bool ConnectToDevice();
+  bool SendMessageToDevice();
+  void WaitAttemptConnection();
+  bool DisconnectFromDevice();
+  void LogError(const char* message);
+  void LogMessage(const char* message);
+
+  std::atomic<bool> m_isConnected;
   std::atomic<bool> m_threadActive;
   std::thread m_serialThread;
 

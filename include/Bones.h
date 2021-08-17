@@ -1,5 +1,6 @@
 #pragma once
 #include <openvr_driver.h>
+#include <array>
 
 const int NUM_BONES = 31;
 extern vr::VRBoneTransform_t rightOpenPose[NUM_BONES];
@@ -43,8 +44,9 @@ enum HandSkeletonBone : vr::BoneIndex_t {
 	eBone_Count
 };
 
+void ComputeHand(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, bool isRightHand);
 void ComputeBoneFlexion(vr::VRBoneTransform_t* bone_transform, float transform, int index, const bool isRightHand);
-void ComputeBoneSplay(vr::VRBoneTransform_t* bone_transform, const float transform, int index, const bool isRightHand);
+
 vr::HmdQuaternionf_t CalculateOrientation(const float transform, const int boneIndex, const vr::VRBoneTransform_t* openPose, const vr::VRBoneTransform_t* fistPose);
 vr::HmdVector4_t CalculatePosition(const float transform, const int boneIndex, const vr::VRBoneTransform_t* openPose, const vr::VRBoneTransform_t* fistPose);
 int FingerFromBone(vr::BoneIndex_t bone);
