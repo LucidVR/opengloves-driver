@@ -4,7 +4,7 @@
 #include "Quaternion.h"
 
 struct CalibrationDataIn {
-  bool start;
+  uint8_t start;
 };
 
 ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration_t poseConfiguration)
