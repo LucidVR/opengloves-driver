@@ -30,8 +30,10 @@ LucidGloveDeviceDriver::LucidGloveDeviceDriver(VRDeviceConfiguration_t configura
                                                std::string serialNumber)
     : m_configuration(configuration), m_communicationManager(std::move(communicationManager)), m_serialNumber(serialNumber), m_driverId(-1), m_hasActivated(false) {
   // copy a default bone transform to our hand transform for use in finger positioning later
-  std::copy(std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
-            std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose), std::begin(m_handTransforms));
+  if (m_configuration.role == vr::TrackedControllerRole_RightHand)
+    std::copy(std::begin(rightAnimationFrames[KEYFRAME_OPEN]), std::end(rightAnimationFrames[KEYFRAME_OPEN]), std::begin(m_handTransforms));
+  else
+    std::copy(std::begin(leftAnimationFrames[KEYFRAME_OPEN]), std::end(leftAnimationFrames[KEYFRAME_OPEN]), std::begin(m_handTransforms));
 }
 
 bool LucidGloveDeviceDriver::IsRightHand() const { return m_configuration.role == vr::TrackedControllerRole_RightHand; }
@@ -92,7 +94,7 @@ vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
 
   vr::EVRInputError error = vr::VRDriverInput()->CreateSkeletonComponent(
       props, isRightHand ? "/input/skeleton/right" : "/input/skeleton/left", isRightHand ? "/skeleton/hand/right" : "/skeleton/hand/left", "/pose/raw",
-      vr::VRSkeletalTracking_Partial, isRightHand ? rightOpenPose : leftOpenPose, NUM_BONES, &m_skeletalComponentHandle);
+      vr::VRSkeletalTracking_Partial, isRightHand ? rightAnimationFrames[KEYFRAME_OPEN] : leftAnimationFrames[KEYFRAME_OPEN], NUM_BONES, &m_skeletalComponentHandle);
 
   if (error != vr::VRInputError_None) {
     // Handle failure case

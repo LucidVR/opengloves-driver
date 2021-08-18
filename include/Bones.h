@@ -2,12 +2,15 @@
 #include <openvr_driver.h>
 #include <array>
 
-const int NUM_BONES = 31;
-extern vr::VRBoneTransform_t rightOpenPose[NUM_BONES];
-extern vr::VRBoneTransform_t rightFistPose[NUM_BONES];
+const int NUM_ANIMATION_FRAMES = 2;
+const int KEYFRAME_OPEN = 0;
+const int KEYFRAME_CLOSED = NUM_ANIMATION_FRAMES - 1;
 
-extern vr::VRBoneTransform_t leftOpenPose[NUM_BONES];
-extern vr::VRBoneTransform_t leftFistPose[NUM_BONES];
+const int NUM_BONES = 31;
+
+extern float animationFrameTimes[NUM_ANIMATION_FRAMES];
+extern vr::VRBoneTransform_t rightAnimationFrames[NUM_ANIMATION_FRAMES][NUM_BONES];
+extern vr::VRBoneTransform_t leftAnimationFrames[NUM_ANIMATION_FRAMES][NUM_BONES];
 
 enum HandSkeletonBone : vr::BoneIndex_t {
 	eBone_Root = 0,
@@ -45,12 +48,3 @@ enum HandSkeletonBone : vr::BoneIndex_t {
 };
 
 void ComputeHand(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, bool isRightHand);
-void ComputeBoneFlexion(vr::VRBoneTransform_t* bone_transform, float transform, int index, const bool isRightHand);
-
-vr::HmdQuaternionf_t CalculateOrientation(const float transform, const int boneIndex, const vr::VRBoneTransform_t* openPose, const vr::VRBoneTransform_t* fistPose);
-vr::HmdVector4_t CalculatePosition(const float transform, const int boneIndex, const vr::VRBoneTransform_t* openPose, const vr::VRBoneTransform_t* fistPose);
-int FingerFromBone(vr::BoneIndex_t bone);
-/**
-*Linear interpolation between a and b.
-**/
-float Lerp(const float a, const float b, const float f);
