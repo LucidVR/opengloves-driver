@@ -190,7 +190,7 @@ static void ComputeBoneFlexion(vr::VRBoneTransform_t* boneTransform, float trans
   boneTransform->position = CalculatePosition(transform, index, startPose, endPose);
 }
 
-FingerIndex FingerFromBone(vr::BoneIndex_t bone) {
+static FingerIndex FingerFromBone(vr::BoneIndex_t bone) {
   switch (bone) {
     case eBone_Thumb0:
     case eBone_Thumb1:
