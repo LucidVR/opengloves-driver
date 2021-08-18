@@ -271,7 +271,7 @@ static bool TryGetDeviceConfiguration(vr::ETrackedControllerRole role, bool with
   return true;
 }
 VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedControllerRole role) {
-  VRDeviceConfiguration_t config{};
+  VRDeviceConfiguration_t config({}, false, {{}, {}, {}, false, 0}, {}, {}, {});
   if (!TryGetDeviceConfiguration(role, false, &config))
     TryGetDeviceConfiguration(role, true, &config);
   return config;
