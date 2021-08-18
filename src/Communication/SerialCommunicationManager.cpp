@@ -93,7 +93,7 @@ void SerialCommunicationManager::ListenerThread(const std::function<void(VRCommD
             continue;
         }
         catch (const std::invalid_argument& ia) {
-            LogMessage(strcat("Received error from encoding manager: ", ia.what()));
+            LogMessage((std::string("Received error from encoding manager: ") + ia.what()).c_str());
         }
     }
     LogMessage("Detected device error. Disconnecting device and attempting reconnection");

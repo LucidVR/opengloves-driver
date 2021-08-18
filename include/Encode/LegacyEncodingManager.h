@@ -3,6 +3,8 @@
 #include <Encode/EncodingManager.h>
 #include "ForceFeedback.h"
 
+static const char* c_legacyEncodingSettingsSection = "encoding_legacy";
+
 class LegacyEncodingManager : public IEncodingManager {
  public:
   LegacyEncodingManager(float maxAnalogValue) : m_maxAnalogValue(maxAnalogValue){};

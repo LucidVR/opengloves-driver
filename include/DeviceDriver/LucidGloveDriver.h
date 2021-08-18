@@ -12,6 +12,8 @@
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
 
+static const char* c_lucidGloveDeviceSettingsSection = "device_lucidgloves";
+
 /**
 This class controls the behavior of the controller. This is where you
 tell OpenVR what your controller has (buttons, joystick, trackpad, etc.).
