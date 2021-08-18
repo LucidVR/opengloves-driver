@@ -47,15 +47,15 @@ VRPoseConfiguration_t Calibration::FinishCalibration(vr::TrackedDevicePose_t con
 
     poseConfiguration.offsetVector = transformVector;
 
-    vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_position" : "left_x_offset_position", transformVector.v[0]);
-    vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_position" : "left_y_offset_position", transformVector.v[1]);
-    vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_position" : "left_z_offset_position", transformVector.v[2]);
+    vr::VRSettings()->SetFloat(POSE_SETTINGS_SECTION, isRightHand ? "right_x_offset_position" : "left_x_offset_position", transformVector.v[0]);
+    vr::VRSettings()->SetFloat(POSE_SETTINGS_SECTION, isRightHand ? "right_y_offset_position" : "left_y_offset_position", transformVector.v[1]);
+    vr::VRSettings()->SetFloat(POSE_SETTINGS_SECTION, isRightHand ? "right_z_offset_position" : "left_z_offset_position", transformVector.v[2]);
 
     vr::HmdVector3_t eulerOffset = QuaternionToEuler(transformQuat);
 
-    vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees", eulerOffset.v[0]);
-    vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees", eulerOffset.v[1]);
-    vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees", eulerOffset.v[2]);
+    vr::VRSettings()->SetFloat(POSE_SETTINGS_SECTION, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees", eulerOffset.v[0]);
+    vr::VRSettings()->SetFloat(POSE_SETTINGS_SECTION, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees", eulerOffset.v[1]);
+    vr::VRSettings()->SetFloat(POSE_SETTINGS_SECTION, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees", eulerOffset.v[2]);
 
     return poseConfiguration;
 }

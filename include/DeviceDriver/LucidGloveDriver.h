@@ -12,7 +12,8 @@
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
 
-static const char* c_lucideGloveDeviceSettingsSection = OPENGLOVES_SECTION_PREFIX "device_lucidgloves";
+#define LUCIDGLOVE_DEVICE_SETTINGS_SECTION_WITHOUT_PREFIX "device_lucidgloves"
+#define LUCIDGLOVE_DEVICE_SETTINGS_SECTION (OPENGLOVES_SECTION_PREFIX LUCIDGLOVE_DEVICE_SETTINGS_SECTION_WITHOUT_PREFIX)
 
 /**
 This class controls the behavior of the controller. This is where you

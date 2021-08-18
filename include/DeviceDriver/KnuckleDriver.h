@@ -13,7 +13,8 @@
 #include "Encode/LegacyEncodingManager.h"
 #include "ForceFeedback.h"
 
-static const char* c_knuckleDeviceSettingsSection = OPENGLOVES_SECTION_PREFIX "device_knuckles";
+#define KNUCKLE_DEVICE_SETTINGS_SECTION_WITHOUT_PREFIX "device_knuckles"
+#define KNUCKLE_DEVICE_SETTINGS_SECTION (OPENGLOVES_SECTION_PREFIX KNUCKLE_DEVICE_SETTINGS_SECTION_WITHOUT_PREFIX)
 
 class KnuckleDeviceDriver : public IDeviceDriver {
  public:

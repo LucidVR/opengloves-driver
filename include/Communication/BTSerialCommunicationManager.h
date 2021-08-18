@@ -16,7 +16,8 @@
 #include "DeviceConfiguration.h"
 #include "DriverLog.h"
 
-static const char* c_btSerialCommunicationSettingsSection = OPENGLOVES_SECTION_PREFIX "communication_btserial";
+#define BTSERIAL_COMMUNICATION_SETTINGS_SECTION_WITHOUT_PREFIX "communication_btserial"
+#define BTSERIAL_COMMUNICATION_SETTINGS_SECTION (OPENGLOVES_SECTION_PREFIX BTSERIAL_COMMUNICATION_SETTINGS_SECTION_WITHOUT_PREFIX)
 
 class BTSerialCommunicationManager : public ICommunicationManager {
  public:

@@ -3,7 +3,8 @@
 #include "DeviceConfiguration.h"
 #include "Encode/EncodingManager.h"
 
-static const char* c_alphaEncodingSettingsSection = OPENGLOVES_SECTION_PREFIX "encoding_alpha";
+#define ALPHA_ENCODING_SETTINGS_SECTION_WITHOUT_PREFIX "encoding_alpha"
+#define ALPHA_ENCODING_SETTINGS_SECTION (OPENGLOVES_SECTION_PREFIX ALPHA_ENCODING_SETTINGS_SECTION_WITHOUT_PREFIX)
 
 class AlphaEncodingManager : public IEncodingManager {
 public:

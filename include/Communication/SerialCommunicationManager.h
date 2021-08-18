@@ -11,7 +11,8 @@
 #include "CommunicationManager.h"
 #include "DeviceConfiguration.h"
 
-static const char* c_serialCommunicationSettingsSection = OPENGLOVES_SECTION_PREFIX "communication_serial";
+#define SERIAL_COMMUNICATION_SETTINGS_SECTION_WITHOUT_PREFIX "communication_serial"
+#define SERIAL_COMMUNICATION_SETTINGS_SECTION (OPENGLOVES_SECTION_PREFIX SERIAL_COMMUNICATION_SETTINGS_SECTION_WITHOUT_PREFIX)
 
 class SerialCommunicationManager : public ICommunicationManager {
  public:

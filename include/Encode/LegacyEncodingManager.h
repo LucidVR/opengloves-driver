@@ -4,7 +4,8 @@
 #include <Encode/EncodingManager.h>
 #include "ForceFeedback.h"
 
-static const char* c_legacyEncodingSettingsSection = OPENGLOVES_SECTION_PREFIX "encoding_legacy";
+#define LEGACY_ENCODING_SETTINGS_SECTION_WITHOUT_PREFIX "encoding_legacy"
+#define LEGACY_ENCODING_SETTINGS_SECTION (OPENGLOVES_SECTION_PREFIX LEGACY_ENCODING_SETTINGS_SECTION_WITHOUT_PREFIX)
 
 class LegacyEncodingManager : public IEncodingManager {
  public:

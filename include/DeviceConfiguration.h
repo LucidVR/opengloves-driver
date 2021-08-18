@@ -6,8 +6,12 @@
 #include "openvr_driver.h"
 
 #define OPENGLOVES_SECTION_PREFIX "opengloves."
-static const char *c_driverSettingsSection = OPENGLOVES_SECTION_PREFIX "driver_openglove";
-static const char *c_poseSettingsSection = OPENGLOVES_SECTION_PREFIX "pose_settings";
+
+#define DRIVER_SETTINGS_SECTION_WITHOUT_PREFIX "driver_openglove"
+#define DRIVER_SETTINGS_SECTION (OPENGLOVES_SECTION_PREFIX DRIVER_SETTINGS_SECTION_WITHOUT_PREFIX)
+
+#define POSE_SETTINGS_SECTION_WITHOUT_PREFIX "pose_settings"
+#define POSE_SETTINGS_SECTION (OPENGLOVES_SECTION_PREFIX POSE_SETTINGS_SECTION_WITHOUT_PREFIX)
 
 enum class VRCommunicationProtocol {
 	SERIAL = 0,

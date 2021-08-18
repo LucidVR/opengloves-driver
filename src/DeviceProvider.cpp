@@ -89,8 +89,9 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
   return vr::VRInitError_None;
 }
 
-std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
-    VRDeviceConfiguration_t configuration) {
+static bool TryInstantiateDeviceDriver(VRDeviceConfiguration_t configuration, bool withoutPrefix, std::unique_ptr<IDeviceDriver>* driver) {
+  vr::EVRSettingsError err = vr::EVRSettingsError::VRSettingsError_None;
+
   std::unique_ptr<ICommunicationManager> communicationManager;
   std::unique_ptr<IEncodingManager> encodingManager;
 
@@ -99,13 +100,19 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
     default:
       DriverLog("No encoding protocol set. Using legacy.");
     case VREncodingProtocol::LEGACY: {
-      const float maxAnalogValue = vr::VRSettings()->GetFloat(c_legacyEncodingSettingsSection, "max_analog_value");
+      const float maxAnalogValue = vr::VRSettings()->GetFloat(
+        withoutPrefix ? LEGACY_ENCODING_SETTINGS_SECTION_WITHOUT_PREFIX : LEGACY_ENCODING_SETTINGS_SECTION, "max_analog_value", &err);
+      if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+        return false;
       encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
       break;
     }
     case VREncodingProtocol::ALPHA: {
       const float maxAnalogValue =
-          vr::VRSettings()->GetFloat(c_alphaEncodingSettingsSection, "max_analog_value");  //
+          vr::VRSettings()->GetFloat(
+            withoutPrefix ? ALPHA_ENCODING_SETTINGS_SECTION_WITHOUT_PREFIX : ALPHA_ENCODING_SETTINGS_SECTION, "max_analog_value", &err);  //
+      if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+        return false;
       encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
       break;
     }
@@ -115,8 +122,11 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
     case VRCommunicationProtocol::BTSERIAL: {
       DriverLog("Communication set to BTSerial");
       char name[248];
-      vr::VRSettings()->GetString(c_btSerialCommunicationSettingsSection,
-                                  isRightHand ? "right_name" : "left_name", name, sizeof(name));
+      vr::VRSettings()->GetString(
+        withoutPrefix ? BTSERIAL_COMMUNICATION_SETTINGS_SECTION_WITHOUT_PREFIX : BTSERIAL_COMMUNICATION_SETTINGS_SECTION,
+        isRightHand ? "right_name" : "left_name", name, sizeof(name), &err);
+      if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+        return false;
       VRBTSerialConfiguration_t btSerialSettings(name);
       communicationManager = std::make_unique<BTSerialCommunicationManager>(
           btSerialSettings, std::move(encodingManager));
@@ -126,9 +136,15 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
       DriverLog("No communication protocol set. Using serial.");
     case VRCommunicationProtocol::SERIAL:
       char port[16];
-      vr::VRSettings()->GetString(c_serialCommunicationSettingsSection, isRightHand ? "right_port" : "left_port",
-                                  port, sizeof(port));
-      const int baudRate = vr::VRSettings()->GetInt32(c_serialCommunicationSettingsSection, "baud_rate");
+      vr::VRSettings()->GetString(
+        withoutPrefix ? SERIAL_COMMUNICATION_SETTINGS_SECTION_WITHOUT_PREFIX : SERIAL_COMMUNICATION_SETTINGS_SECTION,
+        isRightHand ? "right_port" : "left_port", port, sizeof(port), &err);
+      if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+        return false;
+      const int baudRate = vr::VRSettings()->GetInt32(
+        withoutPrefix ? SERIAL_COMMUNICATION_SETTINGS_SECTION_WITHOUT_PREFIX : SERIAL_COMMUNICATION_SETTINGS_SECTION, "baud_rate", &err);
+      if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+        return false;
       VRSerialConfiguration_t serialSettings(port, baudRate);
 
       communicationManager =
@@ -139,64 +155,107 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
   switch (configuration.deviceDriver) {
     case VRDeviceDriver::EMULATED_KNUCKLES: {
       char serialNumber[32];
-      vr::VRSettings()->GetString(c_knuckleDeviceSettingsSection,
+      vr::VRSettings()->GetString(withoutPrefix ? KNUCKLE_DEVICE_SETTINGS_SECTION_WITHOUT_PREFIX : KNUCKLE_DEVICE_SETTINGS_SECTION,
                                   isRightHand ? "right_serial_number" : "left_serial_number",
-                                  serialNumber, sizeof(serialNumber));
+                                  serialNumber, sizeof(serialNumber), &err);
+      if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+        return false;
 
-      return std::make_unique<KnuckleDeviceDriver>(configuration, std::move(communicationManager),
-                                                   serialNumber);
+      *driver = std::make_unique<KnuckleDeviceDriver>(configuration, std::move(communicationManager),
+                                                      serialNumber);
+      return true;
     }
 
     default:
       DriverLog("No device driver selected. Using lucidgloves.");
     case VRDeviceDriver::LUCIDGLOVES: {
       char serialNumber[32];
-      vr::VRSettings()->GetString(c_lucideGloveDeviceSettingsSection,
+      vr::VRSettings()->GetString(withoutPrefix ? LUCIDGLOVE_DEVICE_SETTINGS_SECTION_WITHOUT_PREFIX : LUCIDGLOVE_DEVICE_SETTINGS_SECTION,
                                   isRightHand ? "right_serial_number" : "left_serial_number",
-                                  serialNumber, sizeof(serialNumber));
+                                  serialNumber, sizeof(serialNumber), &err);
+      if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+        return false;
 
-      return std::make_unique<LucidGloveDeviceDriver>(
+      *driver = std::make_unique<LucidGloveDeviceDriver>(
           configuration, std::move(communicationManager), serialNumber);
+      return true;
     }
   }
 }
-VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedControllerRole role) {
+std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(
+    VRDeviceConfiguration_t configuration) {
+  std::unique_ptr<IDeviceDriver> driver = nullptr;
+  if (!TryInstantiateDeviceDriver(configuration, false, &driver))
+    TryInstantiateDeviceDriver(configuration, true, &driver);
+  return driver;
+}
+static bool TryGetDeviceConfiguration(vr::ETrackedControllerRole role, bool withoutPrefix, VRDeviceConfiguration_t* config) {
+  const char* driverSettingsSection = withoutPrefix ? DRIVER_SETTINGS_SECTION_WITHOUT_PREFIX : DRIVER_SETTINGS_SECTION;
+  const char* poseSettingsSection = withoutPrefix ? POSE_SETTINGS_SECTION_WITHOUT_PREFIX : POSE_SETTINGS_SECTION;
+  vr::EVRSettingsError err = vr::EVRSettingsError::VRSettingsError_None;
+
   const bool isRightHand = role == vr::TrackedControllerRole_RightHand;
 
-  const bool isEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection,
-                                                   isRightHand ? "right_enabled" : "left_enabled");
+  const bool isEnabled = vr::VRSettings()->GetBool(driverSettingsSection,
+                                                   isRightHand ? "right_enabled" : "left_enabled", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
 
   const auto communicationProtocol = (VRCommunicationProtocol)vr::VRSettings()->GetInt32(
-      c_driverSettingsSection, "communication_protocol");
+      driverSettingsSection, "communication_protocol", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
   const auto encodingProtocol =
-      (VREncodingProtocol)vr::VRSettings()->GetInt32(c_driverSettingsSection, "encoding_protocol");
+      (VREncodingProtocol)vr::VRSettings()->GetInt32(driverSettingsSection, "encoding_protocol", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
   const auto deviceDriver =
-      (VRDeviceDriver)vr::VRSettings()->GetInt32(c_driverSettingsSection, "device_driver");
-
-  const float poseTimeOffset = vr::VRSettings()->GetFloat(c_poseSettingsSection, "pose_time_offset");
+      (VRDeviceDriver)vr::VRSettings()->GetInt32(driverSettingsSection, "device_driver", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
+  
+  const float poseTimeOffset = vr::VRSettings()->GetFloat(poseSettingsSection, "pose_time_offset", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
 
   const float offsetXPos = vr::VRSettings()->GetFloat(
-      c_poseSettingsSection, isRightHand ? "right_x_offset_position" : "left_x_offset_position");
+      poseSettingsSection, isRightHand ? "right_x_offset_position" : "left_x_offset_position", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
   const float offsetYPos = vr::VRSettings()->GetFloat(
-      c_poseSettingsSection, isRightHand ? "right_y_offset_position" : "left_y_offset_position");
+      poseSettingsSection, isRightHand ? "right_y_offset_position" : "left_y_offset_position", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
   const float offsetZPos = vr::VRSettings()->GetFloat(
-      c_poseSettingsSection, isRightHand ? "right_z_offset_position" : "left_z_offset_position");
+      poseSettingsSection, isRightHand ? "right_z_offset_position" : "left_z_offset_position", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
 
   const float offsetXRot = vr::VRSettings()->GetFloat(
-      c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees");
+      poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
   const float offsetYRot = vr::VRSettings()->GetFloat(
-      c_poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees");
+      poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
   const float offsetZRot = vr::VRSettings()->GetFloat(
-      c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees");
+      poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
 
   const bool controllerOverrideEnabled =
-      vr::VRSettings()->GetBool(c_poseSettingsSection, "controller_override");
+      vr::VRSettings()->GetBool(poseSettingsSection, "controller_override", &err);
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
   const int controllerIdOverride =
       controllerOverrideEnabled
-          ? vr::VRSettings()->GetInt32(c_poseSettingsSection, isRightHand
+          ? vr::VRSettings()->GetInt32(poseSettingsSection, isRightHand
                                                                   ? "controller_override_right"
-                                                                  : "controller_override_left")
+                                                                  : "controller_override_left", &err)
           : -1;
+  if (!withoutPrefix && err != vr::EVRSettingsError::VRSettingsError_None)
+    return false;
 
   const vr::HmdVector3_t offsetVector = {offsetXPos, offsetYPos, offsetZPos};
 
@@ -204,11 +263,18 @@ VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedContr
   const vr::HmdQuaternion_t angleOffsetQuaternion =
       EulerToQuaternion(DegToRad(offsetXRot), DegToRad(offsetYRot), DegToRad(offsetZRot));
 
-  return VRDeviceConfiguration_t(
+  *config = VRDeviceConfiguration_t(
       role, isEnabled,
       VRPoseConfiguration_t(offsetVector, angleOffsetQuaternion, poseTimeOffset,
                             controllerOverrideEnabled, controllerIdOverride),
       encodingProtocol, communicationProtocol, deviceDriver);
+  return true;
+}
+VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedControllerRole role) {
+  VRDeviceConfiguration_t config{};
+  if (!TryGetDeviceConfiguration(role, false, &config))
+    TryGetDeviceConfiguration(role, true, &config);
+  return config;
 }
 
 void DeviceProvider::Cleanup() {}
