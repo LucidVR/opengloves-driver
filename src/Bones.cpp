@@ -159,27 +159,27 @@ vr::VRBoneTransform_t leftAnimationFrames[NUM_ANIMATION_FRAMES][NUM_BONES] = {
  **/
 static float Lerp(const float a, const float b, const float f) { return a + f * (b - a); }
 
-static vr::HmdQuaternionf_t CalculateOrientation(const float transform, const int boneIndex, const vr::VRBoneTransform_t* startPose, const vr::VRBoneTransform_t* fistPose) {
-  const vr::HmdQuaternionf_t openPoseOrientation = startPose[boneIndex].orientation;
-  const vr::HmdQuaternionf_t fistPoseOrientation = fistPose[boneIndex].orientation;
+static vr::HmdQuaternionf_t CalculateOrientation(const float transform, const int boneIndex, const vr::VRBoneTransform_t* startPose, const vr::VRBoneTransform_t* endPose) {
+  const vr::HmdQuaternionf_t startPoseOrientation = startPose[boneIndex].orientation;
+  const vr::HmdQuaternionf_t endPoseOrientation = endPose[boneIndex].orientation;
 
   vr::HmdQuaternionf_t result{};
-  result.w = Lerp(openPoseOrientation.w, fistPoseOrientation.w, transform);
-  result.x = Lerp(openPoseOrientation.x, fistPoseOrientation.x, transform);
-  result.y = Lerp(openPoseOrientation.y, fistPoseOrientation.y, transform);
-  result.z = Lerp(openPoseOrientation.z, fistPoseOrientation.z, transform);
+  result.w = Lerp(startPoseOrientation.w, endPoseOrientation.w, transform);
+  result.x = Lerp(startPoseOrientation.x, endPoseOrientation.x, transform);
+  result.y = Lerp(startPoseOrientation.y, endPoseOrientation.y, transform);
+  result.z = Lerp(startPoseOrientation.z, endPoseOrientation.z, transform);
 
   return result;
 }
-static vr::HmdVector4_t CalculatePosition(const float transform, const int boneIndex, const vr::VRBoneTransform_t* startPose, const vr::VRBoneTransform_t* fistPose) {
-  const vr::HmdVector4_t openPosePosition = startPose[boneIndex].position;
-  const vr::HmdVector4_t fistPosePosition = fistPose[boneIndex].position;
+static vr::HmdVector4_t CalculatePosition(const float transform, const int boneIndex, const vr::VRBoneTransform_t* startPose, const vr::VRBoneTransform_t* endPose) {
+  const vr::HmdVector4_t startPosePosition = startPose[boneIndex].position;
+  const vr::HmdVector4_t endPosePosition = endPose[boneIndex].position;
 
   vr::HmdVector4_t result{};
-  result.v[0] = Lerp(openPosePosition.v[0], fistPosePosition.v[0], transform);
-  result.v[1] = Lerp(openPosePosition.v[1], fistPosePosition.v[1], transform);
-  result.v[2] = Lerp(openPosePosition.v[2], fistPosePosition.v[2], transform);
-  result.v[3] = Lerp(openPosePosition.v[3], fistPosePosition.v[3], transform);
+  result.v[0] = Lerp(startPosePosition.v[0], endPosePosition.v[0], transform);
+  result.v[1] = Lerp(startPosePosition.v[1], endPosePosition.v[1], transform);
+  result.v[2] = Lerp(startPosePosition.v[2], endPosePosition.v[2], transform);
+  result.v[3] = Lerp(startPosePosition.v[3], endPosePosition.v[3], transform);
 
   return result;
 }
