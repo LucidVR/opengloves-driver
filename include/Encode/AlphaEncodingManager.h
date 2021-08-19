@@ -2,6 +2,8 @@
 
 #include "Encode/EncodingManager.h"
 
+static const char* c_alphaEncodingSettingsSection = "encoding_alpha";
+
 class AlphaEncodingManager : public IEncodingManager {
 public:
 	AlphaEncodingManager(float maxAnalogValue) : m_maxAnalogValue(maxAnalogValue){};

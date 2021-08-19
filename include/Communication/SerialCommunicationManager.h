@@ -11,6 +11,8 @@
 #include "CommunicationManager.h"
 #include "DeviceConfiguration.h"
 
+static const char* c_serialCommunicationSettingsSection = "communication_serial";
+
 class SerialCommunicationManager : public ICommunicationManager {
  public:
   SerialCommunicationManager(const VRSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager)
