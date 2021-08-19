@@ -61,12 +61,12 @@
   {
     "__type": "encoding_protocol: 0",
     "__title": "Legacy Encoding",
-    "max_analog_value": 1023
+    "max_analog_value": 4095
   },
   "encoding_alpha":
   {
     "__type": "encoding_protocol: 1",
     "__title": "Alpha Protocol",
-    "max_analog_value": 1023
+    "max_analog_value": 4095
   }
 }
