@@ -143,7 +143,7 @@ void LucidGloveDeviceDriver::StartDevice() {
       if (datas.calibrate) {
         if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration();
       } else {
-        if (m_controllerPose->isCalibrating()) m_controllerPose->StopCalibration();
+        if (m_controllerPose->isCalibrating()) m_controllerPose->CompleteCalibration();
       }
 
     } catch (const std::exception&) {

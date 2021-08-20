@@ -16,7 +16,7 @@ class ControllerPose {
 
   void StartCalibration();
 
-  void StopCalibration();
+  void CompleteCalibration();
 
   void CancelCalibration();
 
