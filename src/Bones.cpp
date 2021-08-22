@@ -292,7 +292,7 @@ vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const size_t boneIndex, 
 
   AnimationData_t animationData = m_modelManager->GetAnimationDataByNodeIndex(boneIndex + 1, f);
 
-  const float interp = Lerp(animationData.times[0], animationData.times[1], f);
+  const float interp = std::clamp((f - animationData.times[0]) / (animationData.times[1] - animationData.times[0]), 0.0f, 1.0f);
 
   if (animationData.transforms[0].rotation != emptyRotation) {
     result.orientation.x = Lerp(animationData.transforms[0].rotation[0], animationData.transforms[1].rotation[0], interp);
