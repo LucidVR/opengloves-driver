@@ -280,14 +280,14 @@ void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, co
 vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const size_t boneIndex, const float f) {
   vr::VRBoneTransform_t result;
 
-  Transform_t nodeTransform = m_modelManager->GetTransformByNodeIndex(boneIndex);
+  Transform_t nodeTransform = m_modelManager->GetTransformByNodeIndex(boneIndex+1);
   result.orientation.z = nodeTransform.rotation[0];
   result.orientation.w = nodeTransform.rotation[1];
   result.orientation.x = nodeTransform.rotation[2];
   result.orientation.y = nodeTransform.rotation[3];
   std::copy(nodeTransform.translation.begin(), nodeTransform.translation.end(), result.position.v);
 
-  AnimationData_t animationData = m_modelManager->GetAnimationDataByNodeIndex(boneIndex, f);
+  AnimationData_t animationData = m_modelManager->GetAnimationDataByNodeIndex(boneIndex+1, f);
 
   if (animationData.transforms[0].rotation != emptyRotation) {
     result.orientation.x = animationData.transforms[0].rotation[0];
