@@ -139,11 +139,13 @@ void LucidGloveDeviceDriver::StartDevice() {
       vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], datas.flexion[4], 0);
 
       vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_MENU], datas.menu, 0);
+
       if (datas.calibrate) {
         if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration();
       } else {
-        if (m_controllerPose->isCalibrating()) m_controllerPose->FinishCalibration();
+        if (m_controllerPose->isCalibrating()) m_controllerPose->CompleteCalibration();
       }
+
     } catch (const std::exception&) {
       DebugDriverLog("Exception caught while parsing comm data");
     }
