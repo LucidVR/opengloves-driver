@@ -10,8 +10,8 @@
 static const std::array<float, 4> emptyRotation = {0.0f, 0.0f, 0.0f, 0.0f};
 static const std::array<float, 3> emptyTranslation = {0.0f, 0.0f, 0.0f};
 
-Transform_t::Transform_t() : rotation(emptyRotation), translation(emptyTranslation){}
-AnimationData_t::AnimationData_t() : startTime(0.0f), endTime(0.0f){}
+Transform_t::Transform_t() : rotation(emptyRotation), translation(emptyTranslation) {}
+AnimationData_t::AnimationData_t() : startTime(0.0f), endTime(0.0f) {}
 
 static float Lerp(const float& a, const float& b, const float& f) { return a + f * (b - a); }
 
@@ -192,16 +192,16 @@ BoneAnimator::BoneAnimator(const std::string& fileName) : m_fileName(fileName) {
   m_loaded = m_modelManager->Load();
 }
 
-void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, bool rightHand) {
+void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand) {
   if (!m_loaded) return;
 
   for (size_t i = 0; i < NUM_BONES; i++) {
     FingerIndex finger = GetFingerFromBoneIndex((HandSkeletonBone)i);
-    if (finger != FingerIndex::Unknown) skeleton[i] = GetTransformForBone((HandSkeletonBone)i, flexion[static_cast<int>(finger)]);
+    if (finger != FingerIndex::Unknown) skeleton[i] = GetTransformForBone((HandSkeletonBone)i, flexion[static_cast<int>(finger)], rightHand);
   }
 }
 
-vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& boneIndex, const float f) {
+vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& boneIndex, const float f, const bool rightHand) {
   vr::VRBoneTransform_t result{};
 
   Transform_t nodeTransform = m_modelManager->GetTransformByBoneIndex(boneIndex);
@@ -230,8 +230,46 @@ vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& 
     result.position.v[2] = Lerp(animationData.startTransform.translation[2], animationData.endTransform.translation[2], interp);
   }
   result.position.v[3] = 1.0f;
+
+  if (!rightHand) TransformLeftBone(result, boneIndex);
   return result;
 };
+
+void BoneAnimator::TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex) {
+  switch (boneIndex) {
+    case HandSkeletonBone::eBone_Root: {
+      return;
+    }
+    case HandSkeletonBone::eBone_Thumb0:
+    case HandSkeletonBone::eBone_IndexFinger0:
+    case HandSkeletonBone::eBone_MiddleFinger0:
+    case HandSkeletonBone::eBone_RingFinger0:
+    case HandSkeletonBone::eBone_PinkyFinger0: {
+      vr::HmdQuaternionf_t quat = bone.orientation;
+      bone.orientation.w = -quat.x;
+      bone.orientation.x = quat.w;
+      bone.orientation.y = -quat.z;
+      bone.orientation.z = quat.y;
+      break;
+    }
+    case HandSkeletonBone::eBone_Wrist:
+    case HandSkeletonBone::eBone_Aux_IndexFinger:
+    case HandSkeletonBone::eBone_Aux_Thumb:
+    case HandSkeletonBone::eBone_Aux_MiddleFinger:
+    case HandSkeletonBone::eBone_Aux_RingFinger:
+    case HandSkeletonBone::eBone_Aux_PinkyFinger: {
+      bone.orientation.y = -bone.orientation.y;
+      bone.orientation.z = -bone.orientation.z;
+      break;
+    }
+    default: {
+      bone.position.v[1] = -bone.position.v[1];
+      bone.position.v[2] = -bone.position.v[2];
+    }
+  }
+
+  bone.position.v[0] = -bone.position.v[0];
+}
 
 // Initial values for the right/left poses
 vr::VRBoneTransform_t rightOpenPose[NUM_BONES] = {
