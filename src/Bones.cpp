@@ -128,7 +128,9 @@ class GLTFModelManager : public IModelManager {
     std::vector<float>::iterator it;
 
     const size_t lowerKeyframeIndex = std::lower_bound(timeKeyframes.begin(), timeKeyframes.end(), f) - timeKeyframes.begin() - 1;
-    const size_t upperKeyframeIndex = std::upper_bound(timeKeyframes.begin(), timeKeyframes.end(), f) - timeKeyframes.begin() - 1;
+    size_t upperKeyframeIndex = lowerKeyframeIndex;
+
+    if (upperKeyframeIndex < 23) upperKeyframeIndex++;
 
     result.times = {timeKeyframes[lowerKeyframeIndex], timeKeyframes[upperKeyframeIndex]};
 
@@ -304,7 +306,6 @@ vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const size_t boneIndex, 
     result.position.v[1] = Lerp(animationData.transforms[0].translation[1], animationData.transforms[1].translation[1], interp);
     result.position.v[2] = Lerp(animationData.transforms[0].translation[2], animationData.transforms[1].translation[2], interp);
   }
-  int boneIndext = boneIndex;
   result.position.v[3] = 1.0f;
   return result;
 };
