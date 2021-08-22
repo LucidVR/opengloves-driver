@@ -213,7 +213,7 @@ vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& 
   result.position.v[1] = nodeTransform.translation[1];
   result.position.v[2] = nodeTransform.translation[2];
 
-  AnimationData_t animationData = m_modelManager->GetAnimationDataByBoneIndex((HandSkeletonBone)boneIndex, f);
+  AnimationData_t animationData = m_modelManager->GetAnimationDataByBoneIndex(boneIndex, f);
 
   const float interp = std::clamp((f - animationData.startTime) / (animationData.endTime - animationData.startTime), 0.0f, 1.0f);
 
