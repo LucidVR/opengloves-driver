@@ -92,7 +92,9 @@ class GLTFModelManager : public IModelManager {
       return false;
     }
 
-    LoadAnimationData();
+    LoadInitialTransforms();
+    LoadKeyframeTimes();
+    LoadKeyframeTransforms();
 
     return true;
   }
@@ -182,12 +184,6 @@ class GLTFModelManager : public IModelManager {
         }
       }
     }
-  }
-
-  void LoadAnimationData() {
-    LoadInitialTransforms();
-    LoadKeyframeTimes();
-    LoadKeyframeTransforms();
   }
 };
 
