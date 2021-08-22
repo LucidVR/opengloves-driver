@@ -10,88 +10,65 @@
 static const std::array<float, 4> emptyRotation = {0.0f, 0.0f, 0.0f, 0.0f};
 static const std::array<float, 3> emptyTranslation = {0.0f, 0.0f, 0.0f};
 
+Transform_t::Transform_t() : rotation(emptyRotation), translation(emptyTranslation){}
+AnimationData_t::AnimationData_t() : startTime(0.0f), endTime(0.0f){}
+
 static float Lerp(const float& a, const float& b, const float& f) { return a + f * (b - a); }
 
-enum HandSkeletonBone : vr::BoneIndex_t {
-  eBone_Root = 0,
-  eBone_Wrist,
-  eBone_Thumb0,
-  eBone_Thumb1,
-  eBone_Thumb2,
-  eBone_Thumb3,
-  eBone_IndexFinger0,
-  eBone_IndexFinger1,
-  eBone_IndexFinger2,
-  eBone_IndexFinger3,
-  eBone_IndexFinger4,
-  eBone_MiddleFinger0,
-  eBone_MiddleFinger1,
-  eBone_MiddleFinger2,
-  eBone_MiddleFinger3,
-  eBone_MiddleFinger4,
-  eBone_RingFinger0,
-  eBone_RingFinger1,
-  eBone_RingFinger2,
-  eBone_RingFinger3,
-  eBone_RingFinger4,
-  eBone_PinkyFinger0,
-  eBone_PinkyFinger1,
-  eBone_PinkyFinger2,
-  eBone_PinkyFinger3,
-  eBone_PinkyFinger4,
-  eBone_Aux_Thumb,
-  eBone_Aux_IndexFinger,
-  eBone_Aux_MiddleFinger,
-  eBone_Aux_RingFinger,
-  eBone_Aux_PinkyFinger,
-  eBone_Count
-};
+enum class FingerIndex : int { Thumb = 0, IndexFinger, MiddleFinger, RingFinger, PinkyFinger, Unknown = -1 };
 
-static short GetFingerFromBoneIndex(vr::BoneIndex_t bone) {
+static FingerIndex GetFingerFromBoneIndex(HandSkeletonBone bone) {
   switch (bone) {
-    case eBone_Thumb0:
-    case eBone_Thumb1:
-    case eBone_Thumb2:
-    case eBone_Thumb3:
-    case eBone_Aux_Thumb:
-      return 0;
-    case eBone_IndexFinger0:
-    case eBone_IndexFinger1:
-    case eBone_IndexFinger2:
-    case eBone_IndexFinger3:
-    case eBone_IndexFinger4:
-    case eBone_Aux_IndexFinger:
-      return 1;
-    case eBone_MiddleFinger0:
-    case eBone_MiddleFinger1:
-    case eBone_MiddleFinger2:
-    case eBone_MiddleFinger3:
-    case eBone_MiddleFinger4:
-    case eBone_Aux_MiddleFinger:
-      return 2;
-    case eBone_RingFinger0:
-    case eBone_RingFinger1:
-    case eBone_RingFinger2:
-    case eBone_RingFinger3:
-    case eBone_RingFinger4:
-    case eBone_Aux_RingFinger:
-      return 3;
-    case eBone_PinkyFinger0:
-    case eBone_PinkyFinger1:
-    case eBone_PinkyFinger2:
-    case eBone_PinkyFinger3:
-    case eBone_PinkyFinger4:
-    case eBone_Aux_PinkyFinger:
-      return 4;
+    case HandSkeletonBone::eBone_Thumb0:
+    case HandSkeletonBone::eBone_Thumb1:
+    case HandSkeletonBone::eBone_Thumb2:
+    case HandSkeletonBone::eBone_Thumb3:
+    case HandSkeletonBone::eBone_Aux_Thumb:
+      return FingerIndex::Thumb;
+    case HandSkeletonBone::eBone_IndexFinger0:
+    case HandSkeletonBone::eBone_IndexFinger1:
+    case HandSkeletonBone::eBone_IndexFinger2:
+    case HandSkeletonBone::eBone_IndexFinger3:
+    case HandSkeletonBone::eBone_IndexFinger4:
+    case HandSkeletonBone::eBone_Aux_IndexFinger:
+      return FingerIndex::IndexFinger;
+    case HandSkeletonBone::eBone_MiddleFinger0:
+    case HandSkeletonBone::eBone_MiddleFinger1:
+    case HandSkeletonBone::eBone_MiddleFinger2:
+    case HandSkeletonBone::eBone_MiddleFinger3:
+    case HandSkeletonBone::eBone_MiddleFinger4:
+    case HandSkeletonBone::eBone_Aux_MiddleFinger:
+      return FingerIndex::MiddleFinger;
+    case HandSkeletonBone::eBone_RingFinger0:
+    case HandSkeletonBone::eBone_RingFinger1:
+    case HandSkeletonBone::eBone_RingFinger2:
+    case HandSkeletonBone::eBone_RingFinger3:
+    case HandSkeletonBone::eBone_RingFinger4:
+    case HandSkeletonBone::eBone_Aux_RingFinger:
+      return FingerIndex::RingFinger;
+    case HandSkeletonBone::eBone_PinkyFinger0:
+    case HandSkeletonBone::eBone_PinkyFinger1:
+    case HandSkeletonBone::eBone_PinkyFinger2:
+    case HandSkeletonBone::eBone_PinkyFinger3:
+    case HandSkeletonBone::eBone_PinkyFinger4:
+    case HandSkeletonBone::eBone_Aux_PinkyFinger:
+      return FingerIndex::PinkyFinger;
 
     default:
-      return -1;
+      return FingerIndex::Unknown;
   }
 }
 
 class GLTFModelManager : public IModelManager {
+ private:
+  std::string m_fileName;
+  tinygltf::Model m_model;
+  std::array<Transform_t, NUM_BONES> m_initialTransforms;
+  std::vector<float> m_keyframeTimes;
+  std::array<std::vector<Transform_t>, NUM_BONES> m_keyframeTransforms;
+
  public:
-  GLTFModelManager(const std::string& fileName) : m_fileName(fileName){};
+  GLTFModelManager(const std::string& fileName) : m_fileName(fileName) {}
 
   bool Load() {
     tinygltf::TinyGLTF loader;
@@ -115,155 +92,99 @@ class GLTFModelManager : public IModelManager {
       return false;
     }
 
-    m_keyframes = GetFloat(GetAccessorByIndex(0));
+    LoadInitialTransforms();
+    LoadKeyframeTimes();
+    LoadKeyframeTransforms();
 
     return true;
   }
 
-  AnimationData_t GetAnimationDataByNodeIndex(const size_t& boneIndex, float f) const {
-    AnimationData_t result{};
+  AnimationData_t GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, float f) const {
+    const size_t lowerKeyframeIndex = std::lower_bound(m_keyframeTimes.begin(), m_keyframeTimes.end(), std::clamp(f, 0.0001f, 1.0f)) - m_keyframeTimes.begin() - 1;
+    const size_t upperKeyframeIndex = (lowerKeyframeIndex < m_keyframeTimes.size() - 1) ? (lowerKeyframeIndex + 1) : lowerKeyframeIndex;
 
-    f = std::clamp(f, 0.0001f, 1.0f);
-    std::vector<float> timeKeyframes = GetKeyframes();
-    std::vector<float>::iterator it;
-
-    const size_t lowerKeyframeIndex = std::lower_bound(timeKeyframes.begin(), timeKeyframes.end(), f) - timeKeyframes.begin() - 1;
-    size_t upperKeyframeIndex = lowerKeyframeIndex;
-
-    if (upperKeyframeIndex < 23) upperKeyframeIndex++;
-
-    result.times = {timeKeyframes[lowerKeyframeIndex], timeKeyframes[upperKeyframeIndex]};
-
-    std::vector<tinygltf::AnimationChannel> channels = GetAnimationChannelsByNodeIndex(0, boneIndex);
-    for (tinygltf::AnimationChannel const& channel : channels) {
-      tinygltf::Accessor accessor = GetAccessorByAnimationChannel(0, channel);
-
-      switch (accessor.type) {
-        // quaternion
-        case TINYGLTF_TYPE_VEC4: {
-          std::vector<std::array<float, 4>> rotationKeyframes = GetVec4(accessor);
-
-          auto it = std::lower_bound(timeKeyframes.begin(), timeKeyframes.end(), f);
-
-          std::array<float, 4> lowerKeyframe = rotationKeyframes[lowerKeyframeIndex];
-          std::array<float, 4> upperKeyframe = rotationKeyframes[upperKeyframeIndex];
-
-          result.transforms[0].rotation = lowerKeyframe;
-          result.transforms[1].rotation = upperKeyframe;
-          break;
-        }
-        // translation
-        case TINYGLTF_TYPE_VEC3: {
-          std::vector<std::array<float, 3>> translationKeyframes = GetVec3(accessor);
-
-          std::array<float, 3> lowerKeyframe = translationKeyframes[lowerKeyframeIndex];
-          std::array<float, 3> upperKeyframe = translationKeyframes[upperKeyframeIndex];
-
-          result.transforms[0].translation = lowerKeyframe;
-          result.transforms[1].translation = upperKeyframe;
-          break;
-        }
-      }
-    }
-
+    AnimationData_t result;
+    result.startTransform = m_keyframeTransforms[(size_t)boneIndex][lowerKeyframeIndex];
+    result.startTime = m_keyframeTimes[lowerKeyframeIndex];
+    result.endTransform = m_keyframeTransforms[(size_t)boneIndex][upperKeyframeIndex];
+    result.endTime = m_keyframeTimes[upperKeyframeIndex];
     return result;
   }
 
-  Transform_t GetTransformByNodeIndex(const size_t& boneIndex) const {
-    tinygltf::Node node = GetNodeByIndex(boneIndex);
-
-    Transform_t transform;
-
-    for (short i = 0; i < node.rotation.size(); i++) {
-      transform.rotation[i] = node.rotation[i];
-    }
-
-    for (short i = 0; i < node.translation.size(); i++) {
-      transform.translation[i] = node.translation[i];
-    }
-
-    return transform;
-  }
+  Transform_t GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const { return m_initialTransforms[(size_t)boneIndex]; }
 
  private:
-  std::vector<std::array<float, 4>> GetVec4(const tinygltf::Accessor& accessor) const {
-    tinygltf::BufferView bufferView = m_model.bufferViews[accessor.bufferView];
-    std::vector<unsigned char> bufIn = GetDataFromBuffer(bufferView);
+  int GetNodeIndexFromBoneIndex(const HandSkeletonBone& boneIndex) const { return (int)boneIndex + 1; }
 
-    std::vector<std::array<float, 4>> res(accessor.count);
-    memcpy(&res[0], bufIn.data(), accessor.count * sizeof(float) * 4);
+  void LoadInitialTransforms() {
+    for (size_t boneIndex = 0; boneIndex < NUM_BONES; boneIndex++) {
+      tinygltf::Node node = m_model.nodes[GetNodeIndexFromBoneIndex((HandSkeletonBone)boneIndex)];
+
+      Transform_t transform;
+      if (node.rotation.size() >= 4) {
+        transform.rotation[0] = (float)node.rotation[0];
+        transform.rotation[1] = (float)node.rotation[1];
+        transform.rotation[2] = (float)node.rotation[2];
+        transform.rotation[3] = (float)node.rotation[3];
+      }
+      if (node.translation.size() >= 3) {
+        transform.translation[0] = (float)node.translation[0];
+        transform.translation[1] = (float)node.translation[1];
+        transform.translation[2] = (float)node.translation[2];
+      }
+      m_initialTransforms[boneIndex] = transform;
+    }
+  }
+
+  void LoadKeyframeTimes() {
+    tinygltf::Accessor accessor = m_model.accessors[0];
+    m_keyframeTimes.resize(accessor.count);
+
+    tinygltf::BufferView bufferView = m_model.bufferViews[accessor.bufferView];
+    const std::vector<unsigned char>& bufData = m_model.buffers[0].data;
+    memcpy(&m_keyframeTimes[0], bufData.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(float));
+  }
+
+  template <size_t N>
+  std::vector<std::array<float, N>> GetVecN(const tinygltf::Accessor& accessor) const {
+    tinygltf::BufferView bufferView = m_model.bufferViews[accessor.bufferView];
+    const std::vector<unsigned char>& bufData = m_model.buffers[0].data;
+
+    std::vector<std::array<float, N>> res(accessor.count);
+    memcpy(&res[0], bufData.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(float) * N);
 
     return res;
   }
 
-  std::vector<std::array<float, 3>> GetVec3(const tinygltf::Accessor& accessor) const {
-    tinygltf::BufferView bufferView = m_model.bufferViews[accessor.bufferView];
-    std::vector<unsigned char> bufIn = GetDataFromBuffer(bufferView);
+  void LoadKeyframeTransforms() {
+    for (size_t boneIndex = 0; boneIndex < NUM_BONES; boneIndex++) {
+      int nodeIndex = GetNodeIndexFromBoneIndex((HandSkeletonBone)boneIndex);
+      const tinygltf::Animation& animation = m_model.animations[0];
+      std::vector<Transform_t>& transforms = m_keyframeTransforms[boneIndex];
 
-    std::vector<std::array<float, 3>> res(accessor.count);
-    memcpy(&res[0], bufIn.data(), accessor.count * sizeof(float) * 3);
+      transforms.resize(m_keyframeTimes.size());
 
-    return res;
-  }
+      for (auto& channel : animation.channels) {
+        if (channel.target_node != nodeIndex) continue;
 
-  std::vector<float> GetFloat(const tinygltf::Accessor& accessor) const {
-    tinygltf::BufferView bufferView = m_model.bufferViews[accessor.bufferView];
-    std::vector<unsigned char> bufData = m_model.buffers[0].data;
-
-    std::vector<unsigned char>::const_iterator viewBegin = bufData.begin() + bufferView.byteOffset;
-    std::vector<unsigned char> bufIn(viewBegin, viewBegin + bufferView.byteLength);
-
-    std::vector<float> res(accessor.count);
-
-    memcpy(&res[0], bufIn.data(), accessor.count * sizeof(float));
-    return res;
-  }
-
-  tinygltf::Node GetNodeByIndex(const size_t& nodeIndex) const {
-    tinygltf::Node node = m_model.nodes[nodeIndex];
-
-    return node;
-  }
-
-  std::vector<tinygltf::AnimationChannel> GetAnimationChannelsByNodeIndex(const size_t& animationIndex, const size_t& nodeIndex) const {
-    std::vector<tinygltf::AnimationChannel> channels = m_model.animations[animationIndex].channels;
-
-    std::vector<tinygltf::AnimationChannel> result;
-    for (const tinygltf::AnimationChannel& channel : channels) {
-      if (channel.target_node == nodeIndex) {
-        result.push_back(channel);
-        if (result.size() == 2) return result;
+        const tinygltf::Accessor& accessor = m_model.accessors[animation.samplers[channel.sampler].output];
+        switch (accessor.type) {
+          // rotation via quaternion
+          case TINYGLTF_TYPE_VEC4: {
+            std::vector<std::array<float, 4>> keyframes = GetVecN<4>(accessor);
+            for (size_t i = 0; i < keyframes.size(); i++) transforms[i].rotation = keyframes[i];
+            break;
+          }
+          // translation
+          case TINYGLTF_TYPE_VEC3: {
+            std::vector<std::array<float, 3>> keyframes = GetVecN<3>(accessor);
+            for (size_t i = 0; i < keyframes.size(); i++) transforms[i].translation = keyframes[i];
+            break;
+          }
+        }
       }
     }
-
-    return result;
   }
-  tinygltf::Accessor GetAccessorByAnimationChannel(const size_t& animationIndex, const tinygltf::AnimationChannel& channel) const {
-    tinygltf::AnimationSampler sampler = m_model.animations[animationIndex].samplers[channel.sampler];
-    tinygltf::Accessor accessor = m_model.accessors[sampler.output];
-
-    return accessor;
-  }
-
-  tinygltf::Accessor GetAccessorByIndex(const size_t& accessorIndex) const {
-    tinygltf::Accessor accessor = m_model.accessors[accessorIndex];
-    return accessor;
-  }
-
-  std::vector<float> GetKeyframes() const { return m_keyframes; }
-
-  std::vector<unsigned char> GetDataFromBuffer(const tinygltf::BufferView& bufferView) const {
-    std::vector<unsigned char> bufData = m_model.buffers[0].data;
-
-    std::vector<unsigned char>::const_iterator viewBegin = bufData.cbegin() + bufferView.byteOffset;
-    std::vector<unsigned char> result(viewBegin, viewBegin + bufferView.byteLength);
-
-    return result;
-  }
-
-  tinygltf::Model m_model;
-  std::vector<float> m_keyframes;
-  std::string m_fileName;
 };
 
 BoneAnimator::BoneAnimator(const std::string& fileName) : m_fileName(fileName) {
@@ -275,36 +196,38 @@ void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, co
   if (!m_loaded) return;
 
   for (size_t i = 0; i < NUM_BONES; i++) {
-    size_t finger = GetFingerFromBoneIndex(i);
-    if (finger != -1) skeleton[i] = GetTransformForBone(i, flexion[finger]);
+    FingerIndex finger = GetFingerFromBoneIndex((HandSkeletonBone)i);
+    if (finger != FingerIndex::Unknown) skeleton[i] = GetTransformForBone((HandSkeletonBone)i, flexion[static_cast<int>(finger)]);
   }
 }
 
-vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const size_t boneIndex, const float f) {
-  vr::VRBoneTransform_t result;
+vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& boneIndex, const float f) {
+  vr::VRBoneTransform_t result{};
 
-  Transform_t nodeTransform = m_modelManager->GetTransformByNodeIndex(boneIndex + 1);
-  result.orientation.z = nodeTransform.rotation[0];
-  result.orientation.w = nodeTransform.rotation[1];
-  result.orientation.x = nodeTransform.rotation[2];
-  result.orientation.y = nodeTransform.rotation[3];
-  std::copy(nodeTransform.translation.begin(), nodeTransform.translation.end(), result.position.v);
+  Transform_t nodeTransform = m_modelManager->GetTransformByBoneIndex(boneIndex);
+  result.orientation.x = nodeTransform.rotation[0];
+  result.orientation.y = nodeTransform.rotation[1];
+  result.orientation.z = nodeTransform.rotation[2];
+  result.orientation.w = nodeTransform.rotation[3];
+  result.position.v[0] = nodeTransform.translation[0];
+  result.position.v[1] = nodeTransform.translation[1];
+  result.position.v[2] = nodeTransform.translation[2];
 
-  AnimationData_t animationData = m_modelManager->GetAnimationDataByNodeIndex(boneIndex + 1, f);
+  AnimationData_t animationData = m_modelManager->GetAnimationDataByBoneIndex(boneIndex, f);
 
-  const float interp = std::clamp((f - animationData.times[0]) / (animationData.times[1] - animationData.times[0]), 0.0f, 1.0f);
+  const float interp = std::clamp((f - animationData.startTime) / (animationData.endTime - animationData.startTime), 0.0f, 1.0f);
 
-  if (animationData.transforms[0].rotation != emptyRotation) {
-    result.orientation.x = Lerp(animationData.transforms[0].rotation[0], animationData.transforms[1].rotation[0], interp);
-    result.orientation.y = Lerp(animationData.transforms[0].rotation[1], animationData.transforms[1].rotation[1], interp);
-    result.orientation.z = Lerp(animationData.transforms[0].rotation[2], animationData.transforms[1].rotation[2], interp);
-    result.orientation.w = Lerp(animationData.transforms[0].rotation[3], animationData.transforms[1].rotation[3], interp);
+  if (animationData.startTransform.rotation != emptyRotation) {
+    result.orientation.x = Lerp(animationData.startTransform.rotation[0], animationData.endTransform.rotation[0], interp);
+    result.orientation.y = Lerp(animationData.startTransform.rotation[1], animationData.endTransform.rotation[1], interp);
+    result.orientation.z = Lerp(animationData.startTransform.rotation[2], animationData.endTransform.rotation[2], interp);
+    result.orientation.w = Lerp(animationData.startTransform.rotation[3], animationData.endTransform.rotation[3], interp);
   }
 
-  if (animationData.transforms[0].translation != emptyTranslation) {
-    result.position.v[0] = Lerp(animationData.transforms[0].translation[0], animationData.transforms[1].translation[0], interp);
-    result.position.v[1] = Lerp(animationData.transforms[0].translation[1], animationData.transforms[1].translation[1], interp);
-    result.position.v[2] = Lerp(animationData.transforms[0].translation[2], animationData.transforms[1].translation[2], interp);
+  if (animationData.startTransform.translation != emptyTranslation) {
+    result.position.v[0] = Lerp(animationData.startTransform.translation[0], animationData.endTransform.translation[0], interp);
+    result.position.v[1] = Lerp(animationData.startTransform.translation[1], animationData.endTransform.translation[1], interp);
+    result.position.v[2] = Lerp(animationData.startTransform.translation[2], animationData.endTransform.translation[2], interp);
   }
   result.position.v[3] = 1.0f;
   return result;
