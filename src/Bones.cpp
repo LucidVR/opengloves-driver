@@ -188,10 +188,7 @@ class GLTFModelManager : public IModelManager {
     std::vector<unsigned char> bufIn = GetDataFromBuffer(bufferView);
 
     std::vector<std::array<float, 4>> res(accessor.count);
-
-    for (short i = 0; i < accessor.count; i++) {
-      memcpy(&res[i], &bufIn[i * (sizeof(float) * 4)],  sizeof(float) * 4);
-    }
+    memcpy(&res[0], bufIn.data(), accessor.count * sizeof(float) * 4);
 
     return res;
   }
@@ -201,10 +198,7 @@ class GLTFModelManager : public IModelManager {
     std::vector<unsigned char> bufIn = GetDataFromBuffer(bufferView);
 
     std::vector<std::array<float, 3>> res(accessor.count);
-
-    for (short i = 0; i < accessor.count; i++) {
-      memcpy(&res[i], &bufIn[i * (sizeof(float) * 3)], sizeof(float) * 3);
-    }
+    memcpy(&res[0], bufIn.data(), accessor.count * sizeof(float) * 3);
 
     return res;
   }
@@ -218,10 +212,7 @@ class GLTFModelManager : public IModelManager {
 
     std::vector<float> res(accessor.count);
 
-    for (short i = 0; i < accessor.count; i++) {
-      memcpy(&res[i], &bufIn[i * sizeof(float)], sizeof(float));
-    }
-
+    memcpy(&res[0], bufIn.data(), accessor.count * sizeof(float));
     return res;
   }
 
