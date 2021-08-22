@@ -6,6 +6,8 @@
 #include "DriverLog.h"
 #include "Quaternion.h"
 
+static const char* c_poseSettingsSection = "pose_settings";
+
 Calibration::Calibration() : m_maintainPose(), m_isCalibrating(false) {}
 
 void Calibration::StartCalibration(vr::DriverPose_t maintainPose) {

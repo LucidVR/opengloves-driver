@@ -1,12 +1,9 @@
 #pragma once
 
+#include "openvr_driver.h"
 #include "Communication/CommunicationManager.h"
 #include "DeviceDriver/DeviceDriver.h"
 #include "Encode/EncodingManager.h"
-#include "openvr_driver.h"
-
-static const char* c_driverSettingsSection = "driver_openglove";
-static const char* c_poseSettingsSection = "pose_settings";
 
 enum class VRCommunicationProtocol {
 	SERIAL = 0,
