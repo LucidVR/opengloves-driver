@@ -120,14 +120,15 @@ class GLTFModelManager : public IModelManager {
     return true;
   }
 
-  AnimationData_t GetAnimationDataByNodeIndex(const size_t& boneIndex, const float& f) const {
+  AnimationData_t GetAnimationDataByNodeIndex(const size_t& boneIndex, float f) const {
     AnimationData_t result{};
 
+    f = std::clamp(f, 0.0001f, 1.0f);
     std::vector<float> timeKeyframes = GetKeyframes();
-    auto it = std::lower_bound(m_keyframes.begin(), m_keyframes.end(), f);
+    std::vector<float>::iterator it;
 
-    const size_t lowerKeyframeIndex = it - m_keyframes.begin();
-    const size_t upperKeyframeIndex = std::next(it, 1) - m_keyframes.begin();
+    const size_t lowerKeyframeIndex = std::lower_bound(timeKeyframes.begin(), timeKeyframes.end(), f) - timeKeyframes.begin() - 1;
+    const size_t upperKeyframeIndex = std::upper_bound(timeKeyframes.begin(), timeKeyframes.end(), f) - timeKeyframes.begin() - 1;
 
     result.times = {timeKeyframes[lowerKeyframeIndex], timeKeyframes[upperKeyframeIndex]};
 
@@ -280,38 +281,25 @@ void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, co
 vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const size_t boneIndex, const float f) {
   vr::VRBoneTransform_t result;
 
-  Transform_t nodeTransform = m_modelManager->GetTransformByNodeIndex(boneIndex+1);
+  Transform_t nodeTransform = m_modelManager->GetTransformByNodeIndex(boneIndex + 1);
   result.orientation.z = nodeTransform.rotation[0];
   result.orientation.w = nodeTransform.rotation[1];
   result.orientation.x = nodeTransform.rotation[2];
   result.orientation.y = nodeTransform.rotation[3];
   std::copy(nodeTransform.translation.begin(), nodeTransform.translation.end(), result.position.v);
 
-  AnimationData_t animationData = m_modelManager->GetAnimationDataByNodeIndex(boneIndex+1, f);
+  AnimationData_t animationData = m_modelManager->GetAnimationDataByNodeIndex(boneIndex + 1, f);
+
+  const float interp = Lerp(animationData.times[0], animationData.times[1], f);
 
   if (animationData.transforms[0].rotation != emptyRotation) {
-    result.orientation.x = animationData.transforms[0].rotation[0];
-    result.orientation.y = animationData.transforms[0].rotation[1];
-    result.orientation.z = animationData.transforms[0].rotation[2];
-    result.orientation.w = animationData.transforms[0].rotation[3];
-  }
-
-  if (animationData.transforms[0].translation != emptyTranslation) {
-    result.position.v[0] = animationData.transforms[0].translation[0];
-    result.position.v[1] = animationData.transforms[0].translation[1];
-    result.position.v[2] = animationData.transforms[0].translation[2];
-  }
-
-   const float interp = Lerp(animationData.times[0], animationData.times[1], f);
-
-   if (animationData.transforms[0].rotation != emptyRotation) {
     result.orientation.x = Lerp(animationData.transforms[0].rotation[0], animationData.transforms[1].rotation[0], interp);
     result.orientation.y = Lerp(animationData.transforms[0].rotation[1], animationData.transforms[1].rotation[1], interp);
     result.orientation.z = Lerp(animationData.transforms[0].rotation[2], animationData.transforms[1].rotation[2], interp);
     result.orientation.w = Lerp(animationData.transforms[0].rotation[3], animationData.transforms[1].rotation[3], interp);
   }
 
-   if (animationData.transforms[0].translation != emptyTranslation) {
+  if (animationData.transforms[0].translation != emptyTranslation) {
     result.position.v[0] = Lerp(animationData.transforms[0].translation[0], animationData.transforms[1].translation[0], interp);
     result.position.v[1] = Lerp(animationData.transforms[0].translation[1], animationData.transforms[1].translation[1], interp);
     result.position.v[2] = Lerp(animationData.transforms[0].translation[2], animationData.transforms[1].translation[2], interp);

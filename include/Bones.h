@@ -26,7 +26,7 @@ class IModelManager {
  public:
   virtual bool Load() = 0;
 
-  virtual AnimationData_t GetAnimationDataByNodeIndex(const size_t& boneIndex, const float& f) const = 0;
+  virtual AnimationData_t GetAnimationDataByNodeIndex(const size_t& boneIndex, float f) const = 0;
   virtual Transform_t GetTransformByNodeIndex(const size_t& boneIndex) const = 0;
 };
 
