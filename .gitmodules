@@ -1,3 +1,6 @@
 [submodule "libraries/openvr"]
 	path = libraries/openvr
 	url = https://github.com/ValveSoftware/openvr.git
+[submodule "libraries/tinygltf"]
+	path = libraries/tinygltf
+	url = https://github.com/syoyo/tinygltf.git

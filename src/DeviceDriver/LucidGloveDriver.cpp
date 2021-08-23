@@ -27,8 +27,13 @@ enum ComponentIndex : int {
 };
 
 LucidGloveDeviceDriver::LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager,
-                                               std::string serialNumber)
-    : m_configuration(configuration), m_communicationManager(std::move(communicationManager)), m_serialNumber(serialNumber), m_driverId(-1), m_hasActivated(false) {
+                                               std::string serialNumber, std::shared_ptr<BoneAnimator> boneAnimator)
+    : m_configuration(configuration),
+      m_communicationManager(std::move(communicationManager)),
+      m_boneAnimator(std::move(boneAnimator)),
+      m_serialNumber(serialNumber),
+      m_driverId(-1),
+      m_hasActivated(false) {
   // copy a default bone transform to our hand transform for use in finger positioning later
   std::copy(std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
             std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose), std::begin(m_handTransforms));
@@ -107,17 +112,13 @@ vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
 }
 
 void LucidGloveDeviceDriver::StartDevice() {
-  {
-    // OpenVR needs an initial skeleton for when the device is activated
-    ComputeHand(m_handTransforms, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, IsRightHand());
-
-    vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
-    vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
-  }
+  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
+  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
 
   m_communicationManager->BeginListener([&](VRCommData_t datas) {
     try {
-      ComputeHand(m_handTransforms, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, IsRightHand());
+      m_boneAnimator->ComputeSkeletonTransforms(m_handTransforms, datas.flexion, IsRightHand());
+
       vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
       vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
 
@@ -147,7 +148,7 @@ void LucidGloveDeviceDriver::StartDevice() {
       }
 
     } catch (const std::exception&) {
-      DebugDriverLog("Exception caught while parsing comm data");
+      DriverLog("Exception caught while parsing comm data");
     }
   });
 }

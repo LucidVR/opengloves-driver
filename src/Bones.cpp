@@ -1,8 +1,281 @@
-#include <Bones.h>
-#include <DriverLog.h>
+#include "Bones.h"
 
-// these poses come from Valve's Index Controllers so share the same root bone to wrist
-// geometry assumptions.
+#include "DriverLog.h"
+
+#define TINYGLTF_IMPLEMENTATION
+#define TINYGLTF_NO_STB_IMAGE
+#define TINYGLTF_NO_STB_IMAGE_WRITE
+#include "tiny_gltf.h"
+
+static const std::array<float, 4> emptyRotation = {0.0f, 0.0f, 0.0f, 0.0f};
+static const std::array<float, 3> emptyTranslation = {0.0f, 0.0f, 0.0f};
+
+Transform_t::Transform_t() : rotation(emptyRotation), translation(emptyTranslation) {}
+AnimationData_t::AnimationData_t() : startTime(0.0f), endTime(0.0f) {}
+
+static float Lerp(const float& a, const float& b, const float& f) { return a + f * (b - a); }
+
+enum class FingerIndex : int { Thumb = 0, IndexFinger, MiddleFinger, RingFinger, PinkyFinger, Unknown = -1 };
+
+static FingerIndex GetFingerFromBoneIndex(HandSkeletonBone bone) {
+  switch (bone) {
+    case HandSkeletonBone::eBone_Thumb0:
+    case HandSkeletonBone::eBone_Thumb1:
+    case HandSkeletonBone::eBone_Thumb2:
+    case HandSkeletonBone::eBone_Thumb3:
+    case HandSkeletonBone::eBone_Aux_Thumb:
+      return FingerIndex::Thumb;
+    case HandSkeletonBone::eBone_IndexFinger0:
+    case HandSkeletonBone::eBone_IndexFinger1:
+    case HandSkeletonBone::eBone_IndexFinger2:
+    case HandSkeletonBone::eBone_IndexFinger3:
+    case HandSkeletonBone::eBone_IndexFinger4:
+    case HandSkeletonBone::eBone_Aux_IndexFinger:
+      return FingerIndex::IndexFinger;
+    case HandSkeletonBone::eBone_MiddleFinger0:
+    case HandSkeletonBone::eBone_MiddleFinger1:
+    case HandSkeletonBone::eBone_MiddleFinger2:
+    case HandSkeletonBone::eBone_MiddleFinger3:
+    case HandSkeletonBone::eBone_MiddleFinger4:
+    case HandSkeletonBone::eBone_Aux_MiddleFinger:
+      return FingerIndex::MiddleFinger;
+    case HandSkeletonBone::eBone_RingFinger0:
+    case HandSkeletonBone::eBone_RingFinger1:
+    case HandSkeletonBone::eBone_RingFinger2:
+    case HandSkeletonBone::eBone_RingFinger3:
+    case HandSkeletonBone::eBone_RingFinger4:
+    case HandSkeletonBone::eBone_Aux_RingFinger:
+      return FingerIndex::RingFinger;
+    case HandSkeletonBone::eBone_PinkyFinger0:
+    case HandSkeletonBone::eBone_PinkyFinger1:
+    case HandSkeletonBone::eBone_PinkyFinger2:
+    case HandSkeletonBone::eBone_PinkyFinger3:
+    case HandSkeletonBone::eBone_PinkyFinger4:
+    case HandSkeletonBone::eBone_Aux_PinkyFinger:
+      return FingerIndex::PinkyFinger;
+
+    default:
+      return FingerIndex::Unknown;
+  }
+}
+
+class GLTFModelManager : public IModelManager {
+ private:
+  tinygltf::Model m_model;
+  std::string m_fileName;
+  std::vector<Transform_t> m_initialTransforms;
+  std::vector<float> m_keyframeTimes;
+  std::vector<std::vector<Transform_t>> m_keyframeTransforms;
+
+ public:
+  GLTFModelManager(const std::string& fileName) : m_fileName(fileName) {}
+
+  bool Load() {
+    tinygltf::TinyGLTF loader;
+    std::string err;
+    std::string warn;
+
+    bool ret = loader.LoadBinaryFromFile(&m_model, &err, &warn, m_fileName);
+
+    if (!warn.empty()) {
+      DriverLog("Warning parsing gltf file: %s", warn.c_str());
+      return false;
+    }
+
+    if (!err.empty()) {
+      DriverLog("Error parsing gltf file: %s", err.c_str());
+      return false;
+    }
+
+    if (!ret) {
+      DriverLog("Failed to parse gltf");
+      return false;
+    }
+
+    m_initialTransforms = std::vector<Transform_t>(m_model.nodes.size()-1);
+    m_keyframeTransforms = std::vector<std::vector<Transform_t>>(m_model.nodes.size()-1);
+
+    LoadInitialTransforms();
+    LoadKeyframeTimes();
+    LoadKeyframeTransforms();
+
+    return true;
+  }
+
+  AnimationData_t GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, float f) const {
+    const size_t lowerKeyframeIndex = std::lower_bound(m_keyframeTimes.begin(), m_keyframeTimes.end(), std::clamp(f, 0.0001f, 1.0f)) - m_keyframeTimes.begin() - 1;
+    const size_t upperKeyframeIndex = (lowerKeyframeIndex < m_keyframeTimes.size() - 1) ? (lowerKeyframeIndex + 1) : lowerKeyframeIndex;
+
+    AnimationData_t result;
+    result.startTransform = m_keyframeTransforms[(size_t)boneIndex][lowerKeyframeIndex];
+    result.startTime = m_keyframeTimes[lowerKeyframeIndex];
+    result.endTransform = m_keyframeTransforms[(size_t)boneIndex][upperKeyframeIndex];
+    result.endTime = m_keyframeTimes[upperKeyframeIndex];
+    return result;
+  }
+
+  Transform_t GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const { return m_initialTransforms[(size_t)boneIndex]; }
+
+ private:
+  void LoadInitialTransforms() {
+    for (size_t nodeIndex = 1; nodeIndex < m_model.nodes.size(); nodeIndex++) {
+      tinygltf::Node node = m_model.nodes[nodeIndex];
+
+      Transform_t transform;
+      if (node.rotation.size() >= 4) {
+        transform.rotation[0] = (float)node.rotation[0];
+        transform.rotation[1] = (float)node.rotation[1];
+        transform.rotation[2] = (float)node.rotation[2];
+        transform.rotation[3] = (float)node.rotation[3];
+      }
+      if (node.translation.size() >= 3) {
+        transform.translation[0] = (float)node.translation[0];
+        transform.translation[1] = (float)node.translation[1];
+        transform.translation[2] = (float)node.translation[2];
+      }
+
+      //first node is never needed
+      m_initialTransforms[nodeIndex - 1] = transform;
+    }
+  }
+
+  void LoadKeyframeTimes() {
+    tinygltf::Accessor accessor = m_model.accessors[0];
+    m_keyframeTimes.resize(accessor.count);
+
+    tinygltf::BufferView bufferView = m_model.bufferViews[accessor.bufferView];
+    const std::vector<unsigned char>& bufData = m_model.buffers[0].data;
+    memcpy(&m_keyframeTimes[0], bufData.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(float));
+  }
+
+  template <size_t N>
+  std::vector<std::array<float, N>> GetVecN(const tinygltf::Accessor& accessor) const {
+    tinygltf::BufferView bufferView = m_model.bufferViews[accessor.bufferView];
+    const std::vector<unsigned char>& bufData = m_model.buffers[0].data;
+
+    std::vector<std::array<float, N>> res(accessor.count);
+    memcpy(&res[0], bufData.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(float) * N);
+
+    return res;
+  }
+
+  void LoadKeyframeTransforms() {
+    for (size_t nodeIndex = 1; nodeIndex < m_model.nodes.size(); nodeIndex++) {
+      const tinygltf::Animation& animation = m_model.animations[0];
+
+      // first node is never needed
+      std::vector<Transform_t>& transforms = m_keyframeTransforms[nodeIndex - 1];
+
+      transforms.resize(m_keyframeTimes.size());
+
+      for (auto& channel : animation.channels) {
+        if (channel.target_node != nodeIndex) continue;
+
+        const tinygltf::Accessor& accessor = m_model.accessors[animation.samplers[channel.sampler].output];
+        switch (accessor.type) {
+          // rotation via quaternion
+          case TINYGLTF_TYPE_VEC4: {
+            std::vector<std::array<float, 4>> keyframes = GetVecN<4>(accessor);
+            for (size_t i = 0; i < keyframes.size(); i++) transforms[i].rotation = keyframes[i];
+            break;
+          }
+          // translation
+          case TINYGLTF_TYPE_VEC3: {
+            std::vector<std::array<float, 3>> keyframes = GetVecN<3>(accessor);
+            for (size_t i = 0; i < keyframes.size(); i++) transforms[i].translation = keyframes[i];
+            break;
+          }
+        }
+      }
+    }
+  }
+};
+
+BoneAnimator::BoneAnimator(const std::string& fileName) : m_fileName(fileName) {
+  m_modelManager = std::make_unique<GLTFModelManager>(fileName);
+  m_loaded = m_modelManager->Load();
+}
+
+void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand) {
+  if (!m_loaded) return;
+
+  for (size_t i = 0; i < NUM_BONES; i++) {
+    FingerIndex finger = GetFingerFromBoneIndex((HandSkeletonBone)i);
+    if (finger != FingerIndex::Unknown) skeleton[i] = GetTransformForBone((HandSkeletonBone)i, flexion[static_cast<int>(finger)], rightHand);
+  }
+}
+
+vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& boneIndex, const float f, const bool rightHand) {
+  vr::VRBoneTransform_t result{};
+
+  Transform_t nodeTransform = m_modelManager->GetTransformByBoneIndex(boneIndex);
+  result.orientation.x = nodeTransform.rotation[0];
+  result.orientation.y = nodeTransform.rotation[1];
+  result.orientation.z = nodeTransform.rotation[2];
+  result.orientation.w = nodeTransform.rotation[3];
+  result.position.v[0] = nodeTransform.translation[0];
+  result.position.v[1] = nodeTransform.translation[1];
+  result.position.v[2] = nodeTransform.translation[2];
+
+  AnimationData_t animationData = m_modelManager->GetAnimationDataByBoneIndex(boneIndex, f);
+
+  const float interp = std::clamp((f - animationData.startTime) / (animationData.endTime - animationData.startTime), 0.0f, 1.0f);
+
+  if (animationData.startTransform.rotation != emptyRotation) {
+    result.orientation.x = Lerp(animationData.startTransform.rotation[0], animationData.endTransform.rotation[0], interp);
+    result.orientation.y = Lerp(animationData.startTransform.rotation[1], animationData.endTransform.rotation[1], interp);
+    result.orientation.z = Lerp(animationData.startTransform.rotation[2], animationData.endTransform.rotation[2], interp);
+    result.orientation.w = Lerp(animationData.startTransform.rotation[3], animationData.endTransform.rotation[3], interp);
+  }
+
+  if (animationData.startTransform.translation != emptyTranslation) {
+    result.position.v[0] = Lerp(animationData.startTransform.translation[0], animationData.endTransform.translation[0], interp);
+    result.position.v[1] = Lerp(animationData.startTransform.translation[1], animationData.endTransform.translation[1], interp);
+    result.position.v[2] = Lerp(animationData.startTransform.translation[2], animationData.endTransform.translation[2], interp);
+  }
+  result.position.v[3] = 1.0f;
+
+  if (!rightHand) TransformLeftBone(result, boneIndex);
+  return result;
+};
+
+void BoneAnimator::TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex) {
+  switch (boneIndex) {
+    case HandSkeletonBone::eBone_Root: {
+      return;
+    }
+    case HandSkeletonBone::eBone_Thumb0:
+    case HandSkeletonBone::eBone_IndexFinger0:
+    case HandSkeletonBone::eBone_MiddleFinger0:
+    case HandSkeletonBone::eBone_RingFinger0:
+    case HandSkeletonBone::eBone_PinkyFinger0: {
+      vr::HmdQuaternionf_t quat = bone.orientation;
+      bone.orientation.w = -quat.x;
+      bone.orientation.x = quat.w;
+      bone.orientation.y = -quat.z;
+      bone.orientation.z = quat.y;
+      break;
+    }
+    case HandSkeletonBone::eBone_Wrist:
+    case HandSkeletonBone::eBone_Aux_IndexFinger:
+    case HandSkeletonBone::eBone_Aux_Thumb:
+    case HandSkeletonBone::eBone_Aux_MiddleFinger:
+    case HandSkeletonBone::eBone_Aux_RingFinger:
+    case HandSkeletonBone::eBone_Aux_PinkyFinger: {
+      bone.orientation.y *= -1;
+      bone.orientation.z *= -1;
+      break;
+    }
+    default: {
+      bone.position.v[1] *= -1;
+      bone.position.v[2] *= -1;
+    }
+  }
+
+  bone.position.v[0] *= -1;
+}
+
+// Initial values for the right/left poses
 vr::VRBoneTransform_t rightOpenPose[NUM_BONES] = {
     {{0.000000f, 0.000000f, 0.000000f, 1.000000f}, {1.000000f, -0.000000f, -0.000000f, 0.000000f}},
     {{0.034038f, 0.036503f, 0.164722f, 1.000000f}, {-0.055147f, -0.078608f, 0.920279f, -0.379296f}},
@@ -35,40 +308,6 @@ vr::VRBoneTransform_t rightOpenPose[NUM_BONES] = {
     {{0.039354f, -0.075674f, 0.047048f, 1.000000f}, {-0.187047f, 0.678062f, 0.659285f, 0.265683f}},
     {{0.038340f, -0.090987f, 0.082579f, 1.000000f}, {-0.183037f, 0.736793f, 0.634757f, 0.143936f}},
     {{0.031806f, -0.087214f, 0.121015f, 1.000000f}, {-0.003659f, 0.758407f, 0.639342f, 0.126678f}},
-};
-
-vr::VRBoneTransform_t rightFistPose[NUM_BONES] = {
-    {{0.000000f, 0.000000f, 0.000000f, 1.000000f}, {1.000000f, -0.000000f, -0.000000f, 0.000000f}},
-    {{0.034038f, 0.036503f, 0.164722f, 1.000000f}, {-0.055147f, -0.078608f, 0.920279f, -0.379296f}},
-    {{0.016305f, 0.027529f, 0.017800f, 1.000000f}, {0.483332f, -0.225703f, 0.836342f, -0.126413f}},
-    {{-0.040406f, -0.000000f, 0.000000f, 1.000000f}, {0.894335f, -0.013302f, -0.082902f, 0.439448f}},
-    {{-0.032517f, -0.000000f, -0.000000f, 1.000000f}, {0.842428f, 0.000655f, 0.001244f, 0.538807f}},
-    {{-0.030464f, 0.000000f, 0.000000f, 1.000000f}, {1.000000f, -0.000000f, -0.000000f, 0.000000f}},
-    {{-0.003802f, 0.021514f, 0.012803f, 1.000000f}, {0.395174f, -0.617314f, 0.449185f, 0.510874f}},
-    {{-0.074204f, 0.005002f, -0.000234f, 1.000000f}, {0.737291f, -0.032006f, -0.115013f, 0.664944f}},
-    {{-0.043287f, 0.000000f, 0.000000f, 1.000000f}, {0.611381f, 0.003287f, 0.003823f, 0.791321f}},
-    {{-0.028275f, -0.000000f, -0.000000f, 1.000000f}, {0.745388f, -0.000684f, -0.000945f, 0.666629f}},
-    {{-0.022821f, -0.000000f, 0.000000f, 1.000000f}, {1.000000f, -0.000000f, 0.000000f, -0.000000f}},
-    {{-0.005787f, 0.006806f, 0.016534f, 1.000000f}, {0.522315f, -0.514203f, 0.483700f, 0.478348f}},
-    {{-0.070953f, -0.000779f, -0.000997f, 1.000000f}, {0.723653f, -0.097901f, 0.048546f, 0.681458f}},
-    {{-0.043108f, -0.000000f, -0.000000f, 1.000000f}, {0.637464f, -0.002366f, -0.002831f, 0.770472f}},
-    {{-0.033266f, -0.000000f, -0.000000f, 1.000000f}, {0.658008f, 0.002610f, 0.003196f, 0.753000f}},
-    {{-0.025892f, 0.000000f, -0.000000f, 1.000000f}, {0.999195f, -0.000000f, 0.000000f, 0.040126f}},
-    {{-0.004123f, -0.006858f, 0.016563f, 1.000000f}, {0.523374f, -0.489609f, 0.463997f, 0.520644f}},
-    {{-0.065876f, -0.001786f, -0.000693f, 1.000000f}, {0.759970f, -0.055609f, 0.011571f, 0.647471f}},
-    {{-0.040331f, -0.000000f, -0.000000f, 1.000000f}, {0.664315f, 0.001595f, 0.001967f, 0.747449f}},
-    {{-0.028489f, 0.000000f, 0.000000f, 1.000000f}, {0.626957f, -0.002784f, -0.003234f, 0.779042f}},
-    {{-0.022430f, 0.000000f, -0.000000f, 1.000000f}, {1.000000f, 0.000000f, 0.000000f, 0.000000f}},
-    {{-0.001131f, -0.019295f, 0.015429f, 1.000000f}, {0.477833f, -0.479766f, 0.379935f, 0.630198f}},
-    {{-0.062878f, -0.002844f, -0.000332f, 1.000000f}, {0.827001f, 0.034282f, 0.003440f, 0.561144f}},
-    {{-0.029874f, -0.000000f, -0.000000f, 1.000000f}, {0.702185f, -0.006716f, -0.009289f, 0.711903f}},
-    {{-0.017979f, -0.000000f, -0.000000f, 1.000000f}, {0.676853f, 0.007956f, 0.009917f, 0.736009f}},
-    {{-0.018018f, -0.000000f, 0.000000f, 1.000000f}, {1.000000f, 0.000000f, 0.000000f, 0.000000f}},
-    {{-0.019716f, 0.002802f, 0.093937f, 1.000000f}, {0.377286f, -0.540831f, -0.150446f, 0.736562f}},
-    {{-0.000171f, 0.016473f, 0.096515f, 1.000000f}, {-0.006456f, 0.022747f, 0.932927f, 0.359287f}},
-    {{-0.000448f, 0.001536f, 0.116543f, 1.000000f}, {-0.039357f, 0.105143f, 0.928833f, 0.353079f}},
-    {{-0.003949f, -0.014869f, 0.130608f, 1.000000f}, {-0.055071f, 0.068695f, 0.944016f, 0.317933f}},
-    {{-0.003263f, -0.034685f, 0.139926f, 1.000000f}, {0.019690f, -0.100741f, 0.957331f, 0.270149f}},
 };
 
 vr::VRBoneTransform_t leftOpenPose[NUM_BONES] = {
@@ -104,124 +343,3 @@ vr::VRBoneTransform_t leftOpenPose[NUM_BONES] = {
     {{-0.038340f, -0.090987f, 0.082579f, 1.000000f}, {-0.183037f, 0.736793f, -0.634757f, -0.143936f}},
     {{-0.031806f, -0.087214f, 0.121015f, 1.000000f}, {-0.003659f, 0.758407f, -0.639342f, -0.126678f}},
 };
-
-vr::VRBoneTransform_t leftFistPose[NUM_BONES] = {
-    {{0.000000f, 0.000000f, 0.000000f, 1.000000f}, {1.000000f, -0.000000f, -0.000000f, 0.000000f}},
-    {{-0.034038f, 0.036503f, 0.164722f, 1.000000f}, {-0.055147f, -0.078608f, -0.920279f, 0.379296f}},
-    {{-0.016305f, 0.027529f, 0.017800f, 1.000000f}, {0.225703f, 0.483332f, 0.126413f, 0.836342f}},
-    {{0.040406f, 0.000000f, -0.000000f, 1.000000f}, {0.894335f, -0.013302f, -0.082902f, 0.439448f}},
-    {{0.032517f, 0.000000f, 0.000000f, 1.000000f}, {0.842428f, 0.000655f, 0.001244f, 0.538807f}},
-    {{0.030464f, -0.000000f, -0.000000f, 1.000000f}, {1.000000f, -0.000000f, -0.000000f, 0.000000f}},
-    {{0.003802f, 0.021514f, 0.012803f, 1.000000f}, {0.617314f, 0.395175f, -0.510874f, 0.449185f}},
-    {{0.074204f, -0.005002f, 0.000234f, 1.000000f}, {0.737291f, -0.032006f, -0.115013f, 0.664944f}},
-    {{0.043287f, -0.000000f, -0.000000f, 1.000000f}, {0.611381f, 0.003287f, 0.003823f, 0.791321f}},
-    {{0.028275f, 0.000000f, 0.000000f, 1.000000f}, {0.745388f, -0.000684f, -0.000945f, 0.666629f}},
-    {{0.022821f, 0.000000f, -0.000000f, 1.000000f}, {1.000000f, -0.000000f, 0.000000f, -0.000000f}},
-    {{0.005787f, 0.006806f, 0.016534f, 1.000000f}, {0.514203f, 0.522315f, -0.478348f, 0.483700f}},
-    {{0.070953f, 0.000779f, 0.000997f, 1.000000f}, {0.723653f, -0.097901f, 0.048546f, 0.681458f}},
-    {{0.043108f, 0.000000f, 0.000000f, 1.000000f}, {0.637464f, -0.002366f, -0.002831f, 0.770472f}},
-    {{0.033266f, 0.000000f, 0.000000f, 1.000000f}, {0.658008f, 0.002610f, 0.003196f, 0.753000f}},
-    {{0.025892f, -0.000000f, 0.000000f, 1.000000f}, {0.999195f, -0.000000f, 0.000000f, 0.040126f}},
-    {{0.004123f, -0.006858f, 0.016563f, 1.000000f}, {0.489609f, 0.523374f, -0.520644f, 0.463997f}},
-    {{0.065876f, 0.001786f, 0.000693f, 1.000000f}, {0.759970f, -0.055609f, 0.011571f, 0.647471f}},
-    {{0.040331f, 0.000000f, 0.000000f, 1.000000f}, {0.664315f, 0.001595f, 0.001967f, 0.747449f}},
-    {{0.028489f, -0.000000f, -0.000000f, 1.000000f}, {0.626957f, -0.002784f, -0.003234f, 0.779042f}},
-    {{0.022430f, -0.000000f, 0.000000f, 1.000000f}, {1.000000f, 0.000000f, 0.000000f, 0.000000f}},
-    {{0.001131f, -0.019295f, 0.015429f, 1.000000f}, {0.479766f, 0.477833f, -0.630198f, 0.379934f}},
-    {{0.062878f, 0.002844f, 0.000332f, 1.000000f}, {0.827001f, 0.034282f, 0.003440f, 0.561144f}},
-    {{0.029874f, 0.000000f, 0.000000f, 1.000000f}, {0.702185f, -0.006716f, -0.009289f, 0.711903f}},
-    {{0.017979f, 0.000000f, 0.000000f, 1.000000f}, {0.676853f, 0.007956f, 0.009917f, 0.736009f}},
-    {{0.018018f, 0.000000f, -0.000000f, 1.000000f}, {1.000000f, 0.000000f, 0.000000f, 0.000000f}},
-    {{0.019716f, 0.002802f, 0.093937f, 1.000000f}, {0.377286f, -0.540831f, 0.150446f, -0.736562f}},
-    {{0.000171f, 0.016473f, 0.096515f, 1.000000f}, {-0.006456f, 0.022747f, -0.932927f, -0.359287f}},
-    {{0.000448f, 0.001536f, 0.116543f, 1.000000f}, {-0.039357f, 0.105143f, -0.928833f, -0.353079f}},
-    {{0.003949f, -0.014869f, 0.130608f, 1.000000f}, {-0.055071f, 0.068695f, -0.944016f, -0.317933f}},
-    {{0.003263f, -0.034685f, 0.139926f, 1.000000f}, {0.019690f, -0.100741f, -0.957331f, -0.270149f}},
-};
-
-vr::HmdQuaternionf_t CalculateOrientation(const float transform, const int boneIndex, const vr::VRBoneTransform_t* openPose, const vr::VRBoneTransform_t* fistPose) {
-  const vr::HmdQuaternionf_t openPoseOrientation = openPose[boneIndex].orientation;
-  const vr::HmdQuaternionf_t fistPoseOrientation = fistPose[boneIndex].orientation;
-
-  vr::HmdQuaternionf_t result;
-  result.w = Lerp(openPoseOrientation.w, fistPoseOrientation.w, transform);
-  result.x = Lerp(openPoseOrientation.x, fistPoseOrientation.x, transform);
-  result.y = Lerp(openPoseOrientation.y, fistPoseOrientation.y, transform);
-  result.z = Lerp(openPoseOrientation.z, fistPoseOrientation.z, transform);
-
-  return result;
-}
-vr::HmdVector4_t CalculatePosition(const float transform, const int boneIndex, const vr::VRBoneTransform_t* openPose, const vr::VRBoneTransform_t* fistPose) {
-  const vr::HmdVector4_t openPosePosition = openPose[boneIndex].position;
-  const vr::HmdVector4_t fistPosePosition = fistPose[boneIndex].position;
-
-  vr::HmdVector4_t result;
-  result.v[0] = Lerp(openPosePosition.v[0], fistPosePosition.v[0], transform);
-  result.v[1] = Lerp(openPosePosition.v[1], fistPosePosition.v[1], transform);
-  result.v[2] = Lerp(openPosePosition.v[2], fistPosePosition.v[2], transform);
-  result.v[3] = Lerp(openPosePosition.v[3], fistPosePosition.v[3], transform);
-
-  return result;
-}
-
-void ComputeHand(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool isRightHand) {
-  for (int i = 0; i < NUM_BONES; i++) {
-    int fingerNum = FingerFromBone(i);
-    if (fingerNum != -1) {
-      ComputeBoneFlexion(&skeleton[i], flexion[fingerNum], i, isRightHand);
-    }
-  }
-}
-
-// Transform should be between 0-1
-void ComputeBoneFlexion(vr::VRBoneTransform_t* boneTransform, float transform, int index, const bool isRightHand) {
-  vr::VRBoneTransform_t* fist_pose = isRightHand ? rightFistPose : leftFistPose;
-  vr::VRBoneTransform_t* open_pose = isRightHand ? rightOpenPose : leftOpenPose;
-
-  boneTransform->orientation = CalculateOrientation(transform, index, open_pose, fist_pose);
-  boneTransform->position = CalculatePosition(transform, index, open_pose, fist_pose);
-}
-
-float Lerp(const float a, const float b, const float f) { return a + f * (b - a); }
-
-int FingerFromBone(vr::BoneIndex_t bone) {
-  switch (bone) {
-    case eBone_Thumb0:
-    case eBone_Thumb1:
-    case eBone_Thumb2:
-    case eBone_Thumb3:
-    case eBone_Aux_Thumb:
-      return 0;
-    case eBone_IndexFinger0:
-    case eBone_IndexFinger1:
-    case eBone_IndexFinger2:
-    case eBone_IndexFinger3:
-    case eBone_IndexFinger4:
-    case eBone_Aux_IndexFinger:
-      return 1;
-    case eBone_MiddleFinger0:
-    case eBone_MiddleFinger1:
-    case eBone_MiddleFinger2:
-    case eBone_MiddleFinger3:
-    case eBone_MiddleFinger4:
-    case eBone_Aux_MiddleFinger:
-      return 2;
-    case eBone_RingFinger0:
-    case eBone_RingFinger1:
-    case eBone_RingFinger2:
-    case eBone_RingFinger3:
-    case eBone_RingFinger4:
-    case eBone_Aux_RingFinger:
-      return 3;
-    case eBone_PinkyFinger0:
-    case eBone_PinkyFinger1:
-    case eBone_PinkyFinger2:
-    case eBone_PinkyFinger3:
-    case eBone_PinkyFinger4:
-    case eBone_Aux_PinkyFinger:
-      return 4;
-
-    default:
-      return -1;
-  }
-}
