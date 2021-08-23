@@ -96,7 +96,7 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceC
       char name[248];
       vr::VRSettings()->GetString(c_btserialCommunicationSettingsSection, isRightHand ? "right_name" : "left_name", name, sizeof(name));
       VRBTSerialConfiguration_t btSerialSettings(name);
-      communicationManager = std::make_unique<BTSerialCommunicationManager>(btSerialSettings, std::move(encodingManager));
+      communicationManager = std::make_unique<BTSerialCommunicationManager>(std::move(encodingManager), btSerialSettings);
       break;
     }
     default:
@@ -107,7 +107,7 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceC
       const int baudRate = vr::VRSettings()->GetInt32(c_serialCommunicationSettingsSection, "baud_rate");
       VRSerialConfiguration_t serialSettings(port, baudRate);
 
-      communicationManager = std::make_unique<SerialCommunicationManager>(serialSettings, std::move(encodingManager));
+      communicationManager = std::make_unique<SerialCommunicationManager>(std::move(encodingManager), serialSettings);
       break;
   }
 
