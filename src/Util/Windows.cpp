@@ -1,5 +1,7 @@
 #include "Util/Windows.h"
+
 #include <Windows.h>
+
 #include "DriverLog.h"
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
@@ -39,4 +41,3 @@ std::string GetDriverPath() {
   std::string pathString = std::string(path);
   return pathString.substr(0, pathString.find_last_of("\\/"));
 }
-

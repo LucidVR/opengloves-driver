@@ -26,7 +26,7 @@ enum ComponentIndex : int {
   COMP_BTN_MENU = 14,
 };
 
-LucidGloveDeviceDriver::LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager,
+LucidGloveDeviceDriver::LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager,
                                                std::string serialNumber, std::shared_ptr<BoneAnimator> boneAnimator)
     : m_configuration(configuration),
       m_communicationManager(std::move(communicationManager)),
