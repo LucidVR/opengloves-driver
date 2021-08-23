@@ -1,6 +1,7 @@
 #include "Communication/SerialCommunicationManager.h"
-#include "Util/Windows.h"
+
 #include "DriverLog.h"
+#include "Util/Windows.h"
 
 #include <chrono>
 
