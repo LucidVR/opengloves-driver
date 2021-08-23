@@ -119,7 +119,7 @@ class GLTFModelManager : public IModelManager {
  private:
   void LoadInitialTransforms() {
     for (size_t nodeIndex = 1; nodeIndex < m_model.nodes.size(); nodeIndex++) {
-      tinygltf::Node node = m_model.nodes[nodeIndex - 1];
+      tinygltf::Node node = m_model.nodes[nodeIndex];
 
       Transform_t transform;
       if (node.rotation.size() >= 4) {
