@@ -1,10 +1,13 @@
-#include <Communication/SerialCommunicationManager.h>
+#include "Communication/SerialCommunicationManager.h"
+
+#include "DriverLog.h"
+#include "Util/Windows.h"
 
 #include <chrono>
 
-#include "DriverLog.h"
+static const uint32_t c_listenerWaitTime = 1000;
 
-void SerialCommunicationManager::Connect() {
+bool SerialCommunicationManager::Connect() {
   // We're not yet connected
   m_isConnected = false;
 
@@ -12,100 +15,106 @@ void SerialCommunicationManager::Connect() {
   m_hSerial = CreateFile(m_serialConfiguration.port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
   if (this->m_hSerial == INVALID_HANDLE_VALUE) {
-    if (GetLastError() == ERROR_FILE_NOT_FOUND) {
-      DebugDriverLog("Serial error: Handle was not attached. Reason: not available.");
-    } else {
-      DebugDriverLog("Serial error:Received error connecting to port");
-    }
-  } else {
-    // If connected we try to set the comm parameters
-    DCB dcbSerialParams = {0};
+    LogError("Received error connecting to port");
+    return false;
+  }
 
-    // Try to get the current
-    if (!GetCommState(m_hSerial, &dcbSerialParams)) {
-      // If impossible, show an error
-      DebugDriverLog("Serial error: failed to get current serial parameters!");
-    } else {
-      // Define serial connection parameters for the arduino board
-      dcbSerialParams.BaudRate = CBR_115200;
-      dcbSerialParams.ByteSize = 8;
-      dcbSerialParams.StopBits = ONESTOPBIT;
-      dcbSerialParams.Parity = NOPARITY;
+  // If connected we try to set the comm parameters
+  DCB dcbSerialParams = {0};
 
-      // reset upon establishing a connection
-      dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
+  if (!GetCommState(m_hSerial, &dcbSerialParams)) {
+    LogError("Failed to get current port parameters");
+    return false;
+  }
 
-      // set the parameters and check for their proper application
-      if (!SetCommState(m_hSerial, &dcbSerialParams)) {
-        DebugDriverLog("ALERT: Could not set Serial Port parameters");
-      } else {
-        // If everything went fine we're connected
-        m_isConnected = true;
-        // Flush any remaining characters in the buffers
-        PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
-      }
-    }
+  // Define serial connection parameters for the arduino board
+  dcbSerialParams.BaudRate = m_serialConfiguration.baudRate;
+  dcbSerialParams.ByteSize = 8;
+  dcbSerialParams.StopBits = ONESTOPBIT;
+  dcbSerialParams.Parity = NOPARITY;
+
+  // reset upon establishing a connection
+  dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;
+
+  // set the parameters and check for their proper application
+  if (!SetCommState(m_hSerial, &dcbSerialParams)) {
+    LogError("Failed to set serial parameters");
+    return false;
+  }
+
+  // If everything went fine we're connected
+  m_isConnected = true;
+
+  PurgeBuffer();
+
+  return true;
+}
+
+void SerialCommunicationManager::WaitAttemptConnection() {
+  while (m_threadActive && !IsConnected() && !Connect()) {
+    std::this_thread::sleep_for(std::chrono::milliseconds(c_listenerWaitTime));
   }
 }
 
 void SerialCommunicationManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
-  // DebugDriverLog("Begun listener");
   m_threadActive = true;
   m_serialThread = std::thread(&SerialCommunicationManager::ListenerThread, this, callback);
 }
 
 void SerialCommunicationManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
-  // DebugDriverLog("In listener thread");
-  std::this_thread::sleep_for(std::chrono::milliseconds(ARDUINO_WAIT_TIME));
-  PurgeBuffer();
+  WaitAttemptConnection();
 
   while (m_threadActive) {
     std::string receivedString;
     bool readSuccessful = ReceiveNextPacket(receivedString);
 
     if (readSuccessful) {
-      try {
-        VRCommData_t commData = m_encodingManager->Decode(receivedString);
-        callback(commData);
-        
-        Write();
-      } catch (const std::invalid_argument& ia) {
-        DriverLog("Received error from encoding manager. Skipping...");
-      }
-    } else {
-      DebugDriverLog("Detected that arduino has disconnected! Stopping listener...");
-      // We should probably do more logic for trying to reconnect to the arduino
-      // For now, it should be obvious to people that the arduinos have disconnected
-      m_threadActive = false;
+        try {
+            VRCommData_t commData = m_encodingManager->Decode(receivedString);
+            callback(commData);
+            Write();
+            continue;
+        }
+        catch (const std::invalid_argument& ia) {
+            LogMessage((std::string("Received error from encoding manager: ") + ia.what()).c_str());
+        }
     }
+    LogMessage("Detected device error. Disconnecting device and attempting reconnection");
+    if (DisconnectFromDevice()) {
+    WaitAttemptConnection();
+    LogMessage("Sucessfully reconnected to device");
+    continue;
+    }
+
+    LogMessage("Could not connect to device. Closing listener");
+    Disconnect();
   }
 }
 
 bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
-  DWORD dwCommEvent;
+  DWORD dwCommEvent = 0;
   DWORD dwRead = 0;
 
   if (!SetCommMask(m_hSerial, EV_RXCHAR)) {
-    DebugDriverLog("Error setting comm mask");
+    LogError("Error setting comm mask");
     return false;
   }
 
-  char nextChar;
-  int bytesRead = 0;
-  if (WaitCommEvent(m_hSerial, &dwCommEvent, NULL)) {
-    do {
-      if (ReadFile(m_hSerial, &nextChar, 1, &dwRead, NULL)) {
-        buff += nextChar;
-        bytesRead++;
-      } else {
-        DebugDriverLog("Read file error");
-        return false;
-      }
-    } while (nextChar != '\n');
-  } else {
-    DebugDriverLog("Error in comm event");
+  char nextChar = 0;
+
+  if (!WaitCommEvent(m_hSerial, &dwCommEvent, NULL)) {
+    LogError("Error waiting for event");
     return false;
   }
+
+  do {
+    if (!ReadFile(m_hSerial, &nextChar, 1, &dwRead, NULL)) {
+      LogError("Error reading from file");
+      return false;
+    }
+
+    buff += nextChar;
+  } while (nextChar != '\n');
 
   return true;
 }
@@ -123,10 +132,8 @@ bool SerialCommunicationManager::Write() {
 
   DWORD bytesSend;
 
-  if (!WriteFile(this->m_hSerial, (void*)buf, strlen(buf), &bytesSend, 0)) {
-    ClearCommError(this->m_hSerial, &this->m_errors, &this->m_status);
-
-    DebugDriverLog("Error connecting writing to Serial Port.");
+  if (!WriteFile(this->m_hSerial, (void*)buf, (DWORD)strlen(buf), &bytesSend, 0)) {
+    LogError("Error writing to port");
     return false;
   }
 
@@ -141,11 +148,29 @@ void SerialCommunicationManager::Disconnect() {
       m_threadActive = false;
       m_serialThread.join();
     }
-    m_isConnected = false;
-    CloseHandle(m_hSerial);
-
-    // Disconnect
+    DisconnectFromDevice();
   }
 }
-// May want to get a heartbeat here instead?
-bool SerialCommunicationManager::IsConnected() { return m_isConnected; }
+
+bool SerialCommunicationManager::DisconnectFromDevice() {
+  if (!CloseHandle(m_hSerial)) {
+    LogError("Error disconnecting from device");
+    return false;
+  }
+
+  m_isConnected = false;
+  LogMessage("Succesfully disconnected from device");
+  return true;
+}
+
+bool SerialCommunicationManager::IsConnected() { return m_isConnected; };
+
+void SerialCommunicationManager::LogError(const char* message) {
+  // message with port name and last error
+  DriverLog("%s (%s) - Error: %s", message, m_serialConfiguration.port.c_str(), GetLastErrorAsString().c_str());
+}
+
+void SerialCommunicationManager::LogMessage(const char* message) {
+  // message with port name
+  DriverLog("%s (%s)", message, m_serialConfiguration.port.c_str());
+}

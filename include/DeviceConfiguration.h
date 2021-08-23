@@ -1,32 +1,38 @@
 #pragma once
 
+#include "openvr_driver.h"
+
 #include "Communication/CommunicationManager.h"
 #include "DeviceDriver/DeviceDriver.h"
 #include "Encode/EncodingManager.h"
-#include "openvr_driver.h"
 
-static const char *c_driverSettingsSection = "driver_openglove";
-static const char *c_poseSettingsSection = "pose_settings";
+extern const char* c_poseSettingsSection;
+extern const char* c_driverSettingsSection;
+extern const char* c_serialCommunicationSettingsSection;
+extern const char* c_btserialCommunicationSettingsSection;
+extern const char* c_knuckleDeviceSettingsSection;
+extern const char* c_lucidGloveDeviceSettingsSection;
 
-enum VRCommunicationProtocol {
+enum class VRCommunicationProtocol {
 	SERIAL = 0,
 	BTSERIAL = 1,
 };
 
-enum VREncodingProtocol {
+enum class VREncodingProtocol {
     LEGACY = 0,
     ALPHA = 1,
 };
 
-enum VRDeviceDriver {
+enum class VRDeviceDriver {
     LUCIDGLOVES = 0,
     EMULATED_KNUCKLES = 1,
 };
 
 struct VRSerialConfiguration_t {
     std::string port;
+    int baudRate;
 
-    VRSerialConfiguration_t(std::string port) : port(port) {};
+    VRSerialConfiguration_t(std::string port, int baudRate) : port(port), baudRate(baudRate) {};
 };
 
 struct VRBTSerialConfiguration_t {

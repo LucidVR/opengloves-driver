@@ -3,10 +3,11 @@
 #undef _WINSOCKAPI_
 #define _WINSOCKAPI_
 
-#include <openvr_driver.h>
+#include "openvr_driver.h"
 
 #include <memory>
 
+#include "Bones.h"
 #include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
@@ -66,5 +67,5 @@ class DeviceProvider : public vr::IServerTrackedDeviceProvider {
    **/
   VRDeviceConfiguration_t GetDeviceConfiguration(vr::ETrackedControllerRole role);
 
-  std::unique_ptr<IDeviceDriver> InstantiateDeviceDriver(VRDeviceConfiguration_t configuration);
+  std::unique_ptr<IDeviceDriver> InstantiateDeviceDriver(VRDeviceConfiguration_t configuration, std::shared_ptr<BoneAnimator> boneAnimator);
 };

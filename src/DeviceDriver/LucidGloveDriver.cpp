@@ -27,8 +27,13 @@ enum ComponentIndex : int {
 };
 
 LucidGloveDeviceDriver::LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager,
-                                               std::string serialNumber)
-    : m_configuration(configuration), m_communicationManager(std::move(communicationManager)), m_serialNumber(serialNumber), m_driverId(-1), m_hasActivated(false) {
+                                               std::string serialNumber, std::shared_ptr<BoneAnimator> boneAnimator)
+    : m_configuration(configuration),
+      m_communicationManager(std::move(communicationManager)),
+      m_boneAnimator(std::move(boneAnimator)),
+      m_serialNumber(serialNumber),
+      m_driverId(-1),
+      m_hasActivated(false) {
   // copy a default bone transform to our hand transform for use in finger positioning later
   std::copy(std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
             std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose), std::begin(m_handTransforms));
@@ -85,9 +90,8 @@ vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
                                              vr::VRScalarUnits_NormalizedOneSided);
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/pinky", &m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], vr::VRScalarType_Absolute,
                                              vr::VRScalarUnits_NormalizedOneSided);
-  
-  vr::VRDriverInput()->CreateBooleanComponent(props, "/input/system/click", &m_inputComponentHandles[ComponentIndex::COMP_BTN_MENU]);
 
+  vr::VRDriverInput()->CreateBooleanComponent(props, "/input/system/click", &m_inputComponentHandles[ComponentIndex::COMP_BTN_MENU]);
 
   // Create the skeletal component and save the handle for later use//
 
@@ -107,55 +111,46 @@ vr::EVRInitError LucidGloveDeviceDriver::Activate(uint32_t unObjectId) {
   return vr::VRInitError_None;
 }
 
-// This could do with a rename, its a bit vague as to what it does
 void LucidGloveDeviceDriver::StartDevice() {
-  m_communicationManager->Connect();
-  // DebugDriverLog("Getting ready to connect:");
-  if (m_communicationManager->IsConnected()) {
-    // DebugDriverLog("Connected successfully");
-    m_communicationManager->BeginListener([&](VRCommData_t datas) {
-      try {
-        // Compute each finger transform
-        for (int i = 0; i < NUM_BONES; i++) {
-          int fingerNum = FingerFromBone(i);
-          if (fingerNum != -1) {
-            ComputeBoneFlexion(&m_handTransforms[i], datas.flexion[fingerNum], i, IsRightHand());
-          }
-        }
-        vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
-        vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
+  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
+  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
 
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_X], datas.joyX, 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_Y], datas.joyY, 0);
+  m_communicationManager->BeginListener([&](VRCommData_t datas) {
+    try {
+      m_boneAnimator->ComputeSkeletonTransforms(m_handTransforms, datas.flexion, IsRightHand());
 
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_BTN], datas.joyButton, 0);
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_TRG], datas.trgButton, 0);
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_A], datas.aButton, 0);
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_B], datas.bButton, 0);
+      vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
+      vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
 
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_GES_GRAB], datas.grab, 0);
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_GES_PINCH], datas.pinch, 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_X], datas.joyX, 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_Y], datas.joyY, 0);
 
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_THUMB], datas.flexion[0], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_INDEX], datas.flexion[1], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_MIDDLE], datas.flexion[2], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_RING], datas.flexion[3], 0);
-        vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], datas.flexion[4], 0);
-        
-        vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_MENU], datas.menu, 0);
-        if (datas.calibrate) {
-          if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration();
-        } else {
-          if (m_controllerPose->isCalibrating()) m_controllerPose->FinishCalibration();
-        }
-      } catch (const std::exception& e) {
-        DebugDriverLog("Exception caught while parsing comm data");
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_JOY_BTN], datas.joyButton, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_TRG], datas.trgButton, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_A], datas.aButton, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_B], datas.bButton, 0);
+
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_GES_GRAB], datas.grab, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_GES_PINCH], datas.pinch, 0);
+
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_THUMB], datas.flexion[0], 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_INDEX], datas.flexion[1], 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_MIDDLE], datas.flexion[2], 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_RING], datas.flexion[3], 0);
+      vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[ComponentIndex::COMP_TRG_PINKY], datas.flexion[4], 0);
+
+      vr::VRDriverInput()->UpdateBooleanComponent(m_inputComponentHandles[ComponentIndex::COMP_BTN_MENU], datas.menu, 0);
+
+      if (datas.calibrate) {
+        if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration();
+      } else {
+        if (m_controllerPose->isCalibrating()) m_controllerPose->CompleteCalibration();
       }
-    });
 
-  } else {
-    DebugDriverLog("Device did not connect successfully");
-  }
+    } catch (const std::exception&) {
+      DriverLog("Exception caught while parsing comm data");
+    }
+  });
 }
 
 vr::DriverPose_t LucidGloveDeviceDriver::GetPose() {

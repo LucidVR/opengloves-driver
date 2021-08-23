@@ -1,9 +1,11 @@
 #pragma once
 #include <openvr_driver.h>
 #include <memory>
+
 #include "DeviceConfiguration.h"
 #include "ControllerDiscovery.h"
 #include "Calibration.h"
+#include "Util/NamedPipe.h"
 
 class ControllerPose {
  public:
@@ -14,7 +16,7 @@ class ControllerPose {
 
   void StartCalibration();
 
-  void FinishCalibration();
+  void CompleteCalibration();
 
   void CancelCalibration();
 
@@ -31,10 +33,9 @@ class ControllerPose {
 
   vr::TrackedDevicePose_t GetControllerPose();
 
-  bool IsOtherRole(int32_t test);
-
   bool isRightHand();
 
   std::unique_ptr<ControllerDiscovery> m_controllerDiscoverer;
+  std::unique_ptr<NamedPipeUtil> m_calibrationPipe;
   std::unique_ptr<Calibration> m_calibration;
 };

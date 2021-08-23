@@ -47,7 +47,8 @@
     "__type": "communication_protocol:0",
     "__title": "USB Serial",
     "left_port": "\\\\.\\COM4",
-    "right_port": "\\\\.\\COM5"
+    "right_port": "\\\\.\\COM5",
+    "baud_rate": 115200
   },
   "communication_btserial": 
   {
@@ -60,12 +61,12 @@
   {
     "__type": "encoding_protocol: 0",
     "__title": "Legacy Encoding",
-    "max_analog_value": 1023
+    "max_analog_value": 4095
   },
   "encoding_alpha":
   {
     "__type": "encoding_protocol: 1",
     "__title": "Alpha Protocol",
-    "max_analog_value": 1023
+    "max_analog_value": 4095
   }
 }

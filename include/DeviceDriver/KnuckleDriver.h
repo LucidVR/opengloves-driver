@@ -1,6 +1,6 @@
 #pragma once
-#pragma once
-#include <openvr_driver.h>
+
+#include "openvr_driver.h"
 
 #include <functional>
 #include <memory>
@@ -15,7 +15,7 @@
 
 class KnuckleDeviceDriver : public IDeviceDriver {
  public:
-  KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager, std::string serialNumber);
+  KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager, std::string serialNumber, std::shared_ptr<BoneAnimator> boneAnimator);
 
   vr::EVRInitError Activate(uint32_t unObjectId);
   void Deactivate();
@@ -49,4 +49,5 @@ class KnuckleDeviceDriver : public IDeviceDriver {
 
   std::unique_ptr<ControllerPose> m_controllerPose;
   std::unique_ptr<FFBListener> m_ffbProvider;
+  std::shared_ptr<BoneAnimator> m_boneAnimator;
 };

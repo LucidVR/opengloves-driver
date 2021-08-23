@@ -11,8 +11,6 @@
 #include "CommunicationManager.h"
 #include "DeviceConfiguration.h"
 
-#define ARDUINO_WAIT_TIME 1000
-
 class SerialCommunicationManager : public ICommunicationManager {
  public:
   SerialCommunicationManager(const VRSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager)
@@ -27,22 +25,24 @@ class SerialCommunicationManager : public ICommunicationManager {
 
     m_writeString = m_encodingManager->Encode(data);
   };
-  // connect to the device using serial
-  void Connect();
-  // start a thread that listens for updates from the device and calls the callback with data
+
   void BeginListener(const std::function<void(VRCommData_t)>& callback);
-  // returns if connected or not
   bool IsConnected();
-  // close the serial port
   void Disconnect();
 
   void QueueSend(const VRFFBData_t& data);
 
  private:
+  bool Connect();
   void ListenerThread(const std::function<void(VRCommData_t)>& callback);
   bool ReceiveNextPacket(std::string& buff);
   bool PurgeBuffer();
   bool Write();
+  void WaitAttemptConnection();
+  bool DisconnectFromDevice();
+
+  void LogMessage(const char* message);
+  void LogError(const char* message);
 
   bool m_isConnected;
   // Serial comm handler
