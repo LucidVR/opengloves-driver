@@ -33,7 +33,7 @@ std::string GetDriverPath() {
 
   if (GetModuleFileName(hm, path, sizeof(path)) == 0) {
     DriverLog("GetModuleFileName failed, error: %c", GetLastErrorAsString().c_str());
-    return "";
+    return std::string();
   }
 
   std::string pathString = std::string(path);
