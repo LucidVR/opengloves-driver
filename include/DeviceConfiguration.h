@@ -5,6 +5,13 @@
 #include "DeviceDriver/DeviceDriver.h"
 #include "Encode/EncodingManager.h"
 
+extern const char* c_poseSettingsSection;
+extern const char* c_driverSettingsSection;
+extern const char* c_serialCommunicationSettingsSection;
+extern const char* c_btserialCommunicationSettingsSection;
+extern const char* c_knuckleDeviceSettingsSection;
+extern const char* c_lucidGloveDeviceSettingsSection;
+
 enum class VRCommunicationProtocol {
 	SERIAL = 0,
 	BTSERIAL = 1,

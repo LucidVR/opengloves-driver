@@ -92,8 +92,8 @@ class GLTFModelManager : public IModelManager {
       return false;
     }
 
-    m_initialTransforms = std::vector<Transform_t>(m_model.nodes.size());
-    m_keyframeTransforms = std::vector<std::vector<Transform_t>>(m_model.nodes.size());
+    m_initialTransforms = std::vector<Transform_t>(m_model.nodes.size()-1);
+    m_keyframeTransforms = std::vector<std::vector<Transform_t>>(m_model.nodes.size()-1);
 
     LoadInitialTransforms();
     LoadKeyframeTimes();
