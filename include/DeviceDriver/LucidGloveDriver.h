@@ -12,12 +12,8 @@
 #include "Encode/LegacyEncodingManager.h"
 
 class LucidGloveDeviceDriver : public IDeviceDriver {
- public:
-  LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager, std::string serialNumber,
-                         std::shared_ptr<BoneAnimator> boneAnimator);
-
-  vr::EVRInitError Activate(uint32_t unObjectId);
-  void Deactivate();
+public:
+	LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber);
 
   void EnterStandby();
   void* GetComponent(const char* pchComponentNameAndVersion);
@@ -41,9 +37,9 @@ class LucidGloveDeviceDriver : public IDeviceDriver {
 
   vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
 
-  VRDeviceConfiguration_t m_configuration;
-  std::unique_ptr<ICommunicationManager> m_communicationManager;
-  std::string m_serialNumber;
+	VRDeviceConfiguration_t m_configuration;
+	std::unique_ptr<CommunicationManager> m_communicationManager;
+	std::string m_serialNumber;
 
   std::unique_ptr<ControllerPose> m_controllerPose;
   std::shared_ptr<BoneAnimator> m_boneAnimator;

@@ -1,17 +1,9 @@
 #include <Communication/SerialCommunicationManager.h>
 
 SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager, const VRSerialConfiguration_t& configuration)
-    : ICommunicationManager(std::move(encodingManager)), m_serialConfiguration(configuration), m_isConnected(false), m_hSerial(0) {}
-
-#pragma region ICommunicationManager
-
-#pragma region Public
+    : CommunicationManager(std::move(encodingManager)), m_serialConfiguration(configuration), m_isConnected(false), m_hSerial(0) {}
 
 bool SerialCommunicationManager::IsConnected() { return m_isConnected; };
-
-#pragma endregion
-
-#pragma region Protected
 
 bool SerialCommunicationManager::Connect() {
   // We're not yet connected
@@ -115,12 +107,4 @@ bool SerialCommunicationManager::SendMessageToDevice() {
   return true;
 }
 
-#pragma endregion
-
-#pragma endregion
-
-#pragma region Core logic
-
 bool SerialCommunicationManager::PurgeBuffer() { return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR); }
-
-#pragma endregion

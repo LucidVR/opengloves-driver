@@ -3,17 +3,9 @@
 // Adapted from Finally Functional's SerialBT implementation
 
 BTSerialCommunicationManager::BTSerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration)
-    : ICommunicationManager(std::move(encodingManager)), m_btSerialConfiguration(configuration), m_isConnected(false), m_btClientSocket(NULL) {}
-
-#pragma region ICommunicationManager
-
-#pragma region Public
+    : CommunicationManager(std::move(encodingManager)), m_btSerialConfiguration(configuration), m_isConnected(false), m_btClientSocket(NULL) {}
 
 bool BTSerialCommunicationManager::IsConnected() { return m_isConnected; }
-
-#pragma endregion
-
-#pragma region Protected
 
 bool BTSerialCommunicationManager::Connect() {
   // We're not yet connected
@@ -80,12 +72,6 @@ bool BTSerialCommunicationManager::SendMessageToDevice() {
 
   return true;
 }
-
-#pragma endregion
-
-#pragma endregion
-
-#pragma region Core logic
 
 bool BTSerialCommunicationManager::ConnectToDevice(BTH_ADDR& deviceBtAddress) {
   m_btClientSocket = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);  // initialize BT windows socket
@@ -164,5 +150,3 @@ bool BTSerialCommunicationManager::StartupWindowsSocket() {
   }
   return true;
 }
-
-#pragma endregion

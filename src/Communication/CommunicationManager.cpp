@@ -2,37 +2,31 @@
 
 static const uint32_t c_listenerWaitTime = 1000;
 
-ICommunicationManager::ICommunicationManager(std::unique_ptr<IEncodingManager> encodingManager)
+CommunicationManager::CommunicationManager(std::unique_ptr<IEncodingManager> encodingManager)
     : m_encodingManager(std::move(encodingManager)), m_threadActive(false), m_writeString() {
   // initially no force feedback
   QueueSend(VRFFBData_t(0, 0, 0, 0, 0));
 }
 
-#pragma region Public
-
-void ICommunicationManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
+void CommunicationManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
   m_threadActive = true;
-  m_thread = std::thread(&ICommunicationManager::ListenerThread, this, callback);
+  m_thread = std::thread(&CommunicationManager::ListenerThread, this, callback);
 }
 
-void ICommunicationManager::Disconnect() {
+void CommunicationManager::Disconnect() {
   if (IsConnected()) {
     if (m_threadActive.exchange(false)) m_thread.join();
     DisconnectFromDevice();
   }
 }
 
-void ICommunicationManager::QueueSend(const VRFFBData_t& data) {
+void CommunicationManager::QueueSend(const VRFFBData_t& data) {
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   m_writeString = m_encodingManager->Encode(data);
 }
 
-#pragma endregion
-
-#pragma region Protected
-
-void ICommunicationManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
+void CommunicationManager::ListenerThread(const std::function<void(VRCommData_t)>& callback) {
   WaitAttemptConnection();
 
   while (m_threadActive) {
@@ -62,10 +56,8 @@ void ICommunicationManager::ListenerThread(const std::function<void(VRCommData_t
   }
 }
 
-void ICommunicationManager::WaitAttemptConnection() {
+void CommunicationManager::WaitAttemptConnection() {
   while (m_threadActive && !IsConnected() && !Connect()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(c_listenerWaitTime));
   }
 }
-
-#pragma endregion

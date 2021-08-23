@@ -15,11 +15,12 @@
 #include "DriverLog.h"
 #include "Util/Util.h"
 
-class SerialCommunicationManager : public ICommunicationManager {
+static const char* c_serialCommunicationSettingsSection = "communication_serial";
+
+class SerialCommunicationManager : public CommunicationManager {
  public:
   SerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager, const VRSerialConfiguration_t& configuration);
 
-#pragma region ICommunicationManager
  public:
   bool IsConnected();
 
@@ -30,12 +31,9 @@ class SerialCommunicationManager : public ICommunicationManager {
   void LogMessage(const char* message);
   bool ReceiveNextPacket(std::string& buff);
   bool SendMessageToDevice();
-#pragma endregion
 
-#pragma region Core logic
  private:
   bool PurgeBuffer();
-#pragma endregion
 
  private:
   VRSerialConfiguration_t m_serialConfiguration;

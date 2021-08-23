@@ -9,9 +9,9 @@
 
 #include "Encode/EncodingManager.h"
 
-class ICommunicationManager {
+class CommunicationManager {
  public:
-  ICommunicationManager(std::unique_ptr<IEncodingManager> encodingManager);
+  CommunicationManager(std::unique_ptr<IEncodingManager> encodingManager);
 
   virtual void BeginListener(const std::function<void(VRCommData_t)>& callback);
   virtual void Disconnect();

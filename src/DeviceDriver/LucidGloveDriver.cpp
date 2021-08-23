@@ -26,14 +26,9 @@ enum ComponentIndex : int {
   COMP_BTN_MENU = 14,
 };
 
-LucidGloveDeviceDriver::LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager,
-                                               std::string serialNumber, std::shared_ptr<BoneAnimator> boneAnimator)
-    : m_configuration(configuration),
-      m_communicationManager(std::move(communicationManager)),
-      m_boneAnimator(std::move(boneAnimator)),
-      m_serialNumber(serialNumber),
-      m_driverId(-1),
-      m_hasActivated(false) {
+LucidGloveDeviceDriver::LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager,
+                                               std::string serialNumber)
+    : m_configuration(configuration), m_communicationManager(std::move(communicationManager)), m_serialNumber(serialNumber), m_driverId(-1), m_hasActivated(false) {
   // copy a default bone transform to our hand transform for use in finger positioning later
   std::copy(std::begin(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose),
             std::end(m_configuration.role == vr::TrackedControllerRole_RightHand ? rightOpenPose : leftOpenPose), std::begin(m_handTransforms));

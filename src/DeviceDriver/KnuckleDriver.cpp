@@ -32,8 +32,7 @@ enum ComponentIndex : int {
   FINGER_PINKY
 };
 
-KnuckleDeviceDriver::KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager, std::string serialNumber,
-                                         std::shared_ptr<BoneAnimator> boneAnimator)
+KnuckleDeviceDriver::KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber)
     : m_configuration(configuration),
       m_communicationManager(std::move(communicationManager)),
       m_serialNumber(std::move(serialNumber)),

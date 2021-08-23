@@ -18,11 +18,12 @@
 #include "DriverLog.h"
 #include "Util/Util.h"
 
-class BTSerialCommunicationManager : public ICommunicationManager {
+static const char* c_btserialCommunicationSettingsSection = "communication_btserial";
+
+class BTSerialCommunicationManager : public CommunicationManager {
  public:
   BTSerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration);
 
-#pragma region ICommunicationManager
  public:
   bool IsConnected();
 
@@ -33,14 +34,11 @@ class BTSerialCommunicationManager : public ICommunicationManager {
   void LogMessage(const char* message);
   bool ReceiveNextPacket(std::string& buff);
   bool SendMessageToDevice();
-#pragma endregion
-
-#pragma region Core logic
+  
  private:
   bool ConnectToDevice(BTH_ADDR& deviceBtAddress);
   bool GetPairedDeviceBtAddress(BTH_ADDR* deviceBtAddress);
   bool StartupWindowsSocket();
-#pragma endregion
 
  private:
   VRBTSerialConfiguration_t m_btSerialConfiguration;
