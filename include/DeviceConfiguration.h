@@ -1,6 +1,7 @@
 #pragma once
 
 #include "openvr_driver.h"
+
 #include "Communication/CommunicationManager.h"
 #include "DeviceDriver/DeviceDriver.h"
 #include "Encode/EncodingManager.h"
