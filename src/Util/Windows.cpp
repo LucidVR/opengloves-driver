@@ -28,7 +28,7 @@ std::string GetDriverPath() {
 
   if (GetModuleHandleEx(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&__ImageBase, &hm) == 0) {
     DriverLog("GetModuleHandle failed, error: %c", GetLastErrorAsString().c_str());
-    return "";
+    return std::string();
   }
 
   if (GetModuleFileName(hm, path, sizeof(path)) == 0) {
