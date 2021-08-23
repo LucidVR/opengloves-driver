@@ -36,7 +36,7 @@ std::string GetDriverPath() {
     return "";
   }
 
-  std::string::size_type pos = std::string(path).find_last_of("\\/");
-  return std::string(path).substr(0, pos);
+  std::string pathString = std::string(path);
+  return pathString.substr(0, pathString.find_last_of("\\/"));
 }
 
