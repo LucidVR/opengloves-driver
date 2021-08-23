@@ -133,6 +133,8 @@ class GLTFModelManager : public IModelManager {
         transform.translation[1] = (float)node.translation[1];
         transform.translation[2] = (float)node.translation[2];
       }
+
+      //first node is never needed
       m_initialTransforms[nodeIndex - 1] = transform;
     }
   }
@@ -160,6 +162,8 @@ class GLTFModelManager : public IModelManager {
   void LoadKeyframeTransforms() {
     for (size_t nodeIndex = 1; nodeIndex < m_model.nodes.size(); nodeIndex++) {
       const tinygltf::Animation& animation = m_model.animations[0];
+
+      // first node is never needed
       std::vector<Transform_t>& transforms = m_keyframeTransforms[nodeIndex - 1];
 
       transforms.resize(m_keyframeTimes.size());
