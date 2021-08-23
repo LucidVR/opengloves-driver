@@ -61,11 +61,11 @@ static FingerIndex GetFingerFromBoneIndex(HandSkeletonBone bone) {
 
 class GLTFModelManager : public IModelManager {
  private:
-  std::string m_fileName;
   tinygltf::Model m_model;
-  std::array<Transform_t, NUM_BONES> m_initialTransforms;
+  std::string m_fileName;
+  std::vector<Transform_t> m_initialTransforms;
   std::vector<float> m_keyframeTimes;
-  std::array<std::vector<Transform_t>, NUM_BONES> m_keyframeTransforms;
+  std::vector<std::vector<Transform_t>> m_keyframeTransforms;
 
  public:
   GLTFModelManager(const std::string& fileName) : m_fileName(fileName) {}
@@ -91,6 +91,9 @@ class GLTFModelManager : public IModelManager {
       DriverLog("Failed to parse gltf");
       return false;
     }
+
+    m_initialTransforms = std::vector<Transform_t>(m_model.nodes.size());
+    m_keyframeTransforms = std::vector<std::vector<Transform_t>>(m_model.nodes.size());
 
     LoadInitialTransforms();
     LoadKeyframeTimes();
