@@ -1,4 +1,4 @@
-#include <Communication/BTSerialCommunicationManager.h>
+#include "Communication/BTSerialCommunicationManager.h"
 
 // Adapted from Finally Functional's SerialBT implementation
 

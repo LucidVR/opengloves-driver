@@ -1,4 +1,4 @@
-#include <Communication/CommunicationManager.h>
+#include "Communication/CommunicationManager.h"
 
 static const uint32_t c_listenerWaitTime = 1000;
 

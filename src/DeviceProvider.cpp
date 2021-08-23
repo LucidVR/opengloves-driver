@@ -1,6 +1,7 @@
 #include <DeviceProvider.h>
 #include <windows.h>
 
+#include <algorithm>
 #include <string>
 #include <algorithm>
 
@@ -51,19 +52,15 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
   VRDeviceConfiguration_t leftConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_LeftHand);
   VRDeviceConfiguration_t rightConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_RightHand);
   
-  std::string driverPath = GetDriverPath();
-
-  const std::string unwanted = "\\bin\\win64";
-  driverPath.erase(driverPath.find(unwanted), unwanted.length());
-
-    std::shared_ptr<BoneAnimator> boneAnimator = std::make_shared<BoneAnimator>(driverPath + "\\resources\\anims\\glove_anim.glb");
+  VRDeviceConfiguration_t leftConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_LeftHand);
+  VRDeviceConfiguration_t rightConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_RightHand);
 
   if (leftConfiguration.enabled) {
-    m_leftHand = InstantiateDeviceDriver(leftConfiguration, boneAnimator);
+    m_leftHand = InstantiateDeviceDriver(leftConfiguration);
     vr::VRServerDriverHost()->TrackedDeviceAdded(m_leftHand->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, m_leftHand.get());
   }
   if (rightConfiguration.enabled) {
-    m_rightHand = InstantiateDeviceDriver(rightConfiguration, boneAnimator);
+    m_rightHand = InstantiateDeviceDriver(rightConfiguration);
     vr::VRServerDriverHost()->TrackedDeviceAdded(m_rightHand->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, m_rightHand.get());
   }
 
@@ -116,7 +113,7 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceC
       char serialNumber[32];
       vr::VRSettings()->GetString(c_knuckleDeviceSettingsSection, isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof(serialNumber));
 
-      return std::make_unique<KnuckleDeviceDriver>(configuration, std::move(communicationManager), serialNumber, std::move(boneAnimator));
+      return std::make_unique<KnuckleDeviceDriver>(configuration, std::move(communicationManager), serialNumber);
     }
 
     default:
@@ -125,7 +122,7 @@ std::unique_ptr<IDeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceC
       char serialNumber[32];
       vr::VRSettings()->GetString(c_lucidGloveDeviceSettingsSection, isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof(serialNumber));
 
-      return std::make_unique<LucidGloveDeviceDriver>(configuration, std::move(communicationManager), serialNumber, std::move(boneAnimator));
+      return std::make_unique<LucidGloveDeviceDriver>(configuration, std::move(communicationManager), serialNumber);
     }
   }
 }

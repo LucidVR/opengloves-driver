@@ -1,4 +1,4 @@
-#include "DeviceDriver/KnuckleDriver.h"
+#include "DeviceDriver/KnuckleDriver.h""
 
 #include <utility>
 
@@ -192,10 +192,15 @@ void KnuckleDeviceDriver::StartDevice() {
       m_configuration.role);
   m_ffbProvider->Start();
 
-  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, IsRightHand() ? rightOpenPose : leftOpenPose,
-                                               NUM_BONES);
-  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose,
-                                               NUM_BONES);
+  {
+    // OpenVR needs an initial skeleton for when the device is activated
+    ComputeHand(m_handTransforms, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, IsRightHand());
+
+    vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, IsRightHand() ? rightOpenPose : leftOpenPose,
+                                                 NUM_BONES);
+    vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose,
+                                                 NUM_BONES);
+  }
 
   m_communicationManager->BeginListener([&](VRCommData_t datas) {
     try {

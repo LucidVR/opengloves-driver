@@ -1,4 +1,5 @@
 #pragma once
+
 #include "openvr_driver.h"
 
 #include <functional>
@@ -12,8 +13,11 @@
 #include "Encode/LegacyEncodingManager.h"
 
 class LucidGloveDeviceDriver : public IDeviceDriver {
-public:
-	LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber);
+ public:
+  LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber);
+
+  vr::EVRInitError Activate(uint32_t unObjectId);
+  void Deactivate();
 
   void EnterStandby();
   void* GetComponent(const char* pchComponentNameAndVersion);
@@ -37,10 +41,9 @@ public:
 
   vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
 
-	VRDeviceConfiguration_t m_configuration;
-	std::unique_ptr<CommunicationManager> m_communicationManager;
-	std::string m_serialNumber;
+  VRDeviceConfiguration_t m_configuration;
+  std::unique_ptr<CommunicationManager> m_communicationManager;
+  std::string m_serialNumber;
 
   std::unique_ptr<ControllerPose> m_controllerPose;
-  std::shared_ptr<BoneAnimator> m_boneAnimator;
 };

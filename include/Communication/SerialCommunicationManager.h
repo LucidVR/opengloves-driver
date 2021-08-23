@@ -13,9 +13,7 @@
 #include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
 #include "DriverLog.h"
-#include "Util/Util.h"
-
-static const char* c_serialCommunicationSettingsSection = "communication_serial";
+#include "Util/Windows.h"
 
 class SerialCommunicationManager : public CommunicationManager {
  public:

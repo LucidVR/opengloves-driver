@@ -16,9 +16,7 @@
 #include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
 #include "DriverLog.h"
-#include "Util/Util.h"
-
-static const char* c_btserialCommunicationSettingsSection = "communication_btserial";
+#include "Util/Windows.h"
 
 class BTSerialCommunicationManager : public CommunicationManager {
  public:
