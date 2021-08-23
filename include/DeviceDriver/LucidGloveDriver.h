@@ -14,7 +14,8 @@
 
 class LucidGloveDeviceDriver : public IDeviceDriver {
  public:
-  LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber);
+  LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber,
+                         std::shared_ptr<BoneAnimator> boneAnimator);
 
   vr::EVRInitError Activate(uint32_t unObjectId);
   void Deactivate();
@@ -46,4 +47,5 @@ class LucidGloveDeviceDriver : public IDeviceDriver {
   std::string m_serialNumber;
 
   std::unique_ptr<ControllerPose> m_controllerPose;
+  std::shared_ptr<BoneAnimator> m_boneAnimator;
 };

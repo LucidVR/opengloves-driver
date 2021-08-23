@@ -15,7 +15,7 @@
 
 class KnuckleDeviceDriver : public IDeviceDriver {
  public:
-  KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber);
+  KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber, std::shared_ptr<BoneAnimator> boneAnimator);
 
   vr::EVRInitError Activate(uint32_t unObjectId);
   void Deactivate();

@@ -1,7 +1,5 @@
 #include "Communication/BTSerialCommunicationManager.h"
 
-// Adapted from Finally Functional's SerialBT implementation
-
 BTSerialCommunicationManager::BTSerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration)
     : CommunicationManager(std::move(encodingManager)), m_btSerialConfiguration(configuration), m_isConnected(false), m_btClientSocket(NULL) {}
 

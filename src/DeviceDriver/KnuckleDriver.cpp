@@ -32,7 +32,8 @@ enum ComponentIndex : int {
   FINGER_PINKY
 };
 
-KnuckleDeviceDriver::KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber)
+KnuckleDeviceDriver::KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber,
+                                         std::shared_ptr<BoneAnimator> boneAnimator)
     : m_configuration(configuration),
       m_communicationManager(std::move(communicationManager)),
       m_serialNumber(std::move(serialNumber)),
@@ -192,15 +193,10 @@ void KnuckleDeviceDriver::StartDevice() {
       m_configuration.role);
   m_ffbProvider->Start();
 
-  {
-    // OpenVR needs an initial skeleton for when the device is activated
-    ComputeHand(m_handTransforms, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, IsRightHand());
-
-    vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, IsRightHand() ? rightOpenPose : leftOpenPose,
-                                                 NUM_BONES);
-    vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose,
-                                                 NUM_BONES);
-  }
+  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, IsRightHand() ? rightOpenPose : leftOpenPose,
+                                               NUM_BONES);
+  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose,
+                                               NUM_BONES);
 
   m_communicationManager->BeginListener([&](VRCommData_t datas) {
     try {
