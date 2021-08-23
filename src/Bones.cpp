@@ -61,11 +61,11 @@ static FingerIndex GetFingerFromBoneIndex(HandSkeletonBone bone) {
 
 class GLTFModelManager : public IModelManager {
  private:
-  std::string m_fileName;
   tinygltf::Model m_model;
-  std::array<Transform_t, NUM_BONES> m_initialTransforms;
+  std::string m_fileName;
+  std::vector<Transform_t> m_initialTransforms;
   std::vector<float> m_keyframeTimes;
-  std::array<std::vector<Transform_t>, NUM_BONES> m_keyframeTransforms;
+  std::vector<std::vector<Transform_t>> m_keyframeTransforms;
 
  public:
   GLTFModelManager(const std::string& fileName) : m_fileName(fileName) {}
@@ -92,6 +92,9 @@ class GLTFModelManager : public IModelManager {
       return false;
     }
 
+    m_initialTransforms = std::vector<Transform_t>(m_model.nodes.size()-1);
+    m_keyframeTransforms = std::vector<std::vector<Transform_t>>(m_model.nodes.size()-1);
+
     LoadInitialTransforms();
     LoadKeyframeTimes();
     LoadKeyframeTransforms();
@@ -114,11 +117,9 @@ class GLTFModelManager : public IModelManager {
   Transform_t GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const { return m_initialTransforms[(size_t)boneIndex]; }
 
  private:
-  int GetNodeIndexFromBoneIndex(const HandSkeletonBone& boneIndex) const { return (int)boneIndex + 1; }
-
   void LoadInitialTransforms() {
-    for (size_t boneIndex = 0; boneIndex < NUM_BONES; boneIndex++) {
-      tinygltf::Node node = m_model.nodes[GetNodeIndexFromBoneIndex((HandSkeletonBone)boneIndex)];
+    for (size_t nodeIndex = 1; nodeIndex < m_model.nodes.size(); nodeIndex++) {
+      tinygltf::Node node = m_model.nodes[nodeIndex];
 
       Transform_t transform;
       if (node.rotation.size() >= 4) {
@@ -132,7 +133,9 @@ class GLTFModelManager : public IModelManager {
         transform.translation[1] = (float)node.translation[1];
         transform.translation[2] = (float)node.translation[2];
       }
-      m_initialTransforms[boneIndex] = transform;
+
+      //first node is never needed
+      m_initialTransforms[nodeIndex - 1] = transform;
     }
   }
 
@@ -157,10 +160,11 @@ class GLTFModelManager : public IModelManager {
   }
 
   void LoadKeyframeTransforms() {
-    for (size_t boneIndex = 0; boneIndex < NUM_BONES; boneIndex++) {
-      int nodeIndex = GetNodeIndexFromBoneIndex((HandSkeletonBone)boneIndex);
+    for (size_t nodeIndex = 1; nodeIndex < m_model.nodes.size(); nodeIndex++) {
       const tinygltf::Animation& animation = m_model.animations[0];
-      std::vector<Transform_t>& transforms = m_keyframeTransforms[boneIndex];
+
+      // first node is never needed
+      std::vector<Transform_t>& transforms = m_keyframeTransforms[nodeIndex - 1];
 
       transforms.resize(m_keyframeTimes.size());
 
@@ -258,17 +262,17 @@ void BoneAnimator::TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkel
     case HandSkeletonBone::eBone_Aux_MiddleFinger:
     case HandSkeletonBone::eBone_Aux_RingFinger:
     case HandSkeletonBone::eBone_Aux_PinkyFinger: {
-      bone.orientation.y = -bone.orientation.y;
-      bone.orientation.z = -bone.orientation.z;
+      bone.orientation.y *= -1;
+      bone.orientation.z *= -1;
       break;
     }
     default: {
-      bone.position.v[1] = -bone.position.v[1];
-      bone.position.v[2] = -bone.position.v[2];
+      bone.position.v[1] *= -1;
+      bone.position.v[2] *= -1;
     }
   }
 
-  bone.position.v[0] = -bone.position.v[0];
+  bone.position.v[0] *= -1;
 }
 
 // Initial values for the right/left poses

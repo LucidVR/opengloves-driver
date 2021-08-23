@@ -14,15 +14,6 @@
 #include "Quaternion.h"
 #include "Util/Windows.h"
 
-
-static const char* c_driverSettingsSection = "driver_openglove";
-static const char* c_poseSettingsSection = "pose_settings";
-static const char* c_serialCommunicationSettingsSection = "communication_serial";
-static const char* c_btserialCommunicationSettingsSection = "communication_btserial";
-static const char* c_knuckleDeviceSettingsSection = "device_knuckles";
-static const char* c_lucidGloveDeviceSettingsSection = "device_lucidgloves";
-
-
 static bool CreateBackgroundProcess() {
   STARTUPINFOA si;
   PROCESS_INFORMATION pi;
