@@ -6,8 +6,8 @@
 #include "openvr_driver.h"
 
 #include <memory>
-#include "Bones.h"
 
+#include "Bones.h"
 #include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
