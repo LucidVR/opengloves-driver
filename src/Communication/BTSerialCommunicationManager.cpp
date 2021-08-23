@@ -1,5 +1,7 @@
-#include <Communication/BTSerialCommunicationManager.h>
+#include "Communication/BTSerialCommunicationManager.h"
+
 #include <string.h>
+
 #include "Util/Windows.h"
 
 static const uint32_t c_listenerWaitTime = 1000;
