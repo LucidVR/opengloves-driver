@@ -66,6 +66,7 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 
 bool BTSerialCommunicationManager::SendMessageToDevice() {
   std::lock_guard<std::mutex> lock(m_writeMutex);
+
   const char* message = m_writeString.c_str();
   int sendResult = send(m_btClientSocket, message, (int)m_writeString.length(), 0);  // send your message to the BT device
   if (sendResult == SOCKET_ERROR) {
@@ -76,6 +77,7 @@ bool BTSerialCommunicationManager::SendMessageToDevice() {
 
     return false;
   }
+
   return true;
 }
 

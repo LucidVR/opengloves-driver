@@ -1,6 +1,6 @@
 #include <Communication/SerialCommunicationManager.h>
 
-SerialCommunicationManager::SerialCommunicationManager(const VRSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager)
+SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager, const VRSerialConfiguration_t& configuration)
     : ICommunicationManager(std::move(encodingManager)), m_serialConfiguration(configuration), m_isConnected(false), m_hSerial(0) {}
 
 #pragma region ICommunicationManager
@@ -102,15 +102,7 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   return true;
 }
 
-#pragma endregion
-
-#pragma endregion
-
-#pragma region Core logic
-
-bool SerialCommunicationManager::PurgeBuffer() { return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR); }
-
-bool SerialCommunicationManager::Write() {
+bool SerialCommunicationManager::SendMessageToDevice() {
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   const char* buf = m_writeString.c_str();
@@ -122,5 +114,13 @@ bool SerialCommunicationManager::Write() {
 
   return true;
 }
+
+#pragma endregion
+
+#pragma endregion
+
+#pragma region Core logic
+
+bool SerialCommunicationManager::PurgeBuffer() { return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR); }
 
 #pragma endregion

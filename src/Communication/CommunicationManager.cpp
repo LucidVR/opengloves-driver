@@ -12,12 +12,12 @@ ICommunicationManager::ICommunicationManager(std::unique_ptr<IEncodingManager> e
 
 void ICommunicationManager::BeginListener(const std::function<void(VRCommData_t)>& callback) {
   m_threadActive = true;
-  m_thread = std::thread(&CommunicationManager::ListenerThread, this, callback);
+  m_thread = std::thread(&ICommunicationManager::ListenerThread, this, callback);
 }
 
 void ICommunicationManager::Disconnect() {
   if (IsConnected()) {
-    if (m_threadActive.exchange(false)) m_serialThread.join();
+    if (m_threadActive.exchange(false)) m_thread.join();
     DisconnectFromDevice();
   }
 }

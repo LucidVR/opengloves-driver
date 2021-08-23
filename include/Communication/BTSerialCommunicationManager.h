@@ -32,13 +32,13 @@ class BTSerialCommunicationManager : public ICommunicationManager {
   void LogError(const char* message);
   void LogMessage(const char* message);
   bool ReceiveNextPacket(std::string& buff);
+  bool SendMessageToDevice();
 #pragma endregion
 
 #pragma region Core logic
  private:
   bool ConnectToDevice(BTH_ADDR& deviceBtAddress);
   bool GetPairedDeviceBtAddress(BTH_ADDR* deviceBtAddress);
-  bool SendMessageToDevice();
   bool StartupWindowsSocket();
 #pragma endregion
 

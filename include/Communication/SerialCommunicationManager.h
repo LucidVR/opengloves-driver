@@ -29,12 +29,12 @@ class SerialCommunicationManager : public ICommunicationManager {
   void LogError(const char* message);
   void LogMessage(const char* message);
   bool ReceiveNextPacket(std::string& buff);
+  bool SendMessageToDevice();
 #pragma endregion
 
 #pragma region Core logic
  private:
   bool PurgeBuffer();
-  bool Write();
 #pragma endregion
 
  private:

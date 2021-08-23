@@ -21,13 +21,14 @@ class ICommunicationManager {
 
  protected:
   virtual void ListenerThread(const std::function<void(VRCommData_t)>& callback);
-  virtual void WaitAttemptConnection() = 0;
+  virtual void WaitAttemptConnection();
 
   virtual bool Connect() = 0;
   virtual bool DisconnectFromDevice() = 0;
   virtual void LogError(const char* message) = 0;
   virtual void LogMessage(const char* message) = 0;
   virtual bool ReceiveNextPacket(std::string& buff) = 0;
+  virtual bool SendMessageToDevice() = 0;
 
  protected:
   std::unique_ptr<IEncodingManager> m_encodingManager;
