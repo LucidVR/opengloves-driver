@@ -49,7 +49,9 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
     if (recieveResult <= 0 || nextChar == '\n') continue;
 
     buff += nextChar;
-  } while (nextChar != '\n' || buff.length() < 1);
+  } while (m_threadActive && (nextChar != '\n' || buff.length() < 1));
+
+  if (!m_threadActive) return false;
 
   return true;
 }

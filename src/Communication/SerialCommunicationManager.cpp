@@ -77,7 +77,9 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
       LogError("Error waiting for event");
       return false;
     }
-  } while ((dwCommEvent & EV_RXCHAR) != EV_RXCHAR);
+  } while (m_threadActive && (dwCommEvent & EV_RXCHAR) != EV_RXCHAR);
+
+  if (!m_threadActive) return false;
 
   char nextChar = 0;
   do {
