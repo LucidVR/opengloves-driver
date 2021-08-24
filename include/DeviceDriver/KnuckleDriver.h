@@ -10,44 +10,48 @@
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
-#include "Encode/LegacyEncodingManager.h"
+#include "Encode/EncodingManager.h"
 #include "ForceFeedback.h"
 
-class KnuckleDeviceDriver : public IDeviceDriver {
+enum class KnuckelDeviceComponentIndex : int {
+  SYSTEM_CLICK = 0,
+  SYSTEM_TOUCH,
+  TRIGGER_CLICK,
+  TRIGGER_VALUE,
+  TRACKPAD_X,
+  TRACKPAD_Y,
+  TRACKPAD_TOUCH,
+  TRACKPAD_FORCE,
+  GRIP_TOUCH,
+  GRIP_FORCE,
+  GRIP_VALUE,
+  THUMBSTICK_CLICK,
+  THUMBSTICK_TOUCH,
+  THUMBSTICK_X,
+  THUMBSTICK_Y,
+  A_CLICK,
+  A_TOUCH,
+  B_CLICK,
+  B_TOUCH,
+  FINGER_INDEX,
+  FINGER_MIDDLE,
+  FINGER_RING,
+  FINGER_PINKY,
+  Count
+};
+
+class KnuckleDeviceDriver : public DeviceDriver {
  public:
-  KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber, std::shared_ptr<BoneAnimator> boneAnimator);
+  KnuckleDeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
+                      VRDeviceConfiguration_t configuration);
 
-  vr::EVRInitError Activate(uint32_t unObjectId);
-  void Deactivate();
-
-  void EnterStandby();
-  void* GetComponent(const char* pchComponentNameAndVersion);
-  void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize);
-  vr::DriverPose_t GetPose();
-  void RunFrame();
-
-  std::string GetSerialNumber();
-  bool IsActive();
+  void HandleInput(VRCommData_t datas);
+  void SetupProps(vr::PropertyContainerHandle_t& props);
+  void StartingDevice();
+  void StoppingDevice();
 
  private:
-  void StartDevice();
-  bool IsRightHand() const;
-
-  bool m_hasActivated;
-  uint32_t m_driverId;
-
-  vr::VRInputComponentHandle_t m_skeletalComponentHandle{};
-  vr::VRInputComponentHandle_t m_inputComponentHandles[23]{};
-
-  vr::VRInputComponentHandle_t m_haptic{};
-
-  vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
-
-  VRDeviceConfiguration_t m_configuration;
-  std::unique_ptr<CommunicationManager> m_communicationManager;
-  std::string m_serialNumber;
-
-  std::unique_ptr<ControllerPose> m_controllerPose;
+  vr::VRInputComponentHandle_t m_inputComponentHandles[(size_t)KnuckelDeviceComponentIndex::Count];
+  vr::VRInputComponentHandle_t m_haptic;
   std::unique_ptr<FFBListener> m_ffbProvider;
-  std::shared_ptr<BoneAnimator> m_boneAnimator;
 };

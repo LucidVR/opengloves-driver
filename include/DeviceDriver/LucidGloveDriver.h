@@ -10,42 +10,37 @@
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
-#include "Encode/LegacyEncodingManager.h"
+#include "Encode/EncodingManager.h"
 
-class LucidGloveDeviceDriver : public IDeviceDriver {
+enum class LucidGloveDeviceComponentIndex : int {
+  COMP_JOY_X = 0,
+  COMP_JOY_Y,
+  COMP_JOY_BTN,
+  COMP_BTN_TRG,
+  COMP_BTN_A,
+  COMP_BTN_B,
+  COMP_GES_GRAB,
+  COMP_GES_PINCH,
+  COMP_HAPTIC,
+  COMP_TRG_THUMB,
+  COMP_TRG_INDEX,
+  COMP_TRG_MIDDLE,
+  COMP_TRG_RING,
+  COMP_TRG_PINKY,
+  COMP_BTN_MENU,
+  Count
+};
+
+class LucidGloveDeviceDriver : public DeviceDriver {
  public:
-  LucidGloveDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<CommunicationManager> communicationManager, std::string serialNumber,
-                         std::shared_ptr<BoneAnimator> boneAnimator);
+  LucidGloveDeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
+                         VRDeviceConfiguration_t configuration);
 
-  vr::EVRInitError Activate(uint32_t unObjectId);
-  void Deactivate();
-
-  void EnterStandby();
-  void* GetComponent(const char* pchComponentNameAndVersion);
-  void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize);
-  vr::DriverPose_t GetPose();
-  void RunFrame();
-
-  std::string GetSerialNumber();
-
-  bool IsActive();
+  void HandleInput(VRCommData_t datas);
+  void SetupProps(vr::PropertyContainerHandle_t& props);
+  void StartingDevice();
+  void StoppingDevice();
 
  private:
-  void StartDevice();
-  bool IsRightHand() const;
-
-  bool m_hasActivated;
-  uint32_t m_driverId;
-
-  vr::VRInputComponentHandle_t m_skeletalComponentHandle{};
-  vr::VRInputComponentHandle_t m_inputComponentHandles[15]{};
-
-  vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
-
-  VRDeviceConfiguration_t m_configuration;
-  std::unique_ptr<CommunicationManager> m_communicationManager;
-  std::string m_serialNumber;
-
-  std::unique_ptr<ControllerPose> m_controllerPose;
-  std::shared_ptr<BoneAnimator> m_boneAnimator;
+  vr::VRInputComponentHandle_t m_inputComponentHandles[(int)LucidGloveDeviceComponentIndex::Count]{};
 };

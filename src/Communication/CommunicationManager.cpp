@@ -1,5 +1,7 @@
 #include "Communication/CommunicationManager.h"
 
+#include <chrono>
+
 static const uint32_t c_listenerWaitTime = 1000;
 
 CommunicationManager::CommunicationManager(std::unique_ptr<IEncodingManager> encodingManager)

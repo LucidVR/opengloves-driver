@@ -1,5 +1,8 @@
 #include "Communication/SerialCommunicationManager.h"
 
+#include "DriverLog.h"
+#include "Util/Windows.h"
+
 SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager, const VRSerialConfiguration_t& configuration)
     : CommunicationManager(std::move(encodingManager)), m_serialConfiguration(configuration), m_isConnected(false), m_hSerial(0) {}
 

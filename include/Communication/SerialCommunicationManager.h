@@ -1,19 +1,14 @@
 #pragma once
 
-#include <windows.h>
+#include <Windows.h>
 
 #include <atomic>
-#include <chrono>
-#include <iostream>
 #include <memory>
-#include <mutex>
 #include <string>
-#include <thread>
 
 #include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
-#include "DriverLog.h"
-#include "Util/Windows.h"
+#include "Encode/EncodingManager.h"
 
 class SerialCommunicationManager : public CommunicationManager {
  public:
