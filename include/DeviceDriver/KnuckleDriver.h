@@ -13,7 +13,7 @@
 #include "Encode/EncodingManager.h"
 #include "ForceFeedback.h"
 
-enum class KnuckelDeviceComponentIndex : int {
+enum class KnuckleDeviceComponentIndex : int {
   SYSTEM_CLICK = 0,
   SYSTEM_TOUCH,
   TRIGGER_CLICK,
@@ -51,7 +51,7 @@ class KnuckleDeviceDriver : public DeviceDriver {
   void StoppingDevice();
 
  private:
-  vr::VRInputComponentHandle_t m_inputComponentHandles[(int)KnuckelDeviceComponentIndex::Count];
+  vr::VRInputComponentHandle_t m_inputComponentHandles[(int)KnuckleDeviceComponentIndex::Count];
   vr::VRInputComponentHandle_t m_haptic;
   std::unique_ptr<FFBListener> m_ffbProvider;
 };
