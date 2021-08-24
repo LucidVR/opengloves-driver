@@ -51,7 +51,7 @@ class KnuckleDeviceDriver : public DeviceDriver {
   void StoppingDevice();
 
  private:
-  vr::VRInputComponentHandle_t m_inputComponentHandles[(size_t)KnuckelDeviceComponentIndex::Count];
+  vr::VRInputComponentHandle_t m_inputComponentHandles[(int)KnuckelDeviceComponentIndex::Count];
   vr::VRInputComponentHandle_t m_haptic;
   std::unique_ptr<FFBListener> m_ffbProvider;
 };

@@ -42,5 +42,5 @@ class LucidGloveDeviceDriver : public DeviceDriver {
   void StoppingDevice();
 
  private:
-  vr::VRInputComponentHandle_t m_inputComponentHandles[(int)LucidGloveDeviceComponentIndex::Count]{};
+  vr::VRInputComponentHandle_t m_inputComponentHandles[(int)LucidGloveDeviceComponentIndex::Count];
 };
