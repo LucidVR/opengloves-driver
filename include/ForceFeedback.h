@@ -5,7 +5,7 @@
 #include <memory>
 #include <functional>
 
-#include "Communication/CommunicationObjects.h"
+#include "Encode/EncodingManager.h"
 #include "Util/NamedPipe.h"
 
 class FFBListener {

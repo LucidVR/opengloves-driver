@@ -7,7 +7,6 @@
 #include <string>
 #include <thread>
 
-#include "Communication/CommunicationObjects.h"
 #include "Encode/EncodingManager.h"
 
 class CommunicationManager {

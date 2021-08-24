@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Communication/CommunicationObjects.h"
 #include "Encode/EncodingManager.h"
 
 class AlphaEncodingManager : public EncodingManager {
