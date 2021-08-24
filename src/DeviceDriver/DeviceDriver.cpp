@@ -18,7 +18,7 @@ DeviceDriver::DeviceDriver(std::unique_ptr<CommunicationManager> communicationMa
 
 vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
   m_driverId = unObjectId;
-  // m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceDriverManufacturer), m_configuration.poseConfiguration);
+  m_controllerPose = std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceDriverManufacturer), m_configuration.poseConfiguration);
 
   vr::PropertyContainerHandle_t props =
       vr::VRProperties()->TrackedDeviceToPropertyContainer(m_driverId);  // this gets a container object where you store all the information about your driver
