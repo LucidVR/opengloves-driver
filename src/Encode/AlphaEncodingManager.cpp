@@ -52,12 +52,10 @@ static std::string getArgumentSubstring(std::string str, char del) {
 
 static bool argValid(std::string str, char del) { return str.find(del) != std::string::npos; }
 
-VRCommData_t AlphaEncodingManager::Decode(std::string input) {
-  std::array<float, 5> flexion;
-  for (int i = 0; i < 5; i++) {  // splay tracking not yet supported
-    flexion[i] = -1;             // 0.5;
-  }
+AlphaEncodingManager::AlphaEncodingManager(float maxAnalogValue) : EncodingManager(maxAnalogValue) {}
 
+VRInputData_t AlphaEncodingManager::Decode(std::string input) {
+  std::array<float, 5> flexion = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
   if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_THUMB))
     flexion[0] = stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::FIN_THUMB)) / m_maxAnalogValue;
   if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::FIN_INDEX))
@@ -71,19 +69,18 @@ VRCommData_t AlphaEncodingManager::Decode(std::string input) {
 
   float joyX = 0;
   float joyY = 0;
-
   if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::JOY_X))
     joyX = 2 * stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::JOY_X)) / m_maxAnalogValue - 1;
   if (argValid(input, (char)VRCommDataAlphaEncodingCharacter::JOY_Y))
     joyY = 2 * stof(getArgumentSubstring(input, (char)VRCommDataAlphaEncodingCharacter::JOY_Y)) / m_maxAnalogValue - 1;
 
-  VRCommData_t commData(flexion, joyX, joyY, argValid(input, (char)VRCommDataAlphaEncodingCharacter::JOY_BTN),
-                        argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_TRG), argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_A),
-                        argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_B), argValid(input, (char)VRCommDataAlphaEncodingCharacter::GES_GRAB),
-                        argValid(input, (char)VRCommDataAlphaEncodingCharacter::GES_PINCH), argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_MENU),
-                        argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_CALIB));
+  VRInputData_t inputData(flexion, joyX, joyY, argValid(input, (char)VRCommDataAlphaEncodingCharacter::JOY_BTN),
+                          argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_TRG), argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_A),
+                          argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_B), argValid(input, (char)VRCommDataAlphaEncodingCharacter::GES_GRAB),
+                          argValid(input, (char)VRCommDataAlphaEncodingCharacter::GES_PINCH), argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_MENU),
+                          argValid(input, (char)VRCommDataAlphaEncodingCharacter::BTN_CALIB));
 
-  return commData;
+  return inputData;
 }
 
 std::string AlphaEncodingManager::Encode(const VRFFBData_t& data) {

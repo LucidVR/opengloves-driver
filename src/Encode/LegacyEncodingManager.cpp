@@ -22,20 +22,21 @@ enum class VRCommDataLegacyEncodingPosition : int {
   MAX,
 };
 
-VRCommData_t LegacyEncodingManager::Decode(std::string input) {
+LegacyEncodingManager::LegacyEncodingManager(float maxAnalogValue) : EncodingManager(maxAnalogValue) {}
+
+VRInputData_t LegacyEncodingManager::Decode(std::string input) {
   std::string buf;
   std::stringstream ss(input);
 
-  std::vector<float> tokens((int)VRCommDataLegacyEncodingPosition::MAX);
-  std::fill(tokens.begin(), tokens.begin() + (int)VRCommDataLegacyEncodingPosition::MAX, 0.0f);
+  std::vector<float> tokens((int)VRCommDataLegacyEncodingPosition::MAX, 0.0f);
 
   short i = 0;
-  while (getline(ss, buf, '&')) {
+  while (i < tokens.size() && getline(ss, buf, '&')) {
     tokens[i] = std::stof(buf);
     i++;
   }
 
-  std::array<float, 5> flexion;
+  std::array<float, 5> flexion{};
   for (int i = 0; i < 5; i++) {
     flexion[i] = tokens[i] / m_maxAnalogValue;
   }
@@ -43,11 +44,11 @@ VRCommData_t LegacyEncodingManager::Decode(std::string input) {
   const float joyX = (2 * tokens[(int)VRCommDataLegacyEncodingPosition::JOY_X] / m_maxAnalogValue) - 1;
   const float joyY = (2 * tokens[(int)VRCommDataLegacyEncodingPosition::JOY_Y] / m_maxAnalogValue) - 1;
 
-  VRCommData_t commData(flexion, joyX, joyY, tokens[(int)VRCommDataLegacyEncodingPosition::JOY_BTN] == 1, tokens[(int)VRCommDataLegacyEncodingPosition::BTN_TRG] == 1,
-                        tokens[(int)VRCommDataLegacyEncodingPosition::BTN_A] == 1, tokens[(int)VRCommDataLegacyEncodingPosition::BTN_B] == 1,
-                        tokens[(int)VRCommDataLegacyEncodingPosition::GES_GRAB] == 1, tokens[(int)VRCommDataLegacyEncodingPosition::GES_PINCH] == 1, false, false);
+  VRInputData_t inputData(flexion, joyX, joyY, tokens[(int)VRCommDataLegacyEncodingPosition::JOY_BTN] == 1, tokens[(int)VRCommDataLegacyEncodingPosition::BTN_TRG] == 1,
+                          tokens[(int)VRCommDataLegacyEncodingPosition::BTN_A] == 1, tokens[(int)VRCommDataLegacyEncodingPosition::BTN_B] == 1,
+                          tokens[(int)VRCommDataLegacyEncodingPosition::GES_GRAB] == 1, tokens[(int)VRCommDataLegacyEncodingPosition::GES_PINCH] == 1, false, false);
 
-  return commData;
+  return inputData;
 }
 
 std::string LegacyEncodingManager::Encode(const VRFFBData_t& data) {

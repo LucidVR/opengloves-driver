@@ -1,18 +1,12 @@
 #pragma once
 
-#include <Encode/EncodingManager.h>
-#include "ForceFeedback.h"
+#include "Communication/CommunicationObjects.h"
+#include "Encode/EncodingManager.h"
 
-static const char* c_legacyEncodingSettingsSection = "encoding_legacy";
-
-class LegacyEncodingManager : public IEncodingManager {
+class LegacyEncodingManager : public EncodingManager {
  public:
-  LegacyEncodingManager(float maxAnalogValue) : m_maxAnalogValue(maxAnalogValue){};
+  LegacyEncodingManager(float maxAnalogValue);
 
-  VRCommData_t Decode(std::string input);
-
+  VRInputData_t Decode(std::string input);
   std::string Encode(const VRFFBData_t& input);
-
- private:
-  float m_maxAnalogValue;
 };

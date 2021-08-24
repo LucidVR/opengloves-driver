@@ -8,6 +8,8 @@ extern const char* c_serialCommunicationSettingsSection;
 extern const char* c_btserialCommunicationSettingsSection;
 extern const char* c_knuckleDeviceSettingsSection;
 extern const char* c_lucidGloveDeviceSettingsSection;
+extern const char* c_alphaEncodingSettingsSection;
+extern const char* c_legacyEncodingSettingsSection;
 
 extern const char* c_deviceDriverManufacturer;
 

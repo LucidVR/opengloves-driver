@@ -12,7 +12,7 @@
 
 class SerialCommunicationManager : public CommunicationManager {
  public:
-  SerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager, const VRSerialConfiguration_t& configuration);
+  SerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRSerialConfiguration_t& configuration);
 
  public:
   bool IsConnected();

@@ -1,45 +1,18 @@
 #pragma once
+
 #include <array>
 #include <string>
 
-#include "ForceFeedback.h"
+#include "Communication/CommunicationObjects.h"
 
-struct VRCommData_t {
-  VRCommData_t(){};
-  VRCommData_t(std::array<float, 5> flexion, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch, bool menu,
-               bool calibrate)
-      : flexion(flexion),
-        joyX(joyX),
-        joyY(joyY),
-        joyButton(joyButton),
-        trgButton(trgButton),
-        aButton(aButton),
-        bButton(bButton),
-        grab(grab),
-        pinch(pinch),
-        menu(menu),
-        calibrate(calibrate){};
-  const std::array<float, 5> flexion = {0, 0, 0, 0, 0};
-  const float joyX = 500;
-  const float joyY = 500;
-  const bool joyButton = false;
-  const bool trgButton = false;
-  const bool aButton = false;
-  const bool bButton = false;
-  const bool grab = false;
-  const bool pinch = false;
-  const bool menu = false;
-  const bool calibrate = false;
-};
-
-class IEncodingManager {
+class EncodingManager {
  public:
-  virtual VRCommData_t Decode(std::string input) = 0;
+  EncodingManager(float maxAnalogValue);
+  virtual VRInputData_t Decode(std::string input) = 0;
   virtual std::string Encode(const VRFFBData_t& data) = 0;
-  virtual ~IEncodingManager(){};
 
- private:
-  float m_maxAnalogValue = 0.0;
+ protected:
+  float m_maxAnalogValue;
 };
 
 template <typename... Args>

@@ -72,7 +72,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
 std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceConfiguration_t configuration, std::shared_ptr<BoneAnimator> boneAnimator) {
   std::unique_ptr<CommunicationManager> communicationManager;
-  std::unique_ptr<IEncodingManager> encodingManager;
+  std::unique_ptr<EncodingManager> encodingManager;
 
   bool isRightHand = configuration.role == vr::TrackedControllerRole_RightHand;
   switch (configuration.encodingProtocol) {

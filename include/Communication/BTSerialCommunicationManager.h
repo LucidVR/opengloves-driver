@@ -13,7 +13,7 @@
 
 class BTSerialCommunicationManager : public CommunicationManager {
  public:
-  BTSerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration);
+  BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration);
 
  public:
   bool IsConnected();
@@ -25,7 +25,7 @@ class BTSerialCommunicationManager : public CommunicationManager {
   void LogMessage(const char* message);
   bool ReceiveNextPacket(std::string& buff);
   bool SendMessageToDevice();
-  
+
  private:
   bool ConnectToDevice(BTH_ADDR& deviceBtAddress);
   bool GetPairedDeviceBtAddress(BTH_ADDR* deviceBtAddress);
