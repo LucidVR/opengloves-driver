@@ -12,9 +12,6 @@ LucidGloveDeviceDriver::LucidGloveDeviceDriver(std::unique_ptr<CommunicationMana
     : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration), m_inputComponentHandles() {}
 
 void LucidGloveDeviceDriver::HandleInput(VRCommData_t datas) {
-  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
-  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
-
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)LucidGloveDeviceComponentIndex::COMP_JOY_X], datas.joyX, 0);
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)LucidGloveDeviceComponentIndex::COMP_JOY_Y], datas.joyY, 0);
 

@@ -9,9 +9,6 @@ KnuckleDeviceDriver::KnuckleDeviceDriver(std::unique_ptr<CommunicationManager> c
     : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration), m_inputComponentHandles(), m_haptic(), m_ffbProvider() {}
 
 void KnuckleDeviceDriver::HandleInput(VRCommData_t datas) {
-  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
-  vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
-
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)KnuckelDeviceComponentIndex::THUMBSTICK_X], datas.joyX, 0);
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)KnuckelDeviceComponentIndex::THUMBSTICK_Y], datas.joyY, 0);
 
