@@ -84,7 +84,7 @@ void DeviceDriver::StartDevice() {
   vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose,
                                                NUM_BONES);
 
-  m_communicationManager->BeginListener([&](VRCommData_t datas) {
+  m_communicationManager->BeginListener([&](VRInputData_t datas) {
     try {
       m_boneAnimator->ComputeSkeletonTransforms(m_handTransforms, datas.flexion, IsRightHand());
       vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);

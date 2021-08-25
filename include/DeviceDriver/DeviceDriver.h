@@ -29,7 +29,7 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   virtual bool IsRightHand() const;
   virtual void StartDevice();
 
-  virtual void HandleInput(VRCommData_t datas) = 0;
+  virtual void HandleInput(VRInputData_t datas) = 0;
   virtual void SetupProps(vr::PropertyContainerHandle_t& props) = 0;
   virtual void StartingDevice() = 0;
   virtual void StoppingDevice() = 0;
