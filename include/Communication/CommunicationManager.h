@@ -11,16 +11,16 @@
 
 class CommunicationManager {
  public:
-  CommunicationManager(std::unique_ptr<IEncodingManager> encodingManager);
+  CommunicationManager(std::unique_ptr<EncodingManager> encodingManager);
 
-  virtual void BeginListener(const std::function<void(VRCommData_t)>& callback);
+  virtual void BeginListener(const std::function<void(VRInputData_t)>& callback);
   virtual void Disconnect();
   virtual void QueueSend(const VRFFBData_t& data);
 
   virtual bool IsConnected() = 0;
 
  protected:
-  virtual void ListenerThread(const std::function<void(VRCommData_t)>& callback);
+  virtual void ListenerThread(const std::function<void(VRInputData_t)>& callback);
   virtual void WaitAttemptConnection();
 
   virtual bool Connect() = 0;
@@ -31,7 +31,7 @@ class CommunicationManager {
   virtual bool SendMessageToDevice() = 0;
 
  protected:
-  std::unique_ptr<IEncodingManager> m_encodingManager;
+  std::unique_ptr<EncodingManager> m_encodingManager;
 
   std::atomic<bool> m_threadActive;
   std::thread m_thread;

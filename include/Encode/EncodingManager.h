@@ -1,45 +1,45 @@
 #pragma once
+
 #include <array>
 #include <string>
 
-#include "ForceFeedback.h"
+struct VRFFBData_t {
+  VRFFBData_t();
+  VRFFBData_t(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl);
 
-struct VRCommData_t {
-  VRCommData_t(){};
-  VRCommData_t(std::array<float, 5> flexion, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch, bool menu,
-               bool calibrate)
-      : flexion(flexion),
-        joyX(joyX),
-        joyY(joyY),
-        joyButton(joyButton),
-        trgButton(trgButton),
-        aButton(aButton),
-        bButton(bButton),
-        grab(grab),
-        pinch(pinch),
-        menu(menu),
-        calibrate(calibrate){};
-  const std::array<float, 5> flexion = {0, 0, 0, 0, 0};
-  const float joyX = 500;
-  const float joyY = 500;
-  const bool joyButton = false;
-  const bool trgButton = false;
-  const bool aButton = false;
-  const bool bButton = false;
-  const bool grab = false;
-  const bool pinch = false;
-  const bool menu = false;
-  const bool calibrate = false;
+  const short thumbCurl;
+  const short indexCurl;
+  const short middleCurl;
+  const short ringCurl;
+  const short pinkyCurl;
 };
 
-class IEncodingManager {
- public:
-  virtual VRCommData_t Decode(std::string input) = 0;
-  virtual std::string Encode(const VRFFBData_t& data) = 0;
-  virtual ~IEncodingManager(){};
+struct VRInputData_t {
+  VRInputData_t();
+  VRInputData_t(std::array<float, 5> flexion, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch, bool menu,
+                bool calibrate);
 
- private:
-  float m_maxAnalogValue = 0.0;
+  const std::array<float, 5> flexion;
+  const float joyX;
+  const float joyY;
+  const bool joyButton;
+  const bool trgButton;
+  const bool aButton;
+  const bool bButton;
+  const bool grab;
+  const bool pinch;
+  const bool menu;
+  const bool calibrate;
+};
+
+class EncodingManager {
+ public:
+  EncodingManager(float maxAnalogValue);
+  virtual VRInputData_t Decode(std::string input) = 0;
+  virtual std::string Encode(const VRFFBData_t& data) = 0;
+
+ protected:
+  float m_maxAnalogValue;
 };
 
 template <typename... Args>

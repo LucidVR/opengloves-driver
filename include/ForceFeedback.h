@@ -1,21 +1,12 @@
 #pragma once
 
+#include "openvr_driver.h"
+
 #include <memory>
 #include <functional>
 
-#include "openvr_driver.h"
+#include "Encode/EncodingManager.h"
 #include "Util/NamedPipe.h"
-
-struct VRFFBData_t {
-  VRFFBData_t(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl)
-      : thumbCurl(thumbCurl), indexCurl(indexCurl), middleCurl(middleCurl), ringCurl(ringCurl), pinkyCurl(pinkyCurl){};
-
-  short thumbCurl;
-  short indexCurl;
-  short middleCurl;
-  short ringCurl;
-  short pinkyCurl;
-};
 
 class FFBListener {
  public:

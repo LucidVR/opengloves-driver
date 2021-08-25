@@ -36,7 +36,7 @@ class LucidGloveDeviceDriver : public DeviceDriver {
   LucidGloveDeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
                          VRDeviceConfiguration_t configuration);
 
-  void HandleInput(VRCommData_t datas);
+  void HandleInput(VRInputData_t datas);
   void SetupProps(vr::PropertyContainerHandle_t& props);
   void StartingDevice();
   void StoppingDevice();

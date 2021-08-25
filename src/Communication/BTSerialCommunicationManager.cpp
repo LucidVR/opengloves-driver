@@ -6,7 +6,7 @@
 #include "DriverLog.h"
 #include "Util/Windows.h"
 
-BTSerialCommunicationManager::BTSerialCommunicationManager(std::unique_ptr<IEncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration)
+BTSerialCommunicationManager::BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration)
     : CommunicationManager(std::move(encodingManager)), m_btSerialConfiguration(configuration), m_isConnected(false), m_btClientSocket(NULL) {}
 
 bool BTSerialCommunicationManager::IsConnected() { return m_isConnected; }
