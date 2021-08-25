@@ -1,22 +1,15 @@
 #pragma once
+
 #include <Winsock2.h>
-#include <Ws2bth.h>
 #include <bluetoothapis.h>
-#include <windows.h>
 
 #include <atomic>
-#include <chrono>
 #include <memory>
-#include <mutex>
-#include <sstream>
 #include <string>
-#include <thread>
-#include <vector>
 
 #include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
-#include "DriverLog.h"
-#include "Util/Windows.h"
+#include "Encode/EncodingManager.h"
 
 class BTSerialCommunicationManager : public CommunicationManager {
  public:

@@ -60,12 +60,12 @@ class DeviceProvider : public vr::IServerTrackedDeviceProvider {
   void LeaveStandby();
 
  private:
-  std::unique_ptr<IDeviceDriver> m_leftHand;
-  std::unique_ptr<IDeviceDriver> m_rightHand;
+  std::unique_ptr<DeviceDriver> m_leftHand;
+  std::unique_ptr<DeviceDriver> m_rightHand;
   /**
    * returns the configuration set in VRSettings for the device role given
    **/
   VRDeviceConfiguration_t GetDeviceConfiguration(vr::ETrackedControllerRole role);
 
-  std::unique_ptr<IDeviceDriver> InstantiateDeviceDriver(VRDeviceConfiguration_t configuration, std::shared_ptr<BoneAnimator> boneAnimator);
+  std::unique_ptr<DeviceDriver> InstantiateDeviceDriver(VRDeviceConfiguration_t configuration, std::shared_ptr<BoneAnimator> boneAnimator);
 };

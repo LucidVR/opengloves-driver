@@ -1,7 +1,5 @@
 #include "ForceFeedback.h"
 
-#include <chrono>
-
 #include "DriverLog.h"
 
 FFBListener::FFBListener(std::function<void(VRFFBData_t)> callback, vr::ETrackedControllerRole role) : m_callback(callback), m_role(role) {
