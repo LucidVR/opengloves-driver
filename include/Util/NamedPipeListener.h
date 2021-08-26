@@ -154,6 +154,7 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
           DisconnectAndReconnect(&listenerData);
           continue;
         }
+        listenerData.fPendingIO = false;
         listenerData.state = NamedPipeListenerState::Callback;
         listenerData.dwBytesRead = dwBytesTransferred;
       } else {  // Connecting/Callback/etc.
