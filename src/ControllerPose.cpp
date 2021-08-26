@@ -3,21 +3,14 @@
 #include "DriverLog.h"
 #include "Quaternion.h"
 
-struct CalibrationDataIn {
-  uint8_t start;
-};
-
 ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration_t poseConfiguration)
     : m_shadowDeviceOfRole(shadowDeviceOfRole), m_thisDeviceManufacturer(std::move(thisDeviceManufacturer)), m_poseConfiguration(poseConfiguration) {
-  m_calibrationPipe =
-      std::make_unique<NamedPipeUtil>("\\\\.\\pipe\\vrapplication\\functions\\autocalibrate\\" +
-                                          std::string(shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left"),
-                                      sizeof(CalibrationDataIn));
+  m_calibrationPipe = std::make_unique<NamedPipeListener<CalibrationDataIn>>(
+      "\\\\.\\pipe\\vrapplication\\functions\\autocalibrate\\" +
+      std::string(shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left"));
 
-  m_calibrationPipe->Start([&](LPVOID data) {
-    CalibrationDataIn *calibrationData = (CalibrationDataIn *)data;
-
-    if (calibrationData->start) {
+  m_calibrationPipe->StartListening([&](CalibrationDataIn* data) {
+    if (data->start) {
       DriverLog("Starting calibration via external application");
       StartCalibration();
     } else {
@@ -37,6 +30,11 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, st
     m_controllerDiscoverer->Start();
   }
   m_calibration = std::make_unique<Calibration>();
+}
+
+ControllerPose::~ControllerPose() {
+  m_calibrationPipe->StopListening();
+  if (m_controllerDiscoverer) m_controllerDiscoverer->Stop();
 }
 
 vr::TrackedDevicePose_t ControllerPose::GetControllerPose() {

@@ -5,15 +5,11 @@
 FFBListener::FFBListener(std::function<void(VRFFBData_t)> callback, vr::ETrackedControllerRole role) : m_callback(callback), m_role(role) {
   std::string pipeName = "\\\\.\\pipe\\vrapplication\\ffb\\curl\\";
   pipeName.append((role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) ? "right" : "left");
-  m_pipe = std::make_unique<NamedPipeUtil>(pipeName, sizeof(VRFFBData_t));
+  m_pipe = std::make_unique<NamedPipeListener<VRFFBData_t>>(pipeName);
 };
 
 void FFBListener::Start() {
-  m_pipe->Start([&](LPVOID data) {
-    VRFFBData_t *ffbData = (VRFFBData_t *)data;
-
-    m_callback(*ffbData);
-  });
+  m_pipe->StartListening([&](VRFFBData_t* data) { m_callback(*data); });
 }
 
-void FFBListener::Stop() { m_pipe->Stop(); };
+void FFBListener::Stop() { m_pipe->StopListening(); };

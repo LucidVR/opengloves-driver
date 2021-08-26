@@ -16,10 +16,9 @@ void CommunicationManager::BeginListener(const std::function<void(VRInputData_t)
 }
 
 void CommunicationManager::Disconnect() {
-  if (IsConnected()) {
-    if (m_threadActive.exchange(false)) m_thread.join();
-    DisconnectFromDevice();
-  }
+  if (m_threadActive.exchange(false)) m_thread.join();
+
+  if (IsConnected()) DisconnectFromDevice();
 }
 
 void CommunicationManager::QueueSend(const VRFFBData_t& data) {

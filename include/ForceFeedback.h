@@ -6,7 +6,7 @@
 #include <functional>
 
 #include "Encode/EncodingManager.h"
-#include "Util/NamedPipe.h"
+#include "Util/NamedPipeListener.h"
 
 class FFBListener {
  public:
@@ -18,5 +18,5 @@ class FFBListener {
   std::function<void(VRFFBData_t)> m_callback;
   vr::ETrackedControllerRole m_role;
 
-  std::unique_ptr<NamedPipeUtil> m_pipe;
+  std::unique_ptr<NamedPipeListener<VRFFBData_t>> m_pipe;
 };
