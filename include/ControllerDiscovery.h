@@ -3,7 +3,7 @@
 #include <memory>
 #include <functional>
 #include "openvr_driver.h"
-#include "Util/NamedPipe.h"
+#include "Util/NamedPipeListener.h"
 
 struct ControllerDiscoveryPipeData_t {
   short controllerId;
@@ -18,6 +18,6 @@ class ControllerDiscovery {
 
  private:
   vr::ETrackedControllerRole m_role;
-  std::unique_ptr<NamedPipeUtil> m_pipe;
+  std::unique_ptr<NamedPipeListener<ControllerDiscoveryPipeData_t>> m_pipe;
   std::function<void(ControllerDiscoveryPipeData_t)> m_callback;
 };
