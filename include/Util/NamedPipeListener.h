@@ -1,7 +1,5 @@
 #pragma once
 
-// https://docs.microsoft.com/en-us/windows/win32/ipc/multithreaded-pipe-server
-
 #include <Windows.h>
 
 #include <atomic>
