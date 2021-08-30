@@ -19,11 +19,11 @@ class ControllerPose {
 
   vr::DriverPose_t UpdatePose();
 
-  void StartCalibration();
+  void StartCalibration(CalibrationMethod method);
 
-  void CompleteCalibration();
+  void CompleteCalibration(CalibrationMethod method);
 
-  void CancelCalibration();
+  void CancelCalibration(CalibrationMethod method);
 
   bool isCalibrating();
 
