@@ -92,10 +92,12 @@ void DeviceDriver::StartDevice() {
 
       HandleInput(datas);
 
-      if (datas.calibrate) {
-        if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration();
-      } else {
-        if (m_controllerPose->isCalibrating()) m_controllerPose->CompleteCalibration();
+      if (m_configuration.poseConfiguration.calibrationButtonEnabled) {
+        if (datas.calibrate) {
+          if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration(CalibrationMethod::HARDWARE);
+        } else {
+          if (m_controllerPose->isCalibrating()) m_controllerPose->CompleteCalibration(CalibrationMethod::HARDWARE);
+        }
       }
 
     } catch (const std::exception&) {

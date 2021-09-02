@@ -12,10 +12,10 @@ ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, st
   m_calibrationPipe->StartListening([&](CalibrationDataIn* data) {
     if (data->start) {
       DriverLog("Starting calibration via external application");
-      StartCalibration();
+      StartCalibration(CalibrationMethod::UI);
     } else {
       DriverLog("Stopping calibration via external application");
-      CompleteCalibration();
+      CompleteCalibration(CalibrationMethod::UI);
     }
   });
 
@@ -104,18 +104,18 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
   return newPose;
 }
 
-void ControllerPose::StartCalibration() { m_calibration->StartCalibration(UpdatePose()); }
+void ControllerPose::StartCalibration(CalibrationMethod method) { m_calibration->StartCalibration(UpdatePose(), method); }
 
-void ControllerPose::CompleteCalibration() {
+void ControllerPose::CompleteCalibration(CalibrationMethod method) {
   if (m_shadowControllerId == vr::k_unTrackedDeviceIndexInvalid) {
     DriverLog("Index invalid");
-    CancelCalibration();
+    CancelCalibration(method);
     return;
   }
-  m_poseConfiguration = m_calibration->CompleteCalibration(GetControllerPose(), m_poseConfiguration, isRightHand());
+  m_poseConfiguration = m_calibration->CompleteCalibration(GetControllerPose(), m_poseConfiguration, isRightHand(), method);
 }
 
-void ControllerPose::CancelCalibration() { m_calibration->CancelCalibration(); }
+void ControllerPose::CancelCalibration(CalibrationMethod method) { m_calibration->CancelCalibration(method); }
 
 bool ControllerPose::isCalibrating() { return m_calibration->isCalibrating(); }
 

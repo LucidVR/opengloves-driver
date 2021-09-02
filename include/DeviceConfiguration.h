@@ -43,17 +43,19 @@ struct VRBTSerialConfiguration_t {
 
 struct VRPoseConfiguration_t {
   VRPoseConfiguration_t(vr::HmdVector3_t offsetVector, vr::HmdQuaternion_t angleOffsetQuaternion, float poseTimeOffset, bool controllerOverrideEnabled,
-                        int controllerIdOverride)
+                        int controllerIdOverride, bool calibrationButtonEnabled)
       : offsetVector(offsetVector),
         angleOffsetQuaternion(angleOffsetQuaternion),
         poseTimeOffset(poseTimeOffset),
         controllerOverrideEnabled(controllerOverrideEnabled),
-        controllerIdOverride(controllerIdOverride){};
+        controllerIdOverride(controllerIdOverride),
+        calibrationButtonEnabled(calibrationButtonEnabled){};
   vr::HmdVector3_t offsetVector;
   vr::HmdQuaternion_t angleOffsetQuaternion;
   float poseTimeOffset;
   int controllerIdOverride;
   bool controllerOverrideEnabled;
+  bool calibrationButtonEnabled;
 };
 
 struct VRDeviceConfiguration_t {

@@ -151,15 +151,16 @@ VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedContr
   const bool controllerOverrideEnabled = vr::VRSettings()->GetBool(c_poseSettingsSection, "controller_override");
   const int controllerIdOverride =
       controllerOverrideEnabled ? vr::VRSettings()->GetInt32(c_poseSettingsSection, isRightHand ? "controller_override_right" : "controller_override_left") : -1;
+  const bool calibrationButton = vr::VRSettings()->GetBool(c_poseSettingsSection, "hardware_calibration_button_enabled");
 
   const vr::HmdVector3_t offsetVector = {offsetXPos, offsetYPos, offsetZPos};
 
   // Convert the rotation to a quaternion
   const vr::HmdQuaternion_t angleOffsetQuaternion = EulerToQuaternion(DegToRad(offsetXRot), DegToRad(offsetYRot), DegToRad(offsetZRot));
 
-  return VRDeviceConfiguration_t(role, isEnabled,
-                                 VRPoseConfiguration_t(offsetVector, angleOffsetQuaternion, poseTimeOffset, controllerOverrideEnabled, controllerIdOverride),
-                                 encodingProtocol, communicationProtocol, deviceDriver);
+  return VRDeviceConfiguration_t(
+      role, isEnabled, VRPoseConfiguration_t(offsetVector, angleOffsetQuaternion, poseTimeOffset, controllerOverrideEnabled, controllerIdOverride, calibrationButton),
+      encodingProtocol, communicationProtocol, deviceDriver);
 }
 
 void DeviceProvider::Cleanup() {}

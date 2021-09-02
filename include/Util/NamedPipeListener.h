@@ -33,6 +33,8 @@ class NamedPipeListener {
 
   bool StartListening(const std::function<void(T*)>& callback);
   void StopListening();
+  void LogError(const char* error);
+  void LogMessage(const char* message);
 
  private:
   void Connect(NamedPipeListenerData<T>* data);
@@ -90,13 +92,14 @@ void NamedPipeListener<T>::Connect(NamedPipeListenerData<T>* data) {
     }
   }
 
-  DriverLog("ConnectNamedPipe failed with error: %s\n", GetLastErrorAsString().c_str());
+  LogError("Failed to connect");
   data->fPendingIO = false;
   data->state = NamedPipeListenerState::Reading;
 }
 template <typename T>
 void NamedPipeListener<T>::DisconnectAndReconnect(NamedPipeListenerData<T>* data) {
-  if (!DisconnectNamedPipe(data->hPipeInst)) DriverLog("DisconnectNamedPipe failed with error: %s\n", GetLastErrorAsString().c_str());
+  LogMessage("Disconnecting and reconnecting named pipe");
+  if (!DisconnectNamedPipe(data->hPipeInst)) LogError("Failed to disconnect");
 
   Connect(data);
 }
@@ -105,7 +108,7 @@ template <typename T>
 void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callback) {
   HANDLE hEvent = CreateEventA(NULL, TRUE, TRUE, NULL);
   if (hEvent == NULL) {
-    DriverLog("CreateEvent failed with error: %s\n", GetLastErrorAsString().c_str());
+    LogError("CreateEvent failed");
     return;
   }
 
@@ -121,7 +124,7 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
                                       c_namedPipeDelay,            // client time-out
                                       NULL);                       // default security attributes
   if (hPipeInst == INVALID_HANDLE_VALUE) {
-    DriverLog("CreateNamedPipe failed with error: %s\n", GetLastErrorAsString().c_str());
+    LogError("CreateNamedPipe failed");
     CloseHandle(hEvent);
     return;
   }
@@ -140,7 +143,7 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
       case WAIT_TIMEOUT:
         continue;
       default:
-        DriverLog("WaitForSingleObject failed with error: %s\n", GetLastErrorAsString().c_str());
+        LogError("WaitForSingleObject failed");
         DisconnectAndReconnect(&listenerData);
         continue;
     }
@@ -150,7 +153,7 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
       BOOL fSuccess = GetOverlappedResult(listenerData.hPipeInst, &listenerData.oOverlap, &dwBytesTransferred, FALSE);
       if (listenerData.state == NamedPipeListenerState::Reading) {
         if (!fSuccess || dwBytesTransferred == 0) {
-          DriverLog("GetOverlappedResult failed with error: %s\n", GetLastErrorAsString().c_str());
+          LogError("GetOverlappedResult failed");
           DisconnectAndReconnect(&listenerData);
           continue;
         }
@@ -159,7 +162,7 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
         listenerData.dwBytesRead = dwBytesTransferred;
       } else {  // Connecting/Callback/etc.
         if (!fSuccess) {
-          DriverLog("GetOverlappedResult failed with error: %s\n", GetLastErrorAsString().c_str());
+          LogError("GetOverlappedResult failed");
           break;
         }
         listenerData.state = NamedPipeListenerState::Reading;
@@ -182,6 +185,7 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
       }
     } else {  // Callback (see above)
       if (listenerData.dwBytesRead == sizeof(T)) {
+        LogMessage("Message received from pipe");
         callback((T*)listenerData.chRequest);
         listenerData.state = NamedPipeListenerState::Reading;
       } else
@@ -191,4 +195,14 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
 
   CloseHandle(hPipeInst);
   CloseHandle(hEvent);
+}
+
+template <typename T>
+void NamedPipeListener<T>::LogError(const char* message) {
+  DriverLog("%s (%s) - Error: %s", message, m_pipeName.c_str(), GetLastErrorAsString().c_str());
+}
+
+template <typename T>
+void NamedPipeListener<T>::LogMessage(const char* message) {
+  DriverLog("%s (%s)", message, m_pipeName.c_str());
 }
