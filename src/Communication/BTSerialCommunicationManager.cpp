@@ -38,16 +38,6 @@ bool BTSerialCommunicationManager::DisconnectFromDevice() {
   return true;
 }
 
-void BTSerialCommunicationManager::LogError(const char* message) {
-  // message with port name and last error
-  DriverLog("%s (%s) - Error: %s", message, m_btSerialConfiguration.name.c_str(), GetLastErrorAsString().c_str());
-}
-
-void BTSerialCommunicationManager::LogMessage(const char* message) {
-  // message with port name
-  DriverLog("%s (%s)", message, m_btSerialConfiguration.name.c_str());
-}
-
 bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   char nextChar = 0;
   do {
@@ -66,14 +56,20 @@ bool BTSerialCommunicationManager::SendMessageToDevice() {
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   const char* message = m_writeString.c_str();
-  int sendResult = send(m_btClientSocket, message, (int)m_writeString.length(), 0);  // send your message to the BT device
-  if (sendResult == SOCKET_ERROR) {
-    LogError("Sending to Bluetooth Device failed");
 
-    closesocket(m_btClientSocket);
-    WSACleanup();
+  uint8_t retry = 0;
+  while (send(m_btClientSocket, message, (int)m_writeString.length(), 0) == SOCKET_ERROR) {
+    if (retry > 10) {
+      LogError("Sending to Bluetooth Device failed... closing");
 
-    return false;
+      closesocket(m_btClientSocket);
+      WSACleanup();
+      break;
+    }
+
+    LogError("Sending to Bluetooth Device failed... retrying");
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    retry++;
   }
 
   return true;
@@ -155,4 +151,14 @@ bool BTSerialCommunicationManager::StartupWindowsSocket() {
     return false;
   }
   return true;
+}
+
+void BTSerialCommunicationManager::LogError(const char* message) {
+  // message with port name and last error
+  DriverLog("%s (%s) - Error: %s", message, m_btSerialConfiguration.name.c_str(), GetLastErrorAsString().c_str());
+}
+
+void BTSerialCommunicationManager::LogMessage(const char* message) {
+  // message with port name
+  DriverLog("%s (%s)", message, m_btSerialConfiguration.name.c_str());
 }
