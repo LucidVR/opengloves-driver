@@ -4,6 +4,7 @@
 #include <Ws2bth.h>
 
 #include "DriverLog.h"
+#include "Util/Logic.h"
 #include "Util/Windows.h"
 
 BTSerialCommunicationManager::BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration)
@@ -57,19 +58,11 @@ bool BTSerialCommunicationManager::SendMessageToDevice() {
 
   const char* message = m_writeString.c_str();
 
-  uint8_t retry = 0;
-  while (send(m_btClientSocket, message, (int)m_writeString.length(), 0) == SOCKET_ERROR) {
-    if (retry > 10) {
-      LogError("Sending to Bluetooth Device failed... closing");
+  if (!retry([&]() { return send(m_btClientSocket, message, (int)m_writeString.length(), 0) != SOCKET_ERROR; }, 5, 10)) {
+    LogError("Sending to Bluetooth Device failed... closing");
 
-      closesocket(m_btClientSocket);
-      WSACleanup();
-      break;
-    }
-
-    LogError("Sending to Bluetooth Device failed... retrying");
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-    retry++;
+    closesocket(m_btClientSocket);
+    WSACleanup();
   }
 
   return true;
