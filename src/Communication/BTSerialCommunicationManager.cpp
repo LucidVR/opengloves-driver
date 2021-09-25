@@ -4,6 +4,7 @@
 #include <Ws2bth.h>
 
 #include "DriverLog.h"
+#include "Util/Logic.h"
 #include "Util/Windows.h"
 
 BTSerialCommunicationManager::BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration)
@@ -38,16 +39,6 @@ bool BTSerialCommunicationManager::DisconnectFromDevice() {
   return true;
 }
 
-void BTSerialCommunicationManager::LogError(const char* message) {
-  // message with port name and last error
-  DriverLog("%s (%s) - Error: %s", message, m_btSerialConfiguration.name.c_str(), GetLastErrorAsString().c_str());
-}
-
-void BTSerialCommunicationManager::LogMessage(const char* message) {
-  // message with port name
-  DriverLog("%s (%s)", message, m_btSerialConfiguration.name.c_str());
-}
-
 bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   char nextChar = 0;
   do {
@@ -66,14 +57,12 @@ bool BTSerialCommunicationManager::SendMessageToDevice() {
   std::lock_guard<std::mutex> lock(m_writeMutex);
 
   const char* message = m_writeString.c_str();
-  int sendResult = send(m_btClientSocket, message, (int)m_writeString.length(), 0);  // send your message to the BT device
-  if (sendResult == SOCKET_ERROR) {
-    LogError("Sending to Bluetooth Device failed");
+
+  if (!retry([&]() { return send(m_btClientSocket, message, (int)m_writeString.length(), 0) != SOCKET_ERROR; }, 5, 10)) {
+    LogError("Sending to Bluetooth Device failed... closing");
 
     closesocket(m_btClientSocket);
     WSACleanup();
-
-    return false;
   }
 
   return true;
@@ -155,4 +144,14 @@ bool BTSerialCommunicationManager::StartupWindowsSocket() {
     return false;
   }
   return true;
+}
+
+void BTSerialCommunicationManager::LogError(const char* message) {
+  // message with port name and last error
+  DriverLog("%s (%s) - Error: %s", message, m_btSerialConfiguration.name.c_str(), GetLastErrorAsString().c_str());
+}
+
+void BTSerialCommunicationManager::LogMessage(const char* message) {
+  // message with port name
+  DriverLog("%s (%s)", message, m_btSerialConfiguration.name.c_str());
 }
