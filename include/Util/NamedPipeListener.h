@@ -33,9 +33,9 @@ class NamedPipeListener {
 
   bool StartListening(const std::function<void(T*)>& callback);
   void StopListening();
+  bool IsConnected();
   void LogError(const char* error);
   void LogMessage(const char* message);
-
  private:
   void Connect(NamedPipeListenerData<T>* data);
   void DisconnectAndReconnect(NamedPipeListenerData<T>* data);
@@ -96,6 +96,7 @@ void NamedPipeListener<T>::Connect(NamedPipeListenerData<T>* data) {
   data->fPendingIO = false;
   data->state = NamedPipeListenerState::Reading;
 }
+
 template <typename T>
 void NamedPipeListener<T>::DisconnectAndReconnect(NamedPipeListenerData<T>* data) {
   LogMessage("Disconnecting and reconnecting named pipe");
@@ -195,6 +196,11 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
 
   CloseHandle(hPipeInst);
   CloseHandle(hEvent);
+}
+
+template <typename T>
+bool NamedPipeListener<T>::IsConnected() {
+  return m_threadActive;
 }
 
 template <typename T>

@@ -14,7 +14,7 @@ struct CalibrationDataIn {
 class ControllerPose {
  public:
   ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer,
-                 VRPoseConfiguration_t poseConfiguration);
+                 VRPoseConfiguration poseConfiguration);
   ~ControllerPose();
 
   vr::DriverPose_t UpdatePose();
@@ -30,7 +30,7 @@ class ControllerPose {
  private:
   uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
 
-  VRPoseConfiguration_t m_poseConfiguration;
+  VRPoseConfiguration m_poseConfiguration;
 
   vr::ETrackedControllerRole m_shadowDeviceOfRole = vr::TrackedControllerRole_Invalid;
 

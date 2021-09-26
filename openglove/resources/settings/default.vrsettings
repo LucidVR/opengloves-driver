@@ -55,8 +55,13 @@
   {
     "__type": "communication_protocol:1",
     "__title": "Bluetooth Serial",
-	"left_name": "lucidgloves-left",
-  	"right_name": "lucidgloves-right"
+    "left_name": "lucidgloves-left",
+    "right_name": "lucidgloves-right"
+  },
+  "communication_namedpipe":
+  {
+    "__type": "communication_protocol:2",
+    "__title": "Named Pipe"
   },
   "encoding_legacy":
   {

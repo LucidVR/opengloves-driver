@@ -3,7 +3,7 @@
 #include "DriverLog.h"
 #include "Util/Windows.h"
 
-SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRSerialConfiguration_t& configuration)
+SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRSerialConfiguration& configuration)
     : CommunicationManager(std::move(encodingManager)), m_serialConfiguration(configuration), m_isConnected(false), m_hSerial(0) {}
 
 bool SerialCommunicationManager::IsConnected() { return m_isConnected; };
@@ -58,16 +58,6 @@ bool SerialCommunicationManager::DisconnectFromDevice() {
   return true;
 }
 
-void SerialCommunicationManager::LogError(const char* message) {
-  // message with port name and last error
-  DriverLog("%s (%s) - Error: %s", message, m_serialConfiguration.port.c_str(), GetLastErrorAsString().c_str());
-}
-
-void SerialCommunicationManager::LogMessage(const char* message) {
-  // message with port name
-  DriverLog("%s (%s)", message, m_serialConfiguration.port.c_str());
-}
-
 bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   if (!SetCommMask(m_hSerial, EV_RXCHAR)) {
     LogError("Error setting comm mask");
@@ -113,3 +103,13 @@ bool SerialCommunicationManager::SendMessageToDevice() {
 }
 
 bool SerialCommunicationManager::PurgeBuffer() { return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR); }
+
+void SerialCommunicationManager::LogError(const char* message) {
+  // message with port name and last error
+  DriverLog("%s (%s) - Error: %s", message, m_serialConfiguration.port.c_str(), GetLastErrorAsString().c_str());
+}
+
+void SerialCommunicationManager::LogMessage(const char* message) {
+  // message with port name
+  DriverLog("%s (%s)", message, m_serialConfiguration.port.c_str());
+}

@@ -3,7 +3,7 @@
 #include "DriverLog.h"
 
 DeviceDriver::DeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
-                           VRDeviceConfiguration_t configuration)
+                           VRDeviceConfiguration configuration)
     : m_communicationManager(std::move(communicationManager)),
       m_boneAnimator(std::move(boneAnimator)),
       m_serialNumber(serialNumber),
@@ -84,7 +84,7 @@ void DeviceDriver::StartDevice() {
   vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose,
                                                NUM_BONES);
 
-  m_communicationManager->BeginListener([&](VRInputData_t datas) {
+  m_communicationManager->BeginListener([&](VRInputData datas) {
     try {
       m_boneAnimator->ComputeSkeletonTransforms(m_handTransforms, datas.flexion, IsRightHand());
       vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
