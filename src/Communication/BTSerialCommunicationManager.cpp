@@ -97,8 +97,8 @@ bool BTSerialCommunicationManager::ConnectToDevice(BTH_ADDR& deviceBtAddress) {
   }
 
   unsigned long nonBlockingMode = 1;
-  if (ioctlsocket(m_btClientSocket, FIONBIO, &nonBlockingMode) != 0) // set the socket to be non-blocking, meaning
-                                                                           // it will return right away when sending/receiving
+  // set the socket to be non-blocking, meaning it will return right away when sending/receiving
+  if (ioctlsocket(m_btClientSocket, FIONBIO, &nonBlockingMode) != 0)
   {
     LogError("Could not set socket to be non-blocking");
     return false;
