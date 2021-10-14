@@ -2,11 +2,19 @@
 
 #include <utility>
 
-#include "DriverLog.h"
-
-KnuckleDeviceDriver::KnuckleDeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
-                                         VRDeviceConfiguration_t configuration)
-    : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration), m_inputComponentHandles(), m_haptic(), m_ffbProvider() {}
+KnuckleDeviceDriver::KnuckleDeviceDriver(
+    std::unique_ptr<CommunicationManager> communicationManager,
+    std::shared_ptr<BoneAnimator> boneAnimator,
+    std::string serialNumber,
+    const VRDeviceConfiguration_t configuration)
+  : DeviceDriver(
+        std::move(communicationManager),
+        std::move(boneAnimator),
+        std::move(serialNumber),
+        configuration),
+    m_inputComponentHandles(),
+    m_haptic() {
+}
 
 void KnuckleDeviceDriver::HandleInput(VRInputData_t datas) {
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)KnuckleDeviceComponentIndex::THUMBSTICK_X], datas.joyX, 0);
@@ -44,7 +52,7 @@ void KnuckleDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
   vr::VRProperties()->SetBoolProperty(props, vr::Prop_WillDriftInYaw_Bool, false);
   vr::VRProperties()->SetBoolProperty(props, vr::Prop_DeviceIsWireless_Bool, true);
   vr::VRProperties()->SetBoolProperty(props, vr::Prop_DeviceIsCharging_Bool, false);
-  vr::VRProperties()->SetFloatProperty(props, vr::Prop_DeviceBatteryPercentage_Float, 1.f);  // Always charged
+  vr::VRProperties()->SetFloatProperty(props, vr::Prop_DeviceBatteryPercentage_Float, 1.f); // Always charged
 
   vr::HmdMatrix34_t l_matrix = {-1.f, 0.f, 0.f, 0.f, 0.f, 0.f, -1.f, 0.f, 0.f, -1.f, 0.f, 0.f};
   vr::VRProperties()->SetProperty(props, vr::Prop_StatusDisplayTransform_Matrix34, &l_matrix, sizeof(vr::HmdMatrix34_t), vr::k_unHmdMatrix34PropertyTag);
@@ -149,13 +157,20 @@ void KnuckleDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
 }
 
 void KnuckleDeviceDriver::StartingDevice() {
+  if (!m_configuration.feedbackEnabled) return;
+
   m_ffbProvider = std::make_unique<FFBListener>(
       [&](VRFFBData_t data) {
         // Queue the force feedback data for sending.
         m_communicationManager->QueueSend(data);
       },
       m_configuration.role);
+
   m_ffbProvider->Start();
 }
 
-void KnuckleDeviceDriver::StoppingDevice() { m_ffbProvider->Stop(); }
+void KnuckleDeviceDriver::StoppingDevice() {
+  if (m_ffbProvider) {
+    m_ffbProvider->Stop();
+  }
+}

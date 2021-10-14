@@ -7,7 +7,6 @@
 
 #include "Bones.h"
 #include "Communication/CommunicationManager.h"
-#include "ControllerPose.h"
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
 #include "Encode/EncodingManager.h"
@@ -41,16 +40,19 @@ enum class KnuckleDeviceComponentIndex : int {
 };
 
 class KnuckleDeviceDriver : public DeviceDriver {
- public:
-  KnuckleDeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
-                      VRDeviceConfiguration_t configuration);
+public:
+  KnuckleDeviceDriver(
+      std::unique_ptr<CommunicationManager> communicationManager,
+      std::shared_ptr<BoneAnimator> boneAnimator,
+      std::string serialNumber,
+      VRDeviceConfiguration_t configuration);
 
-  void HandleInput(VRInputData_t datas);
-  void SetupProps(vr::PropertyContainerHandle_t& props);
-  void StartingDevice();
-  void StoppingDevice();
+  void HandleInput(VRInputData_t datas) override;
+  void SetupProps(vr::PropertyContainerHandle_t& props) override;
+  void StartingDevice() override;
+  void StoppingDevice() override;
 
- private:
+private:
   vr::VRInputComponentHandle_t m_inputComponentHandles[(int)KnuckleDeviceComponentIndex::Count];
   vr::VRInputComponentHandle_t m_haptic;
   std::unique_ptr<FFBListener> m_ffbProvider;

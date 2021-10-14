@@ -96,7 +96,7 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceCo
       char name[248];
       vr::VRSettings()->GetString(c_btserialCommunicationSettingsSection, isRightHand ? "right_name" : "left_name", name, sizeof(name));
       VRBTSerialConfiguration_t btSerialSettings(name);
-      communicationManager = std::make_unique<BTSerialCommunicationManager>(std::move(encodingManager), btSerialSettings);
+      communicationManager = std::make_unique<BTSerialCommunicationManager>(std::move(encodingManager), btSerialSettings, configuration);
       break;
     }
     default:
@@ -107,7 +107,7 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceCo
       const int baudRate = vr::VRSettings()->GetInt32(c_serialCommunicationSettingsSection, "baud_rate");
       VRSerialConfiguration_t serialSettings(port, baudRate);
 
-      communicationManager = std::make_unique<SerialCommunicationManager>(std::move(encodingManager), serialSettings);
+      communicationManager = std::make_unique<SerialCommunicationManager>(std::move(encodingManager), serialSettings, configuration);
       break;
   }
 
@@ -129,10 +129,12 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceCo
     }
   }
 }
+
 VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedControllerRole role) {
   const bool isRightHand = role == vr::TrackedControllerRole_RightHand;
 
   const bool isEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, isRightHand ? "right_enabled" : "left_enabled");
+  const bool feedbackEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, "feedback_enabled");
 
   const auto communicationProtocol = (VRCommunicationProtocol)vr::VRSettings()->GetInt32(c_driverSettingsSection, "communication_protocol");
   const auto encodingProtocol = (VREncodingProtocol)vr::VRSettings()->GetInt32(c_driverSettingsSection, "encoding_protocol");
@@ -159,8 +161,19 @@ VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedContr
   const vr::HmdQuaternion_t angleOffsetQuaternion = EulerToQuaternion(DegToRad(offsetXRot), DegToRad(offsetYRot), DegToRad(offsetZRot));
 
   return VRDeviceConfiguration_t(
-      role, isEnabled, VRPoseConfiguration_t(offsetVector, angleOffsetQuaternion, poseTimeOffset, controllerOverrideEnabled, controllerIdOverride, calibrationButton),
-      encodingProtocol, communicationProtocol, deviceDriver);
+    role,
+    isEnabled,
+    feedbackEnabled,
+    VRPoseConfiguration_t(
+      offsetVector,
+      angleOffsetQuaternion,
+      poseTimeOffset,
+      controllerOverrideEnabled,
+      controllerIdOverride,
+      calibrationButton),
+    encodingProtocol,
+    communicationProtocol,
+    deviceDriver);
 }
 
 void DeviceProvider::Cleanup() {}

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Winsock2.h>
+#include <WinSock2.h>
 #include <bluetoothapis.h>
 
 #include <atomic>
@@ -12,29 +12,28 @@
 #include "Encode/EncodingManager.h"
 
 class BTSerialCommunicationManager : public CommunicationManager {
- public:
-  BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration);
+public:
+  BTSerialCommunicationManager(
+      std::unique_ptr<EncodingManager> encodingManager,
+      VRBTSerialConfiguration_t configuration,
+      const VRDeviceConfiguration_t& deviceConfiguration);
 
- public:
-  bool IsConnected();
+  bool IsConnected() override;
 
- protected:
-  bool Connect();
-  bool DisconnectFromDevice();
-  void LogError(const char* message);
-  void LogMessage(const char* message);
-  bool ReceiveNextPacket(std::string& buff);
-  bool SendMessageToDevice();
+protected:
+  bool Connect() override;
+  bool DisconnectFromDevice() override;
+  void LogError(const char* message) override;
+  void LogMessage(const char* message) override;
+  bool ReceiveNextPacket(std::string& buff) override;
+  bool SendMessageToDevice() override;
 
- private:
+private:
   bool ConnectToDevice(BTH_ADDR& deviceBtAddress);
   bool GetPairedDeviceBtAddress(BTH_ADDR* deviceBtAddress);
   bool StartupWindowsSocket();
 
- private:
   VRBTSerialConfiguration_t m_btSerialConfiguration;
-
   std::atomic<bool> m_isConnected;
-
   std::atomic<SOCKET> m_btClientSocket;
 };
