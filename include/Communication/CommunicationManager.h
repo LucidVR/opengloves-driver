@@ -31,6 +31,7 @@ class CommunicationManager {
   virtual bool ReceiveNextPacket(std::string& buff) = 0;
   virtual bool SendMessageToDevice() = 0;
 
+ protected:
   std::unique_ptr<EncodingManager> m_encodingManager;
   VRDeviceConfiguration_t m_deviceConfiguration;
 

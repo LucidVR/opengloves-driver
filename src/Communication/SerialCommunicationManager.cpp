@@ -1,23 +1,15 @@
-#include <utility>
-
 #include "Communication/SerialCommunicationManager.h"
+
+#include <utility>
 
 #include "DriverLog.h"
 #include "Util/Windows.h"
 
-SerialCommunicationManager::SerialCommunicationManager(
-    std::unique_ptr<EncodingManager> encodingManager,
-    VRSerialConfiguration_t configuration,
-    const VRDeviceConfiguration_t& deviceConfiguration)
-  : CommunicationManager(std::move(encodingManager), deviceConfiguration),
-    m_serialConfiguration(std::move(configuration)),
-    m_isConnected(false),
-    m_hSerial(nullptr) {
-}
+SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, VRSerialConfiguration_t configuration,
+                                                       const VRDeviceConfiguration_t& deviceConfiguration)
+    : CommunicationManager(std::move(encodingManager), deviceConfiguration), m_serialConfiguration(std::move(configuration)), m_isConnected(false), m_hSerial(nullptr) {}
 
-bool SerialCommunicationManager::IsConnected() {
-  return m_isConnected;
-};
+bool SerialCommunicationManager::IsConnected() { return m_isConnected; };
 
 bool SerialCommunicationManager::Connect() {
   // We're not yet connected
@@ -42,7 +34,7 @@ bool SerialCommunicationManager::Connect() {
   dcbSerialParams.ByteSize = 8;
   dcbSerialParams.StopBits = ONESTOPBIT;
   dcbSerialParams.Parity = NOPARITY;
-  dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE; // reset upon establishing a connection
+  dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;  // reset upon establishing a connection
 
   // set the parameters and check for their proper application
   if (!SetCommState(m_hSerial, &dcbSerialParams)) {
@@ -129,6 +121,4 @@ bool SerialCommunicationManager::SendMessageToDevice() {
   return true;
 }
 
-bool SerialCommunicationManager::PurgeBuffer() {
-  return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
-}
+bool SerialCommunicationManager::PurgeBuffer() { return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR); }

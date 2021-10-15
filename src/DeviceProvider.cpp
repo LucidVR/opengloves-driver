@@ -161,19 +161,9 @@ VRDeviceConfiguration_t DeviceProvider::GetDeviceConfiguration(vr::ETrackedContr
   const vr::HmdQuaternion_t angleOffsetQuaternion = EulerToQuaternion(DegToRad(offsetXRot), DegToRad(offsetYRot), DegToRad(offsetZRot));
 
   return VRDeviceConfiguration_t(
-    role,
-    isEnabled,
-    feedbackEnabled,
-    VRPoseConfiguration_t(
-      offsetVector,
-      angleOffsetQuaternion,
-      poseTimeOffset,
-      controllerOverrideEnabled,
-      controllerIdOverride,
-      calibrationButton),
-    encodingProtocol,
-    communicationProtocol,
-    deviceDriver);
+      role, isEnabled, feedbackEnabled,
+      VRPoseConfiguration_t(offsetVector, angleOffsetQuaternion, poseTimeOffset, controllerOverrideEnabled, controllerIdOverride, calibrationButton), encodingProtocol,
+      communicationProtocol, deviceDriver);
 }
 
 void DeviceProvider::Cleanup() {}
