@@ -112,17 +112,18 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
     return;
   }
 
-  HANDLE hPipeInst = CreateNamedPipeA(m_pipeName.c_str(),          // pipe name
-                                      PIPE_ACCESS_DUPLEX |         // read/write access
-                                          FILE_FLAG_OVERLAPPED,    // overlapped mode
-                                      PIPE_TYPE_MESSAGE |          // message-type pipe
-                                          PIPE_READMODE_MESSAGE |  // message read mode
-                                          PIPE_WAIT,               // blocking mode
-                                      PIPE_UNLIMITED_INSTANCES,    // unlimited instances
-                                      (DWORD)sizeof(T),            // output buffer size
-                                      (DWORD)sizeof(T),            // input buffer size
-                                      c_namedPipeDelay,            // client time-out
-                                      NULL);                       // default security attributes
+  HANDLE hPipeInst = CreateNamedPipeA(
+      m_pipeName.c_str(),          // pipe name
+      PIPE_ACCESS_DUPLEX |         // read/write access
+          FILE_FLAG_OVERLAPPED,    // overlapped mode
+      PIPE_TYPE_MESSAGE |          // message-type pipe
+          PIPE_READMODE_MESSAGE |  // message read mode
+          PIPE_WAIT,               // blocking mode
+      PIPE_UNLIMITED_INSTANCES,    // unlimited instances
+      (DWORD)sizeof(T),            // output buffer size
+      (DWORD)sizeof(T),            // input buffer size
+      c_namedPipeDelay,            // client time-out
+      NULL);                       // default security attributes
   if (hPipeInst == INVALID_HANDLE_VALUE) {
     LogError("CreateNamedPipe failed");
     CloseHandle(hEvent);
@@ -170,7 +171,8 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
     }
 
     if (listenerData.state == NamedPipeListenerState::Reading) {
-      BOOL fSuccess = ReadFile(listenerData.hPipeInst, listenerData.chRequest, sizeof(T), &listenerData.dwBytesRead, &listenerData.oOverlap);
+      BOOL fSuccess = ReadFile(
+          listenerData.hPipeInst, listenerData.chRequest, sizeof(T), &listenerData.dwBytesRead, &listenerData.oOverlap);
       if (fSuccess) {
         if (listenerData.dwBytesRead > 0) {
           listenerData.fPendingIO = false;

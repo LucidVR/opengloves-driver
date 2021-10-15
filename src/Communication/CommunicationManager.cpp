@@ -6,8 +6,12 @@
 
 static const uint32_t c_listenerWaitTime = 1000;
 
-CommunicationManager::CommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRDeviceConfiguration_t& deviceConfiguration)
-    : m_encodingManager(std::move(encodingManager)), m_deviceConfiguration(deviceConfiguration), m_threadActive(false), m_writeString() {
+CommunicationManager::CommunicationManager(
+    std::unique_ptr<EncodingManager> encodingManager, const VRDeviceConfiguration_t& deviceConfiguration)
+    : m_encodingManager(std::move(encodingManager)),
+      m_deviceConfiguration(deviceConfiguration),
+      m_threadActive(false),
+      m_writeString() {
   // initially no force feedback
   QueueSend(VRFFBData_t(0, 0, 0, 0, 0));
 }

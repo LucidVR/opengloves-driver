@@ -12,7 +12,7 @@
 #include "Encode/EncodingManager.h"
 
 class BTSerialCommunicationManager : public CommunicationManager {
-public:
+ public:
   BTSerialCommunicationManager(
       std::unique_ptr<EncodingManager> encodingManager,
       VRBTSerialConfiguration_t configuration,
@@ -20,7 +20,7 @@ public:
 
   bool IsConnected() override;
 
-protected:
+ protected:
   bool Connect() override;
   bool DisconnectFromDevice() override;
   void LogError(const char* message) override;
@@ -28,7 +28,7 @@ protected:
   bool ReceiveNextPacket(std::string& buff) override;
   bool SendMessageToDevice() override;
 
-private:
+ private:
   bool ConnectToDevice(BTH_ADDR& deviceBtAddress);
   bool GetPairedDeviceBtAddress(BTH_ADDR* deviceBtAddress);
   bool StartupWindowsSocket();

@@ -16,8 +16,18 @@ struct VRFFBData_t {
 
 struct VRInputData_t {
   VRInputData_t();
-  VRInputData_t(std::array<float, 5> flexion, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch, bool menu,
-                bool calibrate);
+  VRInputData_t(
+      std::array<float, 5> flexion,
+      float joyX,
+      float joyY,
+      bool joyButton,
+      bool trgButton,
+      bool aButton,
+      bool bButton,
+      bool grab,
+      bool pinch,
+      bool menu,
+      bool calibrate);
 
   const std::array<float, 5> flexion;
   const float joyX;

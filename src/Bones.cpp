@@ -92,8 +92,8 @@ class GLTFModelManager : public IModelManager {
       return false;
     }
 
-    m_initialTransforms = std::vector<Transform_t>(m_model.nodes.size()-1);
-    m_keyframeTransforms = std::vector<std::vector<Transform_t>>(m_model.nodes.size()-1);
+    m_initialTransforms = std::vector<Transform_t>(m_model.nodes.size() - 1);
+    m_keyframeTransforms = std::vector<std::vector<Transform_t>>(m_model.nodes.size() - 1);
 
     LoadInitialTransforms();
     LoadKeyframeTimes();
@@ -103,8 +103,11 @@ class GLTFModelManager : public IModelManager {
   }
 
   AnimationData_t GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, float f) const {
-    const size_t lowerKeyframeIndex = std::lower_bound(m_keyframeTimes.begin(), m_keyframeTimes.end(), std::clamp(f, 0.0001f, 1.0f)) - m_keyframeTimes.begin() - 1;
-    const size_t upperKeyframeIndex = (lowerKeyframeIndex < m_keyframeTimes.size() - 1) ? (lowerKeyframeIndex + 1) : lowerKeyframeIndex;
+    const size_t lowerKeyframeIndex =
+        std::lower_bound(m_keyframeTimes.begin(), m_keyframeTimes.end(), std::clamp(f, 0.0001f, 1.0f)) -
+        m_keyframeTimes.begin() - 1;
+    const size_t upperKeyframeIndex =
+        (lowerKeyframeIndex < m_keyframeTimes.size() - 1) ? (lowerKeyframeIndex + 1) : lowerKeyframeIndex;
 
     AnimationData_t result;
     result.startTransform = m_keyframeTransforms[(size_t)boneIndex][lowerKeyframeIndex];
@@ -114,7 +117,9 @@ class GLTFModelManager : public IModelManager {
     return result;
   }
 
-  Transform_t GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const { return m_initialTransforms[(size_t)boneIndex]; }
+  Transform_t GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const {
+    return m_initialTransforms[(size_t)boneIndex];
+  }
 
  private:
   void LoadInitialTransforms() {
@@ -134,7 +139,7 @@ class GLTFModelManager : public IModelManager {
         transform.translation[2] = (float)node.translation[2];
       }
 
-      //first node is never needed
+      // first node is never needed
       m_initialTransforms[nodeIndex - 1] = transform;
     }
   }
@@ -145,7 +150,10 @@ class GLTFModelManager : public IModelManager {
 
     tinygltf::BufferView bufferView = m_model.bufferViews[accessor.bufferView];
     const std::vector<unsigned char>& bufData = m_model.buffers[0].data;
-    memcpy(&m_keyframeTimes[0], bufData.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(float));
+    memcpy(
+        &m_keyframeTimes[0],
+        bufData.data() + bufferView.byteOffset + accessor.byteOffset,
+        accessor.count * sizeof(float));
   }
 
   template <size_t N>
@@ -196,16 +204,19 @@ BoneAnimator::BoneAnimator(const std::string& fileName) : m_fileName(fileName) {
   m_loaded = m_modelManager->Load();
 }
 
-void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand) {
+void BoneAnimator::ComputeSkeletonTransforms(
+    vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand) {
   if (!m_loaded) return;
 
   for (size_t i = 0; i < NUM_BONES; i++) {
     FingerIndex finger = GetFingerFromBoneIndex((HandSkeletonBone)i);
-    if (finger != FingerIndex::Unknown) skeleton[i] = GetTransformForBone((HandSkeletonBone)i, flexion[static_cast<int>(finger)], rightHand);
+    if (finger != FingerIndex::Unknown)
+      skeleton[i] = GetTransformForBone((HandSkeletonBone)i, flexion[static_cast<int>(finger)], rightHand);
   }
 }
 
-vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& boneIndex, const float f, const bool rightHand) {
+vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(
+    const HandSkeletonBone& boneIndex, const float f, const bool rightHand) {
   vr::VRBoneTransform_t result{};
 
   Transform_t nodeTransform = m_modelManager->GetTransformByBoneIndex(boneIndex);
@@ -219,19 +230,27 @@ vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& 
 
   AnimationData_t animationData = m_modelManager->GetAnimationDataByBoneIndex(boneIndex, f);
 
-  const float interp = std::clamp((f - animationData.startTime) / (animationData.endTime - animationData.startTime), 0.0f, 1.0f);
+  const float interp =
+      std::clamp((f - animationData.startTime) / (animationData.endTime - animationData.startTime), 0.0f, 1.0f);
 
   if (animationData.startTransform.rotation != emptyRotation) {
-    result.orientation.x = Lerp(animationData.startTransform.rotation[0], animationData.endTransform.rotation[0], interp);
-    result.orientation.y = Lerp(animationData.startTransform.rotation[1], animationData.endTransform.rotation[1], interp);
-    result.orientation.z = Lerp(animationData.startTransform.rotation[2], animationData.endTransform.rotation[2], interp);
-    result.orientation.w = Lerp(animationData.startTransform.rotation[3], animationData.endTransform.rotation[3], interp);
+    result.orientation.x =
+        Lerp(animationData.startTransform.rotation[0], animationData.endTransform.rotation[0], interp);
+    result.orientation.y =
+        Lerp(animationData.startTransform.rotation[1], animationData.endTransform.rotation[1], interp);
+    result.orientation.z =
+        Lerp(animationData.startTransform.rotation[2], animationData.endTransform.rotation[2], interp);
+    result.orientation.w =
+        Lerp(animationData.startTransform.rotation[3], animationData.endTransform.rotation[3], interp);
   }
 
   if (animationData.startTransform.translation != emptyTranslation) {
-    result.position.v[0] = Lerp(animationData.startTransform.translation[0], animationData.endTransform.translation[0], interp);
-    result.position.v[1] = Lerp(animationData.startTransform.translation[1], animationData.endTransform.translation[1], interp);
-    result.position.v[2] = Lerp(animationData.startTransform.translation[2], animationData.endTransform.translation[2], interp);
+    result.position.v[0] =
+        Lerp(animationData.startTransform.translation[0], animationData.endTransform.translation[0], interp);
+    result.position.v[1] =
+        Lerp(animationData.startTransform.translation[1], animationData.endTransform.translation[1], interp);
+    result.position.v[2] =
+        Lerp(animationData.startTransform.translation[2], animationData.endTransform.translation[2], interp);
   }
   result.position.v[3] = 1.0f;
 

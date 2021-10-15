@@ -1,7 +1,5 @@
 #pragma once
 
-#include "openvr_driver.h"
-
 #include <functional>
 #include <memory>
 
@@ -11,6 +9,7 @@
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
 #include "Encode/EncodingManager.h"
+#include "openvr_driver.h"
 
 enum class LucidGloveDeviceComponentIndex : int {
   COMP_JOY_X = 0,
@@ -33,8 +32,11 @@ enum class LucidGloveDeviceComponentIndex : int {
 
 class LucidGloveDeviceDriver : public DeviceDriver {
  public:
-  LucidGloveDeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
-                         VRDeviceConfiguration_t configuration);
+  LucidGloveDeviceDriver(
+      std::unique_ptr<CommunicationManager> communicationManager,
+      std::shared_ptr<BoneAnimator> boneAnimator,
+      std::string serialNumber,
+      VRDeviceConfiguration_t configuration);
 
   void HandleInput(VRInputData_t datas);
   void SetupProps(vr::PropertyContainerHandle_t& props);

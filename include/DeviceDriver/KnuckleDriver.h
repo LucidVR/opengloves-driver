@@ -1,7 +1,5 @@
 #pragma once
 
-#include "openvr_driver.h"
-
 #include <functional>
 #include <memory>
 
@@ -11,6 +9,7 @@
 #include "DeviceDriver/DeviceDriver.h"
 #include "Encode/EncodingManager.h"
 #include "ForceFeedback.h"
+#include "openvr_driver.h"
 
 enum class KnuckleDeviceComponentIndex : int {
   SYSTEM_CLICK = 0,
@@ -40,7 +39,7 @@ enum class KnuckleDeviceComponentIndex : int {
 };
 
 class KnuckleDeviceDriver : public DeviceDriver {
-public:
+ public:
   KnuckleDeviceDriver(
       std::unique_ptr<CommunicationManager> communicationManager,
       std::shared_ptr<BoneAnimator> boneAnimator,
@@ -52,7 +51,7 @@ public:
   void StartingDevice() override;
   void StoppingDevice() override;
 
-private:
+ private:
   vr::VRInputComponentHandle_t m_inputComponentHandles[(int)KnuckleDeviceComponentIndex::Count];
   vr::VRInputComponentHandle_t m_haptic;
   std::unique_ptr<FFBListener> m_ffbProvider;

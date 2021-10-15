@@ -13,9 +13,9 @@
 class SerialCommunicationManager : public CommunicationManager {
  public:
   SerialCommunicationManager(
-	  std::unique_ptr<EncodingManager> encodingManager,
-	  VRSerialConfiguration_t configuration,
-	  const VRDeviceConfiguration_t& deviceConfiguration);
+      std::unique_ptr<EncodingManager> encodingManager,
+      VRSerialConfiguration_t configuration,
+      const VRDeviceConfiguration_t& deviceConfiguration);
 
   bool IsConnected() override;
 

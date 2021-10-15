@@ -12,7 +12,8 @@
 
 class CommunicationManager {
  public:
-  CommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRDeviceConfiguration_t& deviceConfiguration);
+  CommunicationManager(
+      std::unique_ptr<EncodingManager> encodingManager, const VRDeviceConfiguration_t& deviceConfiguration);
 
   virtual void BeginListener(const std::function<void(VRInputData_t)>& callback);
   virtual void Disconnect();

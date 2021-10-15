@@ -1,9 +1,10 @@
 #pragma once
 
-#include <memory>
 #include <functional>
-#include "openvr_driver.h"
+#include <memory>
+
 #include "Util/NamedPipeListener.h"
+#include "openvr_driver.h"
 
 struct ControllerDiscoveryPipeData_t {
   short controllerId;

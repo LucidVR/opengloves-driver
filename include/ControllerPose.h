@@ -1,10 +1,11 @@
 #pragma once
 #include <openvr_driver.h>
+
 #include <memory>
 
-#include "DeviceConfiguration.h"
-#include "ControllerDiscovery.h"
 #include "Calibration.h"
+#include "ControllerDiscovery.h"
+#include "DeviceConfiguration.h"
 #include "Util/NamedPipeListener.h"
 
 struct CalibrationDataIn {
@@ -13,8 +14,10 @@ struct CalibrationDataIn {
 
 class ControllerPose {
  public:
-  ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer,
-                 VRPoseConfiguration_t poseConfiguration);
+  ControllerPose(
+      vr::ETrackedControllerRole shadowDeviceOfRole,
+      std::string thisDeviceManufacturer,
+      VRPoseConfiguration_t poseConfiguration);
   ~ControllerPose();
 
   vr::DriverPose_t UpdatePose();

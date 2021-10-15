@@ -32,18 +32,13 @@ struct VRSerialConfiguration_t {
   std::string port;
   int baudRate;
 
-  VRSerialConfiguration_t(const std::string port, const int baudRate)
-    : port(port),
-      baudRate(baudRate) {
-  }
+  VRSerialConfiguration_t(const std::string port, const int baudRate) : port(port), baudRate(baudRate) {}
 };
 
 struct VRBTSerialConfiguration_t {
   std::string name;
 
-  VRBTSerialConfiguration_t(const std::string name)
-    : name(name) {
-  }
+  VRBTSerialConfiguration_t(const std::string name) : name(name) {}
 };
 
 struct VRPoseConfiguration_t {
@@ -61,13 +56,12 @@ struct VRPoseConfiguration_t {
       const bool controllerOverrideEnabled,
       const int controllerIdOverride,
       const bool calibrationButtonEnabled)
-    : offsetVector(offsetVector),
-      angleOffsetQuaternion(angleOffsetQuaternion),
-      poseTimeOffset(poseTimeOffset),
-      controllerOverrideEnabled(controllerOverrideEnabled),
-      controllerIdOverride(controllerIdOverride),
-      calibrationButtonEnabled(calibrationButtonEnabled) {
-  }
+      : offsetVector(offsetVector),
+        angleOffsetQuaternion(angleOffsetQuaternion),
+        poseTimeOffset(poseTimeOffset),
+        controllerOverrideEnabled(controllerOverrideEnabled),
+        controllerIdOverride(controllerIdOverride),
+        calibrationButtonEnabled(calibrationButtonEnabled) {}
 };
 
 struct VRDeviceConfiguration_t {
@@ -87,12 +81,11 @@ struct VRDeviceConfiguration_t {
       const VREncodingProtocol encodingProtocol,
       const VRCommunicationProtocol communicationProtocol,
       const VRDeviceDriver deviceDriver)
-    : role(role),
-      enabled(enabled),
-      feedbackEnabled(feedbackEnabled),
-      poseConfiguration(poseConfiguration),
-      encodingProtocol(encodingProtocol),
-      communicationProtocol(communicationProtocol),
-      deviceDriver(deviceDriver) {
-  }
+      : role(role),
+        enabled(enabled),
+        feedbackEnabled(feedbackEnabled),
+        poseConfiguration(poseConfiguration),
+        encodingProtocol(encodingProtocol),
+        communicationProtocol(communicationProtocol),
+        deviceDriver(deviceDriver) {}
 };

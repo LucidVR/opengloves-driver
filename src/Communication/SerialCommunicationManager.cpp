@@ -1,6 +1,6 @@
-#include <utility>
-
 #include "Communication/SerialCommunicationManager.h"
+
+#include <utility>
 
 #include "DriverLog.h"
 #include "Util/Windows.h"
@@ -9,22 +9,26 @@ SerialCommunicationManager::SerialCommunicationManager(
     std::unique_ptr<EncodingManager> encodingManager,
     VRSerialConfiguration_t configuration,
     const VRDeviceConfiguration_t& deviceConfiguration)
-  : CommunicationManager(std::move(encodingManager), deviceConfiguration),
-    m_serialConfiguration(std::move(configuration)),
-    m_isConnected(false),
-    m_hSerial(nullptr) {
-}
+    : CommunicationManager(std::move(encodingManager), deviceConfiguration),
+      m_serialConfiguration(std::move(configuration)),
+      m_isConnected(false),
+      m_hSerial(nullptr) {}
 
-bool SerialCommunicationManager::IsConnected() {
-  return m_isConnected;
-};
+bool SerialCommunicationManager::IsConnected() { return m_isConnected; };
 
 bool SerialCommunicationManager::Connect() {
   // We're not yet connected
   m_isConnected = false;
 
   // Try to connect to the given port throuh CreateFile
-  m_hSerial = CreateFile(m_serialConfiguration.port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+  m_hSerial = CreateFile(
+      m_serialConfiguration.port.c_str(),
+      GENERIC_READ | GENERIC_WRITE,
+      0,
+      NULL,
+      OPEN_EXISTING,
+      FILE_ATTRIBUTE_NORMAL,
+      NULL);
   if (m_hSerial == INVALID_HANDLE_VALUE) {
     LogError("Received error connecting to port");
     return false;
@@ -42,7 +46,7 @@ bool SerialCommunicationManager::Connect() {
   dcbSerialParams.ByteSize = 8;
   dcbSerialParams.StopBits = ONESTOPBIT;
   dcbSerialParams.Parity = NOPARITY;
-  dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE; // reset upon establishing a connection
+  dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;  // reset upon establishing a connection
 
   // set the parameters and check for their proper application
   if (!SetCommState(m_hSerial, &dcbSerialParams)) {
@@ -129,6 +133,4 @@ bool SerialCommunicationManager::SendMessageToDevice() {
   return true;
 }
 
-bool SerialCommunicationManager::PurgeBuffer() {
-  return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
-}
+bool SerialCommunicationManager::PurgeBuffer() { return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR); }
