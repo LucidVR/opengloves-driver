@@ -14,47 +14,26 @@
 #include "Quaternion.h"
 #include "Util/Windows.h"
 
-static bool CreateBackgroundProcess() {
-  STARTUPINFOA si;
-  PROCESS_INFORMATION pi;
-  ZeroMemory(&si, sizeof(si));
-  si.cb = sizeof(si);
-  ZeroMemory(&pi, sizeof(pi));
-
-  const std::string driverPath = GetDriverPath();
-  DriverLog("Path to DLL: %s", driverPath.c_str());
-
-  std::string path = driverPath + "\\openglove_overlay.exe";
-
-  bool success = true;
-  if (!CreateProcess(path.c_str(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) success = false;
-
-  CloseHandle(pi.hProcess);
-  CloseHandle(pi.hThread);
-
-  return success;
-}
-
 vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
   vr::EVRInitError initError = InitServerDriverContext(pDriverContext);
   if (initError != vr::EVRInitError::VRInitError_None) return initError;
 
   VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
   InitDriverLog(vr::VRDriverLog());
-  DebugDriverLog("OpenGlove is running in DEBUG mode");
+  DebugDriverLog("OpenGlove is running in AAAA mode");
 
-  if (!CreateBackgroundProcess()) {
-    DriverLog("Could not create background process");
+  const std::string driverPath = GetDriverPath();
+  DriverLog("Path to DLL: %s", driverPath.c_str());
+
+  //Create background process for the overlay (used for finding controllers to bind to for tracking)
+  if (!CreateBackgroundProcess(driverPath + "\\bin\\win64\\openglove_overlay.exe")) {
+    DriverLog("Could not create background process: %c", GetLastErrorAsString().c_str());
     return vr::VRInitError_Init_FileNotFound;
   }
 
   VRDeviceConfiguration_t leftConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_LeftHand);
   VRDeviceConfiguration_t rightConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_RightHand);
 
-  std::string driverPath = GetDriverPath();
-
-  const std::string unwanted = "\\bin\\win64";
-  driverPath.erase(driverPath.find(unwanted), unwanted.length());
 
   std::shared_ptr<BoneAnimator> boneAnimator = std::make_shared<BoneAnimator>(driverPath + "\\resources\\anims\\glove_anim.glb");
 
