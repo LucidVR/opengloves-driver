@@ -20,7 +20,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
   VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
   InitDriverLog(vr::VRDriverLog());
-  DebugDriverLog("OpenGlove is running in AAAA mode");
+  DebugDriverLog("OpenGlove is running in DEBUG mode");
 
   const std::string driverPath = GetDriverPath();
   DriverLog("Path to DLL: %s", driverPath.c_str());
