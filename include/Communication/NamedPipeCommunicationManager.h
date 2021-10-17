@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <atomic>
+
 #include "Util/NamedPipeListener.h"
 
 #include "DeviceConfiguration.h"
@@ -22,11 +23,13 @@ class NamedPipeCommunicationManager : public CommunicationManager {
   //Functions currently unimplemeneted
   bool SendMessageToDevice() { return true; };
   bool ReceiveNextPacket(std::string& buff) { return true; };
+  void QueueSend(const VRFFBData& data) override {};
 
   void BeginListener(const std::function<void(VRInputData)>& callback) override;
 
  private:
   std::unique_ptr<NamedPipeListener<VRInputData>> m_namedPipeListener;
   std::atomic<bool> m_isConnected;
+
   VRNamedPipeInputConfiguration m_configuration;
 };

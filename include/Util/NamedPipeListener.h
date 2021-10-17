@@ -36,8 +36,9 @@ class NamedPipeListener {
   bool IsConnected();
   void LogError(const char* error);
   void LogMessage(const char* message);
+
  private:
-  void Connect(NamedPipeListenerData<T>* data);
+  bool Connect(NamedPipeListenerData<T>* data);
   void DisconnectAndReconnect(NamedPipeListenerData<T>* data);
   void ListenerThread(const std::function<void(T*)>& callback);
 
@@ -74,19 +75,19 @@ void NamedPipeListener<T>::StopListening() {
 }
 
 template <typename T>
-void NamedPipeListener<T>::Connect(NamedPipeListenerData<T>* data) {
+bool NamedPipeListener<T>::Connect(NamedPipeListenerData<T>* data) {
   BOOL fConnected = ConnectNamedPipe(data->hPipeInst, &data->oOverlap);
   if (!fConnected) {
     switch (GetLastError()) {
       case ERROR_IO_PENDING:
         data->fPendingIO = true;
         data->state = NamedPipeListenerState::Connecting;
-        return;
+        return true;
       case ERROR_PIPE_CONNECTED:
         if (SetEvent(data->oOverlap.hEvent)) {
           data->fPendingIO = false;
           data->state = NamedPipeListenerState::Reading;
-          return;
+          return true;
         }
         break;
     }
@@ -95,6 +96,8 @@ void NamedPipeListener<T>::Connect(NamedPipeListenerData<T>* data) {
   LogError("Failed to connect");
   data->fPendingIO = false;
   data->state = NamedPipeListenerState::Reading;
+
+  return false;
 }
 
 template <typename T>
@@ -102,7 +105,7 @@ void NamedPipeListener<T>::DisconnectAndReconnect(NamedPipeListenerData<T>* data
   LogMessage("Disconnecting and reconnecting named pipe");
   if (!DisconnectNamedPipe(data->hPipeInst)) LogError("Failed to disconnect");
 
-  Connect(data);
+  if (!Connect(data)) LogError("Error reconnecting to pipe from disconnect");
 }
 
 template <typename T>
@@ -134,8 +137,9 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
   listenerData.oOverlap.hEvent = hEvent;
   listenerData.hPipeInst = hPipeInst;
 
-  Connect(&listenerData);
+  if (!Connect(&listenerData)) return;
 
+  LogMessage("Successfully connected to pipe");
   while (m_threadActive) {
     DWORD dwWaitResult = WaitForSingleObject(listenerData.oOverlap.hEvent, c_namedPipeDelay);
     switch (dwWaitResult) {
