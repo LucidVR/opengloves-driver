@@ -3,3 +3,5 @@ ColumnLimit: 130
 BinPackParameters: false
 BinPackArguments: false
 AlignAfterOpenBracket: AlwaysBreak
+AllowShortFunctionsOnASingleLine: Empty
+NamespaceIndentation: All
