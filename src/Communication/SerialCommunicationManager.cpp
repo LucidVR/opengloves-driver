@@ -9,6 +9,7 @@ SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<EncodingM
 bool SerialCommunicationManager::IsConnected() { return m_isConnected; };
 
 bool SerialCommunicationManager::Connect() {
+  LogMessage("Attempting connection to device");
   // We're not yet connected
   m_isConnected = false;
 
@@ -43,6 +44,8 @@ bool SerialCommunicationManager::Connect() {
   m_isConnected = true;
 
   PurgeBuffer();
+
+  LogMessage("Successfully connected to device");
 
   return true;
 }
