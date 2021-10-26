@@ -31,5 +31,7 @@ class NamedPipeCommunicationManager : public CommunicationManager {
   std::unique_ptr<NamedPipeListener<VRInputData>> m_namedPipeListener;
   std::atomic<bool> m_isConnected;
 
+  std::function<void(VRInputData)> m_callback;
+
   VRNamedPipeInputConfiguration m_configuration;
 };

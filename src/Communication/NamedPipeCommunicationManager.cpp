@@ -8,12 +8,13 @@ bool NamedPipeCommunicationManager::Connect() {
 }
 
 void NamedPipeCommunicationManager::BeginListener(const std::function<void(VRInputData)>& callback) {
+  m_callback = callback;
   if (!Connect()) {
     DriverLog("Unable to connect to named pipe.");
     return;
   }
 
-  m_namedPipeListener->StartListening([&](VRInputData* data) { callback(*data); });
+  m_namedPipeListener->StartListening([&](VRInputData* data) { m_callback(*data); });
 }
 
 bool NamedPipeCommunicationManager::DisconnectFromDevice() {
