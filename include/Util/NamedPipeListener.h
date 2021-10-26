@@ -190,7 +190,6 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
       }
     } else {  // Callback (see above)
       if (listenerData.dwBytesRead == sizeof(T)) {
-        LogMessage("Message received from pipe");
         callback((T*)listenerData.chRequest);
         listenerData.state = NamedPipeListenerState::Reading;
       } else
