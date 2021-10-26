@@ -84,7 +84,7 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
     if (dwRead <= 0 || nextChar == '\n') continue;
 
     buff += nextChar;
-  } while (nextChar != '\n' || buff.length() < 1);
+  } while ((nextChar != '\n' || buff.length() < 1) && m_threadActive);
 
   return true;
 }
