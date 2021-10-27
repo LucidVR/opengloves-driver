@@ -14,8 +14,9 @@ extern const char* c_legacyEncodingSettingsSection;
 extern const char* c_deviceDriverManufacturer;
 
 enum class VRCommunicationProtocol {
-  SERIAL = 0,
-  BTSERIAL = 1,
+  SERIAL,
+  BT_SERIAL,
+  NAMED_PIPE
 };
 
 enum class VREncodingProtocol {
@@ -28,21 +29,28 @@ enum class VRDeviceDriver {
   EMULATED_KNUCKLES = 1,
 };
 
-struct VRSerialConfiguration_t {
+struct VRSerialConfiguration {
   std::string port;
   int baudRate;
 
-  VRSerialConfiguration_t(std::string port, int baudRate) : port(port), baudRate(baudRate){};
+  VRSerialConfiguration(std::string port, int baudRate) : port(port), baudRate(baudRate){};
 };
 
-struct VRBTSerialConfiguration_t {
+struct VRBTSerialConfiguration {
   std::string name;
 
-  VRBTSerialConfiguration_t(std::string name) : name(name){};
+  VRBTSerialConfiguration(std::string name) : name(name){};
 };
 
-struct VRPoseConfiguration_t {
-  VRPoseConfiguration_t(vr::HmdVector3_t offsetVector, vr::HmdQuaternion_t angleOffsetQuaternion, float poseTimeOffset, bool controllerOverrideEnabled,
+struct VRNamedPipeInputConfiguration {
+  std::string pipeName;
+
+  VRNamedPipeInputConfiguration(std::string pipeName) : pipeName(pipeName){};
+
+};
+
+struct VRPoseConfiguration {
+  VRPoseConfiguration(vr::HmdVector3_t offsetVector, vr::HmdQuaternion_t angleOffsetQuaternion, float poseTimeOffset, bool controllerOverrideEnabled,
                         int controllerIdOverride, bool calibrationButtonEnabled)
       : offsetVector(offsetVector),
         angleOffsetQuaternion(angleOffsetQuaternion),
@@ -58,8 +66,8 @@ struct VRPoseConfiguration_t {
   bool calibrationButtonEnabled;
 };
 
-struct VRDeviceConfiguration_t {
-  VRDeviceConfiguration_t(vr::ETrackedControllerRole role, bool enabled, VRPoseConfiguration_t poseConfiguration, VREncodingProtocol encodingProtocol,
+struct VRDeviceConfiguration {
+  VRDeviceConfiguration(vr::ETrackedControllerRole role, bool enabled, VRPoseConfiguration poseConfiguration, VREncodingProtocol encodingProtocol,
                           VRCommunicationProtocol communicationProtocol, VRDeviceDriver deviceDriver)
       : role(role),
         enabled(enabled),
@@ -71,7 +79,7 @@ struct VRDeviceConfiguration_t {
   vr::ETrackedControllerRole role;
   bool enabled;
 
-  VRPoseConfiguration_t poseConfiguration;
+  VRPoseConfiguration poseConfiguration;
 
   VREncodingProtocol encodingProtocol;
   VRCommunicationProtocol communicationProtocol;

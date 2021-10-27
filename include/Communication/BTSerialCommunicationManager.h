@@ -13,7 +13,7 @@
 
 class BTSerialCommunicationManager : public CommunicationManager {
  public:
-  BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration_t& configuration);
+  BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration& configuration);
 
  public:
   bool IsConnected();
@@ -32,7 +32,7 @@ class BTSerialCommunicationManager : public CommunicationManager {
   bool StartupWindowsSocket();
 
  private:
-  VRBTSerialConfiguration_t m_btSerialConfiguration;
+  VRBTSerialConfiguration m_btSerialConfiguration;
 
   std::atomic<bool> m_isConnected;
 

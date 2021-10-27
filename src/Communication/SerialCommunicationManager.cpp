@@ -3,12 +3,13 @@
 #include "DriverLog.h"
 #include "Util/Windows.h"
 
-SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRSerialConfiguration_t& configuration)
+SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRSerialConfiguration& configuration)
     : CommunicationManager(std::move(encodingManager)), m_serialConfiguration(configuration), m_isConnected(false), m_hSerial(0) {}
 
 bool SerialCommunicationManager::IsConnected() { return m_isConnected; };
 
 bool SerialCommunicationManager::Connect() {
+  LogMessage("Attempting connection to device");
   // We're not yet connected
   m_isConnected = false;
 
@@ -44,6 +45,8 @@ bool SerialCommunicationManager::Connect() {
 
   PurgeBuffer();
 
+  LogMessage("Successfully connected to device");
+
   return true;
 }
 
@@ -56,16 +59,6 @@ bool SerialCommunicationManager::DisconnectFromDevice() {
   m_isConnected = false;
   LogMessage("Succesfully disconnected from device");
   return true;
-}
-
-void SerialCommunicationManager::LogError(const char* message) {
-  // message with port name and last error
-  DriverLog("%s (%s) - Error: %s", message, m_serialConfiguration.port.c_str(), GetLastErrorAsString().c_str());
-}
-
-void SerialCommunicationManager::LogMessage(const char* message) {
-  // message with port name
-  DriverLog("%s (%s)", message, m_serialConfiguration.port.c_str());
 }
 
 bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
@@ -94,7 +87,7 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
     if (dwRead <= 0 || nextChar == '\n') continue;
 
     buff += nextChar;
-  } while (nextChar != '\n' || buff.length() < 1);
+  } while ((nextChar != '\n' || buff.length() < 1) && m_threadActive);
 
   return true;
 }
@@ -113,3 +106,13 @@ bool SerialCommunicationManager::SendMessageToDevice() {
 }
 
 bool SerialCommunicationManager::PurgeBuffer() { return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR); }
+
+void SerialCommunicationManager::LogError(const char* message) {
+  // message with port name and last error
+  DriverLog("%s (%s) - Error: %s", message, m_serialConfiguration.port.c_str(), GetLastErrorAsString().c_str());
+}
+
+void SerialCommunicationManager::LogMessage(const char* message) {
+  // message with port name
+  DriverLog("%s (%s)", message, m_serialConfiguration.port.c_str());
+}
