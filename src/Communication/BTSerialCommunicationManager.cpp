@@ -11,8 +11,8 @@
 
 BTSerialCommunicationManager::BTSerialCommunicationManager(
     std::unique_ptr<EncodingManager> encodingManager,
-    VRBTSerialConfiguration_t configuration,
-    const VRDeviceConfiguration_t& deviceConfiguration)
+    VRBTSerialConfiguration configuration,
+    const VRDeviceConfiguration& deviceConfiguration)
     : CommunicationManager(std::move(encodingManager), deviceConfiguration),
       m_btSerialConfiguration(std::move(configuration)),
       m_isConnected(false),

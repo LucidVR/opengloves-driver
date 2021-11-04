@@ -44,10 +44,10 @@ class KnuckleDeviceDriver : public DeviceDriver {
       std::unique_ptr<CommunicationManager> communicationManager,
       std::shared_ptr<BoneAnimator> boneAnimator,
       std::string serialNumber,
-      VRDeviceConfiguration_t configuration);
+      VRDeviceConfiguration configuration);
 
-  void HandleInput(VRInputData_t datas) override;
-  void SetupProps(vr::PropertyContainerHandle_t& props) override;
+  void HandleInput(VRInputData datas) override;
+  void SetupProps(vr::PropertyContainerHandle& props) override;
   void StartingDevice() override;
   void StoppingDevice() override;
 

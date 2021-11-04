@@ -11,11 +11,11 @@ LucidGloveDeviceDriver::LucidGloveDeviceDriver(
     std::unique_ptr<CommunicationManager> communicationManager,
     std::shared_ptr<BoneAnimator> boneAnimator,
     std::string serialNumber,
-    VRDeviceConfiguration_t configuration)
+    VRDeviceConfiguration configuration)
     : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration),
       m_inputComponentHandles() {}
 
-void LucidGloveDeviceDriver::HandleInput(VRInputData_t datas) {
+void LucidGloveDeviceDriver::HandleInput(VRInputData datas) {
   // clang-format off
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)LucidGloveDeviceComponentIndex::COMP_JOY_X], datas.joyX, 0);
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)LucidGloveDeviceComponentIndex::COMP_JOY_Y], datas.joyY, 0);

@@ -6,7 +6,7 @@
 ControllerPose::ControllerPose(
     vr::ETrackedControllerRole shadowDeviceOfRole,
     std::string thisDeviceManufacturer,
-    VRPoseConfiguration_t poseConfiguration)
+    VRPoseConfiguration poseConfiguration)
     : m_shadowDeviceOfRole(shadowDeviceOfRole),
       m_thisDeviceManufacturer(std::move(thisDeviceManufacturer)),
       m_poseConfiguration(poseConfiguration) {
