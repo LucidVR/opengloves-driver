@@ -9,9 +9,8 @@ EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 std::string GetDriverPath() {
   HMODULE hm = NULL;
   if (GetModuleHandleExA(
-          GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
-          (LPCSTR)&__ImageBase,
-          &hm) == 0) {
+          GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (LPCSTR)&__ImageBase, &hm) ==
+      0) {
     DriverLog("GetModuleHandle failed, error: %s", GetLastErrorAsString().c_str());
     return std::string();
   }

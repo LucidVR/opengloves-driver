@@ -13,7 +13,9 @@ bool InitDriverLog(vr::IVRDriverLog* pDriverLog) {
   return s_pLogFile != NULL;
 }
 
-void CleanupDriverLog() { s_pLogFile = NULL; }
+void CleanupDriverLog() {
+  s_pLogFile = NULL;
+}
 
 static void DriverLogVarArgs(const char* pMsgFormat, va_list args) {
   char buf[1024];

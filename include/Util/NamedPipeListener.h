@@ -176,8 +176,8 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
     }
 
     if (listenerData.state == NamedPipeListenerState::Reading) {
-      BOOL fSuccess = ReadFile(
-          listenerData.hPipeInst, listenerData.chRequest, sizeof(T), &listenerData.dwBytesRead, &listenerData.oOverlap);
+      BOOL fSuccess =
+          ReadFile(listenerData.hPipeInst, listenerData.chRequest, sizeof(T), &listenerData.dwBytesRead, &listenerData.oOverlap);
       if (fSuccess) {
         if (listenerData.dwBytesRead > 0) {
           listenerData.fPendingIO = false;

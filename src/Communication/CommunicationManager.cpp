@@ -6,8 +6,11 @@
 
 static const uint32_t c_listenerWaitTime = 1000;
 
+CommunicationManager::CommunicationManager(const VRDeviceConfiguration& deviceConfiguration)
+    : m_encodingManager(nullptr), m_deviceConfiguration(deviceConfiguration){};
+
 CommunicationManager::CommunicationManager(
-    std::unique_ptr<EncodingManager> encodingManager, const VRDeviceConfiguration_t& deviceConfiguration)
+    std::unique_ptr<EncodingManager> encodingManager, const VRDeviceConfiguration& deviceConfiguration)
     : m_encodingManager(std::move(encodingManager)),
       m_deviceConfiguration(deviceConfiguration),
       m_threadActive(false),

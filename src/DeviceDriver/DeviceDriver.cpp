@@ -68,7 +68,9 @@ void DeviceDriver::DebugRequest(const char* pchRequest, char* pchResponseBuffer,
 
 void DeviceDriver::EnterStandby() {}
 
-void* DeviceDriver::GetComponent(const char* pchComponentNameAndVersion) { return nullptr; }
+void* DeviceDriver::GetComponent(const char* pchComponentNameAndVersion) {
+  return nullptr;
+}
 
 vr::DriverPose_t DeviceDriver::GetPose() {
   if (m_hasActivated) return m_controllerPose->UpdatePose();
@@ -77,18 +79,23 @@ vr::DriverPose_t DeviceDriver::GetPose() {
   return pose;
 }
 
-std::string DeviceDriver::GetSerialNumber() { return m_serialNumber; }
+std::string DeviceDriver::GetSerialNumber() {
+  return m_serialNumber;
+}
 
-bool DeviceDriver::IsActive() { return m_hasActivated; }
+bool DeviceDriver::IsActive() {
+  return m_hasActivated;
+}
 
 void DeviceDriver::RunFrame() {
   if (m_hasActivated) {
-    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(
-        m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
   }
 }
 
-bool DeviceDriver::IsRightHand() const { return m_configuration.role == vr::TrackedControllerRole_RightHand; }
+bool DeviceDriver::IsRightHand() const {
+  return m_configuration.role == vr::TrackedControllerRole_RightHand;
+}
 
 void DeviceDriver::StartDevice() {
   StartingDevice();

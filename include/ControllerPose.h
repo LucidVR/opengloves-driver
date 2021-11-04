@@ -15,9 +15,7 @@ struct CalibrationDataIn {
 class ControllerPose {
  public:
   ControllerPose(
-      vr::ETrackedControllerRole shadowDeviceOfRole,
-      std::string thisDeviceManufacturer,
-      VRPoseConfiguration poseConfiguration);
+      vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration);
   ~ControllerPose();
 
   vr::DriverPose_t UpdatePose();

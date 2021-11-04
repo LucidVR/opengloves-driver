@@ -19,10 +19,7 @@ void Calibration::StartCalibration(vr::DriverPose_t maintainPose, CalibrationMet
 }
 
 VRPoseConfiguration Calibration::CompleteCalibration(
-    vr::TrackedDevicePose controllerPose,
-    VRPoseConfiguration poseConfiguration,
-    bool isRightHand,
-    CalibrationMethod method) {
+    vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration poseConfiguration, bool isRightHand, CalibrationMethod method) {
   if (m_calibratingMethod != method) return poseConfiguration;
   m_isCalibrating = false;
   // get the matrix that represents the position of the controller that we are shadowing
@@ -73,6 +70,10 @@ void Calibration::CancelCalibration(CalibrationMethod method) {
   if (m_calibratingMethod == method) m_isCalibrating = false;
 }
 
-bool Calibration::isCalibrating() { return m_isCalibrating; }
+bool Calibration::isCalibrating() {
+  return m_isCalibrating;
+}
 
-vr::DriverPose_t Calibration::GetMaintainPose() { return m_maintainPose; }
+vr::DriverPose_t Calibration::GetMaintainPose() {
+  return m_maintainPose;
+}

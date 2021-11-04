@@ -13,10 +13,7 @@ class Calibration {
   void StartCalibration(vr::DriverPose_t maintainPose, CalibrationMethod method);
 
   VRPoseConfiguration CompleteCalibration(
-      vr::TrackedDevicePose controllerPose,
-      VRPoseConfiguration poseConfiguration,
-      bool isRightHand,
-      CalibrationMethod method);
+      vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration poseConfiguration, bool isRightHand, CalibrationMethod method);
 
   void CancelCalibration(CalibrationMethod method);
 

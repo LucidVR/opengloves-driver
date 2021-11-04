@@ -11,9 +11,12 @@ static const std::array<float, 4> emptyRotation = {0.0f, 0.0f, 0.0f, 0.0f};
 static const std::array<float, 3> emptyTranslation = {0.0f, 0.0f, 0.0f};
 
 Transform_t::Transform_t() : rotation(emptyRotation), translation(emptyTranslation) {}
+
 AnimationData_t::AnimationData_t() : startTime(0.0f), endTime(0.0f) {}
 
-static float Lerp(const float& a, const float& b, const float& f) { return a + f * (b - a); }
+static float Lerp(const float& a, const float& b, const float& f) {
+  return a + f * (b - a);
+}
 
 enum class FingerIndex : int { Thumb = 0, IndexFinger, MiddleFinger, RingFinger, PinkyFinger, Unknown = -1 };
 
@@ -104,8 +107,8 @@ class GLTFModelManager : public IModelManager {
 
   AnimationData_t GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, float f) const {
     const size_t lowerKeyframeIndex =
-        std::lower_bound(m_keyframeTimes.begin(), m_keyframeTimes.end(), std::clamp(f, 0.0001f, 1.0f)) -
-        m_keyframeTimes.begin() - 1;
+        std::lower_bound(m_keyframeTimes.begin(), m_keyframeTimes.end(), std::clamp(f, 0.0001f, 1.0f)) - m_keyframeTimes.begin() -
+        1;
     const size_t upperKeyframeIndex =
         (lowerKeyframeIndex < m_keyframeTimes.size() - 1) ? (lowerKeyframeIndex + 1) : lowerKeyframeIndex;
 
@@ -150,10 +153,7 @@ class GLTFModelManager : public IModelManager {
 
     tinygltf::BufferView bufferView = m_model.bufferViews[accessor.bufferView];
     const std::vector<unsigned char>& bufData = m_model.buffers[0].data;
-    memcpy(
-        &m_keyframeTimes[0],
-        bufData.data() + bufferView.byteOffset + accessor.byteOffset,
-        accessor.count * sizeof(float));
+    memcpy(&m_keyframeTimes[0], bufData.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(float));
   }
 
   template <size_t N>
@@ -181,13 +181,13 @@ class GLTFModelManager : public IModelManager {
 
         const tinygltf::Accessor& accessor = m_model.accessors[animation.samplers[channel.sampler].output];
         switch (accessor.type) {
-          // rotation via quaternion
+            // rotation via quaternion
           case TINYGLTF_TYPE_VEC4: {
             std::vector<std::array<float, 4>> keyframes = GetVecN<4>(accessor);
             for (size_t i = 0; i < keyframes.size(); i++) transforms[i].rotation = keyframes[i];
             break;
           }
-          // translation
+            // translation
           case TINYGLTF_TYPE_VEC3: {
             std::vector<std::array<float, 3>> keyframes = GetVecN<3>(accessor);
             for (size_t i = 0; i < keyframes.size(); i++) transforms[i].translation = keyframes[i];
@@ -215,8 +215,7 @@ void BoneAnimator::ComputeSkeletonTransforms(
   }
 }
 
-vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(
-    const HandSkeletonBone& boneIndex, const float f, const bool rightHand) {
+vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& boneIndex, const float f, const bool rightHand) {
   vr::VRBoneTransform_t result{};
 
   Transform_t nodeTransform = m_modelManager->GetTransformByBoneIndex(boneIndex);
@@ -230,27 +229,19 @@ vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(
 
   AnimationData_t animationData = m_modelManager->GetAnimationDataByBoneIndex(boneIndex, f);
 
-  const float interp =
-      std::clamp((f - animationData.startTime) / (animationData.endTime - animationData.startTime), 0.0f, 1.0f);
+  const float interp = std::clamp((f - animationData.startTime) / (animationData.endTime - animationData.startTime), 0.0f, 1.0f);
 
   if (animationData.startTransform.rotation != emptyRotation) {
-    result.orientation.x =
-        Lerp(animationData.startTransform.rotation[0], animationData.endTransform.rotation[0], interp);
-    result.orientation.y =
-        Lerp(animationData.startTransform.rotation[1], animationData.endTransform.rotation[1], interp);
-    result.orientation.z =
-        Lerp(animationData.startTransform.rotation[2], animationData.endTransform.rotation[2], interp);
-    result.orientation.w =
-        Lerp(animationData.startTransform.rotation[3], animationData.endTransform.rotation[3], interp);
+    result.orientation.x = Lerp(animationData.startTransform.rotation[0], animationData.endTransform.rotation[0], interp);
+    result.orientation.y = Lerp(animationData.startTransform.rotation[1], animationData.endTransform.rotation[1], interp);
+    result.orientation.z = Lerp(animationData.startTransform.rotation[2], animationData.endTransform.rotation[2], interp);
+    result.orientation.w = Lerp(animationData.startTransform.rotation[3], animationData.endTransform.rotation[3], interp);
   }
 
   if (animationData.startTransform.translation != emptyTranslation) {
-    result.position.v[0] =
-        Lerp(animationData.startTransform.translation[0], animationData.endTransform.translation[0], interp);
-    result.position.v[1] =
-        Lerp(animationData.startTransform.translation[1], animationData.endTransform.translation[1], interp);
-    result.position.v[2] =
-        Lerp(animationData.startTransform.translation[2], animationData.endTransform.translation[2], interp);
+    result.position.v[0] = Lerp(animationData.startTransform.translation[0], animationData.endTransform.translation[0], interp);
+    result.position.v[1] = Lerp(animationData.startTransform.translation[1], animationData.endTransform.translation[1], interp);
+    result.position.v[2] = Lerp(animationData.startTransform.translation[2], animationData.endTransform.translation[2], interp);
   }
   result.position.v[3] = 1.0f;
 

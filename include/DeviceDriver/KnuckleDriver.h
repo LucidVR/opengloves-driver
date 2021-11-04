@@ -47,7 +47,7 @@ class KnuckleDeviceDriver : public DeviceDriver {
       VRDeviceConfiguration configuration);
 
   void HandleInput(VRInputData datas) override;
-  void SetupProps(vr::PropertyContainerHandle& props) override;
+  void SetupProps(vr::PropertyContainerHandle_t& props) override;
   void StartingDevice() override;
   void StoppingDevice() override;
 

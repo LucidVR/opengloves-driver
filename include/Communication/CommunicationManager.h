@@ -12,9 +12,8 @@
 
 class CommunicationManager {
  public:
-  CommunicationManager() : m_encodingManager(nullptr){};
-  CommunicationManager(
-      std::unique_ptr<EncodingManager> encodingManager, const VRDeviceConfiguration_t& deviceConfiguration);
+  CommunicationManager(const VRDeviceConfiguration& deviceConfiguration);
+  CommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRDeviceConfiguration& deviceConfiguration);
 
   virtual void BeginListener(const std::function<void(VRInputData)>& callback);
   virtual void Disconnect();
@@ -34,7 +33,7 @@ class CommunicationManager {
   virtual bool SendMessageToDevice() = 0;
 
   std::unique_ptr<EncodingManager> m_encodingManager;
-  VRDeviceConfiguration_t m_deviceConfiguration;
+  VRDeviceConfiguration m_deviceConfiguration;
 
   std::atomic<bool> m_threadActive;
   std::thread m_thread;

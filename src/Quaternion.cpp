@@ -2,8 +2,13 @@
 
 #include <cmath>
 
-double DegToRad(double degrees) { return degrees * M_PI / 180.0; }
-double RadToDeg(double rad) { return rad * 180.0 / M_PI; }
+double DegToRad(double degrees) {
+  return degrees * M_PI / 180.0;
+}
+
+double RadToDeg(double rad) {
+  return rad * 180.0 / M_PI;
+}
 
 vr::HmdVector3_t GetPosition(const vr::HmdMatrix34_t& matrix) {
   vr::HmdVector3_t vector{};
@@ -48,6 +53,7 @@ vr::HmdMatrix33_t GetRotationMatrix(const vr::HmdMatrix34_t& matrix) {
 
   return result;
 }
+
 vr::HmdVector3_t MultiplyMatrix(const vr::HmdMatrix33_t& matrix, const vr::HmdVector3_t& vector) {
   vr::HmdVector3_t result{};
 
@@ -94,7 +100,9 @@ vr::HmdMatrix33_t QuaternionToMatrix(const vr::HmdQuaternion_t q) {
   return result;
 }
 
-double QuatNorm(const vr::HmdQuaternion_t q) { return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z); }
+double QuatNorm(const vr::HmdQuaternion_t q) {
+  return sqrt(q.w * q.w + q.x * q.x + q.y * q.y + q.z * q.z);
+}
 
 vr::HmdQuaternion_t QuatConjugate(const vr::HmdQuaternion_t q) {
   vr::HmdQuaternion_t quat = {q.w, -q.x, -q.y, -q.z};
@@ -129,6 +137,7 @@ vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, co
 
   return q;
 }
+
 vr::HmdVector3_t QuaternionToEuler(vr::HmdQuaternion_t q) {
   vr::HmdVector3_t angles{};
 

@@ -70,8 +70,7 @@ class IModelManager {
 class BoneAnimator {
  public:
   BoneAnimator(const std::string& fileName);
-  void ComputeSkeletonTransforms(
-      vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand);
+  void ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand);
   void TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex);
 
  private:

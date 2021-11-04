@@ -7,14 +7,16 @@
 
 SerialCommunicationManager::SerialCommunicationManager(
     std::unique_ptr<EncodingManager> encodingManager,
-    VRSerialConfiguration configuration,
+    const VRSerialConfiguration& configuration,
     const VRDeviceConfiguration& deviceConfiguration)
     : CommunicationManager(std::move(encodingManager), deviceConfiguration),
       m_serialConfiguration(std::move(configuration)),
       m_isConnected(false),
       m_hSerial(nullptr) {}
 
-bool SerialCommunicationManager::IsConnected() { return m_isConnected; };
+bool SerialCommunicationManager::IsConnected() {
+  return m_isConnected;
+};
 
 bool SerialCommunicationManager::Connect() {
   LogMessage("Attempting connection to device");
@@ -23,13 +25,7 @@ bool SerialCommunicationManager::Connect() {
 
   // Try to connect to the given port throuh CreateFile
   m_hSerial = CreateFile(
-      m_serialConfiguration.port.c_str(),
-      GENERIC_READ | GENERIC_WRITE,
-      0,
-      NULL,
-      OPEN_EXISTING,
-      FILE_ATTRIBUTE_NORMAL,
-      NULL);
+      m_serialConfiguration.port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
   if (m_hSerial == INVALID_HANDLE_VALUE) {
     LogError("Received error connecting to port");
     return false;
@@ -126,7 +122,9 @@ bool SerialCommunicationManager::SendMessageToDevice() {
   return true;
 }
 
-bool SerialCommunicationManager::PurgeBuffer() { return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR); }
+bool SerialCommunicationManager::PurgeBuffer() {
+  return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
+}
 
 void SerialCommunicationManager::LogError(const char* message) {
   // message with port name and last error
