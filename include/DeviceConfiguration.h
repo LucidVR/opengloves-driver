@@ -14,8 +14,9 @@ extern const char* c_legacyEncodingSettingsSection;
 extern const char* c_deviceDriverManufacturer;
 
 enum class VRCommunicationProtocol {
-  SERIAL = 0,
-  BTSERIAL = 1,
+  SERIAL,
+  BT_SERIAL,
+  NAMED_PIPE
 };
 
 enum class VREncodingProtocol {
@@ -28,20 +29,20 @@ enum class VRDeviceDriver {
   EMULATED_KNUCKLES = 1,
 };
 
-struct VRSerialConfiguration_t {
+struct VRSerialConfiguration {
   std::string port;
   int baudRate;
 
-  VRSerialConfiguration_t(const std::string port, const int baudRate) : port(port), baudRate(baudRate) {}
+  VRSerialConfiguration(const std::string port, const int baudRate) : port(port), baudRate(baudRate) {}
 };
 
-struct VRBTSerialConfiguration_t {
+struct VRBTSerialConfiguration {
   std::string name;
 
-  VRBTSerialConfiguration_t(const std::string name) : name(name) {}
+  VRBTSerialConfiguration(const std::string name) : name(name) {}
 };
 
-struct VRPoseConfiguration_t {
+struct VRPoseConfiguration {
   vr::HmdVector3_t offsetVector;
   vr::HmdQuaternion_t angleOffsetQuaternion;
   float poseTimeOffset;
@@ -59,16 +60,16 @@ struct VRPoseConfiguration_t {
         calibrationButtonEnabled(calibrationButtonEnabled) {}
 };
 
-struct VRDeviceConfiguration_t {
+struct VRDeviceConfiguration {
   vr::ETrackedControllerRole role;
   bool enabled;
   bool feedbackEnabled;
-  VRPoseConfiguration_t poseConfiguration;
+  VRPoseConfiguration poseConfiguration;
   VREncodingProtocol encodingProtocol;
   VRCommunicationProtocol communicationProtocol;
   VRDeviceDriver deviceDriver;
 
-  VRDeviceConfiguration_t(const vr::ETrackedControllerRole role, const bool enabled, const bool feedbackEnabled, const VRPoseConfiguration_t poseConfiguration,
+  VRDeviceConfiguration_t(const vr::ETrackedControllerRole role, const bool enabled, const bool feedbackEnabled, const VRPoseConfiguration poseConfiguration,
                           const VREncodingProtocol encodingProtocol, const VRCommunicationProtocol communicationProtocol, const VRDeviceDriver deviceDriver)
       : role(role),
         enabled(enabled),

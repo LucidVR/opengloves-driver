@@ -8,10 +8,10 @@ static const char* c_basePosePath = "/pose/raw";
 static const char* c_inputProfilePath = "{openglove}/input/openglove_profile.json";
 
 LucidGloveDeviceDriver::LucidGloveDeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator,
-                                               std::string serialNumber, VRDeviceConfiguration_t configuration)
+                                               std::string serialNumber, VRDeviceConfiguration configuration)
     : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration), m_inputComponentHandles() {}
 
-void LucidGloveDeviceDriver::HandleInput(VRInputData_t datas) {
+void LucidGloveDeviceDriver::HandleInput(VRInputData datas) {
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)LucidGloveDeviceComponentIndex::COMP_JOY_X], datas.joyX, 0);
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)LucidGloveDeviceComponentIndex::COMP_JOY_Y], datas.joyY, 0);
 

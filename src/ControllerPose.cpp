@@ -3,7 +3,7 @@
 #include "DriverLog.h"
 #include "Quaternion.h"
 
-ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration_t poseConfiguration)
+ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration)
     : m_shadowDeviceOfRole(shadowDeviceOfRole), m_thisDeviceManufacturer(std::move(thisDeviceManufacturer)), m_poseConfiguration(poseConfiguration) {
   m_calibrationPipe = std::make_unique<NamedPipeListener<CalibrationDataIn>>(
       "\\\\.\\pipe\\vrapplication\\functions\\autocalibrate\\" +

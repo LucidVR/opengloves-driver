@@ -20,7 +20,24 @@ std::string GetDriverPath() {
   }
 
   std::string pathString = std::string(path);
-  return pathString.substr(0, pathString.find_last_of("\\/"));
+  const std::string unwanted = "\\bin\\win64\\";
+  return pathString.substr(0, pathString.find_last_of("\\/")).erase(pathString.find(unwanted), unwanted.length());
+}
+
+bool CreateBackgroundProcess(std::string path) {
+  STARTUPINFOA si;
+  PROCESS_INFORMATION pi;
+  ZeroMemory(&si, sizeof(si));
+  si.cb = sizeof(si);
+  ZeroMemory(&pi, sizeof(pi));
+
+  bool success = true;
+  if (!CreateProcess(path.c_str(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) success = false;
+
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
+
+  return success;
 }
 
 std::string GetLastErrorAsString() {
@@ -36,4 +53,20 @@ std::string GetLastErrorAsString() {
   LocalFree(messageBuffer);
 
   return message;
+}
+
+bool CreateBackgroundProcess(const std::string& path) {
+  STARTUPINFOA si;
+  PROCESS_INFORMATION pi;
+  ZeroMemory(&si, sizeof(si));
+  si.cb = sizeof(si);
+  ZeroMemory(&pi, sizeof(pi));
+
+  bool success = true;
+  if (!CreateProcess(path.c_str(), NULL, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) success = false;
+
+  CloseHandle(pi.hProcess);
+  CloseHandle(pi.hThread);
+
+  return success;
 }

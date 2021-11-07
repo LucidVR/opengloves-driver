@@ -14,7 +14,6 @@ class SerialCommunicationManager : public CommunicationManager {
  public:
   SerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, VRSerialConfiguration_t configuration, const VRDeviceConfiguration_t& deviceConfiguration);
 
- public:
   bool IsConnected();
 
  protected:
@@ -29,7 +28,7 @@ class SerialCommunicationManager : public CommunicationManager {
   bool PurgeBuffer();
 
  private:
-  VRSerialConfiguration_t m_serialConfiguration;
+  VRSerialConfiguration m_serialConfiguration;
 
   std::atomic<bool> m_isConnected;
 

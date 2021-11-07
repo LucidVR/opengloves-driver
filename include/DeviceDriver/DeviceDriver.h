@@ -13,7 +13,7 @@
 class DeviceDriver : public vr::ITrackedDeviceServerDriver {
  public:
   DeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
-               VRDeviceConfiguration_t configuration);
+               VRDeviceConfiguration configuration);
 
   virtual vr::EVRInitError Activate(uint32_t unObjectId);
   virtual void Deactivate();
@@ -29,14 +29,14 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   virtual bool IsRightHand() const;
   virtual void StartDevice();
 
-  virtual void HandleInput(VRInputData_t datas) = 0;
+  virtual void HandleInput(VRInputData datas) = 0;
   virtual void SetupProps(vr::PropertyContainerHandle_t& props) = 0;
   virtual void StartingDevice() = 0;
   virtual void StoppingDevice() = 0;
 
   std::unique_ptr<CommunicationManager> m_communicationManager;
   std::shared_ptr<BoneAnimator> m_boneAnimator;
-  VRDeviceConfiguration_t m_configuration;
+  VRDeviceConfiguration m_configuration;
   std::string m_serialNumber;
 
   std::unique_ptr<ControllerPose> m_controllerPose;

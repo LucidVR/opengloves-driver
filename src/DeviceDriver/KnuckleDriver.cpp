@@ -3,10 +3,10 @@
 #include <utility>
 
 KnuckleDeviceDriver::KnuckleDeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
-                                         const VRDeviceConfiguration_t configuration)
+                                         const VRDeviceConfiguration configuration)
     : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), std::move(serialNumber), configuration), m_inputComponentHandles(), m_haptic() {}
 
-void KnuckleDeviceDriver::HandleInput(VRInputData_t datas) {
+void KnuckleDeviceDriver::HandleInput(VRInputData datas) {
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)KnuckleDeviceComponentIndex::THUMBSTICK_X], datas.joyX, 0);
   vr::VRDriverInput()->UpdateScalarComponent(m_inputComponentHandles[(int)KnuckleDeviceComponentIndex::THUMBSTICK_Y], datas.joyY, 0);
 
@@ -150,7 +150,7 @@ void KnuckleDeviceDriver::StartingDevice() {
   if (!m_configuration.feedbackEnabled) return;
 
   m_ffbProvider = std::make_unique<FFBListener>(
-      [&](VRFFBData_t data) {
+      [&](VRFFBData data) {
         // Queue the force feedback data for sending.
         m_communicationManager->QueueSend(data);
       },

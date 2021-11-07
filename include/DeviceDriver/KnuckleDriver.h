@@ -43,9 +43,9 @@ enum class KnuckleDeviceComponentIndex : int {
 class KnuckleDeviceDriver : public DeviceDriver {
  public:
   KnuckleDeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
-                      VRDeviceConfiguration_t configuration);
+                      VRDeviceConfiguration configuration);
 
-  void HandleInput(VRInputData_t datas);
+  void HandleInput(VRInputData datas);
   void SetupProps(vr::PropertyContainerHandle_t& props);
   void StartingDevice();
   void StoppingDevice();
