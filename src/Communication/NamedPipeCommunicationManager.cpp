@@ -1,6 +1,7 @@
 #include "Communication/NamedPipeCommunicationManager.h"
 
-NamedPipeCommunicationManager::NamedPipeCommunicationManager(const VRNamedPipeInputConfiguration& configuration) : m_configuration(configuration), m_isConnected(false){};
+NamedPipeCommunicationManager::NamedPipeCommunicationManager(const VRNamedPipeInputConfiguration& configuration, const VRDeviceConfiguration& deviceConfiguration)
+    : CommunicationManager(deviceConfiguration), m_configuration(configuration), m_isConnected(false){};
 
 bool NamedPipeCommunicationManager::Connect() {
   m_namedPipeListener = std::make_unique<NamedPipeListener<VRInputData>>(m_configuration.pipeName);

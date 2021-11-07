@@ -77,7 +77,7 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(VRDeviceCo
       DriverLog("Communication set to Named Pipe");
       std::string path = "\\\\.\\pipe\\vrapplication\\input\\" + std::string((isRightHand ? "right" : "left"));
       VRNamedPipeInputConfiguration namedPipeConfiguration(path);
-      communicationManager = std::make_unique<NamedPipeCommunicationManager>(namedPipeConfiguration);
+      communicationManager = std::make_unique<NamedPipeCommunicationManager>(namedPipeConfiguration, configuration);
       break;
     }
     case VRCommunicationProtocol::BT_SERIAL: {

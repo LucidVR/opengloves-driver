@@ -33,13 +33,19 @@ struct VRSerialConfiguration {
   std::string port;
   int baudRate;
 
-  VRSerialConfiguration(const std::string port, const int baudRate) : port(port), baudRate(baudRate) {}
+  VRSerialConfiguration(std::string port, int baudRate) : port(port), baudRate(baudRate){};
 };
 
 struct VRBTSerialConfiguration {
   std::string name;
 
-  VRBTSerialConfiguration(const std::string name) : name(name) {}
+  VRBTSerialConfiguration(std::string name) : name(name){};
+};
+
+struct VRNamedPipeInputConfiguration {
+  std::string pipeName;
+
+  VRNamedPipeInputConfiguration(std::string pipeName) : pipeName(pipeName){};
 };
 
 struct VRPoseConfiguration {
@@ -50,7 +56,7 @@ struct VRPoseConfiguration {
   bool controllerOverrideEnabled;
   bool calibrationButtonEnabled;
 
-  VRPoseConfiguration_t(const vr::HmdVector3_t offsetVector, const vr::HmdQuaternion_t angleOffsetQuaternion, const float poseTimeOffset,
+  VRPoseConfiguration(const vr::HmdVector3_t offsetVector, const vr::HmdQuaternion_t angleOffsetQuaternion, const float poseTimeOffset,
                         const bool controllerOverrideEnabled, const int controllerIdOverride, const bool calibrationButtonEnabled)
       : offsetVector(offsetVector),
         angleOffsetQuaternion(angleOffsetQuaternion),
@@ -69,7 +75,7 @@ struct VRDeviceConfiguration {
   VRCommunicationProtocol communicationProtocol;
   VRDeviceDriver deviceDriver;
 
-  VRDeviceConfiguration_t(const vr::ETrackedControllerRole role, const bool enabled, const bool feedbackEnabled, const VRPoseConfiguration poseConfiguration,
+  VRDeviceConfiguration(const vr::ETrackedControllerRole role, const bool enabled, const bool feedbackEnabled, const VRPoseConfiguration poseConfiguration,
                           const VREncodingProtocol encodingProtocol, const VRCommunicationProtocol communicationProtocol, const VRDeviceDriver deviceDriver)
       : role(role),
         enabled(enabled),
