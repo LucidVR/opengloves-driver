@@ -85,7 +85,8 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
       char name[248];
       vr::VRSettings()->GetString(c_btserialCommunicationSettingsSection, isRightHand ? "right_name" : "left_name", name, sizeof name);
       VRBTSerialConfiguration btSerialSettings(name);
-      communicationManager = std::make_unique<BTSerialCommunicationManager>(std::move(encodingManager), btSerialSettings, configuration);
+      communicationManager =
+          std::make_unique<BTSerialCommunicationManager>(std::move(encodingManager), btSerialSettings, configuration);
       break;
     }
     default:
@@ -96,7 +97,8 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
       const int baudRate = vr::VRSettings()->GetInt32(c_serialCommunicationSettingsSection, "baud_rate");
       VRSerialConfiguration serialSettings(port, baudRate);
 
-      communicationManager = std::make_unique<SerialCommunicationManager>(std::move(encodingManager), serialSettings, configuration);
+      communicationManager =
+          std::make_unique<SerialCommunicationManager>(std::move(encodingManager), serialSettings, configuration);
       break;
   }
 
@@ -106,7 +108,8 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
       vr::VRSettings()->GetString(
           c_knuckleDeviceSettingsSection, isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof serialNumber);
 
-      return std::make_unique<KnuckleDeviceDriver>(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration);
+      return std::make_unique<KnuckleDeviceDriver>(
+          std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration);
     }
 
     default:
@@ -116,7 +119,8 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
       vr::VRSettings()->GetString(
           c_lucidGloveDeviceSettingsSection, isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof serialNumber);
 
-      return std::make_unique<LucidGloveDeviceDriver>(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration);
+      return std::make_unique<LucidGloveDeviceDriver>(
+          std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration);
     }
   }
 }
@@ -134,13 +138,19 @@ VRDeviceConfiguration DeviceProvider::GetDeviceConfiguration(const vr::ETrackedC
 
   const float poseTimeOffset = vr::VRSettings()->GetFloat(c_poseSettingsSection, "pose_time_offset");
 
-  const float offsetXPos = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_position" : "left_x_offset_position");
-  const float offsetYPos = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_position" : "left_y_offset_position");
-  const float offsetZPos = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_position" : "left_z_offset_position");
+  const float offsetXPos =
+      vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_position" : "left_x_offset_position");
+  const float offsetYPos =
+      vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_position" : "left_y_offset_position");
+  const float offsetZPos =
+      vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_position" : "left_z_offset_position");
 
-  const float offsetXRot = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees");
-  const float offsetYRot = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees");
-  const float offsetZRot = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees");
+  const float offsetXRot =
+      vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees");
+  const float offsetYRot =
+      vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees");
+  const float offsetZRot =
+      vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees");
 
   const bool controllerOverrideEnabled = vr::VRSettings()->GetBool(c_poseSettingsSection, "controller_override");
   const int controllerIdOverride =
@@ -152,7 +162,8 @@ VRDeviceConfiguration DeviceProvider::GetDeviceConfiguration(const vr::ETrackedC
   const vr::HmdVector3_t offsetVector = {offsetXPos, offsetYPos, offsetZPos};
 
   // Convert the rotation to a quaternion
-  const vr::HmdQuaternion_t angleOffsetQuaternion = EulerToQuaternion(DegToRad(offsetXRot), DegToRad(offsetYRot), DegToRad(offsetZRot));
+  const vr::HmdQuaternion_t angleOffsetQuaternion =
+      EulerToQuaternion(DegToRad(offsetXRot), DegToRad(offsetYRot), DegToRad(offsetZRot));
 
   return VRDeviceConfiguration(
       role,
