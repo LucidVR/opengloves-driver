@@ -1,66 +1,66 @@
 #include "DeviceDriver/DeviceDriver.h"
 
+#include <utility>
+
 #include "DriverLog.h"
 
 DeviceDriver::DeviceDriver(
     std::unique_ptr<CommunicationManager> communicationManager,
     std::shared_ptr<BoneAnimator> boneAnimator,
     std::string serialNumber,
-    VRDeviceConfiguration configuration)
-    : m_communicationManager(std::move(communicationManager)),
-      m_boneAnimator(std::move(boneAnimator)),
-      m_serialNumber(serialNumber),
-      m_configuration(configuration),
-      m_skeletalComponentHandle(),
-      m_handTransforms(),
-      m_hasActivated(false),
-      m_driverId(vr::k_unTrackedDeviceIndexInvalid) {
+    const VRDeviceConfiguration configuration)
+    : _communicationManager(std::move(communicationManager)),
+      _boneAnimator(std::move(boneAnimator)),
+      _configuration(configuration),
+      _serialNumber(std::move(serialNumber)),
+      _skeletalComponentHandle(),
+      _handTransforms(),
+      _hasActivated(false),
+      _driverId(vr::k_unTrackedDeviceIndexInvalid) {
   // copy a default bone transform to our hand transform for use in finger positioning later
   std::copy(
-      std::begin(IsRightHand() ? rightOpenPose : leftOpenPose), std::end(IsRightHand() ? rightOpenPose : leftOpenPose), std::begin(m_handTransforms));
+      std::begin(IsRightHand() ? rightOpenPose : leftOpenPose), std::end(IsRightHand() ? rightOpenPose : leftOpenPose), std::begin(_handTransforms));
 }
 
 vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
-  m_driverId = unObjectId;
-  m_controllerPose =
-      std::make_unique<ControllerPose>(m_configuration.role, std::string(c_deviceDriverManufacturer), m_configuration.poseConfiguration);
+  _driverId = unObjectId;
+  _controllerPose = std::make_unique<ControllerPose>(_configuration.role, std::string(c_deviceDriverManufacturer), _configuration.poseConfiguration);
 
   vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(
-      m_driverId);  // this gets a container object where you store all the information about your driver
+      _driverId);  // this gets a container object where you store all the information about your driver
 
   SetupProps(props);
 
-  vr::EVRInputError error = vr::VRDriverInput()->CreateSkeletonComponent(
-      props,
-      IsRightHand() ? "/input/skeleton/right" : "/input/skeleton/left",
-      IsRightHand() ? "/skeleton/hand/right" : "/skeleton/hand/left",
-      "/pose/raw",
-      vr::VRSkeletalTracking_Partial,
-      m_handTransforms,
-      NUM_BONES,
-      &m_skeletalComponentHandle);
-
-  if (error != vr::VRInputError_None) {
+  if (const vr::EVRInputError error = vr::VRDriverInput()->CreateSkeletonComponent(
+          props,
+          IsRightHand() ? "/input/skeleton/right" : "/input/skeleton/left",
+          IsRightHand() ? "/skeleton/hand/right" : "/skeleton/hand/left",
+          "/pose/raw",
+          vr::VRSkeletalTracking_Partial,
+          _handTransforms,
+          NUM_BONES,
+          &_skeletalComponentHandle);
+      error != vr::VRInputError_None) {
     DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", error);
   }
 
   StartDevice();
 
-  m_hasActivated = true;
+  _hasActivated = true;
 
   return vr::VRInitError_None;
 }
 
 void DeviceDriver::Deactivate() {
-  if (m_hasActivated) {
+  if (_hasActivated) {
     StoppingDevice();
-    m_communicationManager->Disconnect();
-    m_driverId = vr::k_unTrackedDeviceIndexInvalid;
-    m_hasActivated = false;
+    _communicationManager->Disconnect();
+    _driverId = vr::k_unTrackedDeviceIndexInvalid;
+    _hasActivated = false;
   }
 }
 
-void DeviceDriver::DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) {
+void DeviceDriver::DebugRequest(const char* pchRequest, char* pchResponseBuffer, const uint32_t unResponseBufferSize) {
   if (unResponseBufferSize >= 1) pchResponseBuffer[0] = 0;
 }
 
@@ -71,52 +71,50 @@ void* DeviceDriver::GetComponent(const char* pchComponentNameAndVersion) {
 }
 
 vr::DriverPose_t DeviceDriver::GetPose() {
-  if (m_hasActivated) return m_controllerPose->UpdatePose();
+  if (_hasActivated) return _controllerPose->UpdatePose();
 
-  vr::DriverPose_t pose = {0};
-  return pose;
+  return vr::DriverPose_t{0};
 }
 
 std::string DeviceDriver::GetSerialNumber() {
-  return m_serialNumber;
+  return _serialNumber;
 }
 
 bool DeviceDriver::IsActive() {
-  return m_hasActivated;
+  return _hasActivated;
 }
 
 void DeviceDriver::RunFrame() {
-  if (m_hasActivated) {
-    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(m_driverId, m_controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
+  if (_hasActivated) {
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(_driverId, _controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
   }
 }
 
 bool DeviceDriver::IsRightHand() const {
-  return m_configuration.role == vr::TrackedControllerRole_RightHand;
+  return _configuration.role == vr::TrackedControllerRole_RightHand;
 }
 
 void DeviceDriver::StartDevice() {
   StartingDevice();
 
   vr::VRDriverInput()->UpdateSkeletonComponent(
-      m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
+      _skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
   vr::VRDriverInput()->UpdateSkeletonComponent(
-      m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
+      _skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
 
-  m_communicationManager->BeginListener([&](VRInputData datas) {
+  _communicationManager->BeginListener([&](VRInputData data) {
     try {
-      m_boneAnimator->ComputeSkeletonTransforms(m_handTransforms, datas.flexion, IsRightHand());
-      vr::VRDriverInput()->UpdateSkeletonComponent(
-          m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, m_handTransforms, NUM_BONES);
-      vr::VRDriverInput()->UpdateSkeletonComponent(m_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, m_handTransforms, NUM_BONES);
+      _boneAnimator->ComputeSkeletonTransforms(_handTransforms, data.flexion, IsRightHand());
+      vr::VRDriverInput()->UpdateSkeletonComponent(_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, _handTransforms, NUM_BONES);
+      vr::VRDriverInput()->UpdateSkeletonComponent(_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, _handTransforms, NUM_BONES);
 
-      HandleInput(datas);
+      HandleInput(data);
 
-      if (m_configuration.poseConfiguration.calibrationButtonEnabled) {
-        if (datas.calibrate) {
-          if (!m_controllerPose->isCalibrating()) m_controllerPose->StartCalibration(CalibrationMethod::HARDWARE);
+      if (_configuration.poseConfiguration.calibrationButtonEnabled) {
+        if (data.calibrate) {
+          if (!_controllerPose->IsCalibrating()) _controllerPose->StartCalibration(CalibrationMethod::Hardware);
         } else {
-          if (m_controllerPose->isCalibrating()) m_controllerPose->CompleteCalibration(CalibrationMethod::HARDWARE);
+          if (_controllerPose->IsCalibrating()) _controllerPose->CompleteCalibration(CalibrationMethod::Hardware);
         }
       }
 

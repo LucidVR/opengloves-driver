@@ -4,8 +4,8 @@
 
 class LegacyEncodingManager : public EncodingManager {
  public:
-  LegacyEncodingManager(float maxAnalogValue);
+  explicit LegacyEncodingManager(float maxAnalogValue);
 
-  VRInputData Decode(std::string input);
-  std::string Encode(const VRFFBData& input);
+  VRInputData Decode(std::string input) override;
+  std::string Encode(const VRFFBData& input) override;
 };

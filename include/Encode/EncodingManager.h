@@ -1,7 +1,10 @@
 #pragma once
 
 #include <array>
+#include <memory>
 #include <string>
+
+#include "DriverLog.h"
 
 struct VRFFBData {
   VRFFBData();
@@ -40,11 +43,12 @@ struct VRInputData {
   const bool pinch;
   const bool menu;
   const bool calibrate;
+  bool _grab;
 };
 
 class EncodingManager {
  public:
-  EncodingManager(float maxAnalogValue);
+  explicit EncodingManager(float maxAnalogValue);
   virtual VRInputData Decode(std::string input) = 0;
   virtual std::string Encode(const VRFFBData& data) = 0;
 
@@ -53,14 +57,17 @@ class EncodingManager {
 };
 
 template <typename... Args>
-std::string string_format(const std::string& format, Args... args) {
-  int size_s = std::snprintf(nullptr, 0, format.c_str(), args...) + 1;  // Extra space for '\0'
-  if (size_s <= 0) {
+std::string StringFormat(const std::string& format, Args... args) {
+  const int sizeS = std::snprintf(nullptr, 0, format.c_str(), args...) + 1;  // Extra space for '\0'
+
+  if (sizeS <= 0) {
     DriverLog("Error decoding string");
     return "";
   }
-  auto size = static_cast<size_t>(size_s);
-  auto buf = std::make_unique<char[]>(size);
+
+  const auto size = static_cast<size_t>(sizeS);
+  const auto buf = std::make_unique<char[]>(size);
   std::snprintf(buf.get(), size, format.c_str(), args...);
+
   return std::string(buf.get(), buf.get() + size - 1);  // We don't want the '\0' inside
 }

@@ -1,6 +1,8 @@
 #include "Util/Logic.h"
 
-bool retry(std::function<bool()> func, short attempts, short timeout) {
+#include <thread>
+
+bool Retry(const std::function<bool()>& func, const short attempts, const short timeout) {
   short retries = 0;
 
   do {

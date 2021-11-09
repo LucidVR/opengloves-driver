@@ -4,8 +4,8 @@
 
 class AlphaEncodingManager : public EncodingManager {
  public:
-  AlphaEncodingManager(float maxAnalogValue);
+  explicit AlphaEncodingManager(float maxAnalogValue);
 
-  VRInputData Decode(std::string input);
-  std::string Encode(const VRFFBData& input);
+  VRInputData Decode(std::string input) override;
+  std::string Encode(const VRFFBData& input) override;
 };

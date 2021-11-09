@@ -11,11 +11,11 @@ class FFBListener {
  public:
   FFBListener(std::function<void(VRFFBData)> callback, vr::ETrackedControllerRole role);
   void Start();
-  void Stop();
+  void Stop() const;
 
  private:
-  std::function<void(VRFFBData)> m_callback;
-  vr::ETrackedControllerRole m_role;
+  std::function<void(VRFFBData)> _callback;
+  vr::ETrackedControllerRole _role;
 
-  std::unique_ptr<NamedPipeListener<VRFFBData>> m_pipe;
+  std::unique_ptr<NamedPipeListener<VRFFBData>> _pipe;
 };

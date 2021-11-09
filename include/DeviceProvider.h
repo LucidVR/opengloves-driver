@@ -6,11 +6,8 @@
 #include <memory>
 
 #include "Bones.h"
-#include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
-#include "DriverLog.h"
-#include "Encode/EncodingManager.h"
 #include "openvr_driver.h"
 
 /**
@@ -24,47 +21,48 @@ too.
 class DeviceProvider : public vr::IServerTrackedDeviceProvider {
  public:
   /**
-  Initiailze and add your drivers to OpenVR here.
+  Initialize and add your drivers to OpenVR here.
   **/
-  vr::EVRInitError Init(vr::IVRDriverContext* pDriverContext);
+  vr::EVRInitError Init(vr::IVRDriverContext* pDriverContext) override;
 
   /**
   Called right before your driver is unloaded.
   **/
-  void Cleanup();
+  void Cleanup() override;
 
   /**
   Returns version of the openVR interface this driver works with.
   **/
-  const char* const* GetInterfaceVersions();
+  const char* const* GetInterfaceVersions() override;
 
   /**
   Called every frame. Update your drivers here.
   **/
-  void RunFrame();
+  void RunFrame() override;
 
   /**
   Return true if standby mode should be blocked. False otherwise.
   **/
-  bool ShouldBlockStandbyMode();
+  bool ShouldBlockStandbyMode() override;
 
   /**
   Called when OpenVR goes into stand-by mode, so you can tell your devices to go into stand-by mode
   **/
-  void EnterStandby();
+  void EnterStandby() override;
 
   /**
   Called when OpenVR leaves stand-by mode.
   **/
-  void LeaveStandby();
+  void LeaveStandby() override;
 
  private:
-  std::unique_ptr<DeviceDriver> m_leftHand;
-  std::unique_ptr<DeviceDriver> m_rightHand;
+  std::unique_ptr<DeviceDriver> _leftHand;
+  std::unique_ptr<DeviceDriver> _rightHand;
   /**
    * returns the configuration set in VRSettings for the device role given
    **/
-  VRDeviceConfiguration GetDeviceConfiguration(vr::ETrackedControllerRole role);
+  static VRDeviceConfiguration GetDeviceConfiguration(vr::ETrackedControllerRole role);
 
-  std::unique_ptr<DeviceDriver> InstantiateDeviceDriver(VRDeviceConfiguration configuration, std::shared_ptr<BoneAnimator> boneAnimator);
+  [[nodiscard]] std::unique_ptr<DeviceDriver> InstantiateDeviceDriver(
+      VRDeviceConfiguration configuration, std::shared_ptr<BoneAnimator> boneAnimator) const;
 };

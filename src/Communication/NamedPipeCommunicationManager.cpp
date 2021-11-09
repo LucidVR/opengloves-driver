@@ -1,39 +1,42 @@
 #include "Communication/NamedPipeCommunicationManager.h"
 
+#include <utility>
+
 NamedPipeCommunicationManager::NamedPipeCommunicationManager(
-    const VRNamedPipeInputConfiguration& configuration, const VRDeviceConfiguration& deviceConfiguration)
-    : CommunicationManager(deviceConfiguration), m_configuration(configuration), m_isConnected(false){};
+    VRNamedPipeInputConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration)
+    : CommunicationManager(deviceConfiguration), _isConnected(false), _configuration(std::move(configuration)){};
 
 bool NamedPipeCommunicationManager::Connect() {
-  m_namedPipeListener = std::make_unique<NamedPipeListener<VRInputData>>(m_configuration.pipeName);
+  _namedPipeListener = std::make_unique<NamedPipeListener<VRInputData>>(_configuration.pipeName);
   return true;
 }
 
 void NamedPipeCommunicationManager::BeginListener(const std::function<void(VRInputData)>& callback) {
-  m_callback = callback;
+  _callback = callback;
+
   if (!Connect()) {
     DriverLog("Unable to connect to named pipe.");
     return;
   }
 
-  m_namedPipeListener->StartListening([&](VRInputData* data) { m_callback(*data); });
+  _namedPipeListener->StartListening([&](const VRInputData* data) { _callback(*data); });
 }
 
 bool NamedPipeCommunicationManager::DisconnectFromDevice() {
-  m_namedPipeListener->StopListening();
+  _namedPipeListener->StopListening();
   return true;
 }
 
 bool NamedPipeCommunicationManager::IsConnected() {
-  return m_namedPipeListener->IsConnected();
+  return _namedPipeListener->IsConnected();
 }
 
 void NamedPipeCommunicationManager::LogError(const char* message) {
   // message with port name and last error
-  DriverLog("%s (%s) - Error: %s", message, m_configuration.pipeName.c_str(), GetLastErrorAsString().c_str());
+  DriverLog("%s (%s) - Error: %s", message, _configuration.pipeName.c_str(), GetLastErrorAsString().c_str());
 }
 
 void NamedPipeCommunicationManager::LogMessage(const char* message) {
   // message with port name
-  DriverLog("%s (%s)", message, m_configuration.pipeName.c_str());
+  DriverLog("%s (%s)", message, _configuration.pipeName.c_str());
 }

@@ -28,28 +28,28 @@ struct NamedPipeListenerData {
 template <typename T>
 class NamedPipeListener {
  public:
-  NamedPipeListener(const std::string pipeName);
+  NamedPipeListener(std::string pipeName);
   ~NamedPipeListener();
 
   bool StartListening(const std::function<void(T*)>& callback);
   void StopListening();
-  bool IsConnected();
-  void LogError(const char* error);
-  void LogMessage(const char* message);
+  bool IsConnected() const;
+  void LogError(const char* error) const;
+  void LogMessage(const char* message) const;
 
  private:
   bool Connect(NamedPipeListenerData<T>* data);
   void DisconnectAndReconnect(NamedPipeListenerData<T>* data);
   void ListenerThread(const std::function<void(T*)>& callback);
 
-  const std::string m_pipeName;
+  const std::string _pipeName;
 
-  std::atomic<bool> m_threadActive;
-  std::thread m_thread;
+  std::atomic<bool> _threadActive;
+  std::thread _thread;
 };
 
 template <typename T>
-NamedPipeListener<T>::NamedPipeListener(const std::string pipeName) : m_pipeName(pipeName), m_threadActive(false) {}
+NamedPipeListener<T>::NamedPipeListener(std::string pipeName) : _pipeName(std::move(pipeName)), _threadActive(false) {}
 
 template <typename T>
 NamedPipeListener<T>::~NamedPipeListener() {
@@ -58,31 +58,31 @@ NamedPipeListener<T>::~NamedPipeListener() {
 
 template <typename T>
 bool NamedPipeListener<T>::StartListening(const std::function<void(T*)>& callback) {
-  if (m_threadActive.exchange(true))
+  if (_threadActive.exchange(true))
     // Thread already running
     return false;
 
-  m_thread = std::thread(&NamedPipeListener<T>::ListenerThread, this, callback);
+  _thread = std::thread(&NamedPipeListener<T>::ListenerThread, this, callback);
 
   return true;
 }
 
 template <typename T>
 void NamedPipeListener<T>::StopListening() {
-  if (m_threadActive.exchange(false))
+  if (_threadActive.exchange(false))
     // Thread running
-    m_thread.join();
+    _thread.join();
 }
 
 template <typename T>
 bool NamedPipeListener<T>::Connect(NamedPipeListenerData<T>* data) {
-  BOOL fConnected = ConnectNamedPipe(data->hPipeInst, &data->oOverlap);
-  if (!fConnected) {
+  if (const BOOL fConnected = ConnectNamedPipe(data->hPipeInst, &data->oOverlap); !fConnected) {
     switch (GetLastError()) {
       case ERROR_IO_PENDING:
         data->fPendingIO = true;
         data->state = NamedPipeListenerState::Connecting;
         return true;
+
       case ERROR_PIPE_CONNECTED:
         if (SetEvent(data->oOverlap.hEvent)) {
           data->fPendingIO = false;
@@ -110,24 +110,24 @@ void NamedPipeListener<T>::DisconnectAndReconnect(NamedPipeListenerData<T>* data
 
 template <typename T>
 void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callback) {
-  HANDLE hEvent = CreateEventA(NULL, TRUE, TRUE, NULL);
-  if (hEvent == NULL) {
+  HANDLE hEvent = CreateEventA(nullptr, TRUE, TRUE, nullptr);
+  if (hEvent == nullptr) {
     LogError("CreateEvent failed");
     return;
   }
 
   HANDLE hPipeInst = CreateNamedPipeA(
-      m_pipeName.c_str(),          // pipe name
-      PIPE_ACCESS_DUPLEX |         // read/write access
-          FILE_FLAG_OVERLAPPED,    // overlapped mode
-      PIPE_TYPE_MESSAGE |          // message-type pipe
-          PIPE_READMODE_MESSAGE |  // message read mode
-          PIPE_WAIT,               // blocking mode
-      PIPE_UNLIMITED_INSTANCES,    // unlimited instances
-      (DWORD)sizeof(T),            // output buffer size
-      (DWORD)sizeof(T),            // input buffer size
-      c_namedPipeDelay,            // client time-out
-      NULL);                       // default security attributes
+      _pipeName.c_str(),              // pipe name
+      PIPE_ACCESS_DUPLEX |            // read/write access
+          FILE_FLAG_OVERLAPPED,       // overlapped mode
+      PIPE_TYPE_MESSAGE |             // message-type pipe
+          PIPE_READMODE_MESSAGE |     // message read mode
+          PIPE_WAIT,                  // blocking mode
+      PIPE_UNLIMITED_INSTANCES,       // unlimited instances
+      static_cast<DWORD>(sizeof(T)),  // output buffer size
+      static_cast<DWORD>(sizeof(T)),  // input buffer size
+      c_namedPipeDelay,               // client time-out
+      nullptr);                       // default security attributes
   if (hPipeInst == INVALID_HANDLE_VALUE) {
     LogError("CreateNamedPipe failed");
     CloseHandle(hEvent);
@@ -141,9 +141,8 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
   if (!Connect(&listenerData)) return;
 
   LogMessage("Successfully connected to pipe");
-  while (m_threadActive) {
-    DWORD dwWaitResult = WaitForSingleObject(listenerData.oOverlap.hEvent, c_namedPipeDelay);
-    switch (dwWaitResult) {
+  while (_threadActive) {
+    switch (const DWORD dwWaitResult = WaitForSingleObject(listenerData.oOverlap.hEvent, c_namedPipeDelay)) {
       case WAIT_OBJECT_0:
         break;
       case WAIT_TIMEOUT:
@@ -156,7 +155,7 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
 
     if (listenerData.fPendingIO) {
       DWORD dwBytesTransferred = 0;
-      BOOL fSuccess = GetOverlappedResult(listenerData.hPipeInst, &listenerData.oOverlap, &dwBytesTransferred, FALSE);
+      const BOOL fSuccess = GetOverlappedResult(listenerData.hPipeInst, &listenerData.oOverlap, &dwBytesTransferred, FALSE);
       if (listenerData.state == NamedPipeListenerState::Reading) {
         if (!fSuccess || dwBytesTransferred == 0) {
           LogError("GetOverlappedResult failed");
@@ -176,8 +175,8 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
     }
 
     if (listenerData.state == NamedPipeListenerState::Reading) {
-      BOOL fSuccess = ReadFile(listenerData.hPipeInst, listenerData.chRequest, sizeof(T), &listenerData.dwBytesRead, &listenerData.oOverlap);
-      if (fSuccess) {
+      if (const BOOL fSuccess =
+              ReadFile(listenerData.hPipeInst, listenerData.chRequest, sizeof(T), &listenerData.dwBytesRead, &listenerData.oOverlap)) {
         if (listenerData.dwBytesRead > 0) {
           listenerData.fPendingIO = false;
           listenerData.state = NamedPipeListenerState::Callback;
@@ -203,16 +202,16 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
 }
 
 template <typename T>
-bool NamedPipeListener<T>::IsConnected() {
-  return m_threadActive;
+bool NamedPipeListener<T>::IsConnected() const {
+  return _threadActive;
 }
 
 template <typename T>
-void NamedPipeListener<T>::LogError(const char* message) {
-  DriverLog("%s (%s) - Error: %s", message, m_pipeName.c_str(), GetLastErrorAsString().c_str());
+void NamedPipeListener<T>::LogError(const char* error) const {
+  DriverLog("%s (%s) - Error: %s", error, _pipeName.c_str(), GetLastErrorAsString().c_str());
 }
 
 template <typename T>
-void NamedPipeListener<T>::LogMessage(const char* message) {
-  DriverLog("%s (%s)", message, m_pipeName.c_str());
+void NamedPipeListener<T>::LogMessage(const char* message) const {
+  DriverLog("%s (%s)", message, _pipeName.c_str());
 }

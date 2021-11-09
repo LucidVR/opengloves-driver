@@ -1,10 +1,13 @@
 #pragma once
-#include <memory>
 
 #include "DeviceConfiguration.h"
 #include "openvr_driver.h"
 
-enum class CalibrationMethod { HARDWARE, UI, NONE };
+enum class CalibrationMethod {
+  Hardware,
+  Ui,
+  None,
+};
 
 class Calibration {
  public:
@@ -17,12 +20,12 @@ class Calibration {
 
   void CancelCalibration(CalibrationMethod method);
 
-  bool isCalibrating();
+  [[nodiscard]] bool IsCalibrating() const;
 
-  vr::DriverPose_t GetMaintainPose();
+  [[nodiscard]] vr::DriverPose_t GetMaintainPose() const;
 
  private:
-  vr::DriverPose_t m_maintainPose;
-  bool m_isCalibrating;
-  CalibrationMethod m_calibratingMethod;
+  vr::DriverPose_t _maintainPose;
+  bool _isCalibrating;
+  CalibrationMethod _calibratingMethod;
 };
