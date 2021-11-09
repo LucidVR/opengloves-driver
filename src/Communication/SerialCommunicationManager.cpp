@@ -5,11 +5,16 @@
 #include "DriverLog.h"
 #include "Util/Windows.h"
 
-SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, VRSerialConfiguration configuration,
-                                                       const VRDeviceConfiguration& deviceConfiguration)
-    : CommunicationManager(std::move(encodingManager), deviceConfiguration), m_serialConfiguration(std::move(configuration)), m_isConnected(false), m_hSerial(nullptr) {}
+SerialCommunicationManager::SerialCommunicationManager(
+    std::unique_ptr<EncodingManager> encodingManager, VRSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration)
+    : CommunicationManager(std::move(encodingManager), deviceConfiguration),
+      m_serialConfiguration(std::move(configuration)),
+      m_isConnected(false),
+      m_hSerial(nullptr) {}
 
-bool SerialCommunicationManager::IsConnected() { return m_isConnected; };
+bool SerialCommunicationManager::IsConnected() {
+  return m_isConnected;
+};
 
 bool SerialCommunicationManager::Connect() {
   LogMessage("Attempting connection to device");
@@ -114,7 +119,9 @@ bool SerialCommunicationManager::SendMessageToDevice() {
   return true;
 }
 
-bool SerialCommunicationManager::PurgeBuffer() { return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR); }
+bool SerialCommunicationManager::PurgeBuffer() {
+  return PurgeComm(m_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
+}
 
 void SerialCommunicationManager::LogError(const char* message) {
   // message with port name and last error

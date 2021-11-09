@@ -1,7 +1,5 @@
 #pragma once
 
-#include "openvr_driver.h"
-
 #include <memory>
 #include <string>
 
@@ -9,11 +7,15 @@
 #include "Communication/CommunicationManager.h"
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
+#include "openvr_driver.h"
 
 class DeviceDriver : public vr::ITrackedDeviceServerDriver {
  public:
-  DeviceDriver(std::unique_ptr<CommunicationManager> communicationManager, std::shared_ptr<BoneAnimator> boneAnimator, std::string serialNumber,
-               VRDeviceConfiguration configuration);
+  DeviceDriver(
+      std::unique_ptr<CommunicationManager> communicationManager,
+      std::shared_ptr<BoneAnimator> boneAnimator,
+      std::string serialNumber,
+      VRDeviceConfiguration configuration);
 
   virtual vr::EVRInitError Activate(uint32_t unObjectId);
   virtual void Deactivate();

@@ -18,8 +18,8 @@ void Calibration::StartCalibration(vr::DriverPose_t maintainPose, CalibrationMet
   m_isCalibrating = true;
 }
 
-VRPoseConfiguration Calibration::CompleteCalibration(vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration poseConfiguration, bool isRightHand,
-                                                       CalibrationMethod method) {
+VRPoseConfiguration Calibration::CompleteCalibration(
+    vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration poseConfiguration, bool isRightHand, CalibrationMethod method) {
   if (m_calibratingMethod != method) return poseConfiguration;
   m_isCalibrating = false;
   // get the matrix that represents the position of the controller that we are shadowing
@@ -36,9 +36,10 @@ VRPoseConfiguration Calibration::CompleteCalibration(vr::TrackedDevicePose_t con
   poseConfiguration.angleOffsetQuaternion.y = transformQuat.y;
   poseConfiguration.angleOffsetQuaternion.z = transformQuat.z;
 
-  vr::HmdVector3_t differenceVector = {(float)(m_maintainPose.vecPosition[0] - controllerMatrix.m[0][3]),
-                                       (float)(m_maintainPose.vecPosition[1] - controllerMatrix.m[1][3]),
-                                       (float)(m_maintainPose.vecPosition[2] - controllerMatrix.m[2][3])};
+  vr::HmdVector3_t differenceVector = {
+      (float)(m_maintainPose.vecPosition[0] - controllerMatrix.m[0][3]),
+      (float)(m_maintainPose.vecPosition[1] - controllerMatrix.m[1][3]),
+      (float)(m_maintainPose.vecPosition[2] - controllerMatrix.m[2][3])};
 
   vr::HmdQuaternion_t transformInverse = QuatConjugate(controllerQuat);
   vr::HmdMatrix33_t transformMatrix = QuaternionToMatrix(transformInverse);
@@ -63,6 +64,10 @@ void Calibration::CancelCalibration(CalibrationMethod method) {
   if (m_calibratingMethod == method) m_isCalibrating = false;
 }
 
-bool Calibration::isCalibrating() { return m_isCalibrating; }
+bool Calibration::isCalibrating() {
+  return m_isCalibrating;
+}
 
-vr::DriverPose_t Calibration::GetMaintainPose() { return m_maintainPose; }
+vr::DriverPose_t Calibration::GetMaintainPose() {
+  return m_maintainPose;
+}

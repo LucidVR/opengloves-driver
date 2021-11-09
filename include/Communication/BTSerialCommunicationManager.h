@@ -13,8 +13,8 @@
 
 class BTSerialCommunicationManager : public CommunicationManager {
  public:
-  BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, VRBTSerialConfiguration configuration,
-                               const VRDeviceConfiguration& deviceConfiguration);
+  BTSerialCommunicationManager(
+      std::unique_ptr<EncodingManager> encodingManager, VRBTSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration);
 
  public:
   bool IsConnected();
