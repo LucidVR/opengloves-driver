@@ -11,7 +11,7 @@
 class NamedPipeCommunicationManager : public CommunicationManager {
 
  public:
-  NamedPipeCommunicationManager(const VRNamedPipeInputConfiguration& configuration);
+  NamedPipeCommunicationManager(const VRNamedPipeInputConfiguration& configuration, const VRDeviceConfiguration& deviceConfiguration);
   bool IsConnected();
 
  protected:

@@ -7,12 +7,13 @@
 #include <string>
 #include <thread>
 
+#include "DeviceConfiguration.h"
 #include "Encode/EncodingManager.h"
 
 class CommunicationManager {
  public:
-  CommunicationManager() : m_encodingManager(nullptr){};
-  CommunicationManager(std::unique_ptr<EncodingManager> encodingManager);
+  CommunicationManager(const VRDeviceConfiguration& deviceConfiguration);
+  CommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRDeviceConfiguration& deviceConfiguration);
 
   virtual void BeginListener(const std::function<void(VRInputData)>& callback);
   virtual void Disconnect();
@@ -33,6 +34,7 @@ class CommunicationManager {
 
  protected:
   std::unique_ptr<EncodingManager> m_encodingManager;
+  VRDeviceConfiguration m_deviceConfiguration;
 
   std::atomic<bool> m_threadActive;
   std::thread m_thread;

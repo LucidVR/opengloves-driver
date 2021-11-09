@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Winsock2.h>
+#include <WinSock2.h>
 #include <bluetoothapis.h>
 
 #include <atomic>
@@ -13,7 +13,8 @@
 
 class BTSerialCommunicationManager : public CommunicationManager {
  public:
-  BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration& configuration);
+  BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, VRBTSerialConfiguration configuration,
+                               const VRDeviceConfiguration& deviceConfiguration);
 
  public:
   bool IsConnected();

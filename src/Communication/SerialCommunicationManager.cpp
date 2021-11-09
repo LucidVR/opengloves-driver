@@ -1,10 +1,13 @@
 #include "Communication/SerialCommunicationManager.h"
 
+#include <utility>
+
 #include "DriverLog.h"
 #include "Util/Windows.h"
 
-SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRSerialConfiguration& configuration)
-    : CommunicationManager(std::move(encodingManager)), m_serialConfiguration(configuration), m_isConnected(false), m_hSerial(0) {}
+SerialCommunicationManager::SerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, VRSerialConfiguration configuration,
+                                                       const VRDeviceConfiguration& deviceConfiguration)
+    : CommunicationManager(std::move(encodingManager), deviceConfiguration), m_serialConfiguration(std::move(configuration)), m_isConnected(false), m_hSerial(nullptr) {}
 
 bool SerialCommunicationManager::IsConnected() { return m_isConnected; };
 
@@ -88,6 +91,12 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 
     buff += nextChar;
   } while ((nextChar != '\n' || buff.length() < 1) && m_threadActive);
+
+  // If the glove firmware sends data more often than we poll for it then the buffer
+  // will become saturated and block future reads. We've got the data we need so purge
+  // anything else left in the buffer. There should be more data ready for us in the
+  // buffer by the next time we poll for it.
+  PurgeBuffer();
 
   return true;
 }

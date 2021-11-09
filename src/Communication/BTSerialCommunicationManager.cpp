@@ -1,14 +1,17 @@
 #include "Communication/BTSerialCommunicationManager.h"
 
 #include <Windows.h>
-#include <Ws2bth.h>
+#include <ws2bth.h>
+
+#include <utility>
 
 #include "DriverLog.h"
 #include "Util/Logic.h"
 #include "Util/Windows.h"
 
-BTSerialCommunicationManager::BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration& configuration)
-    : CommunicationManager(std::move(encodingManager)), m_btSerialConfiguration(configuration), m_isConnected(false), m_btClientSocket(NULL) {}
+BTSerialCommunicationManager::BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, VRBTSerialConfiguration configuration,
+                                                           const VRDeviceConfiguration& deviceConfiguration)
+    : CommunicationManager(std::move(encodingManager), deviceConfiguration), m_btSerialConfiguration(configuration), m_isConnected(false), m_btClientSocket(NULL) {}
 
 bool BTSerialCommunicationManager::IsConnected() { return m_isConnected; }
 
@@ -84,8 +87,8 @@ bool BTSerialCommunicationManager::ConnectToDevice(BTH_ADDR& deviceBtAddress) {
   }
 
   unsigned long nonBlockingMode = 1;
-  if (ioctlsocket(m_btClientSocket, FIONBIO, &nonBlockingMode) != 0)  // set the socket to be non-blocking, meaning
-  {                                                                   // it will return right away when sending/recieving
+  // set the socket to be non-blocking, meaning it will return right away when sending/receiving
+  if (ioctlsocket(m_btClientSocket, FIONBIO, &nonBlockingMode) != 0) {
     LogError("Could not set socket to be non-blocking");
     return false;
   }

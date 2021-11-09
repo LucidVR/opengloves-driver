@@ -46,42 +46,42 @@ struct VRNamedPipeInputConfiguration {
   std::string pipeName;
 
   VRNamedPipeInputConfiguration(std::string pipeName) : pipeName(pipeName){};
-
 };
 
 struct VRPoseConfiguration {
-  VRPoseConfiguration(vr::HmdVector3_t offsetVector, vr::HmdQuaternion_t angleOffsetQuaternion, float poseTimeOffset, bool controllerOverrideEnabled,
-                        int controllerIdOverride, bool calibrationButtonEnabled)
-      : offsetVector(offsetVector),
-        angleOffsetQuaternion(angleOffsetQuaternion),
-        poseTimeOffset(poseTimeOffset),
-        controllerOverrideEnabled(controllerOverrideEnabled),
-        controllerIdOverride(controllerIdOverride),
-        calibrationButtonEnabled(calibrationButtonEnabled){};
   vr::HmdVector3_t offsetVector;
   vr::HmdQuaternion_t angleOffsetQuaternion;
   float poseTimeOffset;
   int controllerIdOverride;
   bool controllerOverrideEnabled;
   bool calibrationButtonEnabled;
+
+  VRPoseConfiguration(const vr::HmdVector3_t offsetVector, const vr::HmdQuaternion_t angleOffsetQuaternion, const float poseTimeOffset,
+                        const bool controllerOverrideEnabled, const int controllerIdOverride, const bool calibrationButtonEnabled)
+      : offsetVector(offsetVector),
+        angleOffsetQuaternion(angleOffsetQuaternion),
+        poseTimeOffset(poseTimeOffset),
+        controllerIdOverride(controllerIdOverride),
+        controllerOverrideEnabled(controllerOverrideEnabled),
+        calibrationButtonEnabled(calibrationButtonEnabled) {}
 };
 
 struct VRDeviceConfiguration {
-  VRDeviceConfiguration(vr::ETrackedControllerRole role, bool enabled, VRPoseConfiguration poseConfiguration, VREncodingProtocol encodingProtocol,
-                          VRCommunicationProtocol communicationProtocol, VRDeviceDriver deviceDriver)
-      : role(role),
-        enabled(enabled),
-        poseConfiguration(poseConfiguration),
-        encodingProtocol(encodingProtocol),
-        communicationProtocol(communicationProtocol),
-        deviceDriver(deviceDriver){};
-
   vr::ETrackedControllerRole role;
   bool enabled;
-
+  bool feedbackEnabled;
   VRPoseConfiguration poseConfiguration;
-
   VREncodingProtocol encodingProtocol;
   VRCommunicationProtocol communicationProtocol;
   VRDeviceDriver deviceDriver;
+
+  VRDeviceConfiguration(const vr::ETrackedControllerRole role, const bool enabled, const bool feedbackEnabled, const VRPoseConfiguration poseConfiguration,
+                          const VREncodingProtocol encodingProtocol, const VRCommunicationProtocol communicationProtocol, const VRDeviceDriver deviceDriver)
+      : role(role),
+        enabled(enabled),
+        feedbackEnabled(feedbackEnabled),
+        poseConfiguration(poseConfiguration),
+        encodingProtocol(encodingProtocol),
+        communicationProtocol(communicationProtocol),
+        deviceDriver(deviceDriver) {}
 };
