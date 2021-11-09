@@ -130,18 +130,18 @@ void KnuckleDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
 void KnuckleDeviceDriver::StartingDevice() {
   if (!_configuration.feedbackEnabled) return;
 
-  m_ffbProvider = std::make_unique<FFBListener>(
+  _ffbProvider = std::make_unique<FFBListener>(
       [&](const VRFFBData data) {
         // Queue the force feedback data for sending.
         _communicationManager->QueueSend(data);
       },
       _configuration.role);
 
-  m_ffbProvider->Start();
+  _ffbProvider->Start();
 }
 
 void KnuckleDeviceDriver::StoppingDevice() {
-  if (m_ffbProvider) {
-    m_ffbProvider->Stop();
+  if (_ffbProvider) {
+    _ffbProvider->Stop();
   }
 }

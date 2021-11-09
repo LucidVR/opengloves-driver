@@ -53,7 +53,7 @@ class EncodingManager {
   virtual std::string Encode(const VRFFBData& data) = 0;
 
  protected:
-  float m_maxAnalogValue;
+  float _maxAnalogValue;
 };
 
 template <typename... Args>

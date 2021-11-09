@@ -61,22 +61,22 @@ AlphaEncodingManager::AlphaEncodingManager(const float maxAnalogValue) : Encodin
 VRInputData AlphaEncodingManager::Decode(const std::string input) {
   std::array<float, 5> flexion = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
   if (argValid(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinThumb)))
-    flexion[0] = stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinThumb))) / m_maxAnalogValue;
+    flexion[0] = stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinThumb))) / _maxAnalogValue;
   if (argValid(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinIndex)))
-    flexion[1] = stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinIndex))) / m_maxAnalogValue;
+    flexion[1] = stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinIndex))) / _maxAnalogValue;
   if (argValid(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinMiddle)))
-    flexion[2] = stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinMiddle))) / m_maxAnalogValue;
+    flexion[2] = stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinMiddle))) / _maxAnalogValue;
   if (argValid(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinRing)))
-    flexion[3] = stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinRing))) / m_maxAnalogValue;
+    flexion[3] = stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinRing))) / _maxAnalogValue;
   if (argValid(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinPinky)))
-    flexion[4] = stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinPinky))) / m_maxAnalogValue;
+    flexion[4] = stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::FinPinky))) / _maxAnalogValue;
 
   float joyX = 0;
   float joyY = 0;
   if (argValid(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::JoyX)))
-    joyX = 2 * stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::JoyX))) / m_maxAnalogValue - 1;
+    joyX = 2 * stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::JoyX))) / _maxAnalogValue - 1;
   if (argValid(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::JoyY)))
-    joyY = 2 * stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::JoyY))) / m_maxAnalogValue - 1;
+    joyY = 2 * stof(getArgumentSubstring(input, static_cast<char>(VRCommDataAlphaEncodingCharacter::JoyY))) / _maxAnalogValue - 1;
 
   VRInputData inputData(
       flexion,

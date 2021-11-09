@@ -53,5 +53,5 @@ class KnuckleDeviceDriver : public DeviceDriver {
  private:
   vr::VRInputComponentHandle_t _inputComponentHandles[static_cast<int>(KnuckleDeviceComponentIndex::_Count)];
   vr::VRInputComponentHandle_t _haptic;
-  std::unique_ptr<FFBListener> m_ffbProvider;
+  std::unique_ptr<FFBListener> _ffbProvider;
 };
