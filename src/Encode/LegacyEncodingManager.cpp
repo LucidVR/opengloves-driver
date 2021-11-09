@@ -44,9 +44,18 @@ VRInputData LegacyEncodingManager::Decode(std::string input) {
   const float joyX = (2 * tokens[(int)VRCommDataLegacyEncodingPosition::JOY_X] / m_maxAnalogValue) - 1;
   const float joyY = (2 * tokens[(int)VRCommDataLegacyEncodingPosition::JOY_Y] / m_maxAnalogValue) - 1;
 
-  VRInputData inputData(flexion, joyX, joyY, tokens[(int)VRCommDataLegacyEncodingPosition::JOY_BTN] == 1, tokens[(int)VRCommDataLegacyEncodingPosition::BTN_TRG] == 1,
-                          tokens[(int)VRCommDataLegacyEncodingPosition::BTN_A] == 1, tokens[(int)VRCommDataLegacyEncodingPosition::BTN_B] == 1,
-                          tokens[(int)VRCommDataLegacyEncodingPosition::GES_GRAB] == 1, tokens[(int)VRCommDataLegacyEncodingPosition::GES_PINCH] == 1, false, false);
+  VRInputData inputData(
+      flexion,
+      joyX,
+      joyY,
+      tokens[(int)VRCommDataLegacyEncodingPosition::JOY_BTN] == 1,
+      tokens[(int)VRCommDataLegacyEncodingPosition::BTN_TRG] == 1,
+      tokens[(int)VRCommDataLegacyEncodingPosition::BTN_A] == 1,
+      tokens[(int)VRCommDataLegacyEncodingPosition::BTN_B] == 1,
+      tokens[(int)VRCommDataLegacyEncodingPosition::GES_GRAB] == 1,
+      tokens[(int)VRCommDataLegacyEncodingPosition::GES_PINCH] == 1,
+      false,
+      false);
 
   return inputData;
 }

@@ -1,8 +1,8 @@
 #pragma once
 
-#include "openvr_driver.h"
-
 #include <string>
+
+#include "openvr_driver.h"
 
 extern void DriverLog(const char* pchFormat, ...);
 

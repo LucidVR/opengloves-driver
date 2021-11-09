@@ -1,12 +1,11 @@
 #pragma once
 
-#include "openvr_driver.h"
-
-#include <memory>
 #include <functional>
+#include <memory>
 
 #include "Encode/EncodingManager.h"
 #include "Util/NamedPipeListener.h"
+#include "openvr_driver.h"
 
 class FFBListener {
  public:

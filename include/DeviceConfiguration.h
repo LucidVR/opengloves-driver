@@ -13,11 +13,7 @@ extern const char* c_legacyEncodingSettingsSection;
 
 extern const char* c_deviceDriverManufacturer;
 
-enum class VRCommunicationProtocol {
-  SERIAL,
-  BT_SERIAL,
-  NAMED_PIPE
-};
+enum class VRCommunicationProtocol { SERIAL, BT_SERIAL, NAMED_PIPE };
 
 enum class VREncodingProtocol {
   LEGACY = 0,
@@ -56,8 +52,13 @@ struct VRPoseConfiguration {
   bool controllerOverrideEnabled;
   bool calibrationButtonEnabled;
 
-  VRPoseConfiguration(const vr::HmdVector3_t offsetVector, const vr::HmdQuaternion_t angleOffsetQuaternion, const float poseTimeOffset,
-                        const bool controllerOverrideEnabled, const int controllerIdOverride, const bool calibrationButtonEnabled)
+  VRPoseConfiguration(
+      const vr::HmdVector3_t offsetVector,
+      const vr::HmdQuaternion_t angleOffsetQuaternion,
+      const float poseTimeOffset,
+      const bool controllerOverrideEnabled,
+      const int controllerIdOverride,
+      const bool calibrationButtonEnabled)
       : offsetVector(offsetVector),
         angleOffsetQuaternion(angleOffsetQuaternion),
         poseTimeOffset(poseTimeOffset),
@@ -75,8 +76,14 @@ struct VRDeviceConfiguration {
   VRCommunicationProtocol communicationProtocol;
   VRDeviceDriver deviceDriver;
 
-  VRDeviceConfiguration(const vr::ETrackedControllerRole role, const bool enabled, const bool feedbackEnabled, const VRPoseConfiguration poseConfiguration,
-                          const VREncodingProtocol encodingProtocol, const VRCommunicationProtocol communicationProtocol, const VRDeviceDriver deviceDriver)
+  VRDeviceConfiguration(
+      const vr::ETrackedControllerRole role,
+      const bool enabled,
+      const bool feedbackEnabled,
+      const VRPoseConfiguration poseConfiguration,
+      const VREncodingProtocol encodingProtocol,
+      const VRCommunicationProtocol communicationProtocol,
+      const VRDeviceDriver deviceDriver)
       : role(role),
         enabled(enabled),
         feedbackEnabled(feedbackEnabled),

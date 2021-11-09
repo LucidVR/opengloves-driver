@@ -7,8 +7,18 @@ VRFFBData::VRFFBData(short thumbCurl, short indexCurl, short middleCurl, short r
 
 VRInputData::VRInputData() : VRInputData({0, 0, 0, 0, 0}, 0.0f, 0.0f, false, false, false, false, false, false, false, false) {}
 
-VRInputData::VRInputData(std::array<float, 5> flexion, float joyX, float joyY, bool joyButton, bool trgButton, bool aButton, bool bButton, bool grab, bool pinch,
-                             bool menu, bool calibrate)
+VRInputData::VRInputData(
+    std::array<float, 5> flexion,
+    float joyX,
+    float joyY,
+    bool joyButton,
+    bool trgButton,
+    bool aButton,
+    bool bButton,
+    bool grab,
+    bool pinch,
+    bool menu,
+    bool calibrate)
     : flexion(flexion),
       joyX(joyX),
       joyY(joyY),

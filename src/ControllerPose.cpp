@@ -3,8 +3,11 @@
 #include "DriverLog.h"
 #include "Quaternion.h"
 
-ControllerPose::ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration)
-    : m_shadowDeviceOfRole(shadowDeviceOfRole), m_thisDeviceManufacturer(std::move(thisDeviceManufacturer)), m_poseConfiguration(poseConfiguration) {
+ControllerPose::ControllerPose(
+    vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration)
+    : m_shadowDeviceOfRole(shadowDeviceOfRole),
+      m_thisDeviceManufacturer(std::move(thisDeviceManufacturer)),
+      m_poseConfiguration(poseConfiguration) {
   m_calibrationPipe = std::make_unique<NamedPipeListener<CalibrationDataIn>>(
       "\\\\.\\pipe\\vrapplication\\functions\\autocalibrate\\" +
       std::string(shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left"));
@@ -104,7 +107,9 @@ vr::DriverPose_t ControllerPose::UpdatePose() {
   return newPose;
 }
 
-void ControllerPose::StartCalibration(CalibrationMethod method) { m_calibration->StartCalibration(UpdatePose(), method); }
+void ControllerPose::StartCalibration(CalibrationMethod method) {
+  m_calibration->StartCalibration(UpdatePose(), method);
+}
 
 void ControllerPose::CompleteCalibration(CalibrationMethod method) {
   if (m_shadowControllerId == vr::k_unTrackedDeviceIndexInvalid) {
@@ -115,8 +120,14 @@ void ControllerPose::CompleteCalibration(CalibrationMethod method) {
   m_poseConfiguration = m_calibration->CompleteCalibration(GetControllerPose(), m_poseConfiguration, isRightHand(), method);
 }
 
-void ControllerPose::CancelCalibration(CalibrationMethod method) { m_calibration->CancelCalibration(method); }
+void ControllerPose::CancelCalibration(CalibrationMethod method) {
+  m_calibration->CancelCalibration(method);
+}
 
-bool ControllerPose::isCalibrating() { return m_calibration->isCalibrating(); }
+bool ControllerPose::isCalibrating() {
+  return m_calibration->isCalibrating();
+}
 
-bool ControllerPose::isRightHand() { return m_shadowDeviceOfRole == vr::TrackedControllerRole_RightHand; }
+bool ControllerPose::isRightHand() {
+  return m_shadowDeviceOfRole == vr::TrackedControllerRole_RightHand;
+}

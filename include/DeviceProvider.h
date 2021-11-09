@@ -3,8 +3,6 @@
 #undef _WINSOCKAPI_
 #define _WINSOCKAPI_
 
-#include "openvr_driver.h"
-
 #include <memory>
 
 #include "Bones.h"
@@ -13,6 +11,7 @@
 #include "DeviceDriver/DeviceDriver.h"
 #include "DriverLog.h"
 #include "Encode/EncodingManager.h"
+#include "openvr_driver.h"
 
 /**
 This class instantiates all the device drivers you have, meaning if you've

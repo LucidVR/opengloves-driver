@@ -9,11 +9,16 @@
 #include "Util/Logic.h"
 #include "Util/Windows.h"
 
-BTSerialCommunicationManager::BTSerialCommunicationManager(std::unique_ptr<EncodingManager> encodingManager, VRBTSerialConfiguration configuration,
-                                                           const VRDeviceConfiguration& deviceConfiguration)
-    : CommunicationManager(std::move(encodingManager), deviceConfiguration), m_btSerialConfiguration(configuration), m_isConnected(false), m_btClientSocket(NULL) {}
+BTSerialCommunicationManager::BTSerialCommunicationManager(
+    std::unique_ptr<EncodingManager> encodingManager, VRBTSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration)
+    : CommunicationManager(std::move(encodingManager), deviceConfiguration),
+      m_btSerialConfiguration(configuration),
+      m_isConnected(false),
+      m_btClientSocket(NULL) {}
 
-bool BTSerialCommunicationManager::IsConnected() { return m_isConnected; }
+bool BTSerialCommunicationManager::IsConnected() {
+  return m_isConnected;
+}
 
 bool BTSerialCommunicationManager::Connect() {
   // We're not yet connected

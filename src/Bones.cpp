@@ -13,7 +13,9 @@ static const std::array<float, 3> emptyTranslation = {0.0f, 0.0f, 0.0f};
 Transform_t::Transform_t() : rotation(emptyRotation), translation(emptyTranslation) {}
 AnimationData_t::AnimationData_t() : startTime(0.0f), endTime(0.0f) {}
 
-static float Lerp(const float& a, const float& b, const float& f) { return a + f * (b - a); }
+static float Lerp(const float& a, const float& b, const float& f) {
+  return a + f * (b - a);
+}
 
 enum class FingerIndex : int { Thumb = 0, IndexFinger, MiddleFinger, RingFinger, PinkyFinger, Unknown = -1 };
 
@@ -92,8 +94,8 @@ class GLTFModelManager : public IModelManager {
       return false;
     }
 
-    m_initialTransforms = std::vector<Transform_t>(m_model.nodes.size()-1);
-    m_keyframeTransforms = std::vector<std::vector<Transform_t>>(m_model.nodes.size()-1);
+    m_initialTransforms = std::vector<Transform_t>(m_model.nodes.size() - 1);
+    m_keyframeTransforms = std::vector<std::vector<Transform_t>>(m_model.nodes.size() - 1);
 
     LoadInitialTransforms();
     LoadKeyframeTimes();
@@ -103,7 +105,8 @@ class GLTFModelManager : public IModelManager {
   }
 
   AnimationData_t GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, float f) const {
-    const size_t lowerKeyframeIndex = std::lower_bound(m_keyframeTimes.begin(), m_keyframeTimes.end(), std::clamp(f, 0.0001f, 1.0f)) - m_keyframeTimes.begin() - 1;
+    const size_t lowerKeyframeIndex =
+        std::lower_bound(m_keyframeTimes.begin(), m_keyframeTimes.end(), std::clamp(f, 0.0001f, 1.0f)) - m_keyframeTimes.begin() - 1;
     const size_t upperKeyframeIndex = (lowerKeyframeIndex < m_keyframeTimes.size() - 1) ? (lowerKeyframeIndex + 1) : lowerKeyframeIndex;
 
     AnimationData_t result;
@@ -114,7 +117,9 @@ class GLTFModelManager : public IModelManager {
     return result;
   }
 
-  Transform_t GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const { return m_initialTransforms[(size_t)boneIndex]; }
+  Transform_t GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const {
+    return m_initialTransforms[(size_t)boneIndex];
+  }
 
  private:
   void LoadInitialTransforms() {
@@ -134,7 +139,7 @@ class GLTFModelManager : public IModelManager {
         transform.translation[2] = (float)node.translation[2];
       }
 
-      //first node is never needed
+      // first node is never needed
       m_initialTransforms[nodeIndex - 1] = transform;
     }
   }

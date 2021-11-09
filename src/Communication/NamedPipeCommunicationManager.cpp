@@ -1,6 +1,7 @@
 #include "Communication/NamedPipeCommunicationManager.h"
 
-NamedPipeCommunicationManager::NamedPipeCommunicationManager(const VRNamedPipeInputConfiguration& configuration, const VRDeviceConfiguration& deviceConfiguration)
+NamedPipeCommunicationManager::NamedPipeCommunicationManager(
+    const VRNamedPipeInputConfiguration& configuration, const VRDeviceConfiguration& deviceConfiguration)
     : CommunicationManager(deviceConfiguration), m_configuration(configuration), m_isConnected(false){};
 
 bool NamedPipeCommunicationManager::Connect() {
@@ -23,7 +24,9 @@ bool NamedPipeCommunicationManager::DisconnectFromDevice() {
   return true;
 }
 
-bool NamedPipeCommunicationManager::IsConnected() { return m_namedPipeListener->IsConnected(); }
+bool NamedPipeCommunicationManager::IsConnected() {
+  return m_namedPipeListener->IsConnected();
+}
 
 void NamedPipeCommunicationManager::LogError(const char* message) {
   // message with port name and last error
