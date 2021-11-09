@@ -20,9 +20,9 @@ class Calibration {
 
   void CancelCalibration(CalibrationMethod method);
 
-  [[nodiscard]] bool IsCalibrating() const;
+  bool IsCalibrating() const;
 
-  [[nodiscard]] vr::DriverPose_t GetMaintainPose() const;
+  vr::DriverPose_t GetMaintainPose() const;
 
  private:
   vr::DriverPose_t _maintainPose;

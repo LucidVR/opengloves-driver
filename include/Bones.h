@@ -63,8 +63,8 @@ class IModelManager {
  public:
   virtual bool Load() = 0;
 
-  [[nodiscard]] virtual AnimationData GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, float f) const = 0;
-  [[nodiscard]] virtual Transform GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const = 0;
+  virtual AnimationData GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, float f) const = 0;
+  virtual Transform GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const = 0;
 };
 
 class BoneAnimator {

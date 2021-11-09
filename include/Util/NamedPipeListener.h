@@ -28,7 +28,7 @@ struct NamedPipeListenerData {
 template <typename T>
 class NamedPipeListener {
  public:
-  NamedPipeListener(std::string pipeName);
+  explicit NamedPipeListener(std::string pipeName);
   ~NamedPipeListener();
 
   bool StartListening(const std::function<void(T*)>& callback);

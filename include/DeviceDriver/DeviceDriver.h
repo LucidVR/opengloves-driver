@@ -28,7 +28,7 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   virtual void RunFrame();
 
  protected:
-  [[nodiscard]] virtual bool IsRightHand() const;
+  virtual bool IsRightHand() const;
   virtual void StartDevice();
 
   virtual void HandleInput(VRInputData data) = 0;

@@ -63,6 +63,5 @@ class DeviceProvider : public vr::IServerTrackedDeviceProvider {
    **/
   static VRDeviceConfiguration GetDeviceConfiguration(vr::ETrackedControllerRole role);
 
-  [[nodiscard]] std::unique_ptr<DeviceDriver> InstantiateDeviceDriver(
-      VRDeviceConfiguration configuration, std::shared_ptr<BoneAnimator> boneAnimator) const;
+  std::unique_ptr<DeviceDriver> InstantiateDeviceDriver(VRDeviceConfiguration configuration, std::shared_ptr<BoneAnimator> boneAnimator) const;
 };

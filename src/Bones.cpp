@@ -110,7 +110,7 @@ class GLTFModelManager : public IModelManager {
     return true;
   }
 
-  [[nodiscard]] AnimationData GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, const float f) const override {
+  AnimationData GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, const float f) const override {
     const size_t lowerKeyframeIndex =
         std::lower_bound(m_keyframeTimes.begin(), m_keyframeTimes.end(), std::clamp(f, 0.0001f, 1.0f)) - m_keyframeTimes.begin() - 1;
     const size_t upperKeyframeIndex = lowerKeyframeIndex < m_keyframeTimes.size() - 1 ? lowerKeyframeIndex + 1 : lowerKeyframeIndex;
@@ -123,7 +123,7 @@ class GLTFModelManager : public IModelManager {
     return result;
   }
 
-  [[nodiscard]] Transform GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const override {
+  Transform GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const override {
     return m_initialTransforms[static_cast<size_t>(boneIndex)];
   }
 
@@ -160,7 +160,7 @@ class GLTFModelManager : public IModelManager {
   }
 
   template <size_t N>
-  [[nodiscard]] [[nodiscard]] std::vector<std::array<float, N>> GetVecN(const tinygltf::Accessor& accessor) const {
+  std::vector<std::array<float, N>> GetVecN(const tinygltf::Accessor& accessor) const {
     const tinygltf::BufferView bufferView = m_model.bufferViews[accessor.bufferView];
     const std::vector<unsigned char>& bufData = m_model.buffers[0].data;
 
