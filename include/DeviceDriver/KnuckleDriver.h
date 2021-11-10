@@ -51,7 +51,7 @@ class KnuckleDeviceDriver : public DeviceDriver {
   void StoppingDevice() override;
 
  private:
-  vr::VRInputComponentHandle_t _inputComponentHandles[static_cast<int>(KnuckleDeviceComponentIndex::_Count)];
-  vr::VRInputComponentHandle_t _haptic;
-  std::unique_ptr<FFBListener> _ffbProvider;
+  vr::VRInputComponentHandle_t inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::_Count)];
+  vr::VRInputComponentHandle_t haptic_;
+  std::unique_ptr<FFBListener> ffbProvider_;
 };

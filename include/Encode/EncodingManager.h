@@ -43,7 +43,6 @@ struct VRInputData {
   const bool pinch;
   const bool menu;
   const bool calibrate;
-  bool _grab;
 };
 
 class EncodingManager {
@@ -53,7 +52,7 @@ class EncodingManager {
   virtual std::string Encode(const VRFFBData& data) = 0;
 
  protected:
-  float _maxAnalogValue;
+  float maxAnalogValue_;
 };
 
 template <typename... Args>

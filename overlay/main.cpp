@@ -121,11 +121,11 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
   return 0;
 }
 
-PipeHelper::PipeHelper() : _pipeHandle(nullptr) {}
+PipeHelper::PipeHelper() : pipeHandle_(nullptr) {}
 
 bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeData data) {
   while (true) {
-    _pipeHandle = CreateFile(
+    pipeHandle_ = CreateFile(
         pipeName.c_str(),              // pipe name
         GENERIC_READ | GENERIC_WRITE,  // read and write access
         0,                             // no sharing
@@ -134,7 +134,7 @@ bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeD
         0,                             // default attributes
         nullptr);                      // no template file
 
-    if (_pipeHandle != INVALID_HANDLE_VALUE) break;
+    if (pipeHandle_ != INVALID_HANDLE_VALUE) break;
 
     if (GetLastError() != ERROR_PIPE_BUSY) {
       return false;
@@ -147,9 +147,9 @@ bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeD
 
   DWORD dwWritten;
 
-  WriteFile(_pipeHandle, &data, sizeof(ControllerPipeData), &dwWritten, nullptr);
+  WriteFile(pipeHandle_, &data, sizeof(ControllerPipeData), &dwWritten, nullptr);
 
-  CloseHandle(_pipeHandle);
+  CloseHandle(pipeHandle_);
 
   return true;
 }

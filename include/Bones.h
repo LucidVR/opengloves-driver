@@ -76,8 +76,8 @@ class BoneAnimator {
  private:
   vr::VRBoneTransform_t GetTransformForBone(const HandSkeletonBone& boneIndex, const float f, const bool rightHand) const;
 
-  std::string _fileName;
-  std::unique_ptr<IModelManager> _modelManager;
-  bool _loaded;
-  std::vector<float> _keyframes;
+  std::string fileName_;
+  std::unique_ptr<IModelManager> modelManager_;
+  bool loaded_;
+  std::vector<float> keyframes_;
 };

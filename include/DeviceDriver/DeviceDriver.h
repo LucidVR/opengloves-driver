@@ -36,15 +36,15 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   virtual void StartingDevice() = 0;
   virtual void StoppingDevice() = 0;
 
-  std::unique_ptr<CommunicationManager> _communicationManager;
-  std::shared_ptr<BoneAnimator> _boneAnimator;
-  VRDeviceConfiguration _configuration;
-  std::string _serialNumber;
+  std::unique_ptr<CommunicationManager> communicationManager_;
+  std::shared_ptr<BoneAnimator> boneAnimator_;
+  VRDeviceConfiguration configuration_;
+  std::string serialNumber_;
 
-  std::unique_ptr<ControllerPose> _controllerPose;
-  vr::VRInputComponentHandle_t _skeletalComponentHandle;
-  vr::VRBoneTransform_t _handTransforms[NUM_BONES];
+  std::unique_ptr<ControllerPose> controllerPose_;
+  vr::VRInputComponentHandle_t skeletalComponentHandle_;
+  vr::VRBoneTransform_t handTransforms_[NUM_BONES];
 
-  bool _hasActivated;
-  uint32_t _driverId;
+  bool hasActivated_;
+  uint32_t driverId_;
 };

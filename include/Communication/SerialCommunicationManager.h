@@ -28,9 +28,9 @@ class SerialCommunicationManager : public CommunicationManager {
  private:
   bool PurgeBuffer() const;
 
-  VRSerialConfiguration _serialConfiguration;
+  VRSerialConfiguration serialConfiguration_;
 
-  std::atomic<bool> _isConnected;
+  std::atomic<bool> isConnected_;
 
-  std::atomic<HANDLE> _hSerial;
+  std::atomic<HANDLE> hSerial_;
 };

@@ -14,8 +14,8 @@ class FFBListener {
   void Stop() const;
 
  private:
-  std::function<void(VRFFBData)> _callback;
-  vr::ETrackedControllerRole _role;
+  std::function<void(VRFFBData)> callback_;
+  vr::ETrackedControllerRole role_;
 
-  std::unique_ptr<NamedPipeListener<VRFFBData>> _pipe;
+  std::unique_ptr<NamedPipeListener<VRFFBData>> pipe_;
 };

@@ -29,7 +29,6 @@ VRInputData::VRInputData(
       grab(grab),
       pinch(pinch),
       menu(menu),
-      calibrate(calibrate),
-      _grab(grab) {}
+      calibrate(calibrate) {}
 
-EncodingManager::EncodingManager(const float maxAnalogValue) : _maxAnalogValue(maxAnalogValue) {}
+EncodingManager::EncodingManager(const float maxAnalogValue) : maxAnalogValue_(maxAnalogValue) {}

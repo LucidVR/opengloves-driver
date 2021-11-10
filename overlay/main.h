@@ -13,5 +13,5 @@ class PipeHelper {
   bool ConnectAndSendPipe(const std::string& pipeName, ControllerPipeData data);
 
  private:
-  HANDLE _pipeHandle;
+  HANDLE pipeHandle_;
 };

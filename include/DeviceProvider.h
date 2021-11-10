@@ -56,8 +56,8 @@ class DeviceProvider : public vr::IServerTrackedDeviceProvider {
   void LeaveStandby() override;
 
  private:
-  std::unique_ptr<DeviceDriver> _leftHand;
-  std::unique_ptr<DeviceDriver> _rightHand;
+  std::unique_ptr<DeviceDriver> leftHand_;
+  std::unique_ptr<DeviceDriver> rightHand_;
   /**
    * returns the configuration set in VRSettings for the device role given
    **/

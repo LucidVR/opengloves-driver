@@ -36,11 +36,11 @@ VRInputData LegacyEncodingManager::Decode(const std::string input) {
 
   std::array<float, 5> flexion{};
   for (uint8_t flexionI = 0; flexionI < 5; flexionI++) {
-    flexion[flexionI] = tokens[flexionI] / _maxAnalogValue;
+    flexion[flexionI] = tokens[flexionI] / maxAnalogValue_;
   }
 
-  const float joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / _maxAnalogValue - 1;
-  const float joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / _maxAnalogValue - 1;
+  const float joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / maxAnalogValue_ - 1;
+  const float joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / maxAnalogValue_ - 1;
 
   VRInputData inputData(
       flexion,

@@ -2,10 +2,10 @@
 
 #include "Quaternion.h"
 
-Calibration::Calibration() : _maintainPose(), _isCalibrating(false), _calibratingMethod(CalibrationMethod::None) {}
+Calibration::Calibration() : maintainPose_(), isCalibrating_(false), calibratingMethod_(CalibrationMethod::None) {}
 
 void Calibration::StartCalibration(vr::DriverPose_t maintainPose, const CalibrationMethod method) {
-  _calibratingMethod = method;
+  calibratingMethod_ = method;
 
   maintainPose.vecVelocity[0] = 0;
   maintainPose.vecVelocity[1] = 0;
@@ -13,20 +13,20 @@ void Calibration::StartCalibration(vr::DriverPose_t maintainPose, const Calibrat
   maintainPose.vecAngularVelocity[0] = 0;
   maintainPose.vecAngularVelocity[1] = 0;
   maintainPose.vecAngularVelocity[2] = 0;
-  _maintainPose = maintainPose;
-  _isCalibrating = true;
+  maintainPose_ = maintainPose;
+  isCalibrating_ = true;
 }
 
 VRPoseConfiguration Calibration::CompleteCalibration(
     const vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration poseConfiguration, const bool isRightHand, const CalibrationMethod method) {
-  if (_calibratingMethod != method) return poseConfiguration;
+  if (calibratingMethod_ != method) return poseConfiguration;
 
-  _isCalibrating = false;
+  isCalibrating_ = false;
   // get the matrix that represents the position of the controller that we are shadowing
   const vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
 
   const vr::HmdQuaternion_t controllerQuat = GetRotation(controllerMatrix);
-  const vr::HmdQuaternion_t handQuat = _maintainPose.qRotation;
+  const vr::HmdQuaternion_t handQuat = maintainPose_.qRotation;
 
   // qC * qT = qH   -> qC*qC^-1 * qT = qH * qC^-1   -> qT = qH * qC^-1
   const vr::HmdQuaternion_t transformQuat = MultiplyQuaternion(QuatConjugate(controllerQuat), handQuat);
@@ -37,9 +37,9 @@ VRPoseConfiguration Calibration::CompleteCalibration(
   poseConfiguration.angleOffsetQuaternion.z = transformQuat.z;
 
   const vr::HmdVector3_t differenceVector = {
-      static_cast<float>(_maintainPose.vecPosition[0] - controllerMatrix.m[0][3]),
-      static_cast<float>(_maintainPose.vecPosition[1] - controllerMatrix.m[1][3]),
-      static_cast<float>(_maintainPose.vecPosition[2] - controllerMatrix.m[2][3])};
+      static_cast<float>(maintainPose_.vecPosition[0] - controllerMatrix.m[0][3]),
+      static_cast<float>(maintainPose_.vecPosition[1] - controllerMatrix.m[1][3]),
+      static_cast<float>(maintainPose_.vecPosition[2] - controllerMatrix.m[2][3])};
 
   const vr::HmdQuaternion_t transformInverse = QuatConjugate(controllerQuat);
   const vr::HmdMatrix33_t transformMatrix = QuaternionToMatrix(transformInverse);
@@ -61,13 +61,13 @@ VRPoseConfiguration Calibration::CompleteCalibration(
 }
 
 void Calibration::CancelCalibration(CalibrationMethod method) {
-  if (_calibratingMethod == method) _isCalibrating = false;
+  if (calibratingMethod_ == method) isCalibrating_ = false;
 }
 
 bool Calibration::IsCalibrating() const {
-  return _isCalibrating;
+  return isCalibrating_;
 }
 
 vr::DriverPose_t Calibration::GetMaintainPose() const {
-  return _maintainPose;
+  return maintainPose_;
 }

@@ -25,7 +25,7 @@ class Calibration {
   vr::DriverPose_t GetMaintainPose() const;
 
  private:
-  vr::DriverPose_t _maintainPose;
-  bool _isCalibrating;
-  CalibrationMethod _calibratingMethod;
+  vr::DriverPose_t maintainPose_;
+  bool isCalibrating_;
+  CalibrationMethod calibratingMethod_;
 };

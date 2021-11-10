@@ -1,17 +1,17 @@
 #include "ControllerDiscovery.h"
 
 ControllerDiscovery::ControllerDiscovery(vr::ETrackedControllerRole role, std::function<void(ControllerDiscoveryPipeData)> callback)
-    : _role(role), _callback(std::move(callback)) {
+    : role_(role), callback_(std::move(callback)) {
   std::string pipeName =
       R"(\\.\pipe\vrapplication\discovery\)" + std::string(role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left");
 
-  _pipe = std::make_unique<NamedPipeListener<ControllerDiscoveryPipeData>>(pipeName);
+  pipe_ = std::make_unique<NamedPipeListener<ControllerDiscoveryPipeData>>(pipeName);
 };
 
 void ControllerDiscovery::Start() {
-  _pipe->StartListening([&](const ControllerDiscoveryPipeData* data) { _callback(*data); });
+  pipe_->StartListening([&](const ControllerDiscoveryPipeData* data) { callback_(*data); });
 };
 
 void ControllerDiscovery::Stop() const {
-  _pipe->StopListening();
+  pipe_->StopListening();
 };

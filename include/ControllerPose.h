@@ -28,19 +28,19 @@ class ControllerPose {
   bool IsCalibrating() const;
 
  private:
-  uint32_t _shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
+  uint32_t shadowControllerId_ = vr::k_unTrackedDeviceIndexInvalid;
 
-  VRPoseConfiguration _poseConfiguration;
+  VRPoseConfiguration poseConfiguration_;
 
-  vr::ETrackedControllerRole _shadowDeviceOfRole = vr::TrackedControllerRole_Invalid;
+  vr::ETrackedControllerRole shadowDeviceOfRole_ = vr::TrackedControllerRole_Invalid;
 
-  std::string _thisDeviceManufacturer;
+  std::string thisDeviceManufacturer_;
 
   vr::TrackedDevicePose_t GetControllerPose() const;
 
   bool IsRightHand() const;
 
-  std::unique_ptr<ControllerDiscovery> _controllerDiscoverer;
-  std::unique_ptr<NamedPipeListener<CalibrationDataIn>> _calibrationPipe;
-  std::unique_ptr<Calibration> _calibration;
+  std::unique_ptr<ControllerDiscovery> controllerDiscoverer_;
+  std::unique_ptr<NamedPipeListener<CalibrationDataIn>> calibrationPipe_;
+  std::unique_ptr<Calibration> calibration_;
 };

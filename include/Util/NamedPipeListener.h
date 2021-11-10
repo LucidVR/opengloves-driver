@@ -42,14 +42,14 @@ class NamedPipeListener {
   void DisconnectAndReconnect(NamedPipeListenerData<T>* data);
   void ListenerThread(const std::function<void(T*)>& callback);
 
-  const std::string _pipeName;
+  const std::string pipeName_;
 
-  std::atomic<bool> _threadActive;
-  std::thread _thread;
+  std::atomic<bool> threadActive_;
+  std::thread thread_;
 };
 
 template <typename T>
-NamedPipeListener<T>::NamedPipeListener(std::string pipeName) : _pipeName(std::move(pipeName)), _threadActive(false) {}
+NamedPipeListener<T>::NamedPipeListener(std::string pipeName) : pipeName_(std::move(pipeName)), threadActive_(false) {}
 
 template <typename T>
 NamedPipeListener<T>::~NamedPipeListener() {
@@ -58,20 +58,20 @@ NamedPipeListener<T>::~NamedPipeListener() {
 
 template <typename T>
 bool NamedPipeListener<T>::StartListening(const std::function<void(T*)>& callback) {
-  if (_threadActive.exchange(true))
+  if (threadActive_.exchange(true))
     // Thread already running
     return false;
 
-  _thread = std::thread(&NamedPipeListener<T>::ListenerThread, this, callback);
+  thread_ = std::thread(&NamedPipeListener<T>::ListenerThread, this, callback);
 
   return true;
 }
 
 template <typename T>
 void NamedPipeListener<T>::StopListening() {
-  if (_threadActive.exchange(false))
+  if (threadActive_.exchange(false))
     // Thread running
-    _thread.join();
+    thread_.join();
 }
 
 template <typename T>
@@ -117,7 +117,7 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
   }
 
   HANDLE hPipeInst = CreateNamedPipeA(
-      _pipeName.c_str(),              // pipe name
+      pipeName_.c_str(),              // pipe name
       PIPE_ACCESS_DUPLEX |            // read/write access
           FILE_FLAG_OVERLAPPED,       // overlapped mode
       PIPE_TYPE_MESSAGE |             // message-type pipe
@@ -141,7 +141,7 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
   if (!Connect(&listenerData)) return;
 
   LogMessage("Successfully connected to pipe");
-  while (_threadActive) {
+  while (threadActive_) {
     switch (const DWORD dwWaitResult = WaitForSingleObject(listenerData.oOverlap.hEvent, c_namedPipeDelay)) {
       case WAIT_OBJECT_0:
         break;
@@ -203,15 +203,15 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
 
 template <typename T>
 bool NamedPipeListener<T>::IsConnected() const {
-  return _threadActive;
+  return threadActive_;
 }
 
 template <typename T>
 void NamedPipeListener<T>::LogError(const char* error) const {
-  DriverLog("%s (%s) - Error: %s", error, _pipeName.c_str(), GetLastErrorAsString().c_str());
+  DriverLog("%s (%s) - Error: %s", error, pipeName_.c_str(), GetLastErrorAsString().c_str());
 }
 
 template <typename T>
 void NamedPipeListener<T>::LogMessage(const char* message) const {
-  DriverLog("%s (%s)", message, _pipeName.c_str());
+  DriverLog("%s (%s)", message, pipeName_.c_str());
 }

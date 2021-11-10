@@ -68,21 +68,21 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone bone) {
 }
 
 class GLTFModelManager : public IModelManager {
-  tinygltf::Model _model;
-  std::string _fileName;
-  std::vector<Transform> _initialTransforms;
-  std::vector<float> _keyframeTimes;
-  std::vector<std::vector<Transform>> _keyframeTransforms;
+  tinygltf::Model model_;
+  std::string fileName_;
+  std::vector<Transform> initialTransforms_;
+  std::vector<float> keyframeTimes_;
+  std::vector<std::vector<Transform>> keyframeTransforms_;
 
  public:
-  GLTFModelManager(std::string fileName) : _fileName(std::move(fileName)) {}
+  GLTFModelManager(std::string fileName) : fileName_(std::move(fileName)) {}
 
   bool Load() override {
     tinygltf::TinyGLTF loader;
     std::string err;
     std::string warn;
 
-    const bool ret = loader.LoadBinaryFromFile(&_model, &err, &warn, _fileName);
+    const bool ret = loader.LoadBinaryFromFile(&model_, &err, &warn, fileName_);
 
     if (!warn.empty()) {
       DriverLog("Warning parsing gltf file: %s", warn.c_str());
@@ -99,8 +99,8 @@ class GLTFModelManager : public IModelManager {
       return false;
     }
 
-    _initialTransforms = std::vector<Transform>(_model.nodes.size() - 1);
-    _keyframeTransforms = std::vector<std::vector<Transform>>(_model.nodes.size() - 1);
+    initialTransforms_ = std::vector<Transform>(model_.nodes.size() - 1);
+    keyframeTransforms_ = std::vector<std::vector<Transform>>(model_.nodes.size() - 1);
 
     LoadInitialTransforms();
     LoadKeyframeTimes();
@@ -111,25 +111,25 @@ class GLTFModelManager : public IModelManager {
 
   AnimationData GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, const float f) const override {
     const size_t lowerKeyframeIndex =
-        std::lower_bound(_keyframeTimes.begin(), _keyframeTimes.end(), std::clamp(f, 0.0001f, 1.0f)) - _keyframeTimes.begin() - 1;
-    const size_t upperKeyframeIndex = lowerKeyframeIndex < _keyframeTimes.size() - 1 ? lowerKeyframeIndex + 1 : lowerKeyframeIndex;
+        std::lower_bound(keyframeTimes_.begin(), keyframeTimes_.end(), std::clamp(f, 0.0001f, 1.0f)) - keyframeTimes_.begin() - 1;
+    const size_t upperKeyframeIndex = lowerKeyframeIndex < keyframeTimes_.size() - 1 ? lowerKeyframeIndex + 1 : lowerKeyframeIndex;
 
     AnimationData result;
-    result.startTransform = _keyframeTransforms[static_cast<size_t>(boneIndex)][lowerKeyframeIndex];
-    result.startTime = _keyframeTimes[lowerKeyframeIndex];
-    result.endTransform = _keyframeTransforms[static_cast<size_t>(boneIndex)][upperKeyframeIndex];
-    result.endTime = _keyframeTimes[upperKeyframeIndex];
+    result.startTransform = keyframeTransforms_[static_cast<size_t>(boneIndex)][lowerKeyframeIndex];
+    result.startTime = keyframeTimes_[lowerKeyframeIndex];
+    result.endTransform = keyframeTransforms_[static_cast<size_t>(boneIndex)][upperKeyframeIndex];
+    result.endTime = keyframeTimes_[upperKeyframeIndex];
     return result;
   }
 
   Transform GetTransformByBoneIndex(const HandSkeletonBone& boneIndex) const override {
-    return _initialTransforms[static_cast<size_t>(boneIndex)];
+    return initialTransforms_[static_cast<size_t>(boneIndex)];
   }
 
  private:
   void LoadInitialTransforms() {
-    for (size_t nodeIndex = 1; nodeIndex < _model.nodes.size(); nodeIndex++) {
-      tinygltf::Node node = _model.nodes[nodeIndex];
+    for (size_t nodeIndex = 1; nodeIndex < model_.nodes.size(); nodeIndex++) {
+      tinygltf::Node node = model_.nodes[nodeIndex];
 
       Transform transform;
       if (node.rotation.size() >= 4) {
@@ -145,23 +145,23 @@ class GLTFModelManager : public IModelManager {
       }
 
       // first node is never needed
-      _initialTransforms[nodeIndex - 1] = transform;
+      initialTransforms_[nodeIndex - 1] = transform;
     }
   }
 
   void LoadKeyframeTimes() {
-    const tinygltf::Accessor accessor = _model.accessors[0];
-    _keyframeTimes.resize(accessor.count);
+    const tinygltf::Accessor accessor = model_.accessors[0];
+    keyframeTimes_.resize(accessor.count);
 
-    const tinygltf::BufferView bufferView = _model.bufferViews[accessor.bufferView];
-    const std::vector<unsigned char>& bufData = _model.buffers[0].data;
-    memcpy(&_keyframeTimes[0], bufData.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(float));
+    const tinygltf::BufferView bufferView = model_.bufferViews[accessor.bufferView];
+    const std::vector<unsigned char>& bufData = model_.buffers[0].data;
+    memcpy(&keyframeTimes_[0], bufData.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(float));
   }
 
   template <size_t N>
   std::vector<std::array<float, N>> GetVecN(const tinygltf::Accessor& accessor) const {
-    const tinygltf::BufferView bufferView = _model.bufferViews[accessor.bufferView];
-    const std::vector<unsigned char>& bufData = _model.buffers[0].data;
+    const tinygltf::BufferView bufferView = model_.bufferViews[accessor.bufferView];
+    const std::vector<unsigned char>& bufData = model_.buffers[0].data;
 
     std::vector<std::array<float, N>> res(accessor.count);
     memcpy(&res[0], bufData.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(float) * N);
@@ -170,18 +170,18 @@ class GLTFModelManager : public IModelManager {
   }
 
   void LoadKeyframeTransforms() {
-    for (size_t nodeIndex = 1; nodeIndex < _model.nodes.size(); nodeIndex++) {
-      const tinygltf::Animation& animation = _model.animations[0];
+    for (size_t nodeIndex = 1; nodeIndex < model_.nodes.size(); nodeIndex++) {
+      const tinygltf::Animation& animation = model_.animations[0];
 
       // first node is never needed
-      std::vector<Transform>& transforms = _keyframeTransforms[nodeIndex - 1];
+      std::vector<Transform>& transforms = keyframeTransforms_[nodeIndex - 1];
 
-      transforms.resize(_keyframeTimes.size());
+      transforms.resize(keyframeTimes_.size());
 
       for (auto& channel : animation.channels) {
         if (channel.target_node != nodeIndex) continue;
 
-        switch (const tinygltf::Accessor& accessor = _model.accessors[animation.samplers[channel.sampler].output]; accessor.type) {
+        switch (const tinygltf::Accessor& accessor = model_.accessors[animation.samplers[channel.sampler].output]; accessor.type) {
           // rotation via quaternion
           case TINYGLTF_TYPE_VEC4: {
             std::vector<std::array<float, 4>> keyframes = GetVecN<4>(accessor);
@@ -200,13 +200,13 @@ class GLTFModelManager : public IModelManager {
   }
 };
 
-BoneAnimator::BoneAnimator(const std::string& fileName) : _fileName(fileName) {
-  _modelManager = std::make_unique<GLTFModelManager>(fileName);
-  _loaded = _modelManager->Load();
+BoneAnimator::BoneAnimator(const std::string& fileName) : fileName_(fileName) {
+  modelManager_ = std::make_unique<GLTFModelManager>(fileName);
+  loaded_ = modelManager_->Load();
 }
 
 void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand) {
-  if (!_loaded) return;
+  if (!loaded_) return;
 
   for (size_t i = 0; i < NUM_BONES; i++) {
     if (FingerIndex finger = GetFingerFromBoneIndex(static_cast<HandSkeletonBone>(i)); finger != FingerIndex::Unknown)
@@ -217,7 +217,7 @@ void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, co
 vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& boneIndex, const float f, const bool rightHand) const {
   vr::VRBoneTransform_t result{};
 
-  const Transform nodeTransform = _modelManager->GetTransformByBoneIndex(boneIndex);
+  const Transform nodeTransform = modelManager_->GetTransformByBoneIndex(boneIndex);
   result.orientation.x = nodeTransform.rotation[0];
   result.orientation.y = nodeTransform.rotation[1];
   result.orientation.z = nodeTransform.rotation[2];
@@ -226,7 +226,7 @@ vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& 
   result.position.v[1] = nodeTransform.translation[1];
   result.position.v[2] = nodeTransform.translation[2];
 
-  const AnimationData animationData = _modelManager->GetAnimationDataByBoneIndex(boneIndex, f);
+  const AnimationData animationData = modelManager_->GetAnimationDataByBoneIndex(boneIndex, f);
 
   const float interp = std::clamp((f - animationData.startTime) / (animationData.endTime - animationData.startTime), 0.0f, 1.0f);
 

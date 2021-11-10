@@ -9,25 +9,25 @@ DeviceDriver::DeviceDriver(
     std::shared_ptr<BoneAnimator> boneAnimator,
     std::string serialNumber,
     const VRDeviceConfiguration configuration)
-    : _communicationManager(std::move(communicationManager)),
-      _boneAnimator(std::move(boneAnimator)),
-      _configuration(configuration),
-      _serialNumber(std::move(serialNumber)),
-      _skeletalComponentHandle(),
-      _handTransforms(),
-      _hasActivated(false),
-      _driverId(vr::k_unTrackedDeviceIndexInvalid) {
+    : communicationManager_(std::move(communicationManager)),
+      boneAnimator_(std::move(boneAnimator)),
+      configuration_(configuration),
+      serialNumber_(std::move(serialNumber)),
+      skeletalComponentHandle_(),
+      handTransforms_(),
+      hasActivated_(false),
+      driverId_(vr::k_unTrackedDeviceIndexInvalid) {
   // copy a default bone transform to our hand transform for use in finger positioning later
   std::copy(
-      std::begin(IsRightHand() ? rightOpenPose : leftOpenPose), std::end(IsRightHand() ? rightOpenPose : leftOpenPose), std::begin(_handTransforms));
+      std::begin(IsRightHand() ? rightOpenPose : leftOpenPose), std::end(IsRightHand() ? rightOpenPose : leftOpenPose), std::begin(handTransforms_));
 }
 
 vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
-  _driverId = unObjectId;
-  _controllerPose = std::make_unique<ControllerPose>(_configuration.role, std::string(c_deviceDriverManufacturer), _configuration.poseConfiguration);
+  driverId_ = unObjectId;
+  controllerPose_ = std::make_unique<ControllerPose>(configuration_.role, std::string(c_deviceDriverManufacturer), configuration_.poseConfiguration);
 
   vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(
-      _driverId);  // this gets a container object where you store all the information about your driver
+      driverId_);  // this gets a container object where you store all the information about your driver
 
   SetupProps(props);
 
@@ -37,26 +37,26 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
           IsRightHand() ? "/skeleton/hand/right" : "/skeleton/hand/left",
           "/pose/raw",
           vr::VRSkeletalTracking_Partial,
-          _handTransforms,
+          handTransforms_,
           NUM_BONES,
-          &_skeletalComponentHandle);
+          &skeletalComponentHandle_);
       error != vr::VRInputError_None) {
     DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", error);
   }
 
   StartDevice();
 
-  _hasActivated = true;
+  hasActivated_ = true;
 
   return vr::VRInitError_None;
 }
 
 void DeviceDriver::Deactivate() {
-  if (_hasActivated) {
+  if (hasActivated_) {
     StoppingDevice();
-    _communicationManager->Disconnect();
-    _driverId = vr::k_unTrackedDeviceIndexInvalid;
-    _hasActivated = false;
+    communicationManager_->Disconnect();
+    driverId_ = vr::k_unTrackedDeviceIndexInvalid;
+    hasActivated_ = false;
   }
 }
 
@@ -71,50 +71,50 @@ void* DeviceDriver::GetComponent(const char* pchComponentNameAndVersion) {
 }
 
 vr::DriverPose_t DeviceDriver::GetPose() {
-  if (_hasActivated) return _controllerPose->UpdatePose();
+  if (hasActivated_) return controllerPose_->UpdatePose();
 
   return vr::DriverPose_t{0};
 }
 
 std::string DeviceDriver::GetSerialNumber() {
-  return _serialNumber;
+  return serialNumber_;
 }
 
 bool DeviceDriver::IsActive() {
-  return _hasActivated;
+  return hasActivated_;
 }
 
 void DeviceDriver::RunFrame() {
-  if (_hasActivated) {
-    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(_driverId, _controllerPose->UpdatePose(), sizeof(vr::DriverPose_t));
+  if (hasActivated_) {
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(driverId_, controllerPose_->UpdatePose(), sizeof(vr::DriverPose_t));
   }
 }
 
 bool DeviceDriver::IsRightHand() const {
-  return _configuration.role == vr::TrackedControllerRole_RightHand;
+  return configuration_.role == vr::TrackedControllerRole_RightHand;
 }
 
 void DeviceDriver::StartDevice() {
   StartingDevice();
 
   vr::VRDriverInput()->UpdateSkeletonComponent(
-      _skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
+      skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
   vr::VRDriverInput()->UpdateSkeletonComponent(
-      _skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
+      skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
 
-  _communicationManager->BeginListener([&](VRInputData data) {
+  communicationManager_->BeginListener([&](VRInputData data) {
     try {
-      _boneAnimator->ComputeSkeletonTransforms(_handTransforms, data.flexion, IsRightHand());
-      vr::VRDriverInput()->UpdateSkeletonComponent(_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithoutController, _handTransforms, NUM_BONES);
-      vr::VRDriverInput()->UpdateSkeletonComponent(_skeletalComponentHandle, vr::VRSkeletalMotionRange_WithController, _handTransforms, NUM_BONES);
+      boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data.flexion, IsRightHand());
+      vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
+      vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
 
       HandleInput(data);
 
-      if (_configuration.poseConfiguration.calibrationButtonEnabled) {
+      if (configuration_.poseConfiguration.calibrationButtonEnabled) {
         if (data.calibrate) {
-          if (!_controllerPose->IsCalibrating()) _controllerPose->StartCalibration(CalibrationMethod::Hardware);
+          if (!controllerPose_->IsCalibrating()) controllerPose_->StartCalibration(CalibrationMethod::Hardware);
         } else {
-          if (_controllerPose->IsCalibrating()) _controllerPose->CompleteCalibration(CalibrationMethod::Hardware);
+          if (controllerPose_->IsCalibrating()) controllerPose_->CompleteCalibration(CalibrationMethod::Hardware);
         }
       }
 

@@ -12,17 +12,17 @@
 BTSerialCommunicationManager::BTSerialCommunicationManager(
     std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration)
     : CommunicationManager(std::move(encodingManager), deviceConfiguration),
-      _btSerialConfiguration(configuration),
-      _isConnected(false),
-      _btClientSocket(NULL) {}
+      btSerialConfiguration_(configuration),
+      isConnected_(false),
+      btClientSocket_(NULL) {}
 
 bool BTSerialCommunicationManager::IsConnected() {
-  return _isConnected;
+  return isConnected_;
 }
 
 bool BTSerialCommunicationManager::Connect() {
   // We're not yet connected
-  _isConnected = false;
+  isConnected_ = false;
 
   BTH_ADDR deviceBtAddress;
   if (!GetPairedDeviceBtAddress(&deviceBtAddress) || !StartupWindowsSocket() || !ConnectToDevice(deviceBtAddress)) {
@@ -31,18 +31,18 @@ bool BTSerialCommunicationManager::Connect() {
   }
 
   // If everything went fine we're connected
-  _isConnected = true;
+  isConnected_ = true;
   LogMessage("Connected to bluetooth");
   return true;
 }
 
 bool BTSerialCommunicationManager::DisconnectFromDevice() {
-  if (shutdown(_btClientSocket, 2) == SOCKET_ERROR) {
+  if (shutdown(btClientSocket_, 2) == SOCKET_ERROR) {
     LogMessage("Could not disconnect socket from bluetooth device");
     return false;
   }
 
-  _isConnected = false;
+  isConnected_ = false;
   LogMessage("Disconnected from socket successfully");
   return true;
 }
@@ -50,26 +50,26 @@ bool BTSerialCommunicationManager::DisconnectFromDevice() {
 bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   char nextChar = 0;
   do {
-    const int receiveResult = recv(_btClientSocket, &nextChar, 1, 0);
+    const int receiveResult = recv(btClientSocket_, &nextChar, 1, 0);
     if (receiveResult <= 0 || nextChar == '\n') continue;
 
     buff += nextChar;
-  } while (_threadActive && (nextChar != '\n' || buff.length() < 1));
+  } while (threadActive_ && (nextChar != '\n' || buff.length() < 1));
 
-  if (!_threadActive) return false;
+  if (!threadActive_) return false;
 
   return true;
 }
 
 bool BTSerialCommunicationManager::SendMessageToDevice() {
-  std::lock_guard lock(_writeMutex);
+  std::lock_guard lock(writeMutex_);
 
-  const char* message = _writeString.c_str();
+  const char* message = writeString_.c_str();
 
-  if (!Retry([&]() { return send(_btClientSocket, message, static_cast<int>(_writeString.length()), 0) != SOCKET_ERROR; }, 5, 10)) {
+  if (!Retry([&]() { return send(btClientSocket_, message, static_cast<int>(writeString_.length()), 0) != SOCKET_ERROR; }, 5, 10)) {
     LogError("Sending to Bluetooth Device failed... closing");
 
-    closesocket(_btClientSocket);
+    closesocket(btClientSocket_);
     WSACleanup();
   }
 
@@ -77,7 +77,7 @@ bool BTSerialCommunicationManager::SendMessageToDevice() {
 }
 
 bool BTSerialCommunicationManager::ConnectToDevice(const BTH_ADDR& deviceBtAddress) {
-  _btClientSocket = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);  // initialize BT windows socket
+  btClientSocket_ = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);  // initialize BT windows socket
 
   SOCKADDR_BTH btSocketAddress{};
   btSocketAddress.addressFamily = AF_BTH;
@@ -85,7 +85,7 @@ bool BTSerialCommunicationManager::ConnectToDevice(const BTH_ADDR& deviceBtAddre
   btSocketAddress.port = 0;                  // port needs to be 0 if the remote device is a client. See references.
   btSocketAddress.btAddr = deviceBtAddress;  // this is the BT address of the remote device.
 
-  if (connect(_btClientSocket, reinterpret_cast<SOCKADDR*>(&btSocketAddress), sizeof btSocketAddress) != 0)  // connect to the BT device.
+  if (connect(btClientSocket_, reinterpret_cast<SOCKADDR*>(&btSocketAddress), sizeof btSocketAddress) != 0)  // connect to the BT device.
   {
     LogError("Could not connect socket to Bluetooth Device");
     return false;
@@ -93,7 +93,7 @@ bool BTSerialCommunicationManager::ConnectToDevice(const BTH_ADDR& deviceBtAddre
 
   unsigned long nonBlockingMode = 1;
   // set the socket to be non-blocking, meaning it will return right away when sending/receiving
-  if (ioctlsocket(_btClientSocket, FIONBIO, &nonBlockingMode) != 0) {
+  if (ioctlsocket(btClientSocket_, FIONBIO, &nonBlockingMode) != 0) {
     LogError("Could not set socket to be non-blocking");
     return false;
   }
@@ -123,7 +123,7 @@ bool BTSerialCommunicationManager::GetPairedDeviceBtAddress(BTH_ADDR* deviceBtAd
     return false;
   }
 
-  const auto thiswstring = std::wstring(_btSerialConfiguration.name.begin(), _btSerialConfiguration.name.end());
+  const auto thiswstring = std::wstring(btSerialConfiguration_.name.begin(), btSerialConfiguration_.name.end());
   const WCHAR* wcDeviceName = const_cast<WCHAR*>(thiswstring.c_str());
 
   do {
@@ -159,10 +159,10 @@ bool BTSerialCommunicationManager::StartupWindowsSocket() {
 
 void BTSerialCommunicationManager::LogError(const char* message) {
   // message with port name and last error
-  DriverLog("%s (%s) - Error: %s", message, _btSerialConfiguration.name.c_str(), GetLastErrorAsString().c_str());
+  DriverLog("%s (%s) - Error: %s", message, btSerialConfiguration_.name.c_str(), GetLastErrorAsString().c_str());
 }
 
 void BTSerialCommunicationManager::LogMessage(const char* message) {
   // message with port name
-  DriverLog("%s (%s)", message, _btSerialConfiguration.name.c_str());
+  DriverLog("%s (%s)", message, btSerialConfiguration_.name.c_str());
 }

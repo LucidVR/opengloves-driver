@@ -31,9 +31,9 @@ class BTSerialCommunicationManager : public CommunicationManager {
   bool GetPairedDeviceBtAddress(BTH_ADDR* deviceBtAddress);
   bool StartupWindowsSocket();
 
-  VRBTSerialConfiguration _btSerialConfiguration;
+  VRBTSerialConfiguration btSerialConfiguration_;
 
-  std::atomic<bool> _isConnected;
+  std::atomic<bool> isConnected_;
 
-  std::atomic<SOCKET> _btClientSocket;
+  std::atomic<SOCKET> btClientSocket_;
 };

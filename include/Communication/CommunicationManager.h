@@ -32,12 +32,12 @@ class CommunicationManager {
   virtual bool ReceiveNextPacket(std::string& buff) = 0;
   virtual bool SendMessageToDevice() = 0;
 
-  std::unique_ptr<EncodingManager> _encodingManager;
-  VRDeviceConfiguration _deviceConfiguration;
+  std::unique_ptr<EncodingManager> encodingManager_;
+  VRDeviceConfiguration deviceConfiguration_;
 
-  std::atomic<bool> _threadActive;
-  std::thread _thread;
+  std::atomic<bool> threadActive_;
+  std::thread thread_;
 
-  std::mutex _writeMutex;
-  std::string _writeString;
+  std::mutex writeMutex_;
+  std::string writeString_;
 };

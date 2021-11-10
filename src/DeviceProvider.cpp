@@ -38,13 +38,13 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
   const auto boneAnimator = std::make_shared<BoneAnimator>(driverPath + R"(\resources\anims\glove_anim.glb)");
 
   if (leftConfiguration.enabled) {
-    _leftHand = InstantiateDeviceDriver(leftConfiguration, boneAnimator);
-    vr::VRServerDriverHost()->TrackedDeviceAdded(_leftHand->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, _leftHand.get());
+    leftHand_ = InstantiateDeviceDriver(leftConfiguration, boneAnimator);
+    vr::VRServerDriverHost()->TrackedDeviceAdded(leftHand_->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, leftHand_.get());
   }
 
   if (rightConfiguration.enabled) {
-    _rightHand = InstantiateDeviceDriver(rightConfiguration, boneAnimator);
-    vr::VRServerDriverHost()->TrackedDeviceAdded(_rightHand->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, _rightHand.get());
+    rightHand_ = InstantiateDeviceDriver(rightConfiguration, boneAnimator);
+    vr::VRServerDriverHost()->TrackedDeviceAdded(rightHand_->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, rightHand_.get());
   }
 
   return vr::VRInitError_None;
@@ -182,8 +182,8 @@ const char* const* DeviceProvider::GetInterfaceVersions() {
 }
 
 void DeviceProvider::RunFrame() {
-  if (_leftHand && _leftHand->IsActive()) _leftHand->RunFrame();
-  if (_rightHand && _rightHand->IsActive()) _rightHand->RunFrame();
+  if (leftHand_ && leftHand_->IsActive()) leftHand_->RunFrame();
+  if (rightHand_ && rightHand_->IsActive()) rightHand_->RunFrame();
 }
 
 bool DeviceProvider::ShouldBlockStandbyMode() {

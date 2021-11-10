@@ -18,7 +18,7 @@ class ControllerDiscovery {
   void Stop() const;
 
  private:
-  vr::ETrackedControllerRole _role;
-  std::unique_ptr<NamedPipeListener<ControllerDiscoveryPipeData>> _pipe;
-  std::function<void(ControllerDiscoveryPipeData)> _callback;
+  vr::ETrackedControllerRole role_;
+  std::unique_ptr<NamedPipeListener<ControllerDiscoveryPipeData>> pipe_;
+  std::function<void(ControllerDiscoveryPipeData)> callback_;
 };

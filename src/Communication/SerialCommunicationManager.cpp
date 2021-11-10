@@ -8,48 +8,48 @@
 SerialCommunicationManager::SerialCommunicationManager(
     std::unique_ptr<EncodingManager> encodingManager, VRSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration)
     : CommunicationManager(std::move(encodingManager), deviceConfiguration),
-      _serialConfiguration(std::move(configuration)),
-      _isConnected(false),
-      _hSerial(nullptr) {}
+      serialConfiguration_(std::move(configuration)),
+      isConnected_(false),
+      hSerial_(nullptr) {}
 
 bool SerialCommunicationManager::IsConnected() {
-  return _isConnected;
+  return isConnected_;
 };
 
 bool SerialCommunicationManager::Connect() {
   LogMessage("Attempting connection to device");
   // We're not yet connected
-  _isConnected = false;
+  isConnected_ = false;
 
   // Try to connect to the given port throuh CreateFile
-  _hSerial = CreateFile(_serialConfiguration.port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-  if (_hSerial == INVALID_HANDLE_VALUE) {
+  hSerial_ = CreateFile(serialConfiguration_.port.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  if (hSerial_ == INVALID_HANDLE_VALUE) {
     LogError("Received error connecting to port");
     return false;
   }
 
   // If connected we try to set the comm parameters
   DCB dcbSerialParams = {0};
-  if (!GetCommState(_hSerial, &dcbSerialParams)) {
+  if (!GetCommState(hSerial_, &dcbSerialParams)) {
     LogError("Failed to get current port parameters");
     return false;
   }
 
   // Define serial connection parameters for the Arduino board
-  dcbSerialParams.BaudRate = _serialConfiguration.baudRate;
+  dcbSerialParams.BaudRate = serialConfiguration_.baudRate;
   dcbSerialParams.ByteSize = 8;
   dcbSerialParams.StopBits = ONESTOPBIT;
   dcbSerialParams.Parity = NOPARITY;
   dcbSerialParams.fDtrControl = DTR_CONTROL_ENABLE;  // reset upon establishing a connection
 
   // set the parameters and check for their proper application
-  if (!SetCommState(_hSerial, &dcbSerialParams)) {
+  if (!SetCommState(hSerial_, &dcbSerialParams)) {
     LogError("Failed to set serial parameters");
     return false;
   }
 
   // If everything went fine we're connected
-  _isConnected = true;
+  isConnected_ = true;
 
   PurgeBuffer();
 
@@ -59,43 +59,43 @@ bool SerialCommunicationManager::Connect() {
 }
 
 bool SerialCommunicationManager::DisconnectFromDevice() {
-  if (!CloseHandle(_hSerial)) {
+  if (!CloseHandle(hSerial_)) {
     LogError("Error disconnecting from device");
     return false;
   }
 
-  _isConnected = false;
+  isConnected_ = false;
   LogMessage("Successfully disconnected from device");
   return true;
 }
 
 bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
-  if (!SetCommMask(_hSerial, EV_RXCHAR)) {
+  if (!SetCommMask(hSerial_, EV_RXCHAR)) {
     LogError("Error setting comm mask");
     return false;
   }
 
   DWORD dwCommEvent = 0;
   do {
-    if (!WaitCommEvent(_hSerial, &dwCommEvent, nullptr)) {
+    if (!WaitCommEvent(hSerial_, &dwCommEvent, nullptr)) {
       LogError("Error waiting for event");
       return false;
     }
-  } while (_threadActive && (dwCommEvent & EV_RXCHAR) != EV_RXCHAR);
+  } while (threadActive_ && (dwCommEvent & EV_RXCHAR) != EV_RXCHAR);
 
-  if (!_threadActive) return false;
+  if (!threadActive_) return false;
 
   char nextChar = 0;
   do {
     DWORD dwRead = 0;
-    if (!ReadFile(_hSerial, &nextChar, 1, &dwRead, nullptr)) {
+    if (!ReadFile(hSerial_, &nextChar, 1, &dwRead, nullptr)) {
       LogError("Error reading from file");
       return false;
     }
     if (dwRead <= 0 || nextChar == '\n') continue;
 
     buff += nextChar;
-  } while ((nextChar != '\n' || buff.length() < 1) && _threadActive);
+  } while ((nextChar != '\n' || buff.length() < 1) && threadActive_);
 
   // If the glove firmware sends data more often than we poll for it then the buffer
   // will become saturated and block future reads. We've got the data we need so purge
@@ -107,11 +107,11 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 }
 
 bool SerialCommunicationManager::SendMessageToDevice() {
-  std::lock_guard lock(_writeMutex);
+  std::lock_guard lock(writeMutex_);
 
-  const char* buf = _writeString.c_str();
+  const char* buf = writeString_.c_str();
   DWORD bytesSent;
-  if (!WriteFile(_hSerial, buf, static_cast<DWORD>(_writeString.length()), &bytesSent, nullptr) || bytesSent < _writeString.length()) {
+  if (!WriteFile(hSerial_, buf, static_cast<DWORD>(writeString_.length()), &bytesSent, nullptr) || bytesSent < writeString_.length()) {
     LogError("Error writing to port");
     return false;
   }
@@ -120,15 +120,15 @@ bool SerialCommunicationManager::SendMessageToDevice() {
 }
 
 bool SerialCommunicationManager::PurgeBuffer() const {
-  return PurgeComm(_hSerial, PURGE_RXCLEAR | PURGE_TXCLEAR);
+  return PurgeComm(hSerial_, PURGE_RXCLEAR | PURGE_TXCLEAR);
 }
 
 void SerialCommunicationManager::LogError(const char* message) {
   // message with port name and last error
-  DriverLog("%s (%s) - Error: %s", message, _serialConfiguration.port.c_str(), GetLastErrorAsString().c_str());
+  DriverLog("%s (%s) - Error: %s", message, serialConfiguration_.port.c_str(), GetLastErrorAsString().c_str());
 }
 
 void SerialCommunicationManager::LogMessage(const char* message) {
   // message with port name
-  DriverLog("%s (%s)", message, _serialConfiguration.port.c_str());
+  DriverLog("%s (%s)", message, serialConfiguration_.port.c_str());
 }
