@@ -76,7 +76,7 @@ void NamedPipeListener<T>::StopListening() {
 
 template <typename T>
 bool NamedPipeListener<T>::Connect(NamedPipeListenerData<T>* data) {
-  if (const BOOL fConnected = ConnectNamedPipe(data->hPipeInst, &data->oOverlap); !fConnected) {
+  if (!ConnectNamedPipe(data->hPipeInst, &data->oOverlap)) {
     switch (GetLastError()) {
       case ERROR_IO_PENDING:
         data->fPendingIO = true;
@@ -175,8 +175,7 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
     }
 
     if (listenerData.state == NamedPipeListenerState::Reading) {
-      if (const BOOL fSuccess =
-              ReadFile(listenerData.hPipeInst, listenerData.chRequest, sizeof(T), &listenerData.dwBytesRead, &listenerData.oOverlap)) {
+      if (ReadFile(listenerData.hPipeInst, listenerData.chRequest, sizeof(T), &listenerData.dwBytesRead, &listenerData.oOverlap)) {
         if (listenerData.dwBytesRead > 0) {
           listenerData.fPendingIO = false;
           listenerData.state = NamedPipeListenerState::Callback;
