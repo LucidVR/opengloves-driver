@@ -1,33 +1,31 @@
 #pragma once
 
-#include <functional>
 #include <memory>
 
 #include "Bones.h"
 #include "Communication/CommunicationManager.h"
-#include "ControllerPose.h"
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
 #include "Encode/EncodingManager.h"
 #include "openvr_driver.h"
 
 enum class LucidGloveDeviceComponentIndex : int {
-  COMP_JOY_X = 0,
-  COMP_JOY_Y,
-  COMP_JOY_BTN,
-  COMP_BTN_TRG,
-  COMP_BTN_A,
-  COMP_BTN_B,
-  COMP_GES_GRAB,
-  COMP_GES_PINCH,
-  COMP_HAPTIC,
-  COMP_TRG_THUMB,
-  COMP_TRG_INDEX,
-  COMP_TRG_MIDDLE,
-  COMP_TRG_RING,
-  COMP_TRG_PINKY,
-  COMP_BTN_MENU,
-  Count
+  JoyX = 0,
+  JoyY,
+  JoyBtn,
+  BtnTrg,
+  BtnA,
+  BtnB,
+  GesGrab,
+  GesPinch,
+  Haptic,
+  TrgThumb,
+  TrgIndex,
+  TrgMiddle,
+  TrgRing,
+  TrgPinky,
+  BtnMenu,
+  _Count
 };
 
 class LucidGloveDeviceDriver : public DeviceDriver {
@@ -35,14 +33,14 @@ class LucidGloveDeviceDriver : public DeviceDriver {
   LucidGloveDeviceDriver(
       std::unique_ptr<CommunicationManager> communicationManager,
       std::shared_ptr<BoneAnimator> boneAnimator,
-      std::string serialNumber,
+      const std::string& serialNumber,
       VRDeviceConfiguration configuration);
 
-  void HandleInput(VRInputData datas);
-  void SetupProps(vr::PropertyContainerHandle_t& props);
-  void StartingDevice();
-  void StoppingDevice();
+  void HandleInput(VRInputData data) override;
+  void SetupProps(vr::PropertyContainerHandle_t& props) override;
+  void StartingDevice() override;
+  void StoppingDevice() override;
 
  private:
-  vr::VRInputComponentHandle_t m_inputComponentHandles[(int)LucidGloveDeviceComponentIndex::Count];
+  vr::VRInputComponentHandle_t inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::_Count)];
 };

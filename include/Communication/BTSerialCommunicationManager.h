@@ -16,26 +16,24 @@ class BTSerialCommunicationManager : public CommunicationManager {
   BTSerialCommunicationManager(
       std::unique_ptr<EncodingManager> encodingManager, VRBTSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration);
 
- public:
-  bool IsConnected();
+  bool IsConnected() override;
 
  protected:
-  bool Connect();
-  bool DisconnectFromDevice();
-  void LogError(const char* message);
-  void LogMessage(const char* message);
-  bool ReceiveNextPacket(std::string& buff);
-  bool SendMessageToDevice();
+  bool Connect() override;
+  bool DisconnectFromDevice() override;
+  void LogError(const char* message) override;
+  void LogMessage(const char* message) override;
+  bool ReceiveNextPacket(std::string& buff) override;
+  bool SendMessageToDevice() override;
 
  private:
-  bool ConnectToDevice(BTH_ADDR& deviceBtAddress);
+  bool ConnectToDevice(const BTH_ADDR& deviceBtAddress);
   bool GetPairedDeviceBtAddress(BTH_ADDR* deviceBtAddress);
   bool StartupWindowsSocket();
 
- private:
-  VRBTSerialConfiguration m_btSerialConfiguration;
+  VRBTSerialConfiguration btSerialConfiguration_;
 
-  std::atomic<bool> m_isConnected;
+  std::atomic<bool> isConnected_;
 
-  std::atomic<SOCKET> m_btClientSocket;
+  std::atomic<SOCKET> btClientSocket_;
 };

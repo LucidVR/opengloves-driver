@@ -5,12 +5,12 @@
 double DegToRad(double degrees);
 double RadToDeg(double rad);
 
-// get the quaternion for roation from a matrix
+// get the quaternion for rotation from a matrix
 vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t& matrix);
 vr::HmdVector3_t GetPosition(const vr::HmdMatrix34_t& matrix);
 vr::HmdVector3_t CombinePosition(const vr::HmdMatrix34_t& matrix, const vr::HmdVector3_t& vec);
 
-// returns the result of multiplying two quaternions, effectively applying a roatation on a quaternion
+// returns the result of multiplying two quaternions, effectively applying a rotation on a quaternion
 vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::HmdQuaternion_t& r);
 
 vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, const double& zz, const double& a);

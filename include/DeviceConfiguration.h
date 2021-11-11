@@ -1,5 +1,7 @@
 #pragma once
 
+#include <utility>
+
 #include "openvr_driver.h"
 
 extern const char* c_poseSettingsSection;
@@ -13,35 +15,39 @@ extern const char* c_legacyEncodingSettingsSection;
 
 extern const char* c_deviceDriverManufacturer;
 
-enum class VRCommunicationProtocol { SERIAL, BT_SERIAL, NAMED_PIPE };
+enum class VRCommunicationProtocol {
+  Serial,
+  BtSerial,
+  NamedPipe,
+};
 
 enum class VREncodingProtocol {
-  LEGACY = 0,
-  ALPHA = 1,
+  Legacy = 0,
+  Alpha = 1,
 };
 
 enum class VRDeviceDriver {
-  LUCIDGLOVES = 0,
-  EMULATED_KNUCKLES = 1,
+  LucidGloves = 0,
+  EmulatedKnuckles = 1,
 };
 
 struct VRSerialConfiguration {
   std::string port;
   int baudRate;
 
-  VRSerialConfiguration(std::string port, int baudRate) : port(port), baudRate(baudRate){};
+  VRSerialConfiguration(std::string port, const int baudRate) : port(std::move(port)), baudRate(baudRate) {}
 };
 
 struct VRBTSerialConfiguration {
   std::string name;
 
-  VRBTSerialConfiguration(std::string name) : name(name){};
+  explicit VRBTSerialConfiguration(std::string name) : name(std::move(name)) {}
 };
 
 struct VRNamedPipeInputConfiguration {
   std::string pipeName;
 
-  VRNamedPipeInputConfiguration(std::string pipeName) : pipeName(pipeName){};
+  VRNamedPipeInputConfiguration(std::string pipeName) : pipeName(std::move(pipeName)) {}
 };
 
 struct VRPoseConfiguration {

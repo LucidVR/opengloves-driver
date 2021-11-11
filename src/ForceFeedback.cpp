@@ -1,18 +1,18 @@
 #include "ForceFeedback.h"
 
-#include "DriverLog.h"
+#include <utility>
 
-FFBListener::FFBListener(std::function<void(VRFFBData)> callback, vr::ETrackedControllerRole role)
-    : m_callback(callback), m_role(role) {
-  std::string pipeName = "\\\\.\\pipe\\vrapplication\\ffb\\curl\\";
-  pipeName.append((role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand) ? "right" : "left");
-  m_pipe = std::make_unique<NamedPipeListener<VRFFBData>>(pipeName);
+FFBListener::FFBListener(std::function<void(VRFFBData)> callback, const vr::ETrackedControllerRole role)
+    : callback_(std::move(callback)), role_(role) {
+  std::string pipeName = R"(\\.\pipe\vrapplication\ffb\curl\)";
+  pipeName.append(role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left");
+  pipe_ = std::make_unique<NamedPipeListener<VRFFBData>>(pipeName);
 };
 
 void FFBListener::Start() {
-  m_pipe->StartListening([&](VRFFBData* data) { m_callback(*data); });
+  pipe_->StartListening([&](const VRFFBData* data) { callback_(*data); });
 }
 
-void FFBListener::Stop() {
-  m_pipe->StopListening();
+void FFBListener::Stop() const {
+  pipe_->StopListening();
 };

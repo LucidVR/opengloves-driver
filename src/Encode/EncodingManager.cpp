@@ -2,23 +2,23 @@
 
 VRFFBData::VRFFBData() : VRFFBData(0, 0, 0, 0, 0) {}
 
-VRFFBData::VRFFBData(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl)
+VRFFBData::VRFFBData(const short thumbCurl, const short indexCurl, const short middleCurl, const short ringCurl, const short pinkyCurl)
     : thumbCurl(thumbCurl), indexCurl(indexCurl), middleCurl(middleCurl), ringCurl(ringCurl), pinkyCurl(pinkyCurl) {}
 
 VRInputData::VRInputData() : VRInputData({0, 0, 0, 0, 0}, 0.0f, 0.0f, false, false, false, false, false, false, false, false) {}
 
 VRInputData::VRInputData(
-    std::array<float, 5> flexion,
-    float joyX,
-    float joyY,
-    bool joyButton,
-    bool trgButton,
-    bool aButton,
-    bool bButton,
-    bool grab,
-    bool pinch,
-    bool menu,
-    bool calibrate)
+    const std::array<float, 5> flexion,
+    const float joyX,
+    const float joyY,
+    const bool joyButton,
+    const bool trgButton,
+    const bool aButton,
+    const bool bButton,
+    const bool grab,
+    const bool pinch,
+    const bool menu,
+    const bool calibrate)
     : flexion(flexion),
       joyX(joyX),
       joyY(joyY),
@@ -31,4 +31,4 @@ VRInputData::VRInputData(
       menu(menu),
       calibrate(calibrate) {}
 
-EncodingManager::EncodingManager(float maxAnalogValue) : m_maxAnalogValue(maxAnalogValue) {}
+EncodingManager::EncodingManager(const float maxAnalogValue) : maxAnalogValue_(maxAnalogValue) {}

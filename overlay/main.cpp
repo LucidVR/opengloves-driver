@@ -9,21 +9,21 @@ std::atomic<bool> appActive = true;
 const std::string ourManufacturer = "LucidVR";
 
 std::string GetLastErrorAsString() {
-  DWORD errorMessageID = ::GetLastError();
-  if (errorMessageID == 0) {
+  const DWORD errorMessageId = ::GetLastError();
+  if (errorMessageId == 0) {
     return std::string();
   }
 
   LPSTR messageBuffer = nullptr;
 
-  size_t size = FormatMessageA(
+  const size_t size = FormatMessageA(
       FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-      NULL,
-      errorMessageID,
+      nullptr,
+      errorMessageId,
       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-      (LPSTR)&messageBuffer,
+      reinterpret_cast<LPSTR>(&messageBuffer),
       0,
-      NULL);
+      nullptr);
 
   std::string message(messageBuffer, size);
 
@@ -32,14 +32,14 @@ std::string GetLastErrorAsString() {
   return message;
 }
 
-void GetAndSendControllerId(int id, vr::ETrackedControllerRole role) {
-  std::unique_ptr<PipeHelper> pipeHelper = std::make_unique<PipeHelper>();
+void GetAndSendControllerId(const vr::TrackedDeviceIndex_t id, const vr::ETrackedControllerRole role) {
+  const auto pipeHelper = std::make_unique<PipeHelper>();
   std::string pipeName;
 
   if (role == vr::ETrackedControllerRole::TrackedControllerRole_LeftHand) {
-    pipeName = "\\\\.\\pipe\\vrapplication\\discovery\\left";
+    pipeName = R"(\\.\pipe\vrapplication\discovery\left)";
   } else {
-    pipeName = "\\\\.\\pipe\\vrapplication\\discovery\\right";
+    pipeName = R"(\\.\pipe\vrapplication\discovery\right)";
   }
 
   ControllerPipeData data{};
@@ -48,31 +48,30 @@ void GetAndSendControllerId(int id, vr::ETrackedControllerRole role) {
   pipeHelper->ConnectAndSendPipe(pipeName, data);
 }
 
-void DiscoverController(vr::ETrackedControllerRole role) {
-  int lastFound = -1;
-  int curFound = -1;
+void DiscoverController(const vr::ETrackedControllerRole role) {
+  vr::TrackedDeviceIndex_t lastFound = -1;
+  vr::TrackedDeviceIndex_t curFound = -1;
 
   while (appActive) {
-    for (int32_t i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
+    for (vr::TrackedDeviceIndex_t i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
       char thisManufacturer[1024];
       uint32_t err = vr::VRSystem()->GetStringTrackedDeviceProperty(
-          i, vr::ETrackedDeviceProperty::Prop_ManufacturerName_String, thisManufacturer, sizeof(thisManufacturer));
+          i, vr::ETrackedDeviceProperty::Prop_ManufacturerName_String, thisManufacturer, sizeof thisManufacturer);
 
       std::string sThisManufacturer(thisManufacturer);
 
       if (ourManufacturer == sThisManufacturer) continue;
 
-      short deviceRole = vr::VRSystem()->GetControllerRoleForTrackedDeviceIndex(i);
+      const short deviceRole = vr::VRSystem()->GetControllerRoleForTrackedDeviceIndex(i);
 
-      int32_t controllerHint =
-          vr::VRSystem()->GetInt32TrackedDeviceProperty(i, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32);
+      const int32_t controllerHint = vr::VRSystem()->GetInt32TrackedDeviceProperty(i, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32);
 
       if (controllerHint == role) {
         curFound = i;
         break;
       }
 
-      int controllerType = vr::VRSystem()->GetInt32TrackedDeviceProperty(i, vr::ETrackedDeviceProperty::Prop_DeviceClass_Int32);
+      const int controllerType = vr::VRSystem()->GetInt32TrackedDeviceProperty(i, vr::ETrackedDeviceProperty::Prop_DeviceClass_Int32);
 
       if (controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker ||
           controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_Controller) {
@@ -95,14 +94,12 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
   VR_Init(&error, vr::VRApplication_Background);
 
   if (error == vr::EVRInitError::VRInitError_None) {
-    std::thread leftControllerThread =
-        std::thread(&DiscoverController, vr::ETrackedControllerRole::TrackedControllerRole_LeftHand);
+    auto leftControllerThread = std::thread(&DiscoverController, vr::ETrackedControllerRole::TrackedControllerRole_LeftHand);
 
-    std::thread rightControllerThread =
-        std::thread(&DiscoverController, vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
+    auto rightControllerThread = std::thread(&DiscoverController, vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
 
     while (appActive) {
-      vr::VREvent_t event;
+      vr::VREvent_t event{};
       while (vr::VRSystem() && vr::VRSystem()->PollNextEvent(&event, sizeof event)) {
         switch (event.eventType) {
           case vr::VREvent_Quit:
@@ -124,20 +121,20 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
   return 0;
 }
 
-PipeHelper::PipeHelper() : m_pipeHandle(NULL) {}
+PipeHelper::PipeHelper() : pipeHandle_(nullptr) {}
 
 bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeData data) {
-  while (1) {
-    m_pipeHandle = CreateFile(
-        pipeName.c_str(),             // pipe name
-        GENERIC_READ | GENERIC_WRITE, // read and write access
-        0,                            // no sharing
-        NULL,                         // default security attributes
-        OPEN_EXISTING,                // opens existing pipe
-        0,                            // default attributes
-        NULL);                        // no template file
+  while (true) {
+    pipeHandle_ = CreateFile(
+        pipeName.c_str(),              // pipe name
+        GENERIC_READ | GENERIC_WRITE,  // read and write access
+        0,                             // no sharing
+        nullptr,                       // default security attributes
+        OPEN_EXISTING,                 // opens existing pipe
+        0,                             // default attributes
+        nullptr);                      // no template file
 
-    if (m_pipeHandle != INVALID_HANDLE_VALUE) break;
+    if (pipeHandle_ != INVALID_HANDLE_VALUE) break;
 
     if (GetLastError() != ERROR_PIPE_BUSY) {
       return false;
@@ -150,9 +147,9 @@ bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeD
 
   DWORD dwWritten;
 
-  WriteFile(m_pipeHandle, (LPCVOID)&data, sizeof(ControllerPipeData), &dwWritten, NULL);
+  WriteFile(pipeHandle_, &data, sizeof(ControllerPipeData), &dwWritten, nullptr);
 
-  CloseHandle(m_pipeHandle);
+  CloseHandle(pipeHandle_);
 
   return true;
 }

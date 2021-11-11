@@ -1,9 +1,9 @@
 #pragma once
 #include <openvr.h>
-#include <windows.h>
+#include <Windows.h>
 
 struct ControllerPipeData {
-  short controllerId;
+  vr::TrackedDeviceIndex_t controllerId;
 };
 
 class PipeHelper {
@@ -13,5 +13,5 @@ class PipeHelper {
   bool ConnectAndSendPipe(const std::string& pipeName, ControllerPipeData data);
 
  private:
-  HANDLE m_pipeHandle;
+  HANDLE pipeHandle_;
 };

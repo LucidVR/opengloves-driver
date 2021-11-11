@@ -2,10 +2,10 @@
 
 #include <cmath>
 
-double DegToRad(double degrees) {
+double DegToRad(const double degrees) {
   return degrees * M_PI / 180.0;
 }
-double RadToDeg(double rad) {
+double RadToDeg(const double rad) {
   return rad * 180.0 / M_PI;
 }
 
@@ -45,7 +45,7 @@ vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t& matrix) {
 }
 
 vr::HmdMatrix33_t GetRotationMatrix(const vr::HmdMatrix34_t& matrix) {
-  vr::HmdMatrix33_t result = {
+  const vr::HmdMatrix33_t result = {
       {{matrix.m[0][0], matrix.m[0][1], matrix.m[0][2]},
        {matrix.m[1][0], matrix.m[1][1], matrix.m[1][2]},
        {matrix.m[2][0], matrix.m[2][1], matrix.m[2][2]}}};
@@ -63,7 +63,7 @@ vr::HmdVector3_t MultiplyMatrix(const vr::HmdMatrix33_t& matrix, const vr::HmdVe
 }
 
 vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, const double& zz, const double& a) {
-  double factor = sin(a / 2.0);
+  const double factor = sin(a / 2.0);
 
   // Calculate the x, y and z of the quaternion
   double x = xx * factor;
@@ -72,28 +72,28 @@ vr::HmdQuaternion_t QuaternionFromAngle(const double& xx, const double& yy, cons
 
   double w = cos(a / 2.0);
 
-  double n = std::sqrt(x * x + y * y + z * z + w * w);
+  const double n = std::sqrt(x * x + y * y + z * z + w * w);
   x /= n;
   y /= n;
   z /= n;
   w /= n;
 
-  vr::HmdQuaternion_t quat = {w, x, y, z};
+  const vr::HmdQuaternion_t quat = {w, x, y, z};
 
   return quat;
 }
 
 vr::HmdMatrix33_t QuaternionToMatrix(const vr::HmdQuaternion_t q) {
-  vr::HmdMatrix33_t result = {
-      {{(float)(1 - 2 * q.y * q.y - 2 * q.z * q.z),
-        (float)(2 * q.x * q.y - 2 * q.z * q.w),
-        (float)(2 * q.x * q.z + 2 * q.y * q.w)},
-       {(float)(2 * q.x * q.y + 2 * q.z * q.w),
-        (float)(1 - 2 * q.x * q.x - 2 * q.z * q.z),
-        (float)(2 * q.y * q.z - 2 * q.x * q.w)},
-       {(float)(2 * q.x * q.z - 2 * q.y * q.w),
-        (float)(2 * q.y * q.z + 2 * q.x * q.w),
-        (float)(1 - 2 * q.x * q.x - 2 * q.y * q.y)}}};
+  const vr::HmdMatrix33_t result = {
+      {{static_cast<float>(1 - 2 * q.y * q.y - 2 * q.z * q.z),
+        static_cast<float>(2 * q.x * q.y - 2 * q.z * q.w),
+        static_cast<float>(2 * q.x * q.z + 2 * q.y * q.w)},
+       {static_cast<float>(2 * q.x * q.y + 2 * q.z * q.w),
+        static_cast<float>(1 - 2 * q.x * q.x - 2 * q.z * q.z),
+        static_cast<float>(2 * q.y * q.z - 2 * q.x * q.w)},
+       {static_cast<float>(2 * q.x * q.z - 2 * q.y * q.w),
+        static_cast<float>(2 * q.y * q.z + 2 * q.x * q.w),
+        static_cast<float>(1 - 2 * q.x * q.x - 2 * q.y * q.y)}}};
 
   return result;
 }
@@ -103,29 +103,29 @@ double QuatNorm(const vr::HmdQuaternion_t q) {
 }
 
 vr::HmdQuaternion_t QuatConjugate(const vr::HmdQuaternion_t q) {
-  vr::HmdQuaternion_t quat = {q.w, -q.x, -q.y, -q.z};
+  const vr::HmdQuaternion_t quat = {q.w, -q.x, -q.y, -q.z};
   return quat;
 }
 
 vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::HmdQuaternion_t& r) {
   vr::HmdQuaternion_t result{};
 
-  result.w = (r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z);
-  result.x = (r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y);
-  result.y = (r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x);
-  result.z = (r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w);
+  result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
+  result.x = r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y;
+  result.y = r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x;
+  result.z = r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w;
 
   return result;
 }
 
-vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, const double& roll) {
+vr::HmdQuaternion_t EulerToQuaternion(const double& x, const double& y, const double& z) {
   // Abbreviations for the various angular functions
-  double cy = cos(yaw * 0.5);
-  double sy = sin(yaw * 0.5);
-  double cp = cos(pitch * 0.5);
-  double sp = sin(pitch * 0.5);
-  double cr = cos(roll * 0.5);
-  double sr = sin(roll * 0.5);
+  const double cy = cos(x * 0.5);
+  const double sy = sin(x * 0.5);
+  const double cp = cos(y * 0.5);
+  const double sp = sin(y * 0.5);
+  const double cr = cos(z * 0.5);
+  const double sr = sin(z * 0.5);
 
   vr::HmdQuaternion_t q{};
   q.w = cr * cp * cy + sr * sp * sy;
@@ -139,21 +139,26 @@ vr::HmdVector3_t QuaternionToEuler(vr::HmdQuaternion_t q) {
   vr::HmdVector3_t angles{};
 
   // roll (x-axis rotation)
-  double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
-  double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
-  angles.v[0] = (float)std::atan2(sinr_cosp, cosr_cosp);
+  const double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+  const double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+
+  angles.v[0] = static_cast<float>(std::atan2(sinr_cosp, cosr_cosp));
 
   // pitch (y-axis rotation)
-  double sinp = 2 * (q.w * q.y - q.z * q.x);
-  if (std::abs(sinp) >= 1)
-    angles.v[1] = (float)std::copysign(M_PI / 2, sinp);  // use 90 degrees if out of range
-  else
-    angles.v[1] = (float)std::asin(sinp);
+  const double sinp = 2 * (q.w * q.y - q.z * q.x);
+
+  if (std::abs(sinp) >= 1) {
+    angles.v[1] = static_cast<float>(std::copysign(M_PI / 2, sinp));  // use 90 degrees if out of range
+  } else {
+    angles.v[1] = static_cast<float>(std::asin(sinp));
+  }
 
   // yaw (z-axis rotation)
-  double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
-  double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-  angles.v[2] = (float)std::atan2(siny_cosp, cosy_cosp);
-  vr::HmdVector3_t result = {(float)RadToDeg(angles.v[2]), (float)RadToDeg(angles.v[1]), (float)RadToDeg(angles.v[0])};
+  const double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+  const double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+  angles.v[2] = static_cast<float>(std::atan2(siny_cosp, cosy_cosp));
+  const vr::HmdVector3_t result = {
+      static_cast<float>(RadToDeg(angles.v[2])), static_cast<float>(RadToDeg(angles.v[1])), static_cast<float>(RadToDeg(angles.v[0]))};
+
   return result;
 }

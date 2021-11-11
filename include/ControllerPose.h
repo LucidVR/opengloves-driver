@@ -17,30 +17,30 @@ class ControllerPose {
   ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration);
   ~ControllerPose();
 
-  vr::DriverPose_t UpdatePose();
+  vr::DriverPose_t UpdatePose() const;
 
-  void StartCalibration(CalibrationMethod method);
+  void StartCalibration(CalibrationMethod method) const;
 
   void CompleteCalibration(CalibrationMethod method);
 
-  void CancelCalibration(CalibrationMethod method);
+  void CancelCalibration(CalibrationMethod method) const;
 
-  bool isCalibrating();
+  bool IsCalibrating() const;
 
  private:
-  uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
+  uint32_t shadowControllerId_ = vr::k_unTrackedDeviceIndexInvalid;
 
-  VRPoseConfiguration m_poseConfiguration;
+  VRPoseConfiguration poseConfiguration_;
 
-  vr::ETrackedControllerRole m_shadowDeviceOfRole = vr::TrackedControllerRole_Invalid;
+  vr::ETrackedControllerRole shadowDeviceOfRole_ = vr::TrackedControllerRole_Invalid;
 
-  std::string m_thisDeviceManufacturer;
+  std::string thisDeviceManufacturer_;
 
-  vr::TrackedDevicePose_t GetControllerPose();
+  vr::TrackedDevicePose_t GetControllerPose() const;
 
-  bool isRightHand();
+  bool IsRightHand() const;
 
-  std::unique_ptr<ControllerDiscovery> m_controllerDiscoverer;
-  std::unique_ptr<NamedPipeListener<CalibrationDataIn>> m_calibrationPipe;
-  std::unique_ptr<Calibration> m_calibration;
+  std::unique_ptr<ControllerDiscovery> controllerDiscoverer_;
+  std::unique_ptr<NamedPipeListener<CalibrationDataIn>> calibrationPipe_;
+  std::unique_ptr<Calibration> calibration_;
 };

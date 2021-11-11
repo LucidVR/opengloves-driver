@@ -17,12 +17,12 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
       std::string serialNumber,
       VRDeviceConfiguration configuration);
 
-  virtual vr::EVRInitError Activate(uint32_t unObjectId);
-  virtual void Deactivate();
-  virtual void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize);
-  virtual void EnterStandby();
-  virtual void* GetComponent(const char* pchComponentNameAndVersion);
-  virtual vr::DriverPose_t GetPose();
+  vr::EVRInitError Activate(uint32_t unObjectId) override;
+  void Deactivate() override;
+  void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) override;
+  void EnterStandby() override;
+  void* GetComponent(const char* pchComponentNameAndVersion) override;
+  vr::DriverPose_t GetPose() override;
   virtual std::string GetSerialNumber();
   virtual bool IsActive();
   virtual void RunFrame();
@@ -31,20 +31,20 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   virtual bool IsRightHand() const;
   virtual void StartDevice();
 
-  virtual void HandleInput(VRInputData datas) = 0;
+  virtual void HandleInput(VRInputData data) = 0;
   virtual void SetupProps(vr::PropertyContainerHandle_t& props) = 0;
   virtual void StartingDevice() = 0;
   virtual void StoppingDevice() = 0;
 
-  std::unique_ptr<CommunicationManager> m_communicationManager;
-  std::shared_ptr<BoneAnimator> m_boneAnimator;
-  VRDeviceConfiguration m_configuration;
-  std::string m_serialNumber;
+  std::unique_ptr<CommunicationManager> communicationManager_;
+  std::shared_ptr<BoneAnimator> boneAnimator_;
+  VRDeviceConfiguration configuration_;
+  std::string serialNumber_;
 
-  std::unique_ptr<ControllerPose> m_controllerPose;
-  vr::VRInputComponentHandle_t m_skeletalComponentHandle;
-  vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
+  std::unique_ptr<ControllerPose> controllerPose_;
+  vr::VRInputComponentHandle_t skeletalComponentHandle_;
+  vr::VRBoneTransform_t handTransforms_[NUM_BONES];
 
-  bool m_hasActivated;
-  uint32_t m_driverId;
+  bool hasActivated_;
+  uint32_t driverId_;
 };

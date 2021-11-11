@@ -9,20 +9,20 @@
 
 class NamedPipeCommunicationManager : public CommunicationManager {
  public:
-  NamedPipeCommunicationManager(const VRNamedPipeInputConfiguration& configuration, const VRDeviceConfiguration& deviceConfiguration);
-  bool IsConnected();
+  NamedPipeCommunicationManager(VRNamedPipeInputConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration);
+  bool IsConnected() override;
 
  protected:
-  bool Connect();
-  bool DisconnectFromDevice();
-  void LogError(const char* message);
-  void LogMessage(const char* message);
+  bool Connect() override;
+  bool DisconnectFromDevice() override;
+  void LogError(const char* message) override;
+  void LogMessage(const char* message) override;
 
-  // Functions currently unimplemeneted
-  bool SendMessageToDevice() {
+  // Functions currently unimplemented
+  bool SendMessageToDevice() override {
     return true;
   };
-  bool ReceiveNextPacket(std::string& buff) {
+  bool ReceiveNextPacket(std::string& buff) override {
     return true;
   };
   void QueueSend(const VRFFBData& data) override{};
@@ -30,10 +30,10 @@ class NamedPipeCommunicationManager : public CommunicationManager {
   void BeginListener(const std::function<void(VRInputData)>& callback) override;
 
  private:
-  std::unique_ptr<NamedPipeListener<VRInputData>> m_namedPipeListener;
-  std::atomic<bool> m_isConnected;
+  std::unique_ptr<NamedPipeListener<VRInputData>> namedPipeListener_;
+  std::atomic<bool> isConnected_;
 
-  std::function<void(VRInputData)> m_callback;
+  std::function<void(VRInputData)> callback_;
 
-  VRNamedPipeInputConfiguration m_configuration;
+  VRNamedPipeInputConfiguration configuration_;
 };
