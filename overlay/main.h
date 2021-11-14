@@ -3,7 +3,7 @@
 #include <Windows.h>
 
 struct ControllerPipeData {
-  vr::TrackedDeviceIndex_t controllerId;
+  short controllerId;
 };
 
 class PipeHelper {

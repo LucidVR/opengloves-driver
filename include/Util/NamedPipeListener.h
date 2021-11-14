@@ -184,8 +184,10 @@ void NamedPipeListener<T>::ListenerThread(const std::function<void(T*)>& callbac
       } else {
         if (GetLastError() == ERROR_IO_PENDING)
           listenerData.fPendingIO = true;
-        else
+        else {
+          LogError("Pipe received data but failed to read");
           DisconnectAndReconnect(&listenerData);
+        }
       }
     } else {  // Callback (see above)
       if (listenerData.dwBytesRead == sizeof(T)) {
