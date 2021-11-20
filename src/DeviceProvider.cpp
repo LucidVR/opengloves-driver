@@ -107,9 +107,10 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
       char serialNumber[32];
       vr::VRSettings()->GetString(
           c_knuckleDeviceSettingsSection, isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof serialNumber);
-
+      bool approximateThumb = vr::VRSettings()->GetBool(
+          c_knuckleDeviceSettingsSection, "approximate_thumb");
       return std::make_unique<KnuckleDeviceDriver>(
-          std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration);
+          std::move(communicationManager), std::move(boneAnimator), serialNumber, approximateThumb, configuration);
     }
 
     default:

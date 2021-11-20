@@ -20,7 +20,8 @@
     "__title": "Knuckles Emulation",
     "__type": "device_driver:1",
     "left_serial_number": "LHR-E217CD00",
-    "right_serial_number": "LHR-E217CD01"
+    "right_serial_number": "LHR-E217CD01",
+	"approximate_thumb": true
   },
   "pose_settings":
   {
