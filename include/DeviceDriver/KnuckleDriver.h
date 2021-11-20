@@ -43,6 +43,7 @@ class KnuckleDeviceDriver : public DeviceDriver {
       std::unique_ptr<CommunicationManager> communicationManager,
       std::shared_ptr<BoneAnimator> boneAnimator,
       std::string serialNumber,
+      bool approximateThumb,
       VRDeviceConfiguration configuration);
 
   void HandleInput(VRInputData data) override;
@@ -54,4 +55,5 @@ class KnuckleDeviceDriver : public DeviceDriver {
   vr::VRInputComponentHandle_t inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::_Count)];
   vr::VRInputComponentHandle_t haptic_;
   std::unique_ptr<FFBListener> ffbProvider_;
+  bool approximateThumb_;
 };
