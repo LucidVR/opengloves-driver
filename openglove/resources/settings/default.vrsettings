@@ -26,6 +26,7 @@
   "pose_settings":
   {
     "__title": "Pose settings",
+	"hardware_calibration_button_enabled": false,
     "right_x_offset_position": -0.1,
     "right_y_offset_position": -0.08,
     "right_z_offset_position": -0.03,
@@ -41,8 +42,7 @@
     "pose_time_offset": -0.01,
     "controller_override": false,
     "controller_override_left": 3,
-    "controller_override_right": 4,
-    "hardware_calibration_button_enabled": false
+    "controller_override_right": 4
   },
   "communication_serial":
   {
