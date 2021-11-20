@@ -21,6 +21,39 @@ static float Lerp(const float& a, const float& b, const float& f) {
 
 enum class FingerIndex : int { Thumb = 0, IndexFinger, MiddleFinger, RingFinger, PinkyFinger, Unknown = -1 };
 
+static std::map<std::string, HandSkeletonBone> GLTFNodeBoneMap{
+    {"REF:Root", HandSkeletonBone::Root},
+    {"REF:wrist_r", HandSkeletonBone::Wrist},
+    {"REF:finger_thumb_0_r", HandSkeletonBone::Thumb0},
+    {"REF:finger_thumb_1_r", HandSkeletonBone::Thumb1},
+    {"REF:finger_thumb_2_r", HandSkeletonBone::Thumb2},
+    {"REF:finger_thumb_r_end", HandSkeletonBone::Thumb3},
+    {"REF:finger_index_meta_r", HandSkeletonBone::IndexFinger0},
+    {"REF:finger_index_0_r", HandSkeletonBone::IndexFinger1},
+    {"REF:finger_index_1_r", HandSkeletonBone::IndexFinger2},
+    {"REF:finger_index_2_r", HandSkeletonBone::IndexFinger3},
+    {"REF:finger_index_r_end", HandSkeletonBone::IndexFinger4},
+    {"REF:finger_middle_meta_r", HandSkeletonBone::MiddleFinger0},
+    {"REF:finger_middle_0_r", HandSkeletonBone::MiddleFinger1},
+    {"REF:finger_middle_1_r", HandSkeletonBone::MiddleFinger2},
+    {"REF:finger_middle_2_r", HandSkeletonBone::MiddleFinger3},
+    {"REF:finger_middle_r_end", HandSkeletonBone::MiddleFinger4},
+    {"REF:finger_ring_meta_r", HandSkeletonBone::RingFinger0},
+    {"REF:finger_ring_0_r", HandSkeletonBone::RingFinger1},
+    {"REF:finger_ring_1_r", HandSkeletonBone::RingFinger2},
+    {"REF:finger_ring_2_r", HandSkeletonBone::RingFinger3},
+    {"REF:finger_ring_r_end", HandSkeletonBone::RingFinger4},
+    {"REF:finger_pinky_meta_r", HandSkeletonBone::PinkyFinger0},
+    {"REF:finger_pinky_0_r", HandSkeletonBone::PinkyFinger1},
+    {"REF:finger_pinky_1_r", HandSkeletonBone::PinkyFinger2},
+    {"REF:finger_pinky_2_r", HandSkeletonBone::PinkyFinger3},
+    {"REF:finger_pinky_r_end", HandSkeletonBone::PinkyFinger4},
+    {"REF:finger_thumb_r_aux", HandSkeletonBone::AuxThumb},
+    {"REF:finger_index_r_aux", HandSkeletonBone::AuxIndexFinger},
+    {"REF:finger_middle_r_aux", HandSkeletonBone::AuxMiddleFinger},
+    {"REF:finger_ring_r_aux", HandSkeletonBone::AuxRingFinger},
+    {"REF:finger_pinky_r_aux", HandSkeletonBone::AuxPinkyFinger}};
+
 static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone bone) {
   switch (bone) {
     case HandSkeletonBone::Thumb0:
@@ -99,19 +132,21 @@ class GLTFModelManager : public IModelManager {
       return false;
     }
 
-    initialTransforms_ = std::vector<Transform>(model_.nodes.size() - 1);
-    keyframeTransforms_ = std::vector<std::vector<Transform>>(model_.nodes.size() - 1);
+    initialTransforms_ = std::vector<Transform>(GLTFNodeBoneMap.size());
+    keyframeTransforms_ = std::vector<std::vector<Transform>>(GLTFNodeBoneMap.size());
 
-    LoadInitialTransforms();
     LoadKeyframeTimes();
-    LoadKeyframeTransforms();
+    LoadInitialTransforms();
 
     return true;
   }
 
   AnimationData GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, const float f) const override {
-    const size_t lowerKeyframeIndex =
-        std::lower_bound(keyframeTimes_.begin(), keyframeTimes_.end(), std::clamp(f, 0.0001f, 1.0f)) - keyframeTimes_.begin() - 1;
+    const float smallest = keyframeTimes_.at(0);
+    const float largest = keyframeTimes_.at(keyframeTimes_.size() - 1);
+    const float fScaled = Lerp(smallest, largest, f);
+
+    const size_t lowerKeyframeIndex = std::upper_bound(keyframeTimes_.begin(), keyframeTimes_.end(), fScaled) - keyframeTimes_.begin() - 1;
     const size_t upperKeyframeIndex = lowerKeyframeIndex < keyframeTimes_.size() - 1 ? lowerKeyframeIndex + 1 : lowerKeyframeIndex;
 
     AnimationData result;
@@ -119,6 +154,8 @@ class GLTFModelManager : public IModelManager {
     result.startTime = keyframeTimes_[lowerKeyframeIndex];
     result.endTransform = keyframeTransforms_[static_cast<size_t>(boneIndex)][upperKeyframeIndex];
     result.endTime = keyframeTimes_[upperKeyframeIndex];
+    result.fScaled = fScaled;
+
     return result;
   }
 
@@ -128,24 +165,56 @@ class GLTFModelManager : public IModelManager {
 
  private:
   void LoadInitialTransforms() {
-    for (size_t nodeIndex = 1; nodeIndex < model_.nodes.size(); nodeIndex++) {
-      tinygltf::Node node = model_.nodes[nodeIndex];
+    for (size_t nodeIndex = 0; nodeIndex < model_.nodes.size(); nodeIndex++) {
+      const tinygltf::Node& node = model_.nodes[nodeIndex];
 
-      Transform transform;
-      if (node.rotation.size() >= 4) {
-        transform.rotation[0] = static_cast<float>(node.rotation[0]);
-        transform.rotation[1] = static_cast<float>(node.rotation[1]);
-        transform.rotation[2] = static_cast<float>(node.rotation[2]);
-        transform.rotation[3] = static_cast<float>(node.rotation[3]);
-      }
-      if (node.translation.size() >= 3) {
-        transform.translation[0] = static_cast<float>(node.translation[0]);
-        transform.translation[1] = static_cast<float>(node.translation[1]);
-        transform.translation[2] = static_cast<float>(node.translation[2]);
-      }
+      try {
+        const int boneIndex = static_cast<int>(GLTFNodeBoneMap.at(node.name));
 
-      // first node is never needed
-      initialTransforms_[nodeIndex - 1] = transform;
+        Transform transform;
+        if (node.rotation.size() >= 4) {
+          transform.rotation[0] = static_cast<float>(node.rotation[0]);
+          transform.rotation[1] = static_cast<float>(node.rotation[1]);
+          transform.rotation[2] = static_cast<float>(node.rotation[2]);
+          transform.rotation[3] = static_cast<float>(node.rotation[3]);
+        }
+        if (node.translation.size() >= 3) {
+          transform.translation[0] = static_cast<float>(node.translation[0]);
+          transform.translation[1] = static_cast<float>(node.translation[1]);
+          transform.translation[2] = static_cast<float>(node.translation[2]);
+        }
+
+        initialTransforms_[boneIndex] = transform;
+
+        const tinygltf::Animation& animation = model_.animations[0];
+        std::vector<Transform>& transforms = keyframeTransforms_[boneIndex];
+
+        transforms.resize(keyframeTimes_.size());
+
+        for (auto& channel : animation.channels) {
+          if (channel.target_node != nodeIndex) continue;
+
+          const tinygltf::Accessor& accessor = model_.accessors[animation.samplers[channel.sampler].output];
+          switch (accessor.type) {
+            // rotation via quaternion
+            case TINYGLTF_TYPE_VEC4: {
+              std::vector<std::array<float, 4>> keyframes = GetVecN<4>(accessor);
+              for (size_t i = 0; i < keyframes.size(); i++) transforms[i].rotation = keyframes[i];
+              break;
+            }
+            // translation
+            case TINYGLTF_TYPE_VEC3: {
+              std::vector<std::array<float, 3>> keyframes = GetVecN<3>(accessor);
+              for (size_t i = 0; i < keyframes.size(); i++) transforms[i].translation = keyframes[i];
+              break;
+            }
+          }
+        }
+
+      } catch (const std::out_of_range&) {
+        DriverLog("Not parsing node as it was not defined as a bone: %i", nodeIndex);
+        continue;
+      }
     }
   }
 
@@ -167,36 +236,6 @@ class GLTFModelManager : public IModelManager {
     memcpy(&res[0], bufData.data() + bufferView.byteOffset + accessor.byteOffset, accessor.count * sizeof(float) * N);
 
     return res;
-  }
-
-  void LoadKeyframeTransforms() {
-    for (size_t nodeIndex = 1; nodeIndex < model_.nodes.size(); nodeIndex++) {
-      const tinygltf::Animation& animation = model_.animations[0];
-
-      // first node is never needed
-      std::vector<Transform>& transforms = keyframeTransforms_[nodeIndex - 1];
-
-      transforms.resize(keyframeTimes_.size());
-
-      for (auto& channel : animation.channels) {
-        if (channel.target_node != nodeIndex) continue;
-
-        switch (const tinygltf::Accessor& accessor = model_.accessors[animation.samplers[channel.sampler].output]; accessor.type) {
-          // rotation via quaternion
-          case TINYGLTF_TYPE_VEC4: {
-            std::vector<std::array<float, 4>> keyframes = GetVecN<4>(accessor);
-            for (size_t i = 0; i < keyframes.size(); i++) transforms[i].rotation = keyframes[i];
-            break;
-          }
-          // translation
-          case TINYGLTF_TYPE_VEC3: {
-            std::vector<std::array<float, 3>> keyframes = GetVecN<3>(accessor);
-            for (size_t i = 0; i < keyframes.size(); i++) transforms[i].translation = keyframes[i];
-            break;
-          }
-        }
-      }
-    }
   }
 };
 
@@ -228,7 +267,9 @@ vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& 
 
   const AnimationData animationData = modelManager_->GetAnimationDataByBoneIndex(boneIndex, f);
 
-  const float interp = std::clamp((f - animationData.startTime) / (animationData.endTime - animationData.startTime), 0.0f, 1.0f);
+  // start and end time can be the same (if we've reached the max keyframe), so make sure we only do the lerp if not
+  const float diff = animationData.endTime - animationData.startTime;
+  const float interp = diff != 0 ? (animationData.fScaled - animationData.startTime) / diff : 1.0f;
 
   if (animationData.startTransform.rotation != emptyRotation) {
     result.orientation.x = Lerp(animationData.startTransform.rotation[0], animationData.endTransform.rotation[0], interp);
