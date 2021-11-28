@@ -1,6 +1,6 @@
 #include "Calibration.h"
 
-#include "Quaternion.h"
+#include "Util/Quaternion.h"
 
 Calibration::Calibration() : maintainPose_(), isCalibrating_(false), calibratingMethod_(CalibrationMethod::None) {}
 
