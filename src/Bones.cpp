@@ -248,45 +248,47 @@ void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, co
   if (!loaded_) return;
 
   for (size_t i = 0; i < NUM_BONES; i++) {
-    if (FingerIndex finger = GetFingerFromBoneIndex(static_cast<HandSkeletonBone>(i)); finger != FingerIndex::Unknown)
-      skeleton[i] = GetTransformForBone(static_cast<HandSkeletonBone>(i), flexion[static_cast<int>(finger)], rightHand);
+    const FingerIndex finger = GetFingerFromBoneIndex(static_cast<HandSkeletonBone>(i));
+    if (finger != FingerIndex::Unknown) {
+      const float f = flexion[static_cast<int>(finger)];
+      SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), f, rightHand);
+    }
   }
 }
 
-vr::VRBoneTransform_t BoneAnimator::GetTransformForBone(const HandSkeletonBone& boneIndex, const float f, const bool rightHand) const {
-  vr::VRBoneTransform_t result{};
+void BoneAnimator::SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, const float f, const bool rightHand) const {
+  if (f < 0.0f || f > 1.0f) return;  // skip if the value is invalid
 
   const Transform nodeTransform = modelManager_->GetTransformByBoneIndex(boneIndex);
-  result.orientation.x = nodeTransform.rotation[0];
-  result.orientation.y = nodeTransform.rotation[1];
-  result.orientation.z = nodeTransform.rotation[2];
-  result.orientation.w = nodeTransform.rotation[3];
-  result.position.v[0] = nodeTransform.translation[0];
-  result.position.v[1] = nodeTransform.translation[1];
-  result.position.v[2] = nodeTransform.translation[2];
+  bone.orientation.x = nodeTransform.rotation[0];
+  bone.orientation.y = nodeTransform.rotation[1];
+  bone.orientation.z = nodeTransform.rotation[2];
+  bone.orientation.w = nodeTransform.rotation[3];
+  bone.position.v[0] = nodeTransform.translation[0];
+  bone.position.v[1] = nodeTransform.translation[1];
+  bone.position.v[2] = nodeTransform.translation[2];
 
   const AnimationData animationData = modelManager_->GetAnimationDataByBoneIndex(boneIndex, f);
 
   // start and end time can be the same (if we've reached the max keyframe), so make sure we only do the lerp if not
   const float diff = animationData.endTime - animationData.startTime;
-  const float interp = diff != 0 ? (animationData.fScaled - animationData.startTime) / diff : 1.0f;
+  const float interp = diff != 0.0f ? (animationData.fScaled - animationData.startTime) / diff : 1.0f;
 
   if (animationData.startTransform.rotation != emptyRotation) {
-    result.orientation.x = Lerp(animationData.startTransform.rotation[0], animationData.endTransform.rotation[0], interp);
-    result.orientation.y = Lerp(animationData.startTransform.rotation[1], animationData.endTransform.rotation[1], interp);
-    result.orientation.z = Lerp(animationData.startTransform.rotation[2], animationData.endTransform.rotation[2], interp);
-    result.orientation.w = Lerp(animationData.startTransform.rotation[3], animationData.endTransform.rotation[3], interp);
+    bone.orientation.x = Lerp(animationData.startTransform.rotation[0], animationData.endTransform.rotation[0], interp);
+    bone.orientation.y = Lerp(animationData.startTransform.rotation[1], animationData.endTransform.rotation[1], interp);
+    bone.orientation.z = Lerp(animationData.startTransform.rotation[2], animationData.endTransform.rotation[2], interp);
+    bone.orientation.w = Lerp(animationData.startTransform.rotation[3], animationData.endTransform.rotation[3], interp);
   }
 
   if (animationData.startTransform.translation != emptyTranslation) {
-    result.position.v[0] = Lerp(animationData.startTransform.translation[0], animationData.endTransform.translation[0], interp);
-    result.position.v[1] = Lerp(animationData.startTransform.translation[1], animationData.endTransform.translation[1], interp);
-    result.position.v[2] = Lerp(animationData.startTransform.translation[2], animationData.endTransform.translation[2], interp);
+    bone.position.v[0] = Lerp(animationData.startTransform.translation[0], animationData.endTransform.translation[0], interp);
+    bone.position.v[1] = Lerp(animationData.startTransform.translation[1], animationData.endTransform.translation[1], interp);
+    bone.position.v[2] = Lerp(animationData.startTransform.translation[2], animationData.endTransform.translation[2], interp);
   }
-  result.position.v[3] = 1.0f;
+  bone.position.v[3] = 1.0f;
 
-  if (!rightHand) TransformLeftBone(result, boneIndex);
-  return result;
+  if (!rightHand) TransformLeftBone(bone, boneIndex);
 };
 
 void BoneAnimator::TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex) {
