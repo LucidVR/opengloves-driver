@@ -1,7 +1,7 @@
 #include "ControllerPose.h"
 
 #include "DriverLog.h"
-#include "Quaternion.h"
+#include "Util/Quaternion.h"
 
 ControllerPose::ControllerPose(
     vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration)
@@ -52,15 +52,15 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
   newPose.qDriverFromHeadRotation.w = 1;
 
   if (shadowControllerId_ != vr::k_unTrackedDeviceIndexInvalid) {
-    if (const vr::TrackedDevicePose_t controllerPose = GetControllerPose(); controllerPose.bPoseIsValid) {
+    const vr::TrackedDevicePose_t controllerPose = GetControllerPose();
+    if (controllerPose.bPoseIsValid) {
       // get the matrix that represents the position of the controller that we are shadowing
       const vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
 
       // get only the rotation (3x3 matrix), as the 3x4 matrix also includes position
       const vr::HmdMatrix33_t controllerRotationMatrix = GetRotationMatrix(controllerMatrix);
+      const vr::HmdQuaternion_t controllerRotation = GetRotation(controllerMatrix);
 
-      // multiply the rotation matrix by the offset vector set that is the offset of the controller
-      // relative to the hand
       const vr::HmdVector3_t vectorOffset = MultiplyMatrix(controllerRotationMatrix, poseConfiguration_.offsetVector);
 
       // combine these positions to get the resultant position
@@ -70,14 +70,25 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
       newPose.vecPosition[1] = newControllerPosition.v[1];
       newPose.vecPosition[2] = newControllerPosition.v[2];
 
-      // Multiply rotation quaternions together, as the controller may be rotated relative to the
-      // hand
-      newPose.qRotation = MultiplyQuaternion(GetRotation(controllerMatrix), poseConfiguration_.angleOffsetQuaternion);
+      newPose.qRotation = MultiplyQuaternion(controllerRotation, poseConfiguration_.angleOffsetQuaternion);
 
-      // Copy other values from the controller that we want for this device
-      newPose.vecAngularVelocity[0] = controllerPose.vAngularVelocity.v[0];
-      newPose.vecAngularVelocity[1] = controllerPose.vAngularVelocity.v[1];
-      newPose.vecAngularVelocity[2] = controllerPose.vAngularVelocity.v[2];
+      // Angular velocity
+      // Converted from euler angle provided in world space to euler angle in object space
+      vr::HmdVector3_t angularVelocityWorld = controllerPose.vAngularVelocity;
+      angularVelocityWorld.v[0] /= 100.0;
+      angularVelocityWorld.v[1] /= 100.0;
+      angularVelocityWorld.v[2] /= 100.0;
+
+      vr::HmdQuaternion_t qAngularVelocityWorld = EulerToQuaternion(angularVelocityWorld.v[2], angularVelocityWorld.v[1], angularVelocityWorld.v[0]);
+
+      vr::HmdQuaternion_t qAngularVelocityObject =
+          MultiplyQuaternion(MultiplyQuaternion(QuatConjugate(newPose.qRotation), qAngularVelocityWorld), newPose.qRotation);
+
+      vr::HmdVector3_t angularVelocityObject = QuaternionToEuler(qAngularVelocityObject);
+
+      newPose.vecAngularVelocity[0] = angularVelocityObject.v[0] * (double)100.0;
+      newPose.vecAngularVelocity[1] = angularVelocityObject.v[1] * (double)100.0;
+      newPose.vecAngularVelocity[2] = angularVelocityObject.v[2] * (double)100.0;
 
       newPose.vecVelocity[0] = controllerPose.vVelocity.v[0];
       newPose.vecVelocity[1] = controllerPose.vVelocity.v[1];

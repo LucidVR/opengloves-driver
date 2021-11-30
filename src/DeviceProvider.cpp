@@ -12,7 +12,7 @@
 #include "DriverLog.h"
 #include "Encode/AlphaEncodingManager.h"
 #include "Encode/LegacyEncodingManager.h"
-#include "Quaternion.h"
+#include "Util/Quaternion.h"
 #include "Util/Windows.h"
 
 vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
@@ -20,6 +20,8 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
   VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext)
   InitDriverLog(vr::VRDriverLog());
+
+  //this won't print if running in release
   DebugDriverLog("OpenGlove is running in DEBUG mode");
 
   const std::string driverPath = GetDriverPath();
