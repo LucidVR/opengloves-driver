@@ -51,11 +51,16 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   char nextChar = 0;
   do {
     const int receiveResult = recv(btClientSocket_, &nextChar, 1, 0);
-    if (receiveResult <= 0 || nextChar == '\n') continue;
+    /* if (receiveResult == 0) {
+      LogError("No data");
+      return false;
+    }*/
+    
     if (receiveResult == SOCKET_ERROR) {
       LogError("Socket error while recieving data over bluetooth");
       return false;
     }
+    if (receiveResult <= 0 || nextChar == '\n') continue;
     buff += nextChar;
   } while (threadActive_ && (nextChar != '\n' || buff.length() < 1));
 
