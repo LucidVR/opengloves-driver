@@ -36,7 +36,7 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
           IsRightHand() ? "/input/skeleton/right" : "/input/skeleton/left",
           IsRightHand() ? "/skeleton/hand/right" : "/skeleton/hand/left",
           "/pose/raw",
-          vr::VRSkeletalTracking_Partial,
+          vr::EVRSkeletalTrackingLevel::VRSkeletalTracking_Full,
           handTransforms_,
           NUM_BONES,
           &skeletalComponentHandle_);

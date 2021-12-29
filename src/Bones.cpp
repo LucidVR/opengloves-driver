@@ -3,11 +3,14 @@
 #include <utility>
 
 #include "DriverLog.h"
+#include "Util/Quaternion.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define TINYGLTF_NO_STB_IMAGE
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include "tiny_gltf.h"
+
+static const float c_maxSplayAngle = 10.0f;
 
 static const std::array<float, 4> emptyRotation = {0.0f, 0.0f, 0.0f, 0.0f};
 static const std::array<float, 3> emptyTranslation = {0.0f, 0.0f, 0.0f};
@@ -54,7 +57,12 @@ static std::map<std::string, HandSkeletonBone> GLTFNodeBoneMap{
     {"REF:finger_ring_r_aux", HandSkeletonBone::AuxRingFinger},
     {"REF:finger_pinky_r_aux", HandSkeletonBone::AuxPinkyFinger}};
 
-static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone bone) {
+static bool IsBoneSplayableBone(const HandSkeletonBone& bone) {
+  return bone == HandSkeletonBone::Thumb0 || bone == HandSkeletonBone::IndexFinger1 || bone == HandSkeletonBone::MiddleFinger1 ||
+         bone == HandSkeletonBone::RingFinger1 || bone == HandSkeletonBone::PinkyFinger1;
+}
+
+static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
   switch (bone) {
     case HandSkeletonBone::Thumb0:
     case HandSkeletonBone::Thumb1:
@@ -247,17 +255,20 @@ BoneAnimator::BoneAnimator(const std::string& fileName) : fileName_(fileName) {
 void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand) {
   if (!loaded_) return;
 
-  for (size_t i = 0; i < NUM_BONES; i++) {
+  for (size_t i = 1; i < NUM_BONES; i++) {
     const FingerIndex finger = GetFingerFromBoneIndex(static_cast<HandSkeletonBone>(i));
-    if (finger != FingerIndex::Unknown) {
-      const float f = flexion[static_cast<int>(finger)];
-      SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), f, rightHand);
-    }
+    if (finger == FingerIndex::Unknown) continue;
+
+    const float f = (flexion[static_cast<int>(finger)] - 0.5f) * 2.0f;
+    SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), 0.0f, f, rightHand);
   }
 }
 
-void BoneAnimator::SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, const float f, const bool rightHand) const {
-  if (f < 0.0f || f > 1.0f) return;  // skip if the value is invalid
+// splay asssumes that bone joints are updated sequentially
+void BoneAnimator::SetTransformForBone(
+    vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, const float curl, const float splay, const bool rightHand) const {
+  // We don't clamp this, as chances are if it's invalid we don't really want to use it anyway.
+  if (curl < 0.0f || curl > 1.0f) return;
 
   const Transform nodeTransform = modelManager_->GetTransformByBoneIndex(boneIndex);
   bone.orientation.x = nodeTransform.rotation[0];
@@ -268,7 +279,7 @@ void BoneAnimator::SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSk
   bone.position.v[1] = nodeTransform.translation[1];
   bone.position.v[2] = nodeTransform.translation[2];
 
-  const AnimationData animationData = modelManager_->GetAnimationDataByBoneIndex(boneIndex, f);
+  const AnimationData animationData = modelManager_->GetAnimationDataByBoneIndex(boneIndex, curl);
 
   // start and end time can be the same (if we've reached the max keyframe), so make sure we only do the lerp if not
   const float diff = animationData.endTime - animationData.startTime;
@@ -288,6 +299,13 @@ void BoneAnimator::SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSk
   }
   bone.position.v[3] = 1.0f;
 
+  if (splay >= -1.0f && splay <= 1.0f) {
+    // only splay one bone (all the rest are done relative to this one)
+    if (IsBoneSplayableBone(boneIndex))
+      bone.orientation = MultiplyQuaternion(bone.orientation, EulerToQuaternion(0.0f, static_cast<float>(DegToRad(splay * c_maxSplayAngle)), 0.0f));
+  }
+
+  // we're guaranteed to have updated the bone, so we can safely apply a transformation
   if (!rightHand) TransformLeftBone(bone, boneIndex);
 };
 

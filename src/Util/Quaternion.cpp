@@ -52,6 +52,7 @@ vr::HmdMatrix33_t GetRotationMatrix(const vr::HmdMatrix34_t& matrix) {
 
   return result;
 }
+
 vr::HmdVector3_t MultiplyMatrix(const vr::HmdMatrix33_t& matrix, const vr::HmdVector3_t& vector) {
   vr::HmdVector3_t result{};
 
@@ -93,6 +94,17 @@ vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::H
   return result;
 }
 
+vr::HmdQuaternionf_t MultiplyQuaternion(const vr::HmdQuaternionf_t& q, const vr::HmdQuaternionf_t& r) {
+  vr::HmdQuaternionf_t result{};
+
+  result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
+  result.x = r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y;
+  result.y = r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x;
+  result.z = r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w;
+
+  return result;
+}
+
 vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, const double& roll) {
   const double cy = cos(yaw * 0.5);
   const double sy = sin(yaw * 0.5);
@@ -109,24 +121,38 @@ vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, co
 
   return q;
 }
+
+vr::HmdQuaternionf_t EulerToQuaternion(const float& yaw, const float& pitch, const float& roll) {
+  const float cy = cos(yaw * 0.5);
+  const float sy = sin(yaw * 0.5);
+  const float cp = cos(pitch * 0.5);
+  const float sp = sin(pitch * 0.5);
+  const float cr = cos(roll * 0.5);
+  const float sr = sin(roll * 0.5);
+
+  vr::HmdQuaternionf_t q{};
+  q.w = cr * cp * cy + sr * sp * sy;
+  q.x = sr * cp * cy - cr * sp * sy;
+  q.y = cr * sp * cy + sr * cp * sy;
+  q.z = cr * cp * sy - sr * sp * cy;
+
+  return q;
+}
 vr::HmdVector3_t QuaternionToEuler(const vr::HmdQuaternion_t& q) {
   vr::HmdVector3_t result;
   const double unit = (q.x * q.x) + (q.y * q.y) + (q.z * q.z) + (q.w * q.w);
 
   const float test = q.x * q.w - q.y * q.z;
 
-  if (test > 0.4995f * unit)
-  {
+  if (test > 0.4995f * unit) {
     result.v[0] = M_PI / 2;
     result.v[1] = (2 * atan2(q.y / unit, q.x / unit));
     result.v[2] = 0;
-  } else if (test < -0.4995f * unit)
-  {
+  } else if (test < -0.4995f * unit) {
     result.v[0] = -M_PI / 2;
     result.v[1] = (-2 * atan2(q.y / unit, q.x / unit));
     result.v[2] = 0;
-  } else
-  {
+  } else {
     result.v[0] = asin(2 * (q.w * q.x - q.y * q.z) / unit);
     result.v[1] = atan2((2 / unit * q.w * q.y + 2 / unit * q.z * q.x), (1 - 2 / unit * (q.x * q.x + q.y * q.y)));
     result.v[2] = atan2((2 / unit * q.w * q.z + 2 / unit * q.x * q.y), (1 - 2 / unit * (q.z * q.z + q.x * q.x)));
