@@ -252,19 +252,21 @@ BoneAnimator::BoneAnimator(const std::string& fileName) : fileName_(fileName) {
   loaded_ = modelManager_->Load();
 }
 
-void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand) {
+void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const VRInputData& inputData, const bool rightHand) {
   if (!loaded_) return;
 
   for (size_t i = 1; i < NUM_BONES; i++) {
     const FingerIndex finger = GetFingerFromBoneIndex(static_cast<HandSkeletonBone>(i));
     if (finger == FingerIndex::Unknown) continue;
 
-    const float f = (flexion[static_cast<int>(finger)] - 0.5f) * 2.0f;
-    SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), 0.0f, f, rightHand);
+    const float curl = inputData.flexion[static_cast<int>(finger)];
+    const float splay = inputData.splay[static_cast<int>(finger)];
+
+    SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), curl, splay, rightHand);
   }
 }
 
-// splay asssumes that bone joints are updated sequentially
+// splay asssumesthat there is a valid curl value for the finger
 void BoneAnimator::SetTransformForBone(
     vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, const float curl, const float splay, const bool rightHand) const {
   // We don't clamp this, as chances are if it's invalid we don't really want to use it anyway.

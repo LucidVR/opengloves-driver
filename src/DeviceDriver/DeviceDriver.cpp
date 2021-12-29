@@ -113,7 +113,7 @@ void DeviceDriver::StartDevice() {
 
   communicationManager_->BeginListener([&](VRInputData data) {
     try {
-      boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data.flexion, IsRightHand());
+      boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data, IsRightHand());
       vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
       vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
 

@@ -74,7 +74,7 @@ struct VRInputData {
         calibrate(calibrate) {}
 
   const std::array<float, 5> flexion;
-  const std::array<float, 5> splay = {};
+  const std::array<float, 5> splay = {-2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
   const float joyX;
   const float joyY;
   const bool joyButton;
