@@ -68,6 +68,7 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
     case HandSkeletonBone::Thumb1:
     case HandSkeletonBone::Thumb2:
     case HandSkeletonBone::Thumb3:
+    case HandSkeletonBone::AuxThumb:
       return FingerIndex::Thumb;
 
     case HandSkeletonBone::IndexFinger0:
@@ -75,6 +76,7 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
     case HandSkeletonBone::IndexFinger2:
     case HandSkeletonBone::IndexFinger3:
     case HandSkeletonBone::IndexFinger4:
+    case HandSkeletonBone::AuxIndexFinger:
       return FingerIndex::IndexFinger;
 
     case HandSkeletonBone::MiddleFinger0:
@@ -82,6 +84,7 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
     case HandSkeletonBone::MiddleFinger2:
     case HandSkeletonBone::MiddleFinger3:
     case HandSkeletonBone::MiddleFinger4:
+    case HandSkeletonBone::AuxMiddleFinger:
       return FingerIndex::MiddleFinger;
 
     case HandSkeletonBone::RingFinger0:
@@ -89,6 +92,7 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
     case HandSkeletonBone::RingFinger2:
     case HandSkeletonBone::RingFinger3:
     case HandSkeletonBone::RingFinger4:
+    case HandSkeletonBone::AuxRingFinger:
       return FingerIndex::RingFinger;
 
     case HandSkeletonBone::PinkyFinger0:
@@ -96,6 +100,7 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
     case HandSkeletonBone::PinkyFinger2:
     case HandSkeletonBone::PinkyFinger3:
     case HandSkeletonBone::PinkyFinger4:
+    case HandSkeletonBone::AuxPinkyFinger:
       return FingerIndex::PinkyFinger;
 
     default:
@@ -104,9 +109,9 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
 }
 
 static HandSkeletonBone GetRootFingerBoneFromFingerIndex(const FingerIndex& finger) {
-    switch (finger) { 
+  switch (finger) {
     case FingerIndex::Thumb:
-        return HandSkeletonBone::Thumb0;
+      return HandSkeletonBone::Thumb0;
     case FingerIndex::IndexFinger:
       return HandSkeletonBone::IndexFinger0;
     case FingerIndex::MiddleFinger:
@@ -118,6 +123,10 @@ static HandSkeletonBone GetRootFingerBoneFromFingerIndex(const FingerIndex& fing
   }
 }
 
+static bool IsAuxBone(const HandSkeletonBone& boneIndex) {
+  return boneIndex == HandSkeletonBone::AuxThumb || boneIndex == HandSkeletonBone::AuxIndexFinger || boneIndex == HandSkeletonBone::AuxMiddleFinger ||
+         boneIndex == HandSkeletonBone::AuxRingFinger || boneIndex == HandSkeletonBone::AuxPinkyFinger;
+}
 
 class GLTFModelManager : public IModelManager {
   tinygltf::Model model_;
@@ -279,10 +288,15 @@ void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, co
     const FingerIndex finger = GetFingerFromBoneIndex(static_cast<HandSkeletonBone>(i));
     const int iFinger = static_cast<int>(finger);
 
-    //TODO: make sure to update aux bones
+    // TODO: make sure to update aux bones
     if (finger == FingerIndex::Unknown) continue;
 
-    const float curl = inputData.flexion[iFinger][i - static_cast<int>(GetRootFingerBoneFromFingerIndex(finger))];
+    float curl;
+    if (IsAuxBone(static_cast<HandSkeletonBone>(i)))
+      curl = GetAverageFingerValue(inputData.flexion[iFinger]);
+    else
+      curl = inputData.flexion[iFinger][i - static_cast<int>(GetRootFingerBoneFromFingerIndex(finger))];
+
     const float splay = inputData.splay[iFinger];
 
     SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), curl, splay, rightHand);
