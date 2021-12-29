@@ -24,7 +24,7 @@ static float Lerp(const float& a, const float& b, const float& f) {
 
 enum class FingerIndex : int { Thumb = 0, IndexFinger, MiddleFinger, RingFinger, PinkyFinger, Unknown = -1 };
 
-static std::map<std::string, HandSkeletonBone> GLTFNodeBoneMap{
+static const std::map<std::string, HandSkeletonBone> GLTFNodeBoneMap{
     {"REF:Root", HandSkeletonBone::Root},
     {"REF:wrist_r", HandSkeletonBone::Wrist},
     {"REF:finger_thumb_0_r", HandSkeletonBone::Thumb0},

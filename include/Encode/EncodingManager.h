@@ -90,7 +90,7 @@ struct VRInputData {
 class EncodingManager {
  public:
   explicit EncodingManager(float maxAnalogValue) : maxAnalogValue_(maxAnalogValue){};
-  virtual VRInputData Decode(std::string input) = 0;
+  virtual VRInputData Decode(const std::string& input) = 0;
   virtual std::string Encode(const VRFFBData& data) = 0;
 
  protected:
