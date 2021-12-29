@@ -12,6 +12,16 @@ LucidGloveDeviceDriver::LucidGloveDeviceDriver(
     const VRDeviceConfiguration configuration)
     : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration), inputComponentHandles_() {}
 
+static float GetAverageFingerValue(std::array<float, 5> fingerValues) {
+  int acc = 0;
+  for (int i = 0; i < fingerValues.size(); i++) {
+    acc += fingerValues[i];
+  }
+
+  return static_cast<float>(acc) / 5.0f;
+}
+
+
 void LucidGloveDeviceDriver::HandleInput(const VRInputData data) {
   // clang-format off
   vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::JoyX)], data.joyX, 0);
@@ -25,11 +35,11 @@ void LucidGloveDeviceDriver::HandleInput(const VRInputData data) {
   vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::GesGrab)], data.grab, 0);
   vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::GesPinch)], data.pinch, 0);
 
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgThumb)], data.flexion[0], 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgIndex)], data.flexion[1], 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgMiddle)], data.flexion[2], 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgRing)], data.flexion[3], 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgPinky)], data.flexion[4], 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgThumb)], GetAverageFingerValue(data.flexion[0]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgIndex)], GetAverageFingerValue(data.flexion[1]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgMiddle)], GetAverageFingerValue(data.flexion[2]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgRing)], GetAverageFingerValue(data.flexion[3]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgPinky)], GetAverageFingerValue(data.flexion[4]), 0);
 
   vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnMenu)], data.menu, 0);
   // clang-format on
