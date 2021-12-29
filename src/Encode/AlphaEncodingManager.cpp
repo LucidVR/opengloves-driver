@@ -28,6 +28,12 @@ enum class VRCommDataAlphaEncodingKey : int {
   Null,
 };
 
+static const std::string keyCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ()";
+
+static bool IsCharacterKeyCharacter(const char character) {
+  return keyCharacters.find(character) != std::string::npos;
+}
+
 static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEncodingInputKeyString{
     {"(AB)", VRCommDataAlphaEncodingKey::FinSplayThumb},   // whole thumb splay
     {"(BB)", VRCommDataAlphaEncodingKey::FinSplayIndex},   // whole index splay
@@ -67,13 +73,13 @@ static std::map<VRCommDataAlphaEncodingKey, std::string> ParseInputToMap(const s
   while (i < str.length()) {
     // Advance until we get an alphabetic character (no point in looking at values that don't have a key associated with them)
 
-    if (str[i] > 0 && str[i] < 255 && isalpha(str[i])) {
+    if (IsCharacterKeyCharacter(str[i])) {
       std::string key = {str[i]};
       i++;
 
       // we're going to be parsing a "long key", i.e. (AB) for thumb finger splay. Long keys must always be enclosed in brackets
       if (key[0] == '(') {
-        while (isalpha(str[i]) && i < str.length()) {
+        while (IsCharacterKeyCharacter(str[i]) && i < str.length()) {
           key += str[i];
           i++;
         }
