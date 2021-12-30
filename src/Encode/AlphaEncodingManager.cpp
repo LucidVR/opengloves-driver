@@ -66,6 +66,12 @@ static bool IsCharacterKeyCharacter(const char character) {
 }
 
 static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEncodingInputKeyString{
+    {"A", VRCommDataAlphaEncodingKey::FinThumb},           // whole thumb curl (default curl value for thumb joints)
+    {"B", VRCommDataAlphaEncodingKey::FinIndex},           // whole index curl (default curl value for index joints)
+    {"C", VRCommDataAlphaEncodingKey::FinMiddle},          // whole middle curl (default curl value for middle joints)
+    {"D", VRCommDataAlphaEncodingKey::FinRing},            // whole ring curl (default curl value for ring joints)
+    {"E", VRCommDataAlphaEncodingKey::FinPinky},           // whole pinky curl (default curl value for pinky joints)
+
     {"(AB)", VRCommDataAlphaEncodingKey::FinSplayThumb},   // whole thumb splay
     {"(BB)", VRCommDataAlphaEncodingKey::FinSplayIndex},   // whole index splay
     {"(CB)", VRCommDataAlphaEncodingKey::FinSplayMiddle},  // whole middle splay
@@ -93,15 +99,6 @@ static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEn
     {"(EAC)", VRCommDataAlphaEncodingKey::FinJointPinky2},   // pinky joint 2
     {"(EAD)", VRCommDataAlphaEncodingKey::FinJointPinky3},   // pinky joint 3
 
-    {"A", VRCommDataAlphaEncodingKey::FinThumb},  // whole thumb curl
-    {"A", VRCommDataAlphaEncodingKey::FinThumb},  // whole thumb curl
-    {"A", VRCommDataAlphaEncodingKey::FinThumb},  // whole thumb curl
-
-    {"A", VRCommDataAlphaEncodingKey::FinThumb},   // whole thumb curl
-    {"B", VRCommDataAlphaEncodingKey::FinIndex},   // whole index curl
-    {"C", VRCommDataAlphaEncodingKey::FinMiddle},  // whole middle curl
-    {"D", VRCommDataAlphaEncodingKey::FinRing},    // whole ring curl
-    {"E", VRCommDataAlphaEncodingKey::FinPinky},   // whole pinky curl
     {"F", VRCommDataAlphaEncodingKey::JoyX},       // joystick x component
     {"G", VRCommDataAlphaEncodingKey::JoyY},       // joystick y component
     {"H", VRCommDataAlphaEncodingKey::JoyBtn},     //
