@@ -1,23 +1,31 @@
 #pragma once
-#include <openvr_driver.h>
-#include <memory>
+
 #include "DeviceConfiguration.h"
+#include "openvr_driver.h"
+
+enum class CalibrationMethod {
+  Hardware,
+  Ui,
+  None,
+};
 
 class Calibration {
-public:
-    Calibration();
+ public:
+  Calibration();
 
-    void StartCalibration(vr::DriverPose_t maintainPose);
+  void StartCalibration(vr::DriverPose_t maintainPose, CalibrationMethod method);
 
-    VRPoseConfiguration_t CompleteCalibration(vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration_t poseConfiguration, bool isRightHand);
+  VRPoseConfiguration CompleteCalibration(
+      vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration poseConfiguration, bool isRightHand, CalibrationMethod method);
 
-    void CancelCalibration();
+  void CancelCalibration(CalibrationMethod method);
 
-    bool isCalibrating();
-    
-    vr::DriverPose_t GetMaintainPose();
+  bool IsCalibrating() const;
 
-private:
-    vr::DriverPose_t m_maintainPose;
-    bool m_isCalibrating;
+  vr::DriverPose_t GetMaintainPose() const;
+
+ private:
+  vr::DriverPose_t maintainPose_;
+  bool isCalibrating_;
+  CalibrationMethod calibratingMethod_;
 };

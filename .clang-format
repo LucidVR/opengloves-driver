@@ -1,2 +1,7 @@
 BasedOnStyle: Google
-ColumnLimit: 170
+ColumnLimit: 150
+BinPackParameters: false
+BinPackArguments: false
+AlignAfterOpenBracket: AlwaysBreak
+AllowShortFunctionsOnASingleLine: Empty
+NamespaceIndentation: All

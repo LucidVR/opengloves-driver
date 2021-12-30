@@ -1,53 +1,59 @@
 #pragma once
 
-#include "openvr_driver.h"
-
-#include <functional>
 #include <memory>
 
 #include "Bones.h"
 #include "Communication/CommunicationManager.h"
-#include "ControllerPose.h"
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
-#include "Encode/LegacyEncodingManager.h"
+#include "Encode/EncodingManager.h"
 #include "ForceFeedback.h"
+#include "openvr_driver.h"
 
-class KnuckleDeviceDriver : public IDeviceDriver {
+enum class KnuckleDeviceComponentIndex : int {
+  SystemClick = 0,
+  SystemTouch,
+  TriggerClick,
+  TriggerValue,
+  TrackpadX,
+  TrackpadY,
+  TrackpadTouch,
+  TrackpadForce,
+  GripTouch,
+  GripForce,
+  GripValue,
+  ThumbstickClick,
+  ThumbstickTouch,
+  ThumbstickX,
+  ThumbstickY,
+  AClick,
+  ATouch,
+  BClick,
+  BTouch,
+  FingerIndex,
+  FingerMiddle,
+  FingerRing,
+  FingerPinky,
+  _Count
+};
+
+class KnuckleDeviceDriver : public DeviceDriver {
  public:
-  KnuckleDeviceDriver(VRDeviceConfiguration_t configuration, std::unique_ptr<ICommunicationManager> communicationManager, std::string serialNumber, std::shared_ptr<BoneAnimator> boneAnimator);
+  KnuckleDeviceDriver(
+      std::unique_ptr<CommunicationManager> communicationManager,
+      std::shared_ptr<BoneAnimator> boneAnimator,
+      std::string serialNumber,
+      bool approximateThumb,
+      VRDeviceConfiguration configuration);
 
-  vr::EVRInitError Activate(uint32_t unObjectId);
-  void Deactivate();
-
-  void EnterStandby();
-  void* GetComponent(const char* pchComponentNameAndVersion);
-  void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize);
-  vr::DriverPose_t GetPose();
-  void RunFrame();
-
-  std::string GetSerialNumber();
-  bool IsActive();
+  void HandleInput(VRInputData data) override;
+  void SetupProps(vr::PropertyContainerHandle_t& props) override;
+  void StartingDevice() override;
+  void StoppingDevice() override;
 
  private:
-  void StartDevice();
-  bool IsRightHand() const;
-
-  bool m_hasActivated;
-  uint32_t m_driverId;
-
-  vr::VRInputComponentHandle_t m_skeletalComponentHandle{};
-  vr::VRInputComponentHandle_t m_inputComponentHandles[23]{};
-
-  vr::VRInputComponentHandle_t m_haptic{};
-
-  vr::VRBoneTransform_t m_handTransforms[NUM_BONES];
-
-  VRDeviceConfiguration_t m_configuration;
-  std::unique_ptr<ICommunicationManager> m_communicationManager;
-  std::string m_serialNumber;
-
-  std::unique_ptr<ControllerPose> m_controllerPose;
-  std::unique_ptr<FFBListener> m_ffbProvider;
-  std::shared_ptr<BoneAnimator> m_boneAnimator;
+  vr::VRInputComponentHandle_t inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::_Count)];
+  vr::VRInputComponentHandle_t haptic_;
+  std::unique_ptr<FFBListener> ffbProvider_;
+  bool approximateThumb_;
 };

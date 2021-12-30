@@ -1,31 +1,21 @@
 #pragma once
 
-#include <memory>
 #include <functional>
+#include <memory>
 
+#include "Encode/EncodingManager.h"
+#include "Util/NamedPipeListener.h"
 #include "openvr_driver.h"
-#include "Util/NamedPipe.h"
-
-struct VRFFBData_t {
-  VRFFBData_t(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl)
-      : thumbCurl(thumbCurl), indexCurl(indexCurl), middleCurl(middleCurl), ringCurl(ringCurl), pinkyCurl(pinkyCurl){};
-
-  short thumbCurl;
-  short indexCurl;
-  short middleCurl;
-  short ringCurl;
-  short pinkyCurl;
-};
 
 class FFBListener {
  public:
-  FFBListener(std::function<void(VRFFBData_t)> callback, vr::ETrackedControllerRole role);
+  FFBListener(std::function<void(VRFFBData)> callback, vr::ETrackedControllerRole role);
   void Start();
-  void Stop();
+  void Stop() const;
 
  private:
-  std::function<void(VRFFBData_t)> m_callback;
-  vr::ETrackedControllerRole m_role;
+  std::function<void(VRFFBData)> callback_;
+  vr::ETrackedControllerRole role_;
 
-  std::unique_ptr<NamedPipeUtil> m_pipe;
+  std::unique_ptr<NamedPipeListener<VRFFBData>> pipe_;
 };

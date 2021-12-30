@@ -1,9 +1,9 @@
 {
-  "driver_openglove":
-  {
+  "driver_openglove": {
     "__title": "OpenGlove Configuration",
     "left_enabled": true,
     "right_enabled": true,
+    "feedback_enabled": true,
     "communication_protocol": 0, //title:Communication Method
     "device_driver": 1, //title:Device Driver Emulation
     "encoding_protocol": 1 //title:Encoding Protocol
@@ -20,11 +20,13 @@
     "__title": "Knuckles Emulation",
     "__type": "device_driver:1",
     "left_serial_number": "LHR-E217CD00",
-    "right_serial_number": "LHR-E217CD01"
+    "right_serial_number": "LHR-E217CD01",
+	"approximate_thumb": true
   },
   "pose_settings":
   {
     "__title": "Pose settings",
+	"hardware_calibration_button_enabled": false,
     "right_x_offset_position": -0.1,
     "right_y_offset_position": -0.08,
     "right_z_offset_position": -0.03,
@@ -54,8 +56,13 @@
   {
     "__type": "communication_protocol:1",
     "__title": "Bluetooth Serial",
-	"left_name": "lucidgloves-left",
-  	"right_name": "lucidgloves-right"
+    "left_name": "lucidgloves-left",
+    "right_name": "lucidgloves-right"
+  },
+  "communication_namedpipe":
+  {
+    "__type": "communication_protocol:2",
+    "__title": "Named Pipe"
   },
   "encoding_legacy":
   {

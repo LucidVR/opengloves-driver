@@ -1,10 +1,8 @@
 #pragma once
 
-#include "openvr_driver.h"
+#include <utility>
 
-#include "Communication/CommunicationManager.h"
-#include "DeviceDriver/DeviceDriver.h"
-#include "Encode/EncodingManager.h"
+#include "openvr_driver.h"
 
 extern const char* c_poseSettingsSection;
 extern const char* c_driverSettingsSection;
@@ -12,70 +10,91 @@ extern const char* c_serialCommunicationSettingsSection;
 extern const char* c_btserialCommunicationSettingsSection;
 extern const char* c_knuckleDeviceSettingsSection;
 extern const char* c_lucidGloveDeviceSettingsSection;
+extern const char* c_alphaEncodingSettingsSection;
+extern const char* c_legacyEncodingSettingsSection;
+
+extern const char* c_deviceDriverManufacturer;
 
 enum class VRCommunicationProtocol {
-	SERIAL = 0,
-	BTSERIAL = 1,
+  Serial,
+  BtSerial,
+  NamedPipe,
 };
 
 enum class VREncodingProtocol {
-    LEGACY = 0,
-    ALPHA = 1,
+  Legacy = 0,
+  Alpha = 1,
 };
 
 enum class VRDeviceDriver {
-    LUCIDGLOVES = 0,
-    EMULATED_KNUCKLES = 1,
+  LucidGloves = 0,
+  EmulatedKnuckles = 1,
 };
 
-struct VRSerialConfiguration_t {
-    std::string port;
-    int baudRate;
+struct VRSerialConfiguration {
+  std::string port;
+  int baudRate;
 
-    VRSerialConfiguration_t(std::string port, int baudRate) : port(port), baudRate(baudRate) {};
+  VRSerialConfiguration(std::string port, const int baudRate) : port(std::move(port)), baudRate(baudRate) {}
 };
 
-struct VRBTSerialConfiguration_t {
-	std::string name;
+struct VRBTSerialConfiguration {
+  std::string name;
 
-	VRBTSerialConfiguration_t(std::string name) : name(name) {};
+  explicit VRBTSerialConfiguration(std::string name) : name(std::move(name)) {}
 };
 
-struct VRPoseConfiguration_t {
-    VRPoseConfiguration_t(vr::HmdVector3_t offsetVector, vr::HmdQuaternion_t angleOffsetQuaternion, float poseTimeOffset,
-                          bool controllerOverrideEnabled, int controllerIdOverride) :
-            offsetVector(offsetVector),
-            angleOffsetQuaternion(angleOffsetQuaternion),
-            poseTimeOffset(poseTimeOffset),
-            controllerOverrideEnabled(controllerOverrideEnabled),
-            controllerIdOverride(controllerIdOverride) {};
-    vr::HmdVector3_t offsetVector;
-    vr::HmdQuaternion_t angleOffsetQuaternion;
-    float poseTimeOffset;
-    int controllerIdOverride;
-    bool controllerOverrideEnabled;
+struct VRNamedPipeInputConfiguration {
+  std::string pipeName;
+
+  VRNamedPipeInputConfiguration(std::string pipeName) : pipeName(std::move(pipeName)) {}
 };
 
-struct VRDeviceConfiguration_t {
-    VRDeviceConfiguration_t(vr::ETrackedControllerRole role,
-                            bool enabled,
-                            VRPoseConfiguration_t poseConfiguration,
-                            VREncodingProtocol encodingProtocol,
-                            VRCommunicationProtocol communicationProtocol,
-                            VRDeviceDriver deviceDriver) :
-            role(role),
-            enabled(enabled),
-            poseConfiguration(poseConfiguration),
-            encodingProtocol(encodingProtocol),
-            communicationProtocol(communicationProtocol),
-            deviceDriver(deviceDriver) {};
+struct VRPoseConfiguration {
+  vr::HmdVector3_t offsetVector;
+  vr::HmdQuaternion_t angleOffsetQuaternion;
+  float poseTimeOffset;
+  int controllerIdOverride;
+  bool controllerOverrideEnabled;
+  bool calibrationButtonEnabled;
 
-    vr::ETrackedControllerRole role;
-    bool enabled;
+  VRPoseConfiguration(
+      const vr::HmdVector3_t offsetVector,
+      const vr::HmdQuaternion_t angleOffsetQuaternion,
+      const float poseTimeOffset,
+      const bool controllerOverrideEnabled,
+      const int controllerIdOverride,
+      const bool calibrationButtonEnabled)
+      : offsetVector(offsetVector),
+        angleOffsetQuaternion(angleOffsetQuaternion),
+        poseTimeOffset(poseTimeOffset),
+        controllerIdOverride(controllerIdOverride),
+        controllerOverrideEnabled(controllerOverrideEnabled),
+        calibrationButtonEnabled(calibrationButtonEnabled) {}
+};
 
-    VRPoseConfiguration_t poseConfiguration;
+struct VRDeviceConfiguration {
+  vr::ETrackedControllerRole role;
+  bool enabled;
+  bool feedbackEnabled;
+  VRPoseConfiguration poseConfiguration;
+  VREncodingProtocol encodingProtocol;
+  VRCommunicationProtocol communicationProtocol;
+  VRDeviceDriver deviceDriver;
 
-    VREncodingProtocol encodingProtocol;
-    VRCommunicationProtocol communicationProtocol;
-    VRDeviceDriver deviceDriver;
+  VRDeviceConfiguration(
+      const vr::ETrackedControllerRole role,
+      const bool enabled,
+      const bool feedbackEnabled,
+      const VRPoseConfiguration poseConfiguration,
+      const VREncodingProtocol encodingProtocol,
+      const VRCommunicationProtocol communicationProtocol,
+      const VRDeviceDriver deviceDriver)
+      : role(role),
+        enabled(enabled),
+        feedbackEnabled(feedbackEnabled),
+        poseConfiguration(poseConfiguration),
+        encodingProtocol(encodingProtocol),
+        communicationProtocol(communicationProtocol),
+        deviceDriver(deviceDriver) {}
 };

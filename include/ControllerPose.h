@@ -1,41 +1,46 @@
 #pragma once
 #include <openvr_driver.h>
+
 #include <memory>
 
-#include "DeviceConfiguration.h"
-#include "ControllerDiscovery.h"
 #include "Calibration.h"
-#include "Util/NamedPipe.h"
+#include "ControllerDiscovery.h"
+#include "DeviceConfiguration.h"
+#include "Util/NamedPipeListener.h"
+
+struct CalibrationDataIn {
+  uint8_t start;
+};
 
 class ControllerPose {
  public:
-  ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer,
-                 VRPoseConfiguration_t poseConfiguration);
+  ControllerPose(vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration);
+  ~ControllerPose();
 
-  vr::DriverPose_t UpdatePose();
+  vr::DriverPose_t UpdatePose() const;
 
-  void StartCalibration();
+  void StartCalibration(CalibrationMethod method) const;
 
-  void CompleteCalibration();
+  void CompleteCalibration(CalibrationMethod method);
 
-  void CancelCalibration();
+  void CancelCalibration(CalibrationMethod method) const;
 
-  bool isCalibrating();
+  bool IsCalibrating() const;
 
  private:
-  uint32_t m_shadowControllerId = vr::k_unTrackedDeviceIndexInvalid;
+  uint32_t shadowControllerId_ = vr::k_unTrackedDeviceIndexInvalid;
 
-  VRPoseConfiguration_t m_poseConfiguration;
+  VRPoseConfiguration poseConfiguration_;
 
-  vr::ETrackedControllerRole m_shadowDeviceOfRole = vr::TrackedControllerRole_Invalid;
+  vr::ETrackedControllerRole shadowDeviceOfRole_ = vr::TrackedControllerRole_Invalid;
 
-  std::string m_thisDeviceManufacturer;
+  std::string thisDeviceManufacturer_;
 
-  vr::TrackedDevicePose_t GetControllerPose();
+  vr::TrackedDevicePose_t GetControllerPose() const;
 
-  bool isRightHand();
+  bool IsRightHand() const;
 
-  std::unique_ptr<ControllerDiscovery> m_controllerDiscoverer;
-  std::unique_ptr<NamedPipeUtil> m_calibrationPipe;
-  std::unique_ptr<Calibration> m_calibration;
+  std::unique_ptr<ControllerDiscovery> controllerDiscoverer_;
+  std::unique_ptr<NamedPipeListener<CalibrationDataIn>> calibrationPipe_;
+  std::unique_ptr<Calibration> calibration_;
 };

@@ -1,52 +1,50 @@
 #pragma once
-#include "openvr_driver.h"
+
+#include <memory>
+#include <string>
+
+#include "Bones.h"
+#include "Communication/CommunicationManager.h"
+#include "ControllerPose.h"
 #include "DeviceConfiguration.h"
+#include "openvr_driver.h"
 
-class IDeviceDriver : public vr::ITrackedDeviceServerDriver {
-public:
-	/**
-	Initialize your controller here. Give OpenVR information
-	about your controller and set up handles to inform OpenVR when
-	the controller state changes.
-	**/
-	virtual vr::EVRInitError Activate(uint32_t unObjectId) = 0;
+class DeviceDriver : public vr::ITrackedDeviceServerDriver {
+ public:
+  DeviceDriver(
+      std::unique_ptr<CommunicationManager> communicationManager,
+      std::shared_ptr<BoneAnimator> boneAnimator,
+      std::string serialNumber,
+      VRDeviceConfiguration configuration);
 
-	/**
-	Un-initialize your controller here.
-	**/
-	virtual void Deactivate() = 0;
+  vr::EVRInitError Activate(uint32_t unObjectId) override;
+  void Deactivate() override;
+  void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) override;
+  void EnterStandby() override;
+  void* GetComponent(const char* pchComponentNameAndVersion) override;
+  vr::DriverPose_t GetPose() override;
+  virtual std::string GetSerialNumber();
+  virtual bool IsActive();
+  virtual void RunFrame();
 
-	/**
-	Tell your hardware to go into stand-by mode (low-power).
-	**/
-	virtual void EnterStandby() = 0;
+ protected:
+  virtual bool IsRightHand() const;
+  virtual void StartDevice();
 
-	/**
-	Take a look at the comment block for this method on ITrackedDeviceServerDriver. So as far
-	as I understand, driver classes like this one can implement lots of functionality that
-	can be categorized into components. This class just acts as an input device, so it will
-	return the IVRDriverInput class, but it could return other component classes if it had
-	more functionality, such as maybe overlays or UI functionality.
-	**/
-	virtual void* GetComponent(const char* pchComponentNameAndVersion) = 0;
+  virtual void HandleInput(VRInputData data) = 0;
+  virtual void SetupProps(vr::PropertyContainerHandle_t& props) = 0;
+  virtual void StartingDevice() = 0;
+  virtual void StoppingDevice() = 0;
 
-	/**
-	Refer to ITrackedDeviceServerDriver. I think it sums up what this does well.
-	**/
-	virtual void DebugRequest(const char* pchRequest, char* pchResponseBuffer, uint32_t unResponseBufferSize) = 0;
+  std::unique_ptr<CommunicationManager> communicationManager_;
+  std::shared_ptr<BoneAnimator> boneAnimator_;
+  VRDeviceConfiguration configuration_;
+  std::string serialNumber_;
 
-	/**
-	Returns the Pose for your device. Pose is an object that contains the position, rotation, velocity,
-	and angular velocity of your device.
-	**/
-	virtual vr::DriverPose_t GetPose() = 0;
+  std::unique_ptr<ControllerPose> controllerPose_;
+  vr::VRInputComponentHandle_t skeletalComponentHandle_;
+  vr::VRBoneTransform_t handTransforms_[NUM_BONES];
 
-	/**
-	You can retrieve the state of your device here and update OpenVR if anything has changed. This
-	method should be called every frame.
-	**/
-	virtual void RunFrame() = 0;
-
-	virtual std::string GetSerialNumber() = 0;
-	virtual bool IsActive() = 0;
+  bool hasActivated_;
+  uint32_t driverId_;
 };

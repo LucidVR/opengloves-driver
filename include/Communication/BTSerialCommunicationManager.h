@@ -1,61 +1,39 @@
 #pragma once
-#include <Winsock2.h>
-#include <Ws2bth.h>
+
+#include <WinSock2.h>
 #include <bluetoothapis.h>
-#include <windows.h>
 
 #include <atomic>
-#include <chrono>
 #include <memory>
-#include <mutex>
-#include <sstream>
-#include <thread>
-#include <vector>
+#include <string>
 
-#include "CommunicationManager.h"
+#include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
-#include "DriverLog.h"
+#include "Encode/EncodingManager.h"
 
-class BTSerialCommunicationManager : public ICommunicationManager {
+class BTSerialCommunicationManager : public CommunicationManager {
  public:
-  BTSerialCommunicationManager(const VRBTSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager);
+  BTSerialCommunicationManager(
+      std::unique_ptr<EncodingManager> encodingManager, VRBTSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration);
 
-  // start a thread that listens for updates from the device and calls the callback with data
-  void BeginListener(const std::function<void(VRCommData_t)>& callback);
-  // returns if connected or not
-  bool IsConnected();
-  // close the serial port
-  void Disconnect();
+  bool IsConnected() override;
 
-  void QueueSend(const VRFFBData_t& data);
+ protected:
+  bool Connect() override;
+  bool DisconnectFromDevice() override;
+  void LogError(const char* message) override;
+  void LogMessage(const char* message) override;
+  bool ReceiveNextPacket(std::string& buff) override;
+  bool SendMessageToDevice() override;
 
  private:
-  bool Connect();
-  void ListenerThread(const std::function<void(VRCommData_t)>& callback);
-  bool ReceiveNextPacket(std::string& buff);
-  bool GetPairedDeviceBtAddress();
+  bool ConnectToDevice(const BTH_ADDR& deviceBtAddress);
+  bool GetPairedDeviceBtAddress(BTH_ADDR* deviceBtAddress);
   bool StartupWindowsSocket();
-  bool ConnectToDevice();
-  bool SendMessageToDevice();
-  void WaitAttemptConnection();
-  bool DisconnectFromDevice();
-  void LogError(const char* message);
-  void LogMessage(const char* message);
 
-  std::atomic<bool> m_isConnected;
-  std::atomic<bool> m_threadActive;
-  std::thread m_serialThread;
+  VRBTSerialConfiguration btSerialConfiguration_;
 
-  std::unique_ptr<IEncodingManager> m_encodingManager;
+  std::atomic<bool> isConnected_;
 
-  VRBTSerialConfiguration_t m_btSerialConfiguration;
-
-  BTH_ADDR m_deviceBtAddress;
-  SOCKADDR_BTH m_btSocketAddress;
-  SOCKET m_btClientSocket;
-  WCHAR* m_wcDeviceName;
-
-  std::mutex m_writeMutex;
-
-  std::string m_writeString = "\n";
+  std::atomic<SOCKET> btClientSocket_;
 };

@@ -1,64 +1,36 @@
 #pragma once
 
-#include <windows.h>
+#include <Windows.h>
 
 #include <atomic>
-#include <iostream>
 #include <memory>
-#include <mutex>
-#include <thread>
+#include <string>
 
-#include "CommunicationManager.h"
+#include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
+#include "Encode/EncodingManager.h"
 
-class SerialCommunicationManager : public ICommunicationManager {
+class SerialCommunicationManager : public CommunicationManager {
  public:
-  SerialCommunicationManager(const VRSerialConfiguration_t& configuration, std::unique_ptr<IEncodingManager> encodingManager)
-      : m_serialConfiguration(configuration),
-      m_encodingManager(std::move(encodingManager)),
-      m_isConnected(false),
-      m_hSerial(0),
-      m_errors(0)
-  {
-      //initially no force feedback
-    VRFFBData_t data(0, 0, 0, 0, 0);
+  SerialCommunicationManager(
+      std::unique_ptr<EncodingManager> encodingManager, VRSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration);
 
-    m_writeString = m_encodingManager->Encode(data);
-  };
+  bool IsConnected() override;
 
-  void BeginListener(const std::function<void(VRCommData_t)>& callback);
-  bool IsConnected();
-  void Disconnect();
-
-  void QueueSend(const VRFFBData_t& data);
+ protected:
+  bool Connect() override;
+  bool DisconnectFromDevice() override;
+  void LogError(const char* message) override;
+  void LogMessage(const char* message) override;
+  bool ReceiveNextPacket(std::string& buff) override;
+  bool SendMessageToDevice() override;
 
  private:
-  bool Connect();
-  void ListenerThread(const std::function<void(VRCommData_t)>& callback);
-  bool ReceiveNextPacket(std::string& buff);
-  bool PurgeBuffer();
-  bool Write();
-  void WaitAttemptConnection();
-  bool DisconnectFromDevice();
+  bool PurgeBuffer() const;
 
-  void LogMessage(const char* message);
-  void LogError(const char* message);
+  VRSerialConfiguration serialConfiguration_;
 
-  bool m_isConnected;
-  // Serial comm handler
-  HANDLE m_hSerial;
-  // Connection information
-  COMSTAT m_status;
-  // Error tracking
-  DWORD m_errors;
-  std::atomic<bool> m_threadActive;
-  std::thread m_serialThread;
+  std::atomic<bool> isConnected_;
 
-  VRSerialConfiguration_t m_serialConfiguration;
-
-  std::unique_ptr<IEncodingManager> m_encodingManager;
-
-  std::mutex m_writeMutex;
-
-  std::string m_writeString;
+  std::atomic<HANDLE> hSerial_;
 };

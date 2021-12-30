@@ -25,7 +25,7 @@ If you are planning on modifying source files, refer to [BUILDING.md](https://gi
 
 ## Compatibility
 ### Compatible Hardware
-* [LucidVR Gloves](https://github.com/LucidVR/lucidgloves-hardware) - Lucas VRTech
+* [LucidGloves](https://github.com/LucidVR/lucidgloves) - Lucas VRTech
 * [Fngrs](https://github.com/danwillm/Fngrs/) - danwillm
 * Have your own hardware you want to feature here? Let us know!
 

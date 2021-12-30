@@ -1,23 +1,24 @@
 #pragma once
 
-#include <memory>
 #include <functional>
-#include "openvr_driver.h"
-#include "Util/NamedPipe.h"
+#include <memory>
 
-struct ControllerDiscoveryPipeData_t {
+#include "Util/NamedPipeListener.h"
+#include "openvr_driver.h"
+
+struct ControllerDiscoveryPipeData {
   short controllerId;
 };
 
 class ControllerDiscovery {
  public:
-  ControllerDiscovery(vr::ETrackedControllerRole role, std::function<void(ControllerDiscoveryPipeData_t)> callback);
+  ControllerDiscovery(vr::ETrackedControllerRole role, std::function<void(ControllerDiscoveryPipeData)> callback);
 
   void Start();
-  void Stop();
+  void Stop() const;
 
  private:
-  vr::ETrackedControllerRole m_role;
-  std::unique_ptr<NamedPipeUtil> m_pipe;
-  std::function<void(ControllerDiscoveryPipeData_t)> m_callback;
+  vr::ETrackedControllerRole role_;
+  std::unique_ptr<NamedPipeListener<ControllerDiscoveryPipeData>> pipe_;
+  std::function<void(ControllerDiscoveryPipeData)> callback_;
 };
