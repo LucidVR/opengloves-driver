@@ -72,12 +72,6 @@ static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEn
     {"D", VRCommDataAlphaEncodingKey::FinRing},            // whole ring curl (default curl value for ring joints)
     {"E", VRCommDataAlphaEncodingKey::FinPinky},           // whole pinky curl (default curl value for pinky joints)
 
-    {"(AB)", VRCommDataAlphaEncodingKey::FinSplayThumb},   // whole thumb splay
-    {"(BB)", VRCommDataAlphaEncodingKey::FinSplayIndex},   // whole index splay
-    {"(CB)", VRCommDataAlphaEncodingKey::FinSplayMiddle},  // whole middle splay
-    {"(DB)", VRCommDataAlphaEncodingKey::FinSplayRing},    // whole ring splay
-    {"(EB)", VRCommDataAlphaEncodingKey::FinSplayPinky},   // whole pinky splay
-
     {"(AAA)", VRCommDataAlphaEncodingKey::FinJointThumb0},   // thumb joint 0
     {"(AAB)", VRCommDataAlphaEncodingKey::FinJointThumb1},   // thumb joint 1
     {"(AAC)", VRCommDataAlphaEncodingKey::FinJointThumb2},   // thumb joint 2
@@ -98,6 +92,12 @@ static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEn
     {"(EAB)", VRCommDataAlphaEncodingKey::FinJointPinky1},   // pinky joint 1
     {"(EAC)", VRCommDataAlphaEncodingKey::FinJointPinky2},   // pinky joint 2
     {"(EAD)", VRCommDataAlphaEncodingKey::FinJointPinky3},   // pinky joint 3
+    
+    {"(AB)", VRCommDataAlphaEncodingKey::FinSplayThumb},   // whole thumb splay
+    {"(BB)", VRCommDataAlphaEncodingKey::FinSplayIndex},   // whole index splay
+    {"(CB)", VRCommDataAlphaEncodingKey::FinSplayMiddle},  // whole middle splay
+    {"(DB)", VRCommDataAlphaEncodingKey::FinSplayRing},    // whole ring splay
+    {"(EB)", VRCommDataAlphaEncodingKey::FinSplayPinky},   // whole pinky splay
 
     {"F", VRCommDataAlphaEncodingKey::JoyX},       // joystick x component
     {"G", VRCommDataAlphaEncodingKey::JoyY},       // joystick y component
