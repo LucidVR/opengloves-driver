@@ -76,27 +76,22 @@ static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEn
     {"(AAB)", VRCommDataAlphaEncodingKey::FinJointThumb1},   // thumb joint 1
     {"(AAC)", VRCommDataAlphaEncodingKey::FinJointThumb2},   // thumb joint 2
     {"(AAD)", VRCommDataAlphaEncodingKey::FinJointThumb3},   // thumb joint 3
-    {"(AAE)", VRCommDataAlphaEncodingKey::FinJointThumb4},   // thumb joint 4
     {"(BAA)", VRCommDataAlphaEncodingKey::FinJointIndex0},   // index joint 0
     {"(BAB)", VRCommDataAlphaEncodingKey::FinJointIndex1},   // index joint 1
     {"(BAC)", VRCommDataAlphaEncodingKey::FinJointIndex2},   // index joint 2
     {"(BAD)", VRCommDataAlphaEncodingKey::FinJointIndex3},   // index joint 3
-    {"(BAE)", VRCommDataAlphaEncodingKey::FinJointIndex4},   // index joint 4
     {"(CAA)", VRCommDataAlphaEncodingKey::FinJointMiddle0},  // middle joint 0
     {"(CAB)", VRCommDataAlphaEncodingKey::FinJointMiddle1},  // middle joint 1
     {"(CAC)", VRCommDataAlphaEncodingKey::FinJointMiddle2},  // middle joint 2
     {"(CAD)", VRCommDataAlphaEncodingKey::FinJointMiddle3},  // middle joint 3
-    {"(CAE)", VRCommDataAlphaEncodingKey::FinJointMiddle4},  // middle joint 4
     {"(DAA)", VRCommDataAlphaEncodingKey::FinJointRing0},    // ring joint 0
     {"(DAB)", VRCommDataAlphaEncodingKey::FinJointRing1},    // ring joint 1
     {"(DAC)", VRCommDataAlphaEncodingKey::FinJointRing2},    // ring joint 2
     {"(DAD)", VRCommDataAlphaEncodingKey::FinJointRing3},    // ring joint 3
-    {"(DAE)", VRCommDataAlphaEncodingKey::FinJointRing4},    // ring joint 4
     {"(EAA)", VRCommDataAlphaEncodingKey::FinJointPinky0},   // pinky joint 0
     {"(EAB)", VRCommDataAlphaEncodingKey::FinJointPinky1},   // pinky joint 1
     {"(EAC)", VRCommDataAlphaEncodingKey::FinJointPinky2},   // pinky joint 2
     {"(EAD)", VRCommDataAlphaEncodingKey::FinJointPinky3},   // pinky joint 3
-    {"(EAE)", VRCommDataAlphaEncodingKey::FinJointPinky4},   // pinky joint 4
 
     {"A", VRCommDataAlphaEncodingKey::FinThumb},  // whole thumb curl
     {"A", VRCommDataAlphaEncodingKey::FinThumb},  // whole thumb curl
@@ -168,7 +163,7 @@ static std::map<VRCommDataAlphaEncodingKey, std::string> ParseInputToMap(const s
 
 VRInputData AlphaEncodingManager::Decode(const std::string& input) {
   std::array<float, 5> flexion = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
-  std::array<std::array<float, 5>, 5> jointFlexion{flexion, flexion, flexion, flexion, flexion};
+  std::array<std::array<float, 4>, 5> jointFlexion;
 
   std::array<float, 5> splay = {-2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
 
@@ -190,7 +185,7 @@ VRInputData AlphaEncodingManager::Decode(const std::string& input) {
   // fill all the joints
   int curJoint = (int)VRCommDataAlphaEncodingKey::FinJointThumb0;
   for (int i = 0; i < 5; i++) {
-    for (int k = 0; k < 5; k++) {
+    for (int k = 0; k < 4; k++) {
       VRCommDataAlphaEncodingKey joint = static_cast<VRCommDataAlphaEncodingKey>(curJoint);
       jointFlexion[i][k] = inputMap.find(joint) != inputMap.end() ? (std::stof(inputMap.at(joint)) / maxAnalogValue_) : flexion[i];
       curJoint++;

@@ -40,8 +40,6 @@ struct VRInputData {
             flexion[0],
             flexion[0],
             flexion[0],
-            flexion[0],
-            flexion[1],
             flexion[1],
             flexion[1],
             flexion[1],
@@ -50,13 +48,10 @@ struct VRInputData {
             flexion[2],
             flexion[2],
             flexion[2],
-            flexion[2],
             flexion[3],
             flexion[3],
             flexion[3],
             flexion[3],
-            flexion[3],
-            flexion[4],
             flexion[4],
             flexion[4],
             flexion[4],
@@ -74,7 +69,7 @@ struct VRInputData {
         calibrate(calibrate) {}
 
   VRInputData(
-      std::array<std::array<float, 5>, 5> flexion,
+      std::array<std::array<float, 4>, 5> flexion,
       std::array<float, 5> splay,
       float joyX,
       float joyY,
@@ -99,7 +94,7 @@ struct VRInputData {
         menu(menu),
         calibrate(calibrate) {}
 
-  const std::array<std::array<float, 5>, 5> flexion;
+  const std::array<std::array<float, 4>, 5> flexion;
   const std::array<float, 5> splay = {-2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
   const float joyX;
   const float joyY;

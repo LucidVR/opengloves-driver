@@ -67,7 +67,6 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
     case HandSkeletonBone::Thumb0:
     case HandSkeletonBone::Thumb1:
     case HandSkeletonBone::Thumb2:
-    case HandSkeletonBone::Thumb3:
     case HandSkeletonBone::AuxThumb:
       return FingerIndex::Thumb;
 
@@ -75,7 +74,6 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
     case HandSkeletonBone::IndexFinger1:
     case HandSkeletonBone::IndexFinger2:
     case HandSkeletonBone::IndexFinger3:
-    case HandSkeletonBone::IndexFinger4:
     case HandSkeletonBone::AuxIndexFinger:
       return FingerIndex::IndexFinger;
 
@@ -83,7 +81,6 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
     case HandSkeletonBone::MiddleFinger1:
     case HandSkeletonBone::MiddleFinger2:
     case HandSkeletonBone::MiddleFinger3:
-    case HandSkeletonBone::MiddleFinger4:
     case HandSkeletonBone::AuxMiddleFinger:
       return FingerIndex::MiddleFinger;
 
@@ -91,7 +88,6 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
     case HandSkeletonBone::RingFinger1:
     case HandSkeletonBone::RingFinger2:
     case HandSkeletonBone::RingFinger3:
-    case HandSkeletonBone::RingFinger4:
     case HandSkeletonBone::AuxRingFinger:
       return FingerIndex::RingFinger;
 
@@ -99,7 +95,6 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
     case HandSkeletonBone::PinkyFinger1:
     case HandSkeletonBone::PinkyFinger2:
     case HandSkeletonBone::PinkyFinger3:
-    case HandSkeletonBone::PinkyFinger4:
     case HandSkeletonBone::AuxPinkyFinger:
       return FingerIndex::PinkyFinger;
 
@@ -272,15 +267,6 @@ BoneAnimator::BoneAnimator(const std::string& fileName) : fileName_(fileName) {
   loaded_ = modelManager_->Load();
 }
 
-static float GetAverageFingerValue(std::array<float, 5> fingerValues) {
-  int acc = 0;
-  for (int i = 0; i < fingerValues.size(); i++) {
-    acc += fingerValues[i];
-  }
-
-  return static_cast<float>(acc) / 5.0f;
-}
-
 void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const VRInputData& inputData, const bool rightHand) {
   if (!loaded_) return;
 
@@ -293,7 +279,7 @@ void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, co
 
     float curl;
     if (IsAuxBone(static_cast<HandSkeletonBone>(i)))
-      curl = GetAverageFingerValue(inputData.flexion[iFinger]);
+      curl = GetAverageCurlValue(inputData.flexion[iFinger]);
     else
       curl = inputData.flexion[iFinger][i - static_cast<int>(GetRootFingerBoneFromFingerIndex(finger))];
 
@@ -347,6 +333,15 @@ void BoneAnimator::SetTransformForBone(
   // we're guaranteed to have updated the bone, so we can safely apply a transformation
   if (!rightHand) TransformLeftBone(bone, boneIndex);
 };
+
+float BoneAnimator::GetAverageCurlValue(const std::array<float, 4>& joints) {
+  int acc = 0;
+  for (int i = 0; i < joints.size(); i++) {
+    acc += joints[i];
+  }
+
+  return static_cast<float>(acc) / joints.size();
+}
 
 void BoneAnimator::TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex) {
   switch (boneIndex) {

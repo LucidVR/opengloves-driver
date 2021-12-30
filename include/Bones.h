@@ -74,6 +74,7 @@ class BoneAnimator {
   explicit BoneAnimator(const std::string& fileName);
   void ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const VRInputData& inputData, const bool rightHand);
   static void TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex);
+  static float GetAverageCurlValue(const std::array<float, 4>& joints);
 
  private:
   void SetTransformForBone(
