@@ -335,12 +335,12 @@ void BoneAnimator::SetTransformForBone(
 };
 
 float BoneAnimator::GetAverageCurlValue(const std::array<float, 4>& joints) {
-  int acc = 0;
+  float acc = 0;
   for (int i = 0; i < joints.size(); i++) {
     acc += joints[i];
   }
 
-  return static_cast<float>(acc) / joints.size();
+  return acc / static_cast<float>(joints.size());
 }
 
 void BoneAnimator::TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex) {
