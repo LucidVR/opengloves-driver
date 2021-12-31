@@ -52,11 +52,13 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
 }
 
 void DeviceDriver::Deactivate() {
-  if (hasActivated_) {
+  if (hasActivated_.exchange(false)) {
     StoppingDevice();
     communicationManager_->Disconnect();
     driverId_ = vr::k_unTrackedDeviceIndexInvalid;
     hasActivated_ = false;
+
+    poseUpdateThread_.join();
   }
 }
 
@@ -84,11 +86,18 @@ bool DeviceDriver::IsActive() {
   return hasActivated_;
 }
 
-void DeviceDriver::RunFrame() {
-  if (hasActivated_) {
-    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(driverId_, controllerPose_->UpdatePose(), sizeof(vr::DriverPose_t));
+void DeviceDriver::PoseUpdateThread() {
+  while (hasActivated_) {
+    vr::DriverPose_t pose = controllerPose_->UpdatePose();
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(driverId_, pose, sizeof(vr::DriverPose_t));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
   }
+
+  DriverLog("Closing pose thread...");
 }
+
+void DeviceDriver::RunFrame() {}
 
 bool DeviceDriver::IsRightHand() const {
   return configuration_.role == vr::TrackedControllerRole_RightHand;
@@ -122,4 +131,6 @@ void DeviceDriver::StartDevice() {
       DebugDriverLog("Exception caught while parsing comm data");
     }
   });
+
+  poseUpdateThread_ = std::thread(&DeviceDriver::PoseUpdateThread, this);
 }
