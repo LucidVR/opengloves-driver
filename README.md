@@ -59,4 +59,4 @@ Pull requests are very welcome. For major changes, please open an issue first to
 * Lucas VRTech (`LucidVR#0001`)
 
 ## Discord
-https://discord.gg/lucidvr
+https://discord.gg/favJqS2k4X
