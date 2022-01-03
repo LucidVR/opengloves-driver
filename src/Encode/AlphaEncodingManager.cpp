@@ -14,28 +14,22 @@ static enum class VRCommDataAlphaEncodingKey : int {
   FinJointThumb0,
   FinJointThumb1,
   FinJointThumb2,
-  FinJointThumb3,
-  FinJointThumb4,
   FinJointIndex0,
   FinJointIndex1,
   FinJointIndex2,
   FinJointIndex3,
-  FinJointIndex4,
   FinJointMiddle0,
   FinJointMiddle1,
   FinJointMiddle2,
   FinJointMiddle3,
-  FinJointMiddle4,
   FinJointRing0,
   FinJointRing1,
   FinJointRing2,
   FinJointRing3,
-  FinJointRing4,
   FinJointPinky0,
   FinJointPinky1,
   FinJointPinky2,
   FinJointPinky3,
-  FinJointPinky4,
 
   FinThumb,
   FinIndex,
@@ -75,7 +69,6 @@ static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEn
     {"(AAA)", VRCommDataAlphaEncodingKey::FinJointThumb0},   // thumb joint 0
     {"(AAB)", VRCommDataAlphaEncodingKey::FinJointThumb1},   // thumb joint 1
     {"(AAC)", VRCommDataAlphaEncodingKey::FinJointThumb2},   // thumb joint 2
-    {"(AAD)", VRCommDataAlphaEncodingKey::FinJointThumb3},   // thumb joint 3
     {"(BAA)", VRCommDataAlphaEncodingKey::FinJointIndex0},   // index joint 0
     {"(BAB)", VRCommDataAlphaEncodingKey::FinJointIndex1},   // index joint 1
     {"(BAC)", VRCommDataAlphaEncodingKey::FinJointIndex2},   // index joint 2
@@ -101,13 +94,13 @@ static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEn
 
     {"F", VRCommDataAlphaEncodingKey::JoyX},       // joystick x component
     {"G", VRCommDataAlphaEncodingKey::JoyY},       // joystick y component
-    {"H", VRCommDataAlphaEncodingKey::JoyBtn},     //
-    {"I", VRCommDataAlphaEncodingKey::BtnTrg},     //
-    {"J", VRCommDataAlphaEncodingKey::BtnA},       //
-    {"K", VRCommDataAlphaEncodingKey::BtnB},       //
-    {"L", VRCommDataAlphaEncodingKey::GesGrab},    //
-    {"M", VRCommDataAlphaEncodingKey::GesPinch},   //
-    {"N", VRCommDataAlphaEncodingKey::BtnMenu},    // System button pressed (opens SteamVR menu)
+    {"H", VRCommDataAlphaEncodingKey::JoyBtn},     // joystick button
+    {"I", VRCommDataAlphaEncodingKey::BtnTrg},     // trigger button
+    {"J", VRCommDataAlphaEncodingKey::BtnA},       // A button
+    {"K", VRCommDataAlphaEncodingKey::BtnB},       // B button
+    {"L", VRCommDataAlphaEncodingKey::GesGrab},    // grab gesture (boolean)
+    {"M", VRCommDataAlphaEncodingKey::GesPinch},   // pinch gesture (boolean)
+    {"N", VRCommDataAlphaEncodingKey::BtnMenu},    // system button pressed (opens SteamVR menu)
     {"O", VRCommDataAlphaEncodingKey::BtnCalib},   // Calibration button
     {"", VRCommDataAlphaEncodingKey::Null},        // Junk key
 };
