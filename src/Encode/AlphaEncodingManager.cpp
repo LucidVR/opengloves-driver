@@ -14,6 +14,7 @@ static enum class VRCommDataAlphaEncodingKey : int {
   FinJointThumb0,
   FinJointThumb1,
   FinJointThumb2,
+  FinJointThumb3,  // unused in input but used for parity to other fingers in the array
   FinJointIndex0,
   FinJointIndex1,
   FinJointIndex2,
@@ -60,11 +61,11 @@ static bool IsCharacterKeyCharacter(const char character) {
 }
 
 static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEncodingInputKeyString{
-    {"A", VRCommDataAlphaEncodingKey::FinThumb},           // whole thumb curl (default curl value for thumb joints)
-    {"B", VRCommDataAlphaEncodingKey::FinIndex},           // whole index curl (default curl value for index joints)
-    {"C", VRCommDataAlphaEncodingKey::FinMiddle},          // whole middle curl (default curl value for middle joints)
-    {"D", VRCommDataAlphaEncodingKey::FinRing},            // whole ring curl (default curl value for ring joints)
-    {"E", VRCommDataAlphaEncodingKey::FinPinky},           // whole pinky curl (default curl value for pinky joints)
+    {"A", VRCommDataAlphaEncodingKey::FinThumb},   // whole thumb curl (default curl value for thumb joints)
+    {"B", VRCommDataAlphaEncodingKey::FinIndex},   // whole index curl (default curl value for index joints)
+    {"C", VRCommDataAlphaEncodingKey::FinMiddle},  // whole middle curl (default curl value for middle joints)
+    {"D", VRCommDataAlphaEncodingKey::FinRing},    // whole ring curl (default curl value for ring joints)
+    {"E", VRCommDataAlphaEncodingKey::FinPinky},   // whole pinky curl (default curl value for pinky joints)
 
     {"(AAA)", VRCommDataAlphaEncodingKey::FinJointThumb0},   // thumb joint 0
     {"(AAB)", VRCommDataAlphaEncodingKey::FinJointThumb1},   // thumb joint 1
@@ -85,32 +86,32 @@ static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEn
     {"(EAB)", VRCommDataAlphaEncodingKey::FinJointPinky1},   // pinky joint 1
     {"(EAC)", VRCommDataAlphaEncodingKey::FinJointPinky2},   // pinky joint 2
     {"(EAD)", VRCommDataAlphaEncodingKey::FinJointPinky3},   // pinky joint 3
-    
+
     {"(AB)", VRCommDataAlphaEncodingKey::FinSplayThumb},   // whole thumb splay
     {"(BB)", VRCommDataAlphaEncodingKey::FinSplayIndex},   // whole index splay
     {"(CB)", VRCommDataAlphaEncodingKey::FinSplayMiddle},  // whole middle splay
     {"(DB)", VRCommDataAlphaEncodingKey::FinSplayRing},    // whole ring splay
     {"(EB)", VRCommDataAlphaEncodingKey::FinSplayPinky},   // whole pinky splay
 
-    {"F", VRCommDataAlphaEncodingKey::JoyX},       // joystick x component
-    {"G", VRCommDataAlphaEncodingKey::JoyY},       // joystick y component
-    {"H", VRCommDataAlphaEncodingKey::JoyBtn},     // joystick button
-    {"I", VRCommDataAlphaEncodingKey::BtnTrg},     // trigger button
-    {"J", VRCommDataAlphaEncodingKey::BtnA},       // A button
-    {"K", VRCommDataAlphaEncodingKey::BtnB},       // B button
-    {"L", VRCommDataAlphaEncodingKey::GesGrab},    // grab gesture (boolean)
-    {"M", VRCommDataAlphaEncodingKey::GesPinch},   // pinch gesture (boolean)
-    {"N", VRCommDataAlphaEncodingKey::BtnMenu},    // system button pressed (opens SteamVR menu)
-    {"O", VRCommDataAlphaEncodingKey::BtnCalib},   // Calibration button
-    {"", VRCommDataAlphaEncodingKey::Null},        // Junk key
+    {"F", VRCommDataAlphaEncodingKey::JoyX},      // joystick x component
+    {"G", VRCommDataAlphaEncodingKey::JoyY},      // joystick y component
+    {"H", VRCommDataAlphaEncodingKey::JoyBtn},    // joystick button
+    {"I", VRCommDataAlphaEncodingKey::BtnTrg},    // trigger button
+    {"J", VRCommDataAlphaEncodingKey::BtnA},      // A button
+    {"K", VRCommDataAlphaEncodingKey::BtnB},      // B button
+    {"L", VRCommDataAlphaEncodingKey::GesGrab},   // grab gesture (boolean)
+    {"M", VRCommDataAlphaEncodingKey::GesPinch},  // pinch gesture (boolean)
+    {"N", VRCommDataAlphaEncodingKey::BtnMenu},   // system button pressed (opens SteamVR menu)
+    {"O", VRCommDataAlphaEncodingKey::BtnCalib},  // calibration button
+    {"", VRCommDataAlphaEncodingKey::Null},       // Junk key
 };
 
 static const std::map<VRCommDataAlphaEncodingKey, std::string> VRCommDataAlphaEncodingOutputKeyString{
-    {VRCommDataAlphaEncodingKey::FinThumb, "A"},   //
-    {VRCommDataAlphaEncodingKey::FinIndex, "B"},   //
-    {VRCommDataAlphaEncodingKey::FinMiddle, "C"},  //
-    {VRCommDataAlphaEncodingKey::FinRing, "D"},    //
-    {VRCommDataAlphaEncodingKey::FinPinky, "E"}    //
+    {VRCommDataAlphaEncodingKey::FinThumb, "A"},   // thumb force feedback
+    {VRCommDataAlphaEncodingKey::FinIndex, "B"},   // index force feedback
+    {VRCommDataAlphaEncodingKey::FinMiddle, "C"},  // middle force feedback
+    {VRCommDataAlphaEncodingKey::FinRing, "D"},    // ring force feedback
+    {VRCommDataAlphaEncodingKey::FinPinky, "E"}    // pinky force feedback
 };
 
 static std::map<VRCommDataAlphaEncodingKey, std::string> ParseInputToMap(const std::string& str) {
