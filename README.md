@@ -55,7 +55,7 @@ While it is possible for any hardware to be compatible with OpenGloves, the driv
 * Have your own hardware you want to feature here? Let us know!
 
 ### Integrating Your Own Hardware
-OpenGloves is capable of handling inputs from a range of VR controller hardware, but is designed to be used with VR Gloves, especially with the abstractions OpenGloves provides over the OpenVR Skeletal System to make it easy to plug into with your own glove hardware.
+OpenGloves is capable of handling inputs from a range of VR controller hardware, but is designed to be used with VR Gloves.
 
 If you'd like to plug in your own hardware to OpenGloves, refer to [Driver Input](https://github.com/LucidVR/opengloves-driver/wiki/Driver-Input) for the encoding scheme, and communication methods available.
 
