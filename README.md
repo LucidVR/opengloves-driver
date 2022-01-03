@@ -19,7 +19,7 @@ OpenGloves has an [open interface](https://github.com/LucidVR/opengloves-driver/
    * Bluetooth Serial
    * Named Pipes
 
-[If downloaded on Steam](https://store.steampowered.com/app/1574050/OpenGloves), OpenGloves comes with a UI, which includes the following features:
+[If downloaded on Steam](https://store.steampowered.com/app/1574050/OpenGloves), OpenGloves comes with a [UI](https://github.com/lucidVR/opengloves-ui), which includes the following features:
 * Edit Driver Settings
 * Automatic Calibration for positioning the glove relative to the controller
 * Triggering Force Feedback for testing
