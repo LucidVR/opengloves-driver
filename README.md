@@ -6,8 +6,8 @@ OpenGloves has an [open interface](https://github.com/LucidVR/opengloves-driver/
 
 ## Features
 * Full Finger Tracking
-  * Splay support
-  * Individual joint support
+  * Splay support (currently in beta)
+  * Individual joint support (currently in beta)
 * Force Feedback Haptics
 * Positioning from Controllers/Trackers
    * Automatic calibration for positioning the glove relative to the controller
