@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "openvr_driver.h"
+#include "Encode/EncodingManager.h"
 
 enum class HandSkeletonBone : vr::BoneIndex_t {
   Root = 0,
@@ -71,11 +72,17 @@ class IModelManager {
 class BoneAnimator {
  public:
   explicit BoneAnimator(const std::string& fileName);
-  void ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand);
+  void ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const VRInputData& inputData, const bool rightHand);
   static void TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex);
+  static float GetAverageCurlValue(const std::array<float, 4>& joints);
 
  private:
-  void SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, const float f, const bool rightHand) const;
+  void SetTransformForBone(
+      vr::VRBoneTransform_t& bone,
+      const HandSkeletonBone& boneIndex,
+      const float curl,
+      const float splay,
+      const bool rightHand) const;
 
   std::string fileName_;
   std::unique_ptr<IModelManager> modelManager_;

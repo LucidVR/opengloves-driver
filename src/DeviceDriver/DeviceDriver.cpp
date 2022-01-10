@@ -36,7 +36,7 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
           IsRightHand() ? "/input/skeleton/right" : "/input/skeleton/left",
           IsRightHand() ? "/skeleton/hand/right" : "/skeleton/hand/left",
           "/pose/raw",
-          vr::VRSkeletalTracking_Partial,
+          vr::EVRSkeletalTrackingLevel::VRSkeletalTracking_Full,
           handTransforms_,
           NUM_BONES,
           &skeletalComponentHandle_);
@@ -113,7 +113,7 @@ void DeviceDriver::StartDevice() {
 
   communicationManager_->BeginListener([&](VRInputData data) {
     try {
-      boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data.flexion, IsRightHand());
+      boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data, IsRightHand());
       vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
       vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
 

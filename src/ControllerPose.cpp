@@ -79,7 +79,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
       angularVelocityWorld.v[1] /= 100.0;
       angularVelocityWorld.v[2] /= 100.0;
 
-      vr::HmdQuaternion_t qAngularVelocityWorld = EulerToQuaternion(angularVelocityWorld.v[2], angularVelocityWorld.v[1], angularVelocityWorld.v[0]);
+      vr::HmdQuaternion_t qAngularVelocityWorld = EulerToQuaternion(static_cast<double>(angularVelocityWorld.v[2]), static_cast<double>(angularVelocityWorld.v[1]), static_cast<double>(angularVelocityWorld.v[0]));
 
       vr::HmdQuaternion_t qAngularVelocityObject =
           MultiplyQuaternion(MultiplyQuaternion(QuatConjugate(newPose.qRotation), qAngularVelocityWorld), newPose.qRotation);

@@ -3,11 +3,14 @@
 #include <utility>
 
 #include "DriverLog.h"
+#include "Util/Quaternion.h"
 
 #define TINYGLTF_IMPLEMENTATION
 #define TINYGLTF_NO_STB_IMAGE
 #define TINYGLTF_NO_STB_IMAGE_WRITE
 #include "tiny_gltf.h"
+
+static const float c_maxSplayAngle = 10.0f;
 
 static const std::array<float, 4> emptyRotation = {0.0f, 0.0f, 0.0f, 0.0f};
 static const std::array<float, 3> emptyTranslation = {0.0f, 0.0f, 0.0f};
@@ -21,7 +24,7 @@ static float Lerp(const float& a, const float& b, const float& f) {
 
 enum class FingerIndex : int { Thumb = 0, IndexFinger, MiddleFinger, RingFinger, PinkyFinger, Unknown = -1 };
 
-static std::map<std::string, HandSkeletonBone> GLTFNodeBoneMap{
+static const std::map<std::string, HandSkeletonBone> GLTFNodeBoneMap{
     {"REF:Root", HandSkeletonBone::Root},
     {"REF:wrist_r", HandSkeletonBone::Wrist},
     {"REF:finger_thumb_0_r", HandSkeletonBone::Thumb0},
@@ -54,12 +57,16 @@ static std::map<std::string, HandSkeletonBone> GLTFNodeBoneMap{
     {"REF:finger_ring_r_aux", HandSkeletonBone::AuxRingFinger},
     {"REF:finger_pinky_r_aux", HandSkeletonBone::AuxPinkyFinger}};
 
-static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone bone) {
+static bool IsBoneSplayableBone(const HandSkeletonBone& bone) {
+  return bone == HandSkeletonBone::Thumb0 || bone == HandSkeletonBone::IndexFinger1 || bone == HandSkeletonBone::MiddleFinger1 ||
+         bone == HandSkeletonBone::RingFinger1 || bone == HandSkeletonBone::PinkyFinger1;
+}
+
+static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone& bone) {
   switch (bone) {
     case HandSkeletonBone::Thumb0:
     case HandSkeletonBone::Thumb1:
     case HandSkeletonBone::Thumb2:
-    case HandSkeletonBone::Thumb3:
     case HandSkeletonBone::AuxThumb:
       return FingerIndex::Thumb;
 
@@ -67,7 +74,6 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone bone) {
     case HandSkeletonBone::IndexFinger1:
     case HandSkeletonBone::IndexFinger2:
     case HandSkeletonBone::IndexFinger3:
-    case HandSkeletonBone::IndexFinger4:
     case HandSkeletonBone::AuxIndexFinger:
       return FingerIndex::IndexFinger;
 
@@ -75,7 +81,6 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone bone) {
     case HandSkeletonBone::MiddleFinger1:
     case HandSkeletonBone::MiddleFinger2:
     case HandSkeletonBone::MiddleFinger3:
-    case HandSkeletonBone::MiddleFinger4:
     case HandSkeletonBone::AuxMiddleFinger:
       return FingerIndex::MiddleFinger;
 
@@ -83,7 +88,6 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone bone) {
     case HandSkeletonBone::RingFinger1:
     case HandSkeletonBone::RingFinger2:
     case HandSkeletonBone::RingFinger3:
-    case HandSkeletonBone::RingFinger4:
     case HandSkeletonBone::AuxRingFinger:
       return FingerIndex::RingFinger;
 
@@ -91,13 +95,32 @@ static FingerIndex GetFingerFromBoneIndex(const HandSkeletonBone bone) {
     case HandSkeletonBone::PinkyFinger1:
     case HandSkeletonBone::PinkyFinger2:
     case HandSkeletonBone::PinkyFinger3:
-    case HandSkeletonBone::PinkyFinger4:
     case HandSkeletonBone::AuxPinkyFinger:
       return FingerIndex::PinkyFinger;
 
     default:
       return FingerIndex::Unknown;
   }
+}
+
+static HandSkeletonBone GetRootFingerBoneFromFingerIndex(const FingerIndex& finger) {
+  switch (finger) {
+    case FingerIndex::Thumb:
+      return HandSkeletonBone::Thumb0;
+    case FingerIndex::IndexFinger:
+      return HandSkeletonBone::IndexFinger0;
+    case FingerIndex::MiddleFinger:
+      return HandSkeletonBone::MiddleFinger0;
+    case FingerIndex::RingFinger:
+      return HandSkeletonBone::RingFinger0;
+    case FingerIndex::PinkyFinger:
+      return HandSkeletonBone::PinkyFinger0;
+  }
+}
+
+static bool IsAuxBone(const HandSkeletonBone& boneIndex) {
+  return boneIndex == HandSkeletonBone::AuxThumb || boneIndex == HandSkeletonBone::AuxIndexFinger || boneIndex == HandSkeletonBone::AuxMiddleFinger ||
+         boneIndex == HandSkeletonBone::AuxRingFinger || boneIndex == HandSkeletonBone::AuxPinkyFinger;
 }
 
 class GLTFModelManager : public IModelManager {
@@ -244,20 +267,33 @@ BoneAnimator::BoneAnimator(const std::string& fileName) : fileName_(fileName) {
   loaded_ = modelManager_->Load();
 }
 
-void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const std::array<float, 5>& flexion, const bool rightHand) {
+void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const VRInputData& inputData, const bool rightHand) {
   if (!loaded_) return;
 
-  for (size_t i = 0; i < NUM_BONES; i++) {
+  for (size_t i = 1; i < NUM_BONES; i++) {
     const FingerIndex finger = GetFingerFromBoneIndex(static_cast<HandSkeletonBone>(i));
-    if (finger != FingerIndex::Unknown) {
-      const float f = flexion[static_cast<int>(finger)];
-      SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), f, rightHand);
-    }
+    const int iFinger = static_cast<int>(finger);
+
+    // TODO: make sure to update aux bones
+    if (finger == FingerIndex::Unknown) continue;
+
+    float curl;
+    if (IsAuxBone(static_cast<HandSkeletonBone>(i)))
+      curl = GetAverageCurlValue(inputData.flexion[iFinger]);
+    else
+      curl = inputData.flexion[iFinger][i - static_cast<int>(GetRootFingerBoneFromFingerIndex(finger))];
+
+    const float splay = inputData.splay[iFinger];
+
+    SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), curl, splay, rightHand);
   }
 }
 
-void BoneAnimator::SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, const float f, const bool rightHand) const {
-  if (f < 0.0f || f > 1.0f) return;  // skip if the value is invalid
+// splay asssumesthat there is a valid curl value for the finger
+void BoneAnimator::SetTransformForBone(
+    vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, const float curl, const float splay, const bool rightHand) const {
+  // We don't clamp this, as chances are if it's invalid we don't really want to use it anyway.
+  if (curl < 0.0f || curl > 1.0f) return;
 
   const Transform nodeTransform = modelManager_->GetTransformByBoneIndex(boneIndex);
   bone.orientation.x = nodeTransform.rotation[0];
@@ -268,7 +304,7 @@ void BoneAnimator::SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSk
   bone.position.v[1] = nodeTransform.translation[1];
   bone.position.v[2] = nodeTransform.translation[2];
 
-  const AnimationData animationData = modelManager_->GetAnimationDataByBoneIndex(boneIndex, f);
+  const AnimationData animationData = modelManager_->GetAnimationDataByBoneIndex(boneIndex, curl);
 
   // start and end time can be the same (if we've reached the max keyframe), so make sure we only do the lerp if not
   const float diff = animationData.endTime - animationData.startTime;
@@ -288,8 +324,24 @@ void BoneAnimator::SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSk
   }
   bone.position.v[3] = 1.0f;
 
+  if (splay >= -1.0f && splay <= 1.0f) {
+    // only splay one bone (all the rest are done relative to this one)
+    if (IsBoneSplayableBone(boneIndex))
+      bone.orientation = MultiplyQuaternion(bone.orientation, EulerToQuaternion(0.0f, static_cast<float>(DegToRad(splay * c_maxSplayAngle)), 0.0f));
+  }
+
+  // we're guaranteed to have updated the bone, so we can safely apply a transformation
   if (!rightHand) TransformLeftBone(bone, boneIndex);
 };
+
+float BoneAnimator::GetAverageCurlValue(const std::array<float, 4>& joints) {
+  float acc = 0;
+  for (int i = 0; i < joints.size(); i++) {
+    acc += joints[i];
+  }
+
+  return acc / static_cast<float>(joints.size());
+}
 
 void BoneAnimator::TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex) {
   switch (boneIndex) {
