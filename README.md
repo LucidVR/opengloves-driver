@@ -30,11 +30,13 @@ Glove hardware providing an **[Open Interface]**.
     *- Named Pipes* <br>
     *- Serial USB*
 
+<br>
+
 ### Steam UI
 
 The **[Steam]** version of **OpenGloves** also provides you a **[UI]**.
 
-###### UI Supported Features
+##### UI Supported Features
 - Force Feedback Testing
 - Editable Driver Settings
 - Automatic Calibration <br>
@@ -55,7 +57,7 @@ The **[Steam]** version of **OpenGloves** also provides you a **[UI]**.
 ## Credits
 
 | Author | Discord |
-|:------:|--------:|
+|:------:|:-------:|
 | **[Danwillm]** | `danwillm#8254` |
 | **[Lucas VRTech]** | `LucidVR#0001` |
 
