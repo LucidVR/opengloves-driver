@@ -1,7 +1,7 @@
 # OpenGloves Driver [![Steam Badge]][Steam] [![Discord Badge]][Discord]
 
-A general purpose **SteamVR** driver for **DIY** VR <br>
-Glove hardware providing an **[Open Interface]**.
+A general purpose **SteamVR** driver with an **[Open Interface]** <br>
+for anyone to connect their **DIY** **VR** *( Glove )* hardware.
 
 ---
 
@@ -23,7 +23,7 @@ Glove hardware providing an **[Open Interface]**.
 
 - **Button / Joystick Inputs** <br>
     *➜ Trigger | A | B* <br>
-    *➜ Joystick | X | Y*
+    *➜ Joystick | X | Y | Click*
 
 - **Multiple Communication Protocols** <br>
     *- Bluetooth Serial* <br>
@@ -34,7 +34,8 @@ Glove hardware providing an **[Open Interface]**.
 
 ### Steam UI
 
-The **[Steam]** version of **OpenGloves** also provides you a **[UI]**.
+The **[Steam]** version of **OpenGloves** also comes <br>
+with a **[UI]** for configuring driver related features.
 
 ##### UI Supported Features
 - Force Feedback Testing

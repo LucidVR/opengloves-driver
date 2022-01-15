@@ -15,7 +15,7 @@ The following projects are known to be compatible with **OpenGloves**.
 
 <br>
 
-**You made your own hardware, let us know!**
+**Made your own hardware? Let us know!**
 
 ---
 
@@ -29,16 +29,16 @@ it is primarily designed for VR Gloves.
 
 #### Custom Hardware
 
-For making your own hardware compatible, <br>
-please refer to the **[Driver Input]** page, listing <br>
-`Encoding Schemes` & `Communication Methods`.
+To make your own hardware compatible with **OpenGloves**, <br>
+please refer to the **[Driver Input]** page, which provides relevant <br>
+information like `Encoding Schemes` & `Communication Methods`.
 
 <br>
 
 #### LucidVR
 
-Our own **[Firmware]** for the **OpenGloves** is <br>
-compatible with `Arduino` & `ESP32` devices.
+This is our own **[Firmware]** that is compatible with <br>
+**OpenGloves** and runs on `Arduino` / `ESP32` devices.
 
 ---
 
@@ -56,7 +56,11 @@ Is supported in games that work with the **Index** controllers.
 
 ##### Force Feedback
 
-Unfortunately this selection is **[More Limited]**.
+Unfortunately, game compatibility <br>
+with this feature is **[More Limited][Game Compatibility]**.
+
+If you'd like to make your **Game** / **Mod** compatible <br>
+with `Force Feedback`, please refer to the **[Wiki][Integration]**.
 
 
 
@@ -72,4 +76,6 @@ Unfortunately this selection is **[More Limited]**.
 
 [Firmware]: https://github.com/LucidVR/lucidgloves/tree/main/firmware/lucidgloves-firmware
 
-[More Limited]: https://github.com/LucidVR/opengloves-driver/wiki/Game-Compatibility-List
+[Game Compatibility]: https://github.com/LucidVR/opengloves-driver/wiki/Game-Compatibility-List
+
+[Integration]: https://github.com/LucidVR/opengloves-driver/wiki/Integrating-Force-Feedback

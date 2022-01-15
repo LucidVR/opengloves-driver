@@ -19,9 +19,13 @@ but we have chosen not to include that by default <br>
 in the driver, as to preserve compatibility with <br>
 default index controller bindings.
 
-**➔**  *Implementing a custom controller can be achieved by* <br>
-     *creating a derivative class of [`DeviceDriver`] in which* <br>
-     *you specify the properties & settings of your controller.*
+##### Custom Implementation
+
+If you want to implement your own device and use the utilities <br>
+that **OpenGloves** provides, such as `Bone Calculations` and <br>
+`Communication`, you will have to implement a custom driver.
+
+To do this, you have to create your own class derived from [`DeviceDriver`], that <br> implement `StartingDevice`, `SetupProps`, `HandleInput` &  `StoppingDevice`.
 
 **➔**  An example of a fully custom controller is **[LucidGloveDriver]** <br>
      *which you are free to adapt to your needs.*
@@ -30,9 +34,10 @@ default index controller bindings.
 
 #### Dynamic Inputs
 
-Due to how **OpenVR** wworks, inputs cannot be set ***dynamically***.
+Due to how **OpenVR** works, inputs cannot be set ***dynamically***.
 
-Our inputs for `Index Controller Emulated Devices` are ***fixed***.
+Our inputs for `Index Controller Emulated Devices` are ***fixed*** <br>
+to that of the index controller, and cannot have custom inputs.
 
 **➔**  *However, you can define your own inputs in a* <br>
      *custom device with a different input profile.*
