@@ -154,9 +154,10 @@ static std::map<VRCommDataAlphaEncodingKey, std::string> ParseInputToMap(const s
 
 VRInputData AlphaEncodingManager::Decode(const std::string& input) {
   std::array<float, 5> flexion = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
-  std::array<std::array<float, 4>, 5> jointFlexion;
-
   std::array<float, 5> splay = {-2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
+
+  //4 joints per finger
+  std::array<std::array<float, 4>, 5> jointFlexion;
 
   // This map contains all the inputs we've got from the packet we received
   std::map<VRCommDataAlphaEncodingKey, std::string> inputMap = ParseInputToMap(input);

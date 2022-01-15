@@ -111,26 +111,42 @@ void DeviceDriver::StartDevice() {
   vr::VRDriverInput()->UpdateSkeletonComponent(
       skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
 
-  communicationManager_->BeginListener([&](VRInputData data) {
-    try {
-      boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data, IsRightHand());
-      vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
-      vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
+  communicationManager_->BeginListener(
+      [&](VRInputData data) {
+        try {
+          boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data, IsRightHand());
+          vr::VRDriverInput()->UpdateSkeletonComponent(
+              skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
+          vr::VRDriverInput()->UpdateSkeletonComponent(
+              skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
 
-      HandleInput(data);
+          HandleInput(data);
 
-      if (configuration_.poseConfiguration.calibrationButtonEnabled) {
-        if (data.calibrate) {
-          if (!controllerPose_->IsCalibrating()) controllerPose_->StartCalibration(CalibrationMethod::Hardware);
-        } else {
-          if (controllerPose_->IsCalibrating()) controllerPose_->CompleteCalibration(CalibrationMethod::Hardware);
+          if (configuration_.poseConfiguration.calibrationButtonEnabled) {
+            if (data.calibrate) {
+              if (!controllerPose_->IsCalibrating()) controllerPose_->StartCalibration(CalibrationMethod::Hardware);
+            } else {
+              if (controllerPose_->IsCalibrating()) controllerPose_->CompleteCalibration(CalibrationMethod::Hardware);
+            }
+          }
+
+        } catch (const std::exception&) {
+          DebugDriverLog("Exception caught while parsing comm data");
         }
-      }
+      },
+      [&](CommunicationStateEvent communicationEvent) {
+        switch (communicationEvent.type) {
+          case CommunicationStateEventType::DeviceConnectionEvent: {
+            DeviceConnectionEventData data = communicationEvent.data.deviceConnectionEventData;
 
-    } catch (const std::exception&) {
-      DebugDriverLog("Exception caught while parsing comm data");
-    }
-  });
+            if (!data.valid) return;
+            DebugDriverLog("Received device connection event. Hand: %s, Connected: %s", IsRightHand() ? "Right" : "Left", data.connected ? "Yes" : "No");
+            controllerPose_->SetDeviceState(data.connected);
+
+            break;
+          }
+        }
+      });
 
   poseUpdateThread_ = std::thread(&DeviceDriver::PoseUpdateThread, this);
 }

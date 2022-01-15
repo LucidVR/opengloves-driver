@@ -14,31 +14,55 @@ CommunicationManager::CommunicationManager(std::unique_ptr<EncodingManager> enco
   QueueSend(VRFFBData(0, 0, 0, 0, 0));
 }
 
-void CommunicationManager::BeginListener(const std::function<void(VRInputData)>& callback) {
+void CommunicationManager::BeginListener(
+    const std::function<void(VRInputData)>& onInputUpdateCallback, const std::function<void(CommunicationStateEvent)>& onStateUpdateCallback) {
+  onInputUpdateCallback_ = onInputUpdateCallback;
+  onStateUpdateCallback_ = onStateUpdateCallback;
+
   threadActive_ = true;
-  thread_ = std::thread(&CommunicationManager::ListenerThread, this, callback);
+  thread_ = std::thread(&CommunicationManager::ListenerThread, this);
+}
+
+void CommunicationManager::DisconnectAndReconnect() {
+  if (DisconnectFromDevice()) {
+    SendConnectionStateUpdate(false);
+    LogMessage("Disconnected successfully. Attempting to reconnect...");
+    WaitAttemptConnection();
+  } else {
+    LogMessage("Unable to disconnect from device, fully closing listener.");
+    threadActive_ = false;
+  }
 }
 
 void CommunicationManager::Disconnect() {
   if (threadActive_.exchange(false)) thread_.join();
 
-  if (IsConnected()) DisconnectFromDevice();
+  if (IsConnected()) {
+    if (DisconnectFromDevice()) {
+      SendConnectionStateUpdate(false);
+      LogMessage("Successfully disconnected from device.");
+    } else {
+      LogError("Unable to disconnect from device.");
+    }
+  } else
+    LogMessage("Did not disconnect as already disconnected.");
 }
 
 void CommunicationManager::QueueSend(const VRFFBData& data) {
   std::lock_guard lock(writeMutex_);
 
-  if(encodingManager_ != nullptr) writeString_ = encodingManager_->Encode(data);
+  if (encodingManager_ != nullptr) writeString_ = encodingManager_->Encode(data);
 }
 
-void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>& callback) {
+void CommunicationManager::ListenerThread() {
   WaitAttemptConnection();
 
   while (threadActive_) {
-    if (std::string receivedString; ReceiveNextPacket(receivedString)) {
+    std::string receivedString;
+    if (ReceiveNextPacket(receivedString)) {
       try {
         const VRInputData commData = encodingManager_->Decode(receivedString);
-        callback(commData);
+        onInputUpdateCallback_(commData);
 
         if (deviceConfiguration_.feedbackEnabled) {
           SendMessageToDevice();
@@ -52,18 +76,21 @@ void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>
 
     LogMessage("Detected device error. Disconnecting socket and attempting reconnection...");
 
-    if (DisconnectFromDevice()) {
-      WaitAttemptConnection();
-      LogMessage("Successfully reconnected to device.");
-    } else {
-      LogMessage("Could not disconnect. Closing listener...");
-      Disconnect();
-    }
+    DisconnectAndReconnect();
   }
+}
+
+void CommunicationManager::SendConnectionStateUpdate(bool connected) {
+  CommunicationStateEventData stateData;
+  stateData.deviceConnectionEventData = DeviceConnectionEventData(connected);
+
+  onStateUpdateCallback_({CommunicationStateEventType::DeviceConnectionEvent, stateData});
 }
 
 void CommunicationManager::WaitAttemptConnection() {
   while (threadActive_ && !IsConnected() && !Connect()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(c_listenerWaitTime));
   }
+
+  SendConnectionStateUpdate(true);
 }

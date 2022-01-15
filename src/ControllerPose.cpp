@@ -5,7 +5,10 @@
 
 ControllerPose::ControllerPose(
     vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration)
-    : poseConfiguration_(poseConfiguration), shadowDeviceOfRole_(shadowDeviceOfRole), thisDeviceManufacturer_(std::move(thisDeviceManufacturer)) {
+    : poseConfiguration_(poseConfiguration),
+      shadowDeviceOfRole_(shadowDeviceOfRole),
+      thisDeviceManufacturer_(std::move(thisDeviceManufacturer)),
+      deviceConnected_(false) {
   calibrationPipe_ = std::make_unique<NamedPipeListener<CalibrationDataIn>>(
       R"(\\.\pipe\vrapplication\functions\autocalibrate\)" +
       std::string(shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left"));
@@ -36,6 +39,10 @@ ControllerPose::ControllerPose(
 ControllerPose::~ControllerPose() {
   calibrationPipe_->StopListening();
   if (controllerDiscoverer_) controllerDiscoverer_->Stop();
+}
+
+void ControllerPose::SetDeviceState(bool connected) {
+  deviceConnected_ = connected;
 }
 
 vr::TrackedDevicePose_t ControllerPose::GetControllerPose() const {
@@ -79,7 +86,10 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
       angularVelocityWorld.v[1] /= 100.0;
       angularVelocityWorld.v[2] /= 100.0;
 
-      vr::HmdQuaternion_t qAngularVelocityWorld = EulerToQuaternion(static_cast<double>(angularVelocityWorld.v[2]), static_cast<double>(angularVelocityWorld.v[1]), static_cast<double>(angularVelocityWorld.v[0]));
+      vr::HmdQuaternion_t qAngularVelocityWorld = EulerToQuaternion(
+          static_cast<double>(angularVelocityWorld.v[2]),
+          static_cast<double>(angularVelocityWorld.v[1]),
+          static_cast<double>(angularVelocityWorld.v[0]));
 
       vr::HmdQuaternion_t qAngularVelocityObject =
           MultiplyQuaternion(MultiplyQuaternion(QuatConjugate(newPose.qRotation), qAngularVelocityWorld), newPose.qRotation);
@@ -95,20 +105,20 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
       newPose.vecVelocity[2] = controllerPose.vVelocity.v[2];
 
       newPose.poseIsValid = true;
-      newPose.deviceIsConnected = true;
+      newPose.deviceIsConnected = deviceConnected_;
 
       newPose.result = vr::TrackingResult_Running_OK;
 
       newPose.poseTimeOffset = poseConfiguration_.poseTimeOffset;
     } else {
       newPose.poseIsValid = false;
-      newPose.deviceIsConnected = true;
+      newPose.deviceIsConnected = deviceConnected_;
       newPose.result = vr::TrackingResult_Uninitialized;
     }
 
   } else {
     newPose.result = vr::TrackingResult_Uninitialized;
-    newPose.deviceIsConnected = false;
+    newPose.deviceIsConnected = deviceConnected_;
   }
 
   return newPose;

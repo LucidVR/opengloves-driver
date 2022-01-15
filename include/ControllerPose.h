@@ -27,6 +27,8 @@ class ControllerPose {
 
   bool IsCalibrating() const;
 
+  void SetDeviceState(bool connected);
+
  private:
   uint32_t shadowControllerId_ = vr::k_unTrackedDeviceIndexInvalid;
 
@@ -43,4 +45,6 @@ class ControllerPose {
   std::unique_ptr<ControllerDiscovery> controllerDiscoverer_;
   std::unique_ptr<NamedPipeListener<CalibrationDataIn>> calibrationPipe_;
   std::unique_ptr<Calibration> calibration_;
+
+  bool deviceConnected_;
 };

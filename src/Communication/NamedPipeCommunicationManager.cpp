@@ -11,19 +11,24 @@ bool NamedPipeCommunicationManager::Connect() {
   return true;
 }
 
-void NamedPipeCommunicationManager::BeginListener(const std::function<void(VRInputData)>& callback) {
-  callback_ = callback;
+void NamedPipeCommunicationManager::BeginListener(
+    const std::function<void(VRInputData)>& onInputUpdateCallback, const std::function<void(CommunicationStateEvent)>& onStateUpdateCallback) {
+  onInputUpdateCallback_ = onInputUpdateCallback;
+  onStateUpdateCallback_ = onStateUpdateCallback;
 
   if (!Connect()) {
     DriverLog("Unable to connect to named pipe.");
     return;
   }
 
-  namedPipeListener_->StartListening([&](const VRInputData* data) { callback_(*data); });
+  SendConnectionStateUpdate(true);
+
+  namedPipeListener_->StartListening([&](const VRInputData* data) { onInputUpdateCallback_(*data); });
 }
 
 bool NamedPipeCommunicationManager::DisconnectFromDevice() {
   namedPipeListener_->StopListening();
+  SendConnectionStateUpdate(false);
   return true;
 }
 

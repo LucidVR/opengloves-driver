@@ -27,13 +27,16 @@ class NamedPipeCommunicationManager : public CommunicationManager {
     return true;
   };
 
-  void BeginListener(const std::function<void(VRInputData)>& callback) override;
+  void BeginListener(
+      const std::function<void(VRInputData)>& onInputUpdateCallback,
+      const std::function<void(CommunicationStateEvent)>& onStateUpdateCallback) override;
 
  private:
   std::unique_ptr<NamedPipeListener<VRInputData>> namedPipeListener_;
   std::atomic<bool> isConnected_;
 
-  std::function<void(VRInputData)> callback_;
+  std::function<void(VRInputData)> onInputUpdateCallback_;
+  std::function<void(CommunicationStateEvent)> onStateUpdateCallback_;
 
   VRNamedPipeInputConfiguration configuration_;
 };
