@@ -58,7 +58,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
   newPose.qWorldFromDriverRotation.w = 1;
   newPose.qDriverFromHeadRotation.w = 1;
 
-  if (shadowControllerId_ != vr::k_unTrackedDeviceIndexInvalid) {
+  if (shadowControllerId_ != vr::k_unTrackedDeviceIndexInvalid && deviceConnected_) {
     const vr::TrackedDevicePose_t controllerPose = GetControllerPose();
     if (controllerPose.bPoseIsValid) {
       // get the matrix that represents the position of the controller that we are shadowing
