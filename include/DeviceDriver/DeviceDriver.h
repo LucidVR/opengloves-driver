@@ -35,6 +35,7 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   virtual void SetupProps(vr::PropertyContainerHandle_t& props) = 0;
   virtual void StartingDevice() = 0;
   virtual void StoppingDevice() = 0;
+  void PoseUpdateThread();
 
   std::unique_ptr<CommunicationManager> communicationManager_;
   std::shared_ptr<BoneAnimator> boneAnimator_;
@@ -45,6 +46,8 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   vr::VRInputComponentHandle_t skeletalComponentHandle_;
   vr::VRBoneTransform_t handTransforms_[NUM_BONES];
 
-  bool hasActivated_;
+  std::thread poseUpdateThread_;
+
+  std::atomic<bool> hasActivated_;
   uint32_t driverId_;
 };
