@@ -101,7 +101,9 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   // will become saturated and block future reads. We've got the data we need so purge
   // anything else left in the buffer. There should be more data ready for us in the
   // buffer by the next time we poll for it.
-  PurgeBuffer();
+  // TODO: This is currently causing lag on ESP32's so purging has been removed for now.
+  // Things to try in the future are purging on a time increment, or shrinking the buffer size.
+  //PurgeBuffer();
 
   return true;
 }
