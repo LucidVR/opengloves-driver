@@ -17,9 +17,8 @@ DeviceDriver::DeviceDriver(
       handTransforms_(),
       hasActivated_(false),
       driverId_(vr::k_unTrackedDeviceIndexInvalid) {
-  // copy a default bone transform to our hand transform for use in finger positioning later
-  std::copy(
-      std::begin(IsRightHand() ? rightOpenPose : leftOpenPose), std::end(IsRightHand() ? rightOpenPose : leftOpenPose), std::begin(handTransforms_));
+  // Load in a default skeleton
+  boneAnimator_->LoadDefaultSkeletonByHand(handTransforms_, configuration_.role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
 }
 
 vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
@@ -106,10 +105,8 @@ bool DeviceDriver::IsRightHand() const {
 void DeviceDriver::StartDevice() {
   StartingDevice();
 
-  vr::VRDriverInput()->UpdateSkeletonComponent(
-      skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
-  vr::VRDriverInput()->UpdateSkeletonComponent(
-      skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
+  vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
+  vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
 
   communicationManager_->BeginListener([&](VRInputData data) {
     try {
