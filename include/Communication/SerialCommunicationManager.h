@@ -27,6 +27,12 @@ class SerialCommunicationManager : public CommunicationManager {
 
  private:
   bool PurgeBuffer() const;
+  bool SetCommunicationTimeout(
+      unsigned long ReadIntervalTimeout,
+      unsigned long ReadTotalTimeoutMultiplier,
+      unsigned long ReadTotalTimeoutConstant,
+      unsigned long WriteTotalTimeoutMultiplier,
+      unsigned long WriteTotalTimeoutConstant);
 
   VRSerialConfiguration serialConfiguration_;
 
