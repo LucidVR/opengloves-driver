@@ -205,11 +205,7 @@ Transform GLTFModelManager::GetTransformByBoneIndex(const HandSkeletonBone& bone
 }
 
 AnimationData GLTFModelManager::GetAnimationDataByBoneIndex(const HandSkeletonBone& boneIndex, const float f) const {
-  const float smallest = keyframeTimes_.at(0);
-  const float largest = keyframeTimes_.at(keyframeTimes_.size() - 1);
-  const float fScaled = Lerp(smallest, largest, f);
-
-  const size_t lowerKeyframeIndex = std::upper_bound(keyframeTimes_.begin(), keyframeTimes_.end(), fScaled) - keyframeTimes_.begin() - 1;
+  const size_t lowerKeyframeIndex = std::upper_bound(keyframeTimes_.begin(), keyframeTimes_.end(), f) - keyframeTimes_.begin() - 1;
   const size_t upperKeyframeIndex = lowerKeyframeIndex < keyframeTimes_.size() - 1 ? lowerKeyframeIndex + 1 : lowerKeyframeIndex;
 
   AnimationData result;
@@ -217,7 +213,6 @@ AnimationData GLTFModelManager::GetAnimationDataByBoneIndex(const HandSkeletonBo
   result.startTime = keyframeTimes_[lowerKeyframeIndex];
   result.endTransform = keyframeTransforms_[static_cast<size_t>(boneIndex)][upperKeyframeIndex];
   result.endTime = keyframeTimes_[upperKeyframeIndex];
-  result.fScaled = fScaled;
 
   return result;
 }

@@ -55,7 +55,6 @@ struct AnimationData {
   float startTime;
   Transform endTransform;
   float endTime;
-  float fScaled;
 };
 
 class IModelManager {
