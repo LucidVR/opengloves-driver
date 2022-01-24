@@ -1,5 +1,6 @@
 #include "Bones.h"
 
+#include <algorithm>
 #include <utility>
 
 #include "DriverLog.h"
@@ -9,7 +10,6 @@ static const float c_maxSplayAngle = 10.0f;
 
 static const std::array<float, 4> emptyRotation = {0.0f, 0.0f, 0.0f, 0.0f};
 static const std::array<float, 3> emptyTranslation = {0.0f, 0.0f, 0.0f};
-
 
 static float Lerp(const float& a, const float& b, const float& f) {
   return a + f * (b - a);
@@ -162,9 +162,7 @@ void BoneAnimator::SetTransformForBone(
 
   const AnimationData animationData = modelManager_->GetAnimationDataByBoneIndex(boneIndex, curl);
 
-  // start and end time can be the same (if we've reached the max keyframe), so make sure we only do the lerp if not
-  const float diff = animationData.endTime - animationData.startTime;
-  const float interp = diff != 0.0f ? (animationData.fScaled - animationData.startTime) / diff : 1.0f;
+  const float interp = std::clamp((curl - animationData.startTime) / (animationData.endTime - animationData.startTime), 0.0f, 1.0f);
 
   if (animationData.startTransform.rotation != emptyRotation) {
     bone.orientation.w = Lerp(animationData.startTransform.rotation[0], animationData.endTransform.rotation[0], interp);
