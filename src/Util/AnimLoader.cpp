@@ -52,7 +52,6 @@ static const std::map<std::string, HandSkeletonBone> GLTFNodeBoneMap{
 
 static void MapRightTransform(Transform& transform, const HandSkeletonBone& boneIndex) {
   std::array<float, 4> quat = transform.rotation;
-  std::array<float, 3> pos = transform.translation;
   switch (boneIndex) {
     case HandSkeletonBone::Root: {
       return;
