@@ -15,6 +15,11 @@
 #include "Util/Quaternion.h"
 #include "Util/Windows.h"
 
+#ifndef GIT_COMMIT_HASH
+#define GIT_COMMIT_HASH "?"
+#endif
+
+
 vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
   if (const vr::EVRInitError initError = InitServerDriverContext(pDriverContext); initError != vr::EVRInitError::VRInitError_None) return initError;
 
@@ -22,10 +27,13 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
   InitDriverLog(vr::VRDriverLog());
 
   //this won't print if running in release
-  DebugDriverLog("OpenGlove is running in DEBUG mode");
+  DebugDriverLog("OpenGloves is running in DEBUG mode");
 
   const std::string driverPath = GetDriverPath();
   DriverLog("Path to DLL: %s", driverPath.c_str());
+
+  const std::string commitHash = GIT_COMMIT_HASH;
+  DriverLog("Built from: %s", commitHash.substr(0,10).c_str());
 
   // Create background process for the overlay (used for finding controllers to bind to for tracking)
   if (!CreateBackgroundProcess(driverPath + R"(\bin\win64\openglove_overlay.exe)")) {
@@ -77,7 +85,7 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
   switch (configuration.communicationProtocol) {
     case VRCommunicationProtocol::NamedPipe: {
       DriverLog("Communication set to Named Pipe");
-      const std::string path = R"(\\.\pipe\vrapplication\input\)" + std::string(isRightHand ? "right" : "left");
+      const std::string path = R"(\\.\pipe\vrapplication\input\glove\v1\)" + std::string(isRightHand ? "right" : "left");
       VRNamedPipeInputConfiguration namedPipeConfiguration(path);
       communicationManager = std::make_unique<NamedPipeCommunicationManager>(namedPipeConfiguration, configuration);
       break;

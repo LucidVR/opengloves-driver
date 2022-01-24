@@ -22,7 +22,7 @@ enum class VRCommDataLegacyEncodingPosition : int {
 
 LegacyEncodingManager::LegacyEncodingManager(const float maxAnalogValue) : EncodingManager(maxAnalogValue) {}
 
-VRInputData LegacyEncodingManager::Decode(const std::string input) {
+VRInputData LegacyEncodingManager::Decode(const std::string& input) {
   std::string buf;
   std::stringstream ss(input);
 

@@ -16,6 +16,25 @@ bool SerialCommunicationManager::IsConnected() {
   return isConnected_;
 };
 
+bool SerialCommunicationManager::SetCommunicationTimeout(
+    unsigned long ReadIntervalTimeout,
+    unsigned long ReadTotalTimeoutMultiplier,
+    unsigned long ReadTotalTimeoutConstant,
+    unsigned long WriteTotalTimeoutMultiplier,
+    unsigned long WriteTotalTimeoutConstant) {
+  COMMTIMEOUTS timeout;
+
+  timeout.ReadIntervalTimeout = ReadIntervalTimeout;
+  timeout.ReadTotalTimeoutConstant = ReadTotalTimeoutConstant;
+  timeout.ReadTotalTimeoutMultiplier = ReadTotalTimeoutMultiplier;
+  timeout.WriteTotalTimeoutConstant = WriteTotalTimeoutConstant;
+  timeout.WriteTotalTimeoutMultiplier = WriteTotalTimeoutMultiplier;
+
+  if (!SetCommTimeouts(hSerial_, &timeout)) return false;
+
+  return true;
+}
+
 bool SerialCommunicationManager::Connect() {
   LogMessage("Attempting connection to device");
   // We're not yet connected
@@ -45,6 +64,16 @@ bool SerialCommunicationManager::Connect() {
   // set the parameters and check for their proper application
   if (!SetCommState(hSerial_, &dcbSerialParams)) {
     LogError("Failed to set serial parameters");
+    return false;
+  }
+
+  if (!SetCommunicationTimeout(50, 0, 0, 50, 0)) {
+    LogError("Failed to set communication timeout");
+    return false;
+  }
+
+  if (!SetupComm(hSerial_, 200, 200)) {
+    LogError("Failed to setup comm");
     return false;
   }
 
@@ -101,7 +130,9 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   // will become saturated and block future reads. We've got the data we need so purge
   // anything else left in the buffer. There should be more data ready for us in the
   // buffer by the next time we poll for it.
-  PurgeBuffer();
+  // TODO: This is currently causing lag on ESP32's so purging has been removed for now.
+  // Things to try in the future are purging on a time increment, or shrinking the buffer size.
+  // PurgeBuffer();
 
   return true;
 }

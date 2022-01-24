@@ -7,8 +7,9 @@
 #include "DriverLog.h"
 
 struct VRFFBData {
-  VRFFBData();
-  VRFFBData(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl);
+  VRFFBData() : VRFFBData(0, 0, 0, 0, 0){};
+  VRFFBData(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl)
+      : thumbCurl(thumbCurl), indexCurl(indexCurl), middleCurl(middleCurl), ringCurl(ringCurl), pinkyCurl(pinkyCurl){};
 
   const short thumbCurl;
   const short indexCurl;
@@ -18,7 +19,10 @@ struct VRFFBData {
 };
 
 struct VRInputData {
-  VRInputData();
+  VRInputData()
+      : VRInputData(
+            {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, false, false, false, false, false, false, false, false){};
+
   VRInputData(
       std::array<float, 5> flexion,
       float joyX,
@@ -30,9 +34,68 @@ struct VRInputData {
       bool grab,
       bool pinch,
       bool menu,
-      bool calibrate);
+      bool calibrate)
+      : flexion({
+            flexion[0],
+            flexion[0],
+            flexion[0],
+            flexion[0],
+            flexion[1],
+            flexion[1],
+            flexion[1],
+            flexion[1],
+            flexion[2],
+            flexion[2],
+            flexion[2],
+            flexion[2],
+            flexion[3],
+            flexion[3],
+            flexion[3],
+            flexion[3],
+            flexion[4],
+            flexion[4],
+            flexion[4],
+            flexion[4],
+        }),
+        joyX(joyX),
+        joyY(joyY),
+        joyButton(joyButton),
+        trgButton(trgButton),
+        aButton(aButton),
+        bButton(bButton),
+        grab(grab),
+        pinch(pinch),
+        menu(menu),
+        calibrate(calibrate) {}
 
-  const std::array<float, 5> flexion;
+  VRInputData(
+      std::array<std::array<float, 4>, 5> flexion,
+      std::array<float, 5> splay,
+      float joyX,
+      float joyY,
+      bool joyButton,
+      bool trgButton,
+      bool aButton,
+      bool bButton,
+      bool grab,
+      bool pinch,
+      bool menu,
+      bool calibrate)
+      : flexion(flexion),
+        splay(splay),
+        joyX(joyX),
+        joyY(joyY),
+        joyButton(joyButton),
+        trgButton(trgButton),
+        aButton(aButton),
+        bButton(bButton),
+        grab(grab),
+        pinch(pinch),
+        menu(menu),
+        calibrate(calibrate) {}
+
+  const std::array<std::array<float, 4>, 5> flexion;
+  const std::array<float, 5> splay = {-2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
   const float joyX;
   const float joyY;
   const bool joyButton;
@@ -47,8 +110,8 @@ struct VRInputData {
 
 class EncodingManager {
  public:
-  explicit EncodingManager(float maxAnalogValue);
-  virtual VRInputData Decode(std::string input) = 0;
+  explicit EncodingManager(float maxAnalogValue) : maxAnalogValue_(maxAnalogValue){};
+  virtual VRInputData Decode(const std::string& input) = 0;
   virtual std::string Encode(const VRFFBData& data) = 0;
 
  protected:

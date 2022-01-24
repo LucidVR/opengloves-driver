@@ -17,9 +17,8 @@ DeviceDriver::DeviceDriver(
       handTransforms_(),
       hasActivated_(false),
       driverId_(vr::k_unTrackedDeviceIndexInvalid) {
-  // copy a default bone transform to our hand transform for use in finger positioning later
-  std::copy(
-      std::begin(IsRightHand() ? rightOpenPose : leftOpenPose), std::end(IsRightHand() ? rightOpenPose : leftOpenPose), std::begin(handTransforms_));
+  // Load in a default skeleton
+  boneAnimator_->LoadDefaultSkeletonByHand(handTransforms_, configuration_.role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
 }
 
 vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
@@ -36,7 +35,7 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
           IsRightHand() ? "/input/skeleton/right" : "/input/skeleton/left",
           IsRightHand() ? "/skeleton/hand/right" : "/skeleton/hand/left",
           "/pose/raw",
-          vr::VRSkeletalTracking_Partial,
+          vr::EVRSkeletalTrackingLevel::VRSkeletalTracking_Full,
           handTransforms_,
           NUM_BONES,
           &skeletalComponentHandle_);
@@ -52,11 +51,13 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
 }
 
 void DeviceDriver::Deactivate() {
-  if (hasActivated_) {
+  if (hasActivated_.exchange(false)) {
     StoppingDevice();
     communicationManager_->Disconnect();
     driverId_ = vr::k_unTrackedDeviceIndexInvalid;
     hasActivated_ = false;
+
+    poseUpdateThread_.join();
   }
 }
 
@@ -84,11 +85,18 @@ bool DeviceDriver::IsActive() {
   return hasActivated_;
 }
 
-void DeviceDriver::RunFrame() {
-  if (hasActivated_) {
-    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(driverId_, controllerPose_->UpdatePose(), sizeof(vr::DriverPose_t));
+void DeviceDriver::PoseUpdateThread() {
+  while (hasActivated_) {
+    vr::DriverPose_t pose = controllerPose_->UpdatePose();
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(driverId_, pose, sizeof(vr::DriverPose_t));
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2));
   }
+
+  DriverLog("Closing pose thread...");
 }
+
+void DeviceDriver::RunFrame() {}
 
 bool DeviceDriver::IsRightHand() const {
   return configuration_.role == vr::TrackedControllerRole_RightHand;
@@ -97,14 +105,12 @@ bool DeviceDriver::IsRightHand() const {
 void DeviceDriver::StartDevice() {
   StartingDevice();
 
-  vr::VRDriverInput()->UpdateSkeletonComponent(
-      skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
-  vr::VRDriverInput()->UpdateSkeletonComponent(
-      skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, IsRightHand() ? rightOpenPose : leftOpenPose, NUM_BONES);
+  vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
+  vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
 
   communicationManager_->BeginListener([&](VRInputData data) {
     try {
-      boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data.flexion, IsRightHand());
+      boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data, IsRightHand());
       vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
       vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
 
@@ -122,4 +128,6 @@ void DeviceDriver::StartDevice() {
       DebugDriverLog("Exception caught while parsing comm data");
     }
   });
+
+  poseUpdateThread_ = std::thread(&DeviceDriver::PoseUpdateThread, this);
 }

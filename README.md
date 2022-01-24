@@ -1,62 +1,84 @@
-# OpenGloves Driver
+# OpenGloves Driver [![Steam Badge]][Steam] [![Discord Badge]][Discord]
 
-OpenGloves is an OpenVR driver for DIY Virtual Reality Gloves. Using OpenVR's driver interface we are able to provide support for many SteamVR/OpenVR games.
+A general purpose **SteamVR** driver with an **[Open Interface]** <br>
+for anyone to connect their **DIY** **VR** *( Glove )* hardware.
 
-## Installation and Usage
+---
 
+**⸢ [Installation] ⸥ ⸢ [Limitations] ⸥ ⸢ [Compatibility] ⸥**
 
-### Download on Steam:
-[![Steam Release](https://cdn.discordapp.com/attachments/790676300552994826/845412304219537439/openglovessteam.png)](https://store.steampowered.com/app/1574050/OpenGloves)
- * We strongly recommend downloading the driver from Steam, to recieve automatic updates and UI settings.
+---
 
-*Or download the latest on GitHub:*
- * https://github.com/LucidVR/opengloves-driver/releases
+## Features
 
-**Follow the wiki guide for configuring the driver**
-* https://github.com/LucidVR/opengloves-driver/wiki/Configuring-the-Driver
-* The driver will not work correctly unless you configure it properly.  
+- **Haptic Force Feedback**
 
-**Problems?**
-* Check [Troubleshooting](https://github.com/LucidVR/opengloves-driver/wiki/Troubleshooting)
-  * Didn't help? Contact us on the [Community Discord Server](https://discord.gg/lucidvr)
-## Building
-If you want to use the driver as-is, refer to [Installation and Usage](#Installation-and-Usage).  
-If you are planning on modifying source files, refer to [BUILDING.md](https://github.com/LucidVR/opengloves-driver/blob/develop/BUILDING.md).
+- **Full Finger Tracking** <br>
+    *‹ Beta › Splay Support* <br>
+    *‹ Beta › Individual Joint Support*
 
-## Compatibility
-### Compatible Hardware
-* [LucidGloves](https://github.com/LucidVR/lucidgloves) - Lucas VRTech
-* [Fngrs](https://github.com/danwillm/Fngrs/) - danwillm
-* Have your own hardware you want to feature here? Let us know!
+- **Tracker / Controller Positioning** <br>
+    *Automatic relative calibration* <br>
+    *Controller ⟷ Glove*
 
-### Compatible Games
-* Refer to [Game Compatibility List](https://github.com/LucidVR/opengloves-driver/wiki/Game-Compatibility-List)
-* As this is an OpenVR driver, it is strictly compatible with games that take input from the OpenVR API. Only the games in the list above have been tested to work properly.
+- **Button / Joystick Inputs** <br>
+    *➜ Trigger | A | B* <br>
+    *➜ Joystick | X | Y | Click*
 
-### Current features included in the driver
-* Finger flexion tracking
-* Force feedback haptics
-* Positioning from controllers + trackers
-  * Automatic Calibration
-* Button/Joystick inputs
-  * A/B/Menu buttons, Joystick X/Y/Click
-* Communication Protocols:
-  * Serial USB
-  * Serial over Bluetooth
+- **Multiple Communication Protocols** <br>
+    *- Bluetooth Serial* <br>
+    *- Named Pipes* <br>
+    *- Serial USB*
 
-### Planned features
-* BLE Communication
-* Finger splay tracking
-* Vibration haptics
+<br>
 
+### Steam UI
+
+The **[Steam]** version of **OpenGloves** also comes <br>
+with a **[UI]** for configuring driver related features.
+
+##### UI Supported Features
+- Force Feedback Testing
+- Editable Driver Settings
+- Automatic Calibration <br>
+    *Controller ⟷ Glove*
+
+---
 
 ## Contributing
-Pull requests are very welcome. For major changes, please open an issue first to discuss what you would like to change.
 
-## Authors
+**Pull requests are very welcome.**
 
-* Danwillm (`danwillm#8254`)
-* Lucas VRTech (`LucidVR#0001`)
+*For major changes, please open an* <br>
+***[Issue]*** *or contact us first to discuss* <br>
+*what you would like to change.*
 
-## Discord
-https://discord.gg/lucidvr
+---
+
+## Credits
+
+| Author | Discord |
+|:------:|:-------:|
+| **[Danwillm]** | `danwillm#8254` |
+| **[Lucas VRTech]** | `LucidVR#0001` |
+
+
+<!----------------------------------------------------------------------------->
+
+[Steam Badge]: https://img.shields.io/badge/Steam-000000?style=for-the-badge&logo=steam&logoColor=white
+[Discord Badge]: https://img.shields.io/badge/Discord-7289DA?style=for-the-badge&logo=discord&logoColor=white
+
+[Discord]: https://discord.gg/lucidvr
+[Steam]: https://store.steampowered.com/app/1574050/OpenGloves
+
+[Installation]: docs/Installation.md
+[Limitations]: docs/Limitations.md
+[Compatibility]: docs/Compatibility.md
+
+[UI]: https://github.com/lucidVR/opengloves-ui
+[Open Interface]: https://github.com/LucidVR/opengloves-driver/wiki/Driver-Input
+
+[Issue]: https://github.com/LucidVR/opengloves-driver/issues
+
+[Danwillm]: https://github.com/danwillm
+[Lucas VRTech]: https://github.com/lucas-vrtech
