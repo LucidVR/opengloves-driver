@@ -15,7 +15,7 @@ void NamedPipeCommunicationManager::BeginListener(const std::function<void(VRInp
   callback_ = callback;
 
   if (!Connect()) {
-    DriverLog("Unable to connect to named pipe.");
+    DriverLog("Closing communication as unable to connected to named pipe.");
     return;
   }
 

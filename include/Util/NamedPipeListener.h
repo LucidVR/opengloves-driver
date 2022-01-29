@@ -26,7 +26,7 @@ struct NamedPipeListenerData {
 template <typename T>
 class NamedPipeListener {
  public:
-  explicit NamedPipeListener(std::string pipeName) : pipeName_(std::move(pipeName)), threadActive_(false) {}
+  explicit NamedPipeListener(std::string pipeName) : pipeName_(std::move(pipeName)), hPipeInst_(nullptr), threadActive_(false) {}
 
   ~NamedPipeListener() {
     StopListening();
@@ -58,6 +58,31 @@ class NamedPipeListener {
 
   void LogMessage(const char* message) const {
     DriverLog("%s (%s)", message, pipeName_.c_str());
+  }
+
+  template <typename W>
+  bool Write(const W& data) {
+    DWORD dwWritten = 0;
+
+    if (!hPipeInst_) {
+      LogMessage("A pipe has not been initialised and so cannot be written to");
+      return false;
+    }
+
+    bool success = WriteFile(
+        hPipeInst_,
+        (LPCVOID)&data,
+        sizeof(data),
+        &numBytesWritten,
+        NULL
+    );
+
+    if (!success) {
+      LogError("Failed to write to named pipe");
+      return false;
+    };
+
+    return true;
   }
 
  private:
@@ -100,7 +125,7 @@ class NamedPipeListener {
       return;
     }
 
-    HANDLE hPipeInst = CreateNamedPipeA(
+    hPipeInst_ = CreateNamedPipeA(
         pipeName_.c_str(),              // pipe name
         PIPE_ACCESS_DUPLEX |            // read/write access
             FILE_FLAG_OVERLAPPED,       // overlapped mode
@@ -112,7 +137,7 @@ class NamedPipeListener {
         static_cast<DWORD>(sizeof(T)),  // input buffer size
         timeoutMilli_,                  // client time-out
         nullptr);                       // default security attributes
-    if (hPipeInst == INVALID_HANDLE_VALUE) {
+    if (hPipeInst_ == INVALID_HANDLE_VALUE) {
       LogError("CreateNamedPipe failed");
       CloseHandle(hEvent);
       return;
@@ -120,7 +145,7 @@ class NamedPipeListener {
 
     NamedPipeListenerData<T> listenerData{};
     listenerData.oOverlap.hEvent = hEvent;
-    listenerData.hPipeInst = hPipeInst;
+    listenerData.hPipeInst = hPipeInst_;
 
     if (!Connect(&listenerData)) return;
 
@@ -182,11 +207,12 @@ class NamedPipeListener {
       }
     }
 
-    CloseHandle(hPipeInst);
+    CloseHandle(hPipeInst_);
     CloseHandle(hEvent);
   }
 
   const std::string pipeName_;
+  HANDLE hPipeInst_;
 
   std::atomic<bool> threadActive_;
   std::thread thread_;
