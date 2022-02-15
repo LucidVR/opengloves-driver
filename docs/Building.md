@@ -72,7 +72,7 @@ If you want to make changes to the code and would like to use a debugger/not hav
 }
 ```
 
-## Setup the Debugger
+## Debugger Setup
 SteamVR launches vrserver.exe under a child process of vrstartup.exe, which means that you must have the ability to be able to debug child processes in order to debug your driver. Microsoft provides the Child Process Debugging Power Tool for this.
 * Install the Microsoft Process Debugging Tool
   * VS 2015, 2017, 2019: https://marketplace.visualstudio.com/items?itemName=vsdbgplat.MicrosoftChildProcessDebuggingPowerTool
