@@ -37,10 +37,9 @@ It provides additonal features for configuring driver related features, such as:
 - Force Feedback Testing
 - Automatically calibrating Controller ⟷ Glove offsets
 
-## Bring Your Own Hardware
-If you'd like to make your own hardware compatible with SteamVR,<br>
-OpenGloves provides an **[interface]** for doing so through the<br>
-listed communication protocols.
+## Custom Hardware
+
+To make your own hardware compatible with **OpenGloves**, refer to the **[Driver Input]** page. <br>
 
 ## Contributing
 
@@ -82,7 +81,7 @@ listed communication protocols.
 [UI]: https://github.com/lucidVR/opengloves-ui
 [OpenGloves UI]: https://github.com/lucidVR/opengloves-ui
 
-[interface]: https://github.com/LucidVR/opengloves-driver/wiki/Driver-Input
+[Driver Input]: https://github.com/LucidVR/opengloves-driver/wiki/Driver-Input
 
 [Issue]: https://github.com/LucidVR/opengloves-driver/issues
 
