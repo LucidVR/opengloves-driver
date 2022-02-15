@@ -3,6 +3,7 @@
 A **SteamVR** driver for VR Gloves and DIY Hardare.<br>
 
 ## Download
+[![Steam Badge]][Steam]
 
 OpenGloves is available on **[Steam]**,<br>
 where it comes with additional tools for configuring driver related features.
