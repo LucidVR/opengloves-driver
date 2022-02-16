@@ -5,7 +5,7 @@
 #include "Bones.h"
 #include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
-#include "DeviceDriver/DeviceDriver.h"
+#include "DeviceDriver/PhysicalDeviceDriver/PhysicalDeviceDriver.h"
 #include "Encode/EncodingManager.h"
 #include "openvr_driver.h"
 
@@ -28,7 +28,7 @@ enum class LucidGloveDeviceComponentIndex : int {
   _Count
 };
 
-class LucidGloveDeviceDriver : public DeviceDriver {
+class LucidGloveDeviceDriver : public PhysicalDeviceDriver {
  public:
   LucidGloveDeviceDriver(
       std::unique_ptr<CommunicationManager> communicationManager,
@@ -36,10 +36,8 @@ class LucidGloveDeviceDriver : public DeviceDriver {
       const std::string& serialNumber,
       VRDeviceConfiguration configuration);
 
-  void HandleInput(VRInputData data) override;
+  void OnInputUpdate(const VRInputData& data) override;
   void SetupProps(vr::PropertyContainerHandle_t& props) override;
-  void StartingDevice() override;
-  void StoppingDevice() override;
 
  private:
   vr::VRInputComponentHandle_t inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::_Count)];

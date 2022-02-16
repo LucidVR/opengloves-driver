@@ -1,4 +1,4 @@
-#include "DeviceDriver/KnuckleDriver.h"
+#include "DeviceDriver/PhysicalDeviceDriver/KnuckleDriver.h"
 
 #include <utility>
 
@@ -8,42 +8,10 @@ KnuckleDeviceDriver::KnuckleDeviceDriver(
     std::string serialNumber,
     bool approximateThumb,
     const VRDeviceConfiguration configuration)
-    : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), std::move(serialNumber), configuration),
+    : PhysicalDeviceDriver(std::move(communicationManager), std::move(boneAnimator), std::move(serialNumber), configuration),
       inputComponentHandles_(),
       haptic_(),
       approximateThumb_(approximateThumb) {}
-
-void KnuckleDeviceDriver::HandleInput(const VRInputData data) {
-  // clang-format off
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ThumbstickX)], data.joyX, 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ThumbstickY)], data.joyY, 0);
-
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ThumbstickClick)], data.joyButton, 0);
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ThumbstickTouch)], data.joyButton, 0);
-
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::TriggerClick)], data.trgButton, 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::TriggerValue)], boneAnimator_->GetAverageCurlValue(data.flexion[1]), 0);
-
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::AClick)], data.aButton, 0);
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ATouch)], data.aButton || (approximateThumb_ && boneAnimator_->GetAverageCurlValue(data.flexion[0]) > 0.6), 0); //Thumb approximation
-
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::BClick)], data.bButton, 0);
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::BTouch)], data.bButton, 0);
-
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::GripForce)], data.grab, 0);
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::GripTouch)], data.grab, 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::GripValue)], data.grab, 0);
-
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::SystemClick)], data.menu, 0);
-
-  // We don't have a thumb on the index
-  // vr::VRDriverInput()->UpdateScalarComponent(_inputComponentHandles[(int)KnuckleDeviceComponentIndex::THUMB], data.flexion[0], 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerIndex)], boneAnimator_->GetAverageCurlValue(data.flexion[1]), 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerMiddle)], boneAnimator_->GetAverageCurlValue(data.flexion[2]), 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerRing)], boneAnimator_->GetAverageCurlValue(data.flexion[3]), 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerPinky)], boneAnimator_->GetAverageCurlValue(data.flexion[4]), 0);
-  // clang-format on
-}
 
 void KnuckleDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
   // clang-format off
@@ -129,21 +97,34 @@ void KnuckleDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
   // clang-format on
 }
 
-void KnuckleDeviceDriver::StartingDevice() {
-  if (!configuration_.feedbackEnabled) return;
+void KnuckleDeviceDriver::OnInputUpdate(const VRInputData& data) {
+  // clang-format off
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ThumbstickX)], data.joyX, 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ThumbstickY)], data.joyY, 0);
 
-  ffbProvider_ = std::make_unique<FFBListener>(
-      [&](const VRFFBData data) {
-        // Queue the force feedback data for sending.
-        communicationManager_->QueueSend(data);
-      },
-      configuration_.role);
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ThumbstickClick)], data.joyButton, 0);
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ThumbstickTouch)], data.joyButton, 0);
 
-  ffbProvider_->Start();
-}
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::TriggerClick)], data.trgButton, 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::TriggerValue)], boneAnimator_->GetAverageCurlValue(data.flexion[1]), 0);
 
-void KnuckleDeviceDriver::StoppingDevice() {
-  if (ffbProvider_) {
-    ffbProvider_->Stop();
-  }
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::AClick)], data.aButton, 0);
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ATouch)], data.aButton || (approximateThumb_ && boneAnimator_->GetAverageCurlValue(data.flexion[0]) > 0.6), 0); //Thumb approximation
+
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::BClick)], data.bButton, 0);
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::BTouch)], data.bButton, 0);
+
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::GripForce)], data.grab, 0);
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::GripTouch)], data.grab, 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::GripValue)], data.grab, 0);
+
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::SystemClick)], data.menu, 0);
+
+  // We don't have a thumb on the index
+  // vr::VRDriverInput()->UpdateScalarComponent(_inputComponentHandles[(int)KnuckleDeviceComponentIndex::THUMB], data.flexion[0], 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerIndex)], boneAnimator_->GetAverageCurlValue(data.flexion[1]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerMiddle)], boneAnimator_->GetAverageCurlValue(data.flexion[2]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerRing)], boneAnimator_->GetAverageCurlValue(data.flexion[3]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerPinky)], boneAnimator_->GetAverageCurlValue(data.flexion[4]), 0);
+  // clang-format on
 }

@@ -3,8 +3,8 @@
 #include <algorithm>
 #include <string>
 
-#include "DeviceDriver/KnuckleDriver.h"
-#include "DeviceDriver/LucidGloveDriver.h"
+#include "DeviceDriver/PhysicalDeviceDriver/KnuckleDriver.h"
+#include "DeviceDriver/PhysicalDeviceDriver/LucidGloveDriver.h"
 #include "DriverLog.h"
 
 vr::EVRInitError PhysicalDeviceProvider::Initialize() {
@@ -63,11 +63,6 @@ void PhysicalDeviceProvider::Cleanup() {}
 
 const char* const* PhysicalDeviceProvider::GetInterfaceVersions() {
   return vr::k_InterfaceVersions;
-}
-
-void PhysicalDeviceProvider::RunFrame() {
-  if (leftHand_ && leftHand_->IsActive()) leftHand_->RunFrame();
-  if (rightHand_ && rightHand_->IsActive()) rightHand_->RunFrame();
 }
 
 bool PhysicalDeviceProvider::ShouldBlockStandbyMode() {

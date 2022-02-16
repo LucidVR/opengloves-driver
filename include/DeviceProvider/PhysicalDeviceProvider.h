@@ -21,8 +21,6 @@ class PhysicalDeviceProvider : public DeviceProvider {
 
   const char* const* GetInterfaceVersions() override;
 
-  void RunFrame() override;
-
   bool ShouldBlockStandbyMode() override;
 
   void EnterStandby() override;

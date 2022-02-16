@@ -1,8 +1,11 @@
 #include <memory>
 
 #include "DeviceConfiguration.h"
+
+#include "DeviceProvider/DeviceProvider.h"
 #include "DeviceProvider/HookingDeviceProvider.h"
 #include "DeviceProvider/PhysicalDeviceProvider.h"
+
 #include "DriverLog.h"
 #include "openvr_driver.h"
 
@@ -16,7 +19,7 @@
 #error "Unsupported Platform."
 #endif
 
-std::unique_ptr<vr::IServerTrackedDeviceProvider> g_DeviceProvider;
+std::unique_ptr<DeviceProvider> g_DeviceProvider;
 
 /**
 This method returns an instance of your provider that OpenVR uses.

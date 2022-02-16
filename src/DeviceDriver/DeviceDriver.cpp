@@ -23,24 +23,23 @@ DeviceDriver::DeviceDriver(
 
 vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
   driverId_ = unObjectId;
-  controllerPose_ = std::make_unique<ControllerPose>(configuration_.role, std::string(c_deviceDriverManufacturer), configuration_.poseConfiguration);
 
-  vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(
-      driverId_);  // this gets a container object where you store all the information about your driver
+  vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(driverId_);
 
   SetupProps(props);
 
-  if (const vr::EVRInputError error = vr::VRDriverInput()->CreateSkeletonComponent(
-          props,
-          IsRightHand() ? "/input/skeleton/right" : "/input/skeleton/left",
-          IsRightHand() ? "/skeleton/hand/right" : "/skeleton/hand/left",
-          "/pose/raw",
-          vr::EVRSkeletalTrackingLevel::VRSkeletalTracking_Full,
-          handTransforms_,
-          NUM_BONES,
-          &skeletalComponentHandle_);
-      error != vr::VRInputError_None) {
-    DebugDriverLog("CreateSkeletonComponent failed.  Error: %s\n", error);
+  const vr::EVRInputError error = vr::VRDriverInput()->CreateSkeletonComponent(
+      props,
+      IsRightHand() ? "/input/skeleton/right" : "/input/skeleton/left",
+      IsRightHand() ? "/skeleton/hand/right" : "/skeleton/hand/left",
+      "/pose/raw",
+      vr::EVRSkeletalTrackingLevel::VRSkeletalTracking_Full,
+      handTransforms_,
+      NUM_BONES,
+      &skeletalComponentHandle_);
+
+  if (error != vr::VRInputError_None) {
+    DriverLog("CreateSkeletonComponent failed.  Error: %s\n", error);
   }
 
   StartDevice();
@@ -51,14 +50,15 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
 }
 
 void DeviceDriver::Deactivate() {
-  if (hasActivated_.exchange(false)) {
-    StoppingDevice();
-    communicationManager_->Disconnect();
-    driverId_ = vr::k_unTrackedDeviceIndexInvalid;
-    hasActivated_ = false;
+  if (!hasActivated_.exchange(false)) return;
 
-    poseUpdateThread_.join();
-  }
+  StoppingDevice();
+
+  communicationManager_->Disconnect();
+  if (ffbProvider_) ffbProvider_->Stop();
+
+  hasActivated_ = false;
+  driverId_ = vr::k_unTrackedDeviceIndexInvalid;
 }
 
 void DeviceDriver::DebugRequest(const char* pchRequest, char* pchResponseBuffer, const uint32_t unResponseBufferSize) {
@@ -71,12 +71,6 @@ void* DeviceDriver::GetComponent(const char* pchComponentNameAndVersion) {
   return nullptr;
 }
 
-vr::DriverPose_t DeviceDriver::GetPose() {
-  if (hasActivated_) return controllerPose_->UpdatePose();
-
-  return vr::DriverPose_t{0};
-}
-
 std::string DeviceDriver::GetSerialNumber() {
   return serialNumber_;
 }
@@ -84,19 +78,6 @@ std::string DeviceDriver::GetSerialNumber() {
 bool DeviceDriver::IsActive() {
   return hasActivated_;
 }
-
-void DeviceDriver::PoseUpdateThread() {
-  while (hasActivated_) {
-    vr::DriverPose_t pose = controllerPose_->UpdatePose();
-    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(driverId_, pose, sizeof(vr::DriverPose_t));
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(2));
-  }
-
-  DriverLog("Closing pose thread...");
-}
-
-void DeviceDriver::RunFrame() {}
 
 bool DeviceDriver::IsRightHand() const {
   return configuration_.role == vr::TrackedControllerRole_RightHand;
@@ -116,18 +97,19 @@ void DeviceDriver::StartDevice() {
 
       HandleInput(data);
 
-      if (configuration_.poseConfiguration.calibrationButtonEnabled) {
-        if (data.calibrate) {
-          if (!controllerPose_->IsCalibrating()) controllerPose_->StartCalibration(CalibrationMethod::Hardware);
-        } else {
-          if (controllerPose_->IsCalibrating()) controllerPose_->CompleteCalibration(CalibrationMethod::Hardware);
-        }
-      }
-
     } catch (const std::exception&) {
       DebugDriverLog("Exception caught while parsing comm data");
     }
   });
 
-  poseUpdateThread_ = std::thread(&DeviceDriver::PoseUpdateThread, this);
+  if (configuration_.feedbackEnabled) {
+    ffbProvider_ = std::make_unique<FFBListener>(
+        [&](const VRFFBData data) {
+          // Queue the force feedback data for sending.
+          communicationManager_->QueueSend(data);
+        },
+        configuration_.role);
+
+    ffbProvider_->Start();
+  }
 }

@@ -1,4 +1,4 @@
-#include "DeviceDriver/LucidGloveDriver.h"
+#include "DeviceDriver/PhysicalDeviceDriver/LucidGloveDriver.h"
 
 static const char* c_deviceControllerType = "lucidgloves";
 static const char* c_deviceModelNumber = "lucidgloves1";
@@ -10,30 +10,7 @@ LucidGloveDeviceDriver::LucidGloveDeviceDriver(
     std::unique_ptr<BoneAnimator> boneAnimator,
     const std::string& serialNumber,
     const VRDeviceConfiguration configuration)
-    : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration), inputComponentHandles_() {}
-
-void LucidGloveDeviceDriver::HandleInput(const VRInputData data) {
-  // clang-format off
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::JoyX)], data.joyX, 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::JoyY)], data.joyY, 0);
-
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::JoyBtn)], data.joyButton, 0);
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnTrg)], data.trgButton, 0);
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnA)], data.aButton, 0);
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnB)], data.bButton, 0);
-
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::GesGrab)], data.grab, 0);
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::GesPinch)], data.pinch, 0);
-
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgThumb)], boneAnimator_->GetAverageCurlValue(data.flexion[0]), 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgIndex)], boneAnimator_->GetAverageCurlValue(data.flexion[1]), 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgMiddle)], boneAnimator_->GetAverageCurlValue(data.flexion[2]), 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgRing)], boneAnimator_->GetAverageCurlValue(data.flexion[3]), 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgPinky)], boneAnimator_->GetAverageCurlValue(data.flexion[4]), 0);
-
-  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnMenu)], data.menu, 0);
-  // clang-format on
-}
+    : PhysicalDeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration), inputComponentHandles_() {}
 
 void LucidGloveDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
   const bool isRightHand = IsRightHand();
@@ -73,6 +50,25 @@ void LucidGloveDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
   // clang-format on
 }
 
-void LucidGloveDeviceDriver::StartingDevice() {}
+void LucidGloveDeviceDriver::OnInputUpdate(const VRInputData& data) {
+  // clang-format off
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::JoyX)], data.joyX, 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::JoyY)], data.joyY, 0);
 
-void LucidGloveDeviceDriver::StoppingDevice() {}
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::JoyBtn)], data.joyButton, 0);
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnTrg)], data.trgButton, 0);
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnA)], data.aButton, 0);
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnB)], data.bButton, 0);
+
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::GesGrab)], data.grab, 0);
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::GesPinch)], data.pinch, 0);
+
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgThumb)], boneAnimator_->GetAverageCurlValue(data.flexion[0]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgIndex)], boneAnimator_->GetAverageCurlValue(data.flexion[1]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgMiddle)], boneAnimator_->GetAverageCurlValue(data.flexion[2]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgRing)], boneAnimator_->GetAverageCurlValue(data.flexion[3]), 0);
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgPinky)], boneAnimator_->GetAverageCurlValue(data.flexion[4]), 0);
+
+  vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnMenu)], data.menu, 0);
+  // clang-format on
+}

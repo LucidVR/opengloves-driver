@@ -1,3 +1,5 @@
+#pragma once
+
 #include <memory>
 
 #include "Bones.h"
@@ -23,9 +25,14 @@ class DeviceProvider : public vr::IServerTrackedDeviceProvider {
   virtual const char* const* GetInterfaceVersions() override = 0;
 
   /**
-  Called every frame. Update your drivers here.
+  Called every frame. Typically we should only be processing events here for controller drivers.
   **/
-  virtual void RunFrame() override = 0;
+  void RunFrame() override;
+
+  /**
+  Runs when a new event has been triggered
+  **/
+  virtual void ProcessEvent(const vr::VREvent_t& vrEvent){};
 
   /**
   Return true if standby mode should be blocked. False otherwise.
@@ -50,4 +57,5 @@ class DeviceProvider : public vr::IServerTrackedDeviceProvider {
 
  private:
   std::string driverPath_;
+  bool isInitialized_ = false;
 };

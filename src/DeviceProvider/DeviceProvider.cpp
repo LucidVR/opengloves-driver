@@ -8,7 +8,7 @@
 #include "Util/Windows.h"
 
 #ifndef GIT_COMMIT_HASH
-    #define GIT_COMMIT_HASH "?"
+#define GIT_COMMIT_HASH "?"
 #endif
 
 vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
@@ -36,7 +36,21 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
   }
 
   // child initialization
-  return Initialize();
+  vr::EVRInitError err = Initialize();
+
+  isInitialized_ = true;
+
+  return err;
+}
+
+void DeviceProvider::RunFrame() {
+  if (!isInitialized_) return;
+
+  vr::VREvent_t vrEvent;
+  while (vr::VRServerDriverHost()->PollNextEvent(&vrEvent, sizeof(vrEvent))) {
+    DebugDriverLog("Event: %i", vrEvent.eventType);
+    ProcessEvent(vrEvent);
+  }
 }
 
 std::string DeviceProvider::GetDriverPath() const {
