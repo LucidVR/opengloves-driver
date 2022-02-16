@@ -31,6 +31,11 @@ enum class VRDeviceDriver {
   EmulatedKnuckles = 1,
 };
 
+enum class VRDeviceProvider {
+  PhysicalDeviceProvider = 0,
+  HookingDeviceProvier = 1,
+};
+
 struct VRSerialConfiguration {
   std::string port;
   int baudRate;
@@ -98,3 +103,5 @@ struct VRDeviceConfiguration {
         communicationProtocol(communicationProtocol),
         deviceDriver(deviceDriver) {}
 };
+
+extern VRDeviceConfiguration GetDeviceConfiguration(vr::ETrackedControllerRole role);

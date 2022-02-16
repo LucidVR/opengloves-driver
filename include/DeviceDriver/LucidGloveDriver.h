@@ -32,7 +32,7 @@ class LucidGloveDeviceDriver : public DeviceDriver {
  public:
   LucidGloveDeviceDriver(
       std::unique_ptr<CommunicationManager> communicationManager,
-      std::shared_ptr<BoneAnimator> boneAnimator,
+      std::unique_ptr<BoneAnimator> boneAnimator,
       const std::string& serialNumber,
       VRDeviceConfiguration configuration);
 

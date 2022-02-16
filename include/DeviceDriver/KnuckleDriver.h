@@ -41,7 +41,7 @@ class KnuckleDeviceDriver : public DeviceDriver {
  public:
   KnuckleDeviceDriver(
       std::unique_ptr<CommunicationManager> communicationManager,
-      std::shared_ptr<BoneAnimator> boneAnimator,
+      std::unique_ptr<BoneAnimator> boneAnimator,
       std::string serialNumber,
       bool approximateThumb,
       VRDeviceConfiguration configuration);

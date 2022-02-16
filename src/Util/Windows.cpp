@@ -6,7 +6,7 @@
 
 EXTERN_C IMAGE_DOS_HEADER __ImageBase;
 
-std::string GetDriverPath() {
+std::string GetCurrentDirectoryDLL() {
   HMODULE hm = nullptr;
   if (GetModuleHandleExA(
           GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, reinterpret_cast<LPCSTR>(&__ImageBase), &hm) == 0) {
@@ -20,9 +20,7 @@ std::string GetDriverPath() {
     return std::string();
   }
 
-  auto pathString = std::string(path);
-  const std::string unwanted = R"(\bin\win64\)";
-  return pathString.substr(0, pathString.find_last_of("\\/")).erase(pathString.find(unwanted), unwanted.length());
+  return path;
 }
 
 bool CreateBackgroundProcess(const std::string& path) {

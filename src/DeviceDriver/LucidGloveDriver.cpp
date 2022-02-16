@@ -7,7 +7,7 @@ static const char* c_inputProfilePath = "{openglove}/input/openglove_profile.jso
 
 LucidGloveDeviceDriver::LucidGloveDeviceDriver(
     std::unique_ptr<CommunicationManager> communicationManager,
-    std::shared_ptr<BoneAnimator> boneAnimator,
+    std::unique_ptr<BoneAnimator> boneAnimator,
     const std::string& serialNumber,
     const VRDeviceConfiguration configuration)
     : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration), inputComponentHandles_() {}

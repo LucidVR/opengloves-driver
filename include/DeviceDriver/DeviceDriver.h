@@ -13,7 +13,7 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
  public:
   DeviceDriver(
       std::unique_ptr<CommunicationManager> communicationManager,
-      std::shared_ptr<BoneAnimator> boneAnimator,
+      std::unique_ptr<BoneAnimator> boneAnimator,
       std::string serialNumber,
       VRDeviceConfiguration configuration);
 
@@ -38,7 +38,7 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   void PoseUpdateThread();
 
   std::unique_ptr<CommunicationManager> communicationManager_;
-  std::shared_ptr<BoneAnimator> boneAnimator_;
+  std::unique_ptr<BoneAnimator> boneAnimator_;
   VRDeviceConfiguration configuration_;
   std::string serialNumber_;
 

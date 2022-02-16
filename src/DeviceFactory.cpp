@@ -1,7 +1,10 @@
-#include <openvr_driver.h>
+#include <memory>
 
-#include "DeviceProvider.h"
+#include "DeviceConfiguration.h"
+#include "DeviceProvider/HookingDeviceProvider.h"
+#include "DeviceProvider/PhysicalDeviceProvider.h"
 #include "DriverLog.h"
+#include "openvr_driver.h"
 
 #if defined(_WIN32)
 #define HMD_DLL_EXPORT extern "C" __declspec(dllexport)
@@ -13,7 +16,7 @@
 #error "Unsupported Platform."
 #endif
 
-DeviceProvider deviceProvider;  // global, single instance, of the class that provides OpenVR with all of your devices.
+std::unique_ptr<vr::IServerTrackedDeviceProvider> g_DeviceProvider;
 
 /**
 This method returns an instance of your provider that OpenVR uses.
@@ -21,7 +24,20 @@ This method returns an instance of your provider that OpenVR uses.
 HMD_DLL_EXPORT
 void* HmdDriverFactory(const char* interfaceName, int* returnCode) {
   if (0 == strcmp(vr::IServerTrackedDeviceProvider_Version, interfaceName)) {
-    return &deviceProvider;
+    VRDeviceProvider deviceProvider = static_cast<VRDeviceProvider>(vr::VRSettings()->GetInt32(c_driverSettingsSection, "device_provider"));
+
+    switch (deviceProvider) {
+      case VRDeviceProvider::HookingDeviceProvier:
+        DriverLog("Using Hooking Device Provider");
+        g_DeviceProvider = std::make_unique<HookingDeviceProvider>();
+        break;
+      case VRDeviceProvider::PhysicalDeviceProvider:
+      default:
+        DriverLog("Using Physical Device Provider");
+        g_DeviceProvider = std::make_unique<PhysicalDeviceProvider>();
+        break;
+    }
+    return g_DeviceProvider.get();
   }
   DriverLog("HmdDriverFactory called for %s", interfaceName);
   return nullptr;

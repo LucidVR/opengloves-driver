@@ -7,6 +7,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 # Deps
 set(OPENVR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/headers")
 set(TINYGLTF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/tinygltf")
+set(MINHOOK_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/minhook/include")
 
 set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
 
@@ -38,6 +39,7 @@ execute_process(
     OUTPUT_STRIP_TRAILING_WHITESPACE)
 
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
+find_library(MINHOOK_LIB minhook HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/minhook/lib/" NO_DEFAULT_PATH )
 
 add_subdirectory("overlay")
 
@@ -49,10 +51,10 @@ file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
 
 add_library("${OPENGLOVE_PROJECT}" SHARED "${HEADERS}" "${SOURCES}")
 
-target_include_directories("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_INCLUDE_DIR}" "${TINYGLTF_INCLUDE_DIR}")
+target_include_directories("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_INCLUDE_DIR}" "${TINYGLTF_INCLUDE_DIR}" "${MINHOOK_INCLUDE_DIR}")
 
 target_include_directories("${OPENGLOVE_PROJECT}" PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
-target_link_libraries("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_LIB}" setupapi wsock32 ws2_32 bthprops)
+target_link_libraries("${OPENGLOVE_PROJECT}" PUBLIC "${OPENVR_LIB}" "${MINHOOK_LIB}" setupapi wsock32 ws2_32 bthprops)
 
 target_compile_definitions("${OPENGLOVE_PROJECT}" PRIVATE
     "-DGIT_COMMIT_HASH=\"${GIT_COMMIT_HASH}\"")

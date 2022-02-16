@@ -6,7 +6,7 @@
 
 DeviceDriver::DeviceDriver(
     std::unique_ptr<CommunicationManager> communicationManager,
-    std::shared_ptr<BoneAnimator> boneAnimator,
+    std::unique_ptr<BoneAnimator> boneAnimator,
     std::string serialNumber,
     const VRDeviceConfiguration configuration)
     : communicationManager_(std::move(communicationManager)),

@@ -4,9 +4,20 @@
     "left_enabled": true,
     "right_enabled": true,
     "feedback_enabled": true,
-    "communication_protocol": 0, //title:Communication Method
+    "device_provider": 0, //title:Device Provider
     "device_driver": 1, //title:Device Driver Emulation
+    "communication_protocol": 0, //title:Communication Method
     "encoding_protocol": 1 //title:Encoding Protocol
+  },
+  "provider_physical":
+  {
+    "__title": "Physical Device Provider",
+    "__type": "device_provider:0"
+  },
+  "provider_hooking":
+  {
+    "__title": "Hooking Device Provider",
+    "__type": "device_provider:1"
   },
   "device_lucidgloves":
   {
@@ -21,12 +32,12 @@
     "__type": "device_driver:1",
     "left_serial_number": "LHR-E217CD00",
     "right_serial_number": "LHR-E217CD01",
-	"approximate_thumb": true
+  "approximate_thumb": true
   },
   "pose_settings":
   {
     "__title": "Pose settings",
-	"hardware_calibration_button_enabled": false,
+  "hardware_calibration_button_enabled": false,
     "right_x_offset_position": -0.1,
     "right_y_offset_position": -0.08,
     "right_z_offset_position": -0.03,
