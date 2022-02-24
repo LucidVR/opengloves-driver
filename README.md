@@ -61,7 +61,7 @@ To make your own hardware compatible with **OpenGloves**, refer to the **[Driver
 
 ---
 
-**⸢ [Manual Installation] ⸥ ⸢ [Limitations] ⸥ ⸢ [Compatibility] ⸥**
+**⸢ [Manual Installation] ⸥  ⸢ [Building] ⸥  ⸢ [Limitations] ⸥  ⸢ [Compatibility] ⸥**
 
 ---
 
@@ -76,6 +76,7 @@ To make your own hardware compatible with **OpenGloves**, refer to the **[Driver
 [Steam Page]: https://store.steampowered.com/app/1574050/OpenGloves
 
 [Manual Installation]: docs/Installation.md
+[Building]: docs/Building.md
 [Limitations]: docs/Limitations.md
 [Compatibility]: docs/Compatibility.md
 
