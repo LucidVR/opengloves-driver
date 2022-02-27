@@ -11,7 +11,7 @@ class NamedPipeCommunicationManager : public CommunicationManager {
  public:
   NamedPipeCommunicationManager(VRNamedPipeInputConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration);
   bool IsConnected() override;
-  void QueueSend(const VRFFBData& data) override{};
+  void QueueSend(const VROutputData& data) override{};
 
  protected:
   bool Connect() override;
