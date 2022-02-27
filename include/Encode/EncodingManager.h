@@ -7,28 +7,6 @@
 #include "DriverLog.h"
 #include "openvr_driver.h"
 
-struct VRFFBData {
-  VRFFBData() : VRFFBData(0, 0, 0, 0, 0){};
-  VRFFBData(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl)
-      : thumbCurl(thumbCurl), indexCurl(indexCurl), middleCurl(middleCurl), ringCurl(ringCurl), pinkyCurl(pinkyCurl){};
-
-  const short thumbCurl;
-  const short indexCurl;
-  const short middleCurl;
-  const short ringCurl;
-  const short pinkyCurl;
-};
-
-struct VRHapticData {
-  VRHapticData(vr::VREvent_HapticVibration_t hapticData)
-      : duration(hapticData.fDurationSeconds), frequency(hapticData.fFrequency), amplitude(hapticData.fAmplitude){};
-  VRHapticData(float duration, float frequency, float amplitude) : duration(duration), frequency(frequency), amplitude(amplitude){};
-
-  const float duration;
-  const float frequency;
-  const float amplitude;
-};
-
 struct VRInputData {
   VRInputData()
       : VRInputData(
@@ -101,43 +79,53 @@ struct VRInputData {
   const bool calibrate;
 };
 
-struct VROutputData {
-  VROutputData(const VRFFBData& ffbData)
-      : ffbThumbCurl(ffbData.thumbCurl),
-        ffbIndexCurl(ffbData.indexCurl),
-        ffbMiddleCurl(ffbData.middleCurl),
-        ffbRingCurl(ffbData.ringCurl),
-        ffbPinkyCurl(ffbData.pinkyCurl),
-        hapticFrequency(0),
-        hapticAmplitude(0),
-        hapticDuration(0){};
+//force feedback
+struct VRFFBData {
+  VRFFBData() : VRFFBData(0, 0, 0, 0, 0){};
+  VRFFBData(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl)
+      : thumbCurl(thumbCurl), indexCurl(indexCurl), middleCurl(middleCurl), ringCurl(ringCurl), pinkyCurl(pinkyCurl){};
 
-  VROutputData(const VRHapticData& hapticData)
-      : ffbThumbCurl(0),
-        ffbIndexCurl(0),
-        ffbMiddleCurl(0),
-        ffbRingCurl(0),
-        ffbPinkyCurl(0),
-        hapticFrequency(hapticData.frequency),
-        hapticAmplitude(hapticData.amplitude),
-        hapticDuration(hapticData.amplitude){};
+  const short thumbCurl;
+  const short indexCurl;
+  const short middleCurl;
+  const short ringCurl;
+  const short pinkyCurl;
+};
 
-  const short ffbThumbCurl;
-  const short ffbIndexCurl;
-  const short ffbMiddleCurl;
-  const short ffbRingCurl;
-  const short ffbPinkyCurl;
+// vibration
+struct VRHapticData {
+  VRHapticData(vr::VREvent_HapticVibration_t hapticData)
+      : duration(hapticData.fDurationSeconds), frequency(hapticData.fFrequency), amplitude(hapticData.fAmplitude){};
+  VRHapticData(float duration, float frequency, float amplitude) : duration(duration), frequency(frequency), amplitude(amplitude){};
 
-  const float hapticFrequency;
-  const float hapticAmplitude;
-  const float hapticDuration;
+  const float duration;
+  const float frequency;
+  const float amplitude;
+};
+
+enum class VROutputDataType { ForceFeedback, Haptic };
+
+typedef union VROutputData {
+  VROutputData(const VRHapticData& hapticData) : hapticData(hapticData) {}
+  VROutputData(const VRFFBData& ffbData) : ffbData(ffbData) {}
+
+  VRHapticData hapticData;
+  VRFFBData ffbData;
+} VROutputData;
+
+struct VROutput {
+  VROutput(const VRHapticData& hapticData) : type(VROutputDataType::Haptic), data(hapticData){};
+  VROutput(const VRFFBData& ffbData) : type(VROutputDataType::ForceFeedback), data(ffbData){};
+
+  VROutputDataType type;
+  VROutputData data;
 };
 
 class EncodingManager {
  public:
   explicit EncodingManager(float maxAnalogValue) : maxAnalogValue_(maxAnalogValue){};
   virtual VRInputData Decode(const std::string& input) = 0;
-  virtual std::string Encode(const VROutputData& data) = 0;
+  virtual std::string Encode(const VROutput& data) = 0;
 
  protected:
   float maxAnalogValue_;

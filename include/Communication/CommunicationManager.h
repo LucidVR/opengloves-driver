@@ -17,7 +17,7 @@ class CommunicationManager {
 
   virtual void BeginListener(const std::function<void(VRInputData)>& callback);
   virtual void Disconnect();
-  virtual void QueueSend(const VROutputData& data);
+  virtual void QueueSend(const VROutput& data);
 
   virtual bool IsConnected() = 0;
 

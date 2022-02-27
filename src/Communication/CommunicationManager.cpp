@@ -25,10 +25,10 @@ void CommunicationManager::Disconnect() {
   if (IsConnected()) DisconnectFromDevice();
 }
 
-void CommunicationManager::QueueSend(const VROutputData& data) {
+void CommunicationManager::QueueSend(const VROutput& data) {
   std::lock_guard lock(writeMutex_);
 
-  if(encodingManager_ != nullptr) writeString_ = encodingManager_->Encode(data);
+  if (encodingManager_ != nullptr) writeString_ += encodingManager_->Encode(data);
 }
 
 void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>& callback) {
@@ -41,7 +41,16 @@ void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>
         callback(commData);
 
         if (deviceConfiguration_.feedbackEnabled) {
+          std::lock_guard lock(writeMutex_);
+
+          // append a newline and send
+          writeString_ = writeString_ + "\n";
+
           SendMessageToDevice();
+
+          if(writeString_ != "\n") DriverLog("Wrote to device: %s", writeString_.c_str());
+
+          writeString_.clear();
         }
 
         continue;

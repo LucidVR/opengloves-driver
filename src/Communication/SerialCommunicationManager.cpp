@@ -88,6 +88,9 @@ bool SerialCommunicationManager::Connect() {
 }
 
 bool SerialCommunicationManager::DisconnectFromDevice() {
+  // Cancel any pending read operations
+  CancelIoEx(hSerial_, nullptr);
+
   if (!CloseHandle(hSerial_)) {
     LogError("Error disconnecting from device");
     return false;
@@ -138,8 +141,6 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 }
 
 bool SerialCommunicationManager::SendMessageToDevice() {
-  std::lock_guard lock(writeMutex_);
-
   const char* buf = writeString_.c_str();
   DWORD bytesSent;
   if (!WriteFile(hSerial_, buf, static_cast<DWORD>(writeString_.length()), &bytesSent, nullptr) || bytesSent < writeString_.length()) {

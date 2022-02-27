@@ -62,8 +62,6 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 }
 
 bool BTSerialCommunicationManager::SendMessageToDevice() {
-  std::lock_guard lock(writeMutex_);
-
   const char* message = writeString_.c_str();
 
   if (!Retry([&]() { return send(btClientSocket_, message, static_cast<int>(writeString_.length()), 0) != SOCKET_ERROR; }, 5, 10)) {

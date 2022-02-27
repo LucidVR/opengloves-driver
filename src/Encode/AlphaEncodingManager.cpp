@@ -228,25 +228,38 @@ VRInputData AlphaEncodingManager::Decode(const std::string& input) {
   return inputData;
 }
 
-std::string AlphaEncodingManager::Encode(const VROutputData& input) {
-  std::string result = StringFormat(
-      "%s%d%s%d%s%d%s%d%s%d%s%.2f%s%.2f%s%.2f\n",
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinThumb).c_str(),
-      input.ffbThumbCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinIndex).c_str(),
-      input.ffbIndexCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinMiddle).c_str(),
-      input.ffbMiddleCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinRing).c_str(),
-      input.ffbRingCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinPinky).c_str(),
-      input.ffbPinkyCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticFrequency).c_str(),
-      input.hapticFrequency,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticDuration).c_str(),
-      input.hapticDuration,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticAmplitude).c_str(),
-      input.hapticAmplitude);
+std::string AlphaEncodingManager::Encode(const VROutput& input) {
+  switch (input.type) {
+    case VROutputDataType::ForceFeedback: {
+      const VRFFBData& data = input.data.ffbData;
 
-  return result;
+      return StringFormat(
+          "%s%d%s%d%s%d%s%d%s%d",
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinThumb).c_str(),
+          data.thumbCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinIndex).c_str(),
+          data.indexCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinMiddle).c_str(),
+          data.middleCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinRing).c_str(),
+          data.ringCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinPinky).c_str(),
+          data.pinkyCurl);
+    }
+
+    case VROutputDataType::Haptic: {
+      const VRHapticData& data = input.data.hapticData;
+
+      return StringFormat(
+          "%s%.2f%s%.2f%s%.2f",
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticFrequency).c_str(),
+          data.frequency,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticDuration).c_str(),
+          data.duration,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticAmplitude).c_str(),
+          data.amplitude);
+    }
+  }
+
+  return "";
 }

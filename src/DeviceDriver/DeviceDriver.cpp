@@ -28,7 +28,6 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
   vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(
       deviceId_);  // this gets a container object where you store all the information about your driver
 
-
   SetupProps(props);
 
   vr::VRDriverInput()->CreateHapticComponent(props, "/output/haptic", &haptic_);
@@ -94,7 +93,7 @@ std::string DeviceDriver::GetSerialNumber() {
   return serialNumber_;
 }
 
-int32_t DeviceDriver::GetDeviceId() {
+int32_t DeviceDriver::GetDeviceId() const {
   return deviceId_;
 }
 
@@ -147,10 +146,7 @@ void DeviceDriver::StartDevice() {
   poseUpdateThread_ = std::thread(&DeviceDriver::PoseUpdateThread, this);
 }
 
-void DeviceDriver::OnEvent(vr::VREvent_t vrEvent) {
-  if (vrEvent.eventType == vr::EVREventType::VREvent_Input_HapticVibration) {
-    if (haptic_ == vrEvent.data.hapticVibration.componentHandle) {
-      communicationManager_->QueueSend(VROutputData(vrEvent.data.hapticVibration));
-    }
-  }
+void DeviceDriver::OnEvent(vr::VREvent_t vrEvent) const {
+  if (vrEvent.eventType == vr::EVREventType::VREvent_Input_HapticVibration && haptic_ == vrEvent.data.hapticVibration.componentHandle)
+    communicationManager_->QueueSend(VRHapticData(vrEvent.data.hapticVibration));
 }

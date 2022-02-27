@@ -26,11 +26,11 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   vr::DriverPose_t GetPose() override;
 
   virtual std::string GetSerialNumber();
-  int32_t GetDeviceId();
+  int32_t GetDeviceId() const;
 
   virtual bool IsActive();
 
-  void OnEvent(vr::VREvent_t vrEvent);
+  void OnEvent(vr::VREvent_t vrEvent) const;
 
  protected:
   virtual bool IsRightHand() const;
