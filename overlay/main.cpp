@@ -113,7 +113,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
             return 0;
         }
       }
-      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      Sleep(200);
     }
   } else {
     vr::VR_Shutdown();

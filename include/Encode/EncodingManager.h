@@ -5,6 +5,7 @@
 #include <string>
 
 #include "DriverLog.h"
+#include "openvr_driver.h"
 
 struct VRFFBData {
   VRFFBData() : VRFFBData(0, 0, 0, 0, 0){};
@@ -16,6 +17,16 @@ struct VRFFBData {
   const short middleCurl;
   const short ringCurl;
   const short pinkyCurl;
+};
+
+struct VRHapticData {
+  VRHapticData(vr::VREvent_HapticVibration_t hapticData)
+      : duration(hapticData.fDurationSeconds), frequency(hapticData.fFrequency), amplitude(hapticData.fAmplitude){};
+  VRHapticData(float duration, float frequency, float amplitude) : duration(duration), frequency(frequency), amplitude(amplitude){};
+
+  const float duration;
+  const float frequency;
+  const float amplitude;
 };
 
 struct VRInputData {
@@ -36,26 +47,8 @@ struct VRInputData {
       bool menu,
       bool calibrate)
       : flexion({
-            flexion[0],
-            flexion[0],
-            flexion[0],
-            flexion[0],
-            flexion[1],
-            flexion[1],
-            flexion[1],
-            flexion[1],
-            flexion[2],
-            flexion[2],
-            flexion[2],
-            flexion[2],
-            flexion[3],
-            flexion[3],
-            flexion[3],
-            flexion[3],
-            flexion[4],
-            flexion[4],
-            flexion[4],
-            flexion[4],
+            flexion[0], flexion[0], flexion[0], flexion[0], flexion[1], flexion[1], flexion[1], flexion[1], flexion[2], flexion[2],
+            flexion[2], flexion[2], flexion[3], flexion[3], flexion[3], flexion[3], flexion[4], flexion[4], flexion[4], flexion[4],
         }),
         joyX(joyX),
         joyY(joyY),
@@ -108,11 +101,43 @@ struct VRInputData {
   const bool calibrate;
 };
 
+struct VROutputData {
+  VROutputData(const VRFFBData& ffbData)
+      : ffbThumbCurl(ffbData.thumbCurl),
+        ffbIndexCurl(ffbData.indexCurl),
+        ffbMiddleCurl(ffbData.middleCurl),
+        ffbRingCurl(ffbData.ringCurl),
+        ffbPinkyCurl(ffbData.pinkyCurl),
+        hapticFrequency(0),
+        hapticAmplitude(0),
+        hapticDuration(0){};
+
+  VROutputData(const VRHapticData& hapticData)
+      : ffbThumbCurl(0),
+        ffbIndexCurl(0),
+        ffbMiddleCurl(0),
+        ffbRingCurl(0),
+        ffbPinkyCurl(0),
+        hapticFrequency(hapticData.frequency),
+        hapticAmplitude(hapticData.amplitude),
+        hapticDuration(hapticData.amplitude){};
+
+  const short ffbThumbCurl;
+  const short ffbIndexCurl;
+  const short ffbMiddleCurl;
+  const short ffbRingCurl;
+  const short ffbPinkyCurl;
+
+  const float hapticFrequency;
+  const float hapticAmplitude;
+  const float hapticDuration;
+};
+
 class EncodingManager {
  public:
   explicit EncodingManager(float maxAnalogValue) : maxAnalogValue_(maxAnalogValue){};
   virtual VRInputData Decode(const std::string& input) = 0;
-  virtual std::string Encode(const VRFFBData& data) = 0;
+  virtual std::string Encode(const VROutputData& data) = 0;
 
  protected:
   float maxAnalogValue_;

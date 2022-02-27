@@ -58,7 +58,16 @@ VRInputData LegacyEncodingManager::Decode(const std::string& input) {
   return inputData;
 }
 
-std::string LegacyEncodingManager::Encode(const VRFFBData& input) {
-  std::string result = StringFormat("%d&%d&%d&%d&%d\n", input.thumbCurl, input.indexCurl, input.middleCurl, input.ringCurl, input.pinkyCurl);
+std::string LegacyEncodingManager::Encode(const VROutputData& input) {
+  std::string result = StringFormat(
+      "%d&%d&%d&%d&%d%.2f%.2f%.2f\n",
+      input.ffbThumbCurl,
+      input.ffbIndexCurl,
+      input.ffbMiddleCurl,
+      input.ffbRingCurl,
+      input.ffbPinkyCurl,
+      input.hapticDuration,
+      input.hapticFrequency,
+      input.hapticAmplitude);
   return result;
 }

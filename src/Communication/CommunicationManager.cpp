@@ -25,7 +25,7 @@ void CommunicationManager::Disconnect() {
   if (IsConnected()) DisconnectFromDevice();
 }
 
-void CommunicationManager::QueueSend(const VRFFBData& data) {
+void CommunicationManager::QueueSend(const VROutputData& data) {
   std::lock_guard lock(writeMutex_);
 
   if(encodingManager_ != nullptr) writeString_ = encodingManager_->Encode(data);
