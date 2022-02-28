@@ -1,6 +1,6 @@
 # OpenGloves Driver [![Steam Badge]][Steam] [![Discord Badge]][Discord]
 
-A **SteamVR** driver for VR Gloves and DIY Hardare.<br>
+A **SteamVR (OpenVR)** driver for VR Gloves and DIY Hardware.<br>
 
 ## Download
 [![Steam Badge]][Steam]
@@ -33,7 +33,7 @@ where it comes with additional tools for configuring driver related features.
 
 #### OpenGloves UI
 **[OpenGloves UI]** is an application that ships with the driver on Steam. <br>
-It provides additonal features for configuring driver related features, such as:<br>
+It provides additional features for configuring driver related features, such as:<br>
 - Managing driver settings
 - Force Feedback Testing
 - Automatically calibrating Controller ⟷ Glove offsets
