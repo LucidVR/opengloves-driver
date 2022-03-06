@@ -94,7 +94,7 @@ vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::H
   return result;
 }
 
-vr::HmdQuaternionf_t MultiplyQuaternion(const vr::HmdQuaternionf_t& q, const vr::HmdQuaternionf_t& r) {
+vr::HmdQuaternionf_t MultiplyQuaternion(const vr::HmdQuaternionf_t& q, const vr::HmdQuaternion_t& r) {
   vr::HmdQuaternionf_t result{};
 
   result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
@@ -122,22 +122,6 @@ vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, co
   return q;
 }
 
-vr::HmdQuaternionf_t EulerToQuaternion(const float& yaw, const float& pitch, const float& roll) {
-  const float cy = cos(yaw * 0.5);
-  const float sy = sin(yaw * 0.5);
-  const float cp = cos(pitch * 0.5);
-  const float sp = sin(pitch * 0.5);
-  const float cr = cos(roll * 0.5);
-  const float sr = sin(roll * 0.5);
-
-  vr::HmdQuaternionf_t q{};
-  q.w = cr * cp * cy + sr * sp * sy;
-  q.x = sr * cp * cy - cr * sp * sy;
-  q.y = cr * sp * cy + sr * cp * sy;
-  q.z = cr * cp * sy - sr * sp * cy;
-
-  return q;
-}
 vr::HmdVector3_t QuaternionToEuler(const vr::HmdQuaternion_t& q) {
   vr::HmdVector3_t result;
   const double unit = (q.x * q.x) + (q.y * q.y) + (q.z * q.z) + (q.w * q.w);

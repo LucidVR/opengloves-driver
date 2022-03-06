@@ -3,6 +3,9 @@
 #include "DriverLog.h"
 #include "Util/Quaternion.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 ControllerPose::ControllerPose(
     vr::ETrackedControllerRole shadowDeviceOfRole, std::string thisDeviceManufacturer, VRPoseConfiguration poseConfiguration)
     : poseConfiguration_(poseConfiguration), shadowDeviceOfRole_(shadowDeviceOfRole), thisDeviceManufacturer_(std::move(thisDeviceManufacturer)) {
@@ -72,34 +75,26 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
 
       newPose.qRotation = MultiplyQuaternion(controllerRotation, poseConfiguration_.angleOffsetQuaternion);
 
-      // Angular velocity
-      // Converted from euler angle provided in world space to euler angle in object space
-      vr::HmdVector3_t angularVelocityWorld = controllerPose.vAngularVelocity;
-      angularVelocityWorld.v[0] /= 100.0;
-      angularVelocityWorld.v[1] /= 100.0;
-      angularVelocityWorld.v[2] /= 100.0;
+      const vr::HmdVector3_t controllerAngularVelocity = controllerPose.vAngularVelocity;
+      const vr::HmdQuaternion_t qControllerAngularVelocity = {
+          0.0, controllerAngularVelocity.v[0], controllerAngularVelocity.v[1], controllerAngularVelocity.v[2]};
 
-      vr::HmdQuaternion_t qAngularVelocityWorld = EulerToQuaternion(static_cast<double>(angularVelocityWorld.v[2]), static_cast<double>(angularVelocityWorld.v[1]), static_cast<double>(angularVelocityWorld.v[0]));
+      const vr::HmdQuaternion_t result =
+          MultiplyQuaternion(MultiplyQuaternion(newPose.qRotation, qControllerAngularVelocity), QuatConjugate(newPose.qRotation));
 
-      vr::HmdQuaternion_t qAngularVelocityObject =
-          MultiplyQuaternion(MultiplyQuaternion(QuatConjugate(newPose.qRotation), qAngularVelocityWorld), newPose.qRotation);
-
-      vr::HmdVector3_t angularVelocityObject = QuaternionToEuler(qAngularVelocityObject);
-
-      newPose.vecAngularVelocity[0] = angularVelocityObject.v[0] * (double)100.0;
-      newPose.vecAngularVelocity[1] = angularVelocityObject.v[1] * (double)100.0;
-      newPose.vecAngularVelocity[2] = angularVelocityObject.v[2] * (double)100.0;
+      newPose.vecAngularVelocity[0] = result.x;
+      newPose.vecAngularVelocity[1] = result.y;
+      newPose.vecAngularVelocity[2] = result.z;
 
       newPose.vecVelocity[0] = controllerPose.vVelocity.v[0];
       newPose.vecVelocity[1] = controllerPose.vVelocity.v[1];
       newPose.vecVelocity[2] = controllerPose.vVelocity.v[2];
 
+      newPose.poseTimeOffset = poseConfiguration_.poseTimeOffset;
       newPose.poseIsValid = true;
       newPose.deviceIsConnected = true;
 
       newPose.result = vr::TrackingResult_Running_OK;
-
-      newPose.poseTimeOffset = poseConfiguration_.poseTimeOffset;
     } else {
       newPose.poseIsValid = false;
       newPose.deviceIsConnected = true;
