@@ -22,7 +22,8 @@ void KnuckleDeviceDriver::HandleInput(const VRInputData data) {
   vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ThumbstickTouch)], data.joyButton, 0);
 
   vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::TriggerClick)], data.trgButton, 0);
-  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::TriggerValue)], data.trgButton, 0);
+  const float triggerValue = configuration_.binaryTrigger ? data.trgButton : boneAnimator_->GetAverageCurlValue(data.flexion[1]); // determine triggerValue, no auxiliary trigger input yet
+  vr::VRDriverInput()->UpdateScalarComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::TriggerValue)], triggerValue, 0);
 
   vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::AClick)], data.aButton, 0);
   vr::VRDriverInput()->UpdateBooleanComponent(inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::ATouch)], data.aButton || (approximateThumb_ && boneAnimator_->GetAverageCurlValue(data.flexion[0]) > 0.6), 0); //Thumb approximation
