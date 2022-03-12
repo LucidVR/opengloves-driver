@@ -141,7 +141,7 @@ VRDeviceConfiguration DeviceProvider::GetDeviceConfiguration(const vr::ETrackedC
 
   const bool isEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, isRightHand ? "right_enabled" : "left_enabled");
   const bool feedbackEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, "feedback_enabled");
-  const bool indexCurlTrigger = vr::VRSettings()->GetBool(c_driverSettingsSection, "index_curl_as_trigger");
+  const bool indexCurlTrigger = vr::VRSettings()->GetBool(c_knuckleDeviceSettingsSection, "index_curl_as_trigger");
 
   const auto communicationProtocol =
       static_cast<VRCommunicationProtocol>(vr::VRSettings()->GetInt32(c_driverSettingsSection, "communication_protocol"));

@@ -4,7 +4,6 @@
     "left_enabled": true,
     "right_enabled": true,
     "feedback_enabled": true,
-    "index_curl_as_trigger": false, 
     "communication_protocol": 0, //title:Communication Method
     "device_driver": 1, //title:Device Driver Emulation
     "encoding_protocol": 1 //title:Encoding Protocol
@@ -22,7 +21,8 @@
     "__type": "device_driver:1",
     "left_serial_number": "LHR-E217CD00",
     "right_serial_number": "LHR-E217CD01",
-	"approximate_thumb": true
+	"approximate_thumb": true,
+  "index_curl_as_trigger": false
   },
   "pose_settings":
   {
