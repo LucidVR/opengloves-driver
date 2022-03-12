@@ -141,8 +141,7 @@ VRDeviceConfiguration DeviceProvider::GetDeviceConfiguration(const vr::ETrackedC
 
   const bool isEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, isRightHand ? "right_enabled" : "left_enabled");
   const bool feedbackEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, "feedback_enabled");
-  const bool useAuxTrigger = vr::VRSettings()->GetBool(c_driverSettingsSection, "use_auxiliary_trigger");
-  const bool binaryTrigger = vr::VRSettings()->GetBool(c_driverSettingsSection, "binary_trigger");
+  const bool indexCurlTrigger = vr::VRSettings()->GetBool(c_driverSettingsSection, "index_curl_as_trigger");
 
   const auto communicationProtocol =
       static_cast<VRCommunicationProtocol>(vr::VRSettings()->GetInt32(c_driverSettingsSection, "communication_protocol"));
@@ -182,8 +181,7 @@ VRDeviceConfiguration DeviceProvider::GetDeviceConfiguration(const vr::ETrackedC
       role,
       isEnabled,
       feedbackEnabled,
-      useAuxTrigger,
-      binaryTrigger,
+      indexCurlTrigger,
       VRPoseConfiguration(offsetVector, angleOffsetQuaternion, poseTimeOffset, controllerOverrideEnabled, controllerIdOverride, calibrationButton),
       encodingProtocol,
       communicationProtocol,

@@ -17,6 +17,7 @@ enum class VRCommDataLegacyEncodingPosition : int {
   BtnB,
   GesGrab,
   GesPinch,
+  TrgValue,   // legacy needs to follow an order
   Max,
 };
 
@@ -41,11 +42,13 @@ VRInputData LegacyEncodingManager::Decode(const std::string& input) {
 
   const float joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / maxAnalogValue_ - 1;
   const float joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / maxAnalogValue_ - 1;
+  const float trgValue = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::TrgValue)] / maxAnalogValue_; 
 
   VRInputData inputData(
       flexion,
       joyX,
       joyY,
+      trgValue,
       tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyBtn)] == 1,
       tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnTrg)] == 1,
       tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnA)] == 1,
