@@ -21,12 +21,13 @@ struct VRFFBData {
 struct VRInputData {
   VRInputData()
       : VRInputData(
-            {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, false, false, false, false, false, false, false, false){};
+            {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, false, false, false, false, false, false, false, false){};
 
   VRInputData(
       std::array<float, 5> flexion,
       float joyX,
       float joyY,
+      float trgValue,
       bool joyButton,
       bool trgButton,
       bool aButton,
@@ -59,6 +60,7 @@ struct VRInputData {
         }),
         joyX(joyX),
         joyY(joyY),
+        trgValue(trgValue),
         joyButton(joyButton),
         trgButton(trgButton),
         aButton(aButton),
@@ -73,6 +75,7 @@ struct VRInputData {
       std::array<float, 5> splay,
       float joyX,
       float joyY,
+      float trgValue,
       bool joyButton,
       bool trgButton,
       bool aButton,
@@ -85,6 +88,7 @@ struct VRInputData {
         splay(splay),
         joyX(joyX),
         joyY(joyY),
+        trgValue(trgValue), 
         joyButton(joyButton),
         trgButton(trgButton),
         aButton(aButton),
@@ -98,6 +102,7 @@ struct VRInputData {
   const std::array<float, 5> splay = {-2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
   const float joyX;
   const float joyY;
+  const float trgValue;
   const bool joyButton;
   const bool trgButton;
   const bool aButton;
