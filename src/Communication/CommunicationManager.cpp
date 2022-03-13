@@ -20,9 +20,16 @@ void CommunicationManager::BeginListener(const std::function<void(VRInputData)>&
 }
 
 void CommunicationManager::Disconnect() {
-  if (threadActive_.exchange(false)) thread_.join();
+  if (threadActive_.exchange(false)) {
+    // do anything needed to get ready to disconnect (cancelling read/write operations)
+    PrepareDisconnection();
 
-  if (IsConnected()) DisconnectFromDevice();
+    // now wait for the thread to join
+    thread_.join();
+
+    // then disconnect fully
+    DisconnectFromDevice();
+  }
 }
 
 void CommunicationManager::QueueSend(const VROutput& data) {
@@ -48,7 +55,7 @@ void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>
 
           SendMessageToDevice();
 
-          if(writeString_ != "\n") DriverLog("Wrote to device: %s", writeString_.c_str());
+          if (writeString_ != "\n") DriverLog("Wrote to device: %s", writeString_.c_str());
 
           writeString_.clear();
         }
@@ -75,4 +82,9 @@ void CommunicationManager::WaitAttemptConnection() {
   while (threadActive_ && !IsConnected() && !Connect()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(c_listenerWaitTime));
   }
+  if (!threadActive_) return;
+  // we're now connected
+
+  // discard anything we set beforehand
+  writeString_ = "";
 }

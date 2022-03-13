@@ -26,6 +26,8 @@ class CommunicationManager {
   virtual void WaitAttemptConnection();
 
   virtual bool Connect() = 0;
+
+  virtual void PrepareDisconnection(){};
   virtual bool DisconnectFromDevice() = 0;
   virtual void LogError(const char* message) = 0;
   virtual void LogMessage(const char* message) = 0;
