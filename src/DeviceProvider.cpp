@@ -185,8 +185,11 @@ const char* const* DeviceProvider::GetInterfaceVersions() {
 }
 
 void DeviceProvider::RunFrame() {
-  if (leftHand_ && leftHand_->IsActive()) leftHand_->RunFrame();
-  if (rightHand_ && rightHand_->IsActive()) rightHand_->RunFrame();
+  vr::VREvent_t pEvent;
+  while (vr::VRServerDriverHost()->PollNextEvent(&pEvent, sizeof(pEvent))) {
+    if (leftHand_ && leftHand_->IsActive()) leftHand_->OnEvent(pEvent);
+    if (rightHand_ && rightHand_->IsActive()) rightHand_->OnEvent(pEvent);
+  }
 }
 
 bool DeviceProvider::ShouldBlockStandbyMode() {

@@ -10,7 +10,6 @@ KnuckleDeviceDriver::KnuckleDeviceDriver(
     const VRDeviceConfiguration configuration)
     : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), std::move(serialNumber), configuration),
       inputComponentHandles_(),
-      haptic_(),
       approximateThumb_(approximateThumb) {}
 
 void KnuckleDeviceDriver::HandleInput(const VRInputData data) {
@@ -126,25 +125,9 @@ void KnuckleDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/middle", &inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerMiddle)], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/ring", &inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerRing)], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/pinky", &inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::FingerPinky)], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
-  vr::VRDriverInput()->CreateHapticComponent(props, "/output/haptic", &haptic_);
   // clang-format on
 }
 
-void KnuckleDeviceDriver::StartingDevice() {
-  if (!configuration_.feedbackEnabled) return;
+void KnuckleDeviceDriver::StartingDevice() {}
 
-  ffbProvider_ = std::make_unique<FFBListener>(
-      [&](const VRFFBData data) {
-        // Queue the force feedback data for sending.
-        communicationManager_->QueueSend(data);
-      },
-      configuration_.role);
-
-  ffbProvider_->Start();
-}
-
-void KnuckleDeviceDriver::StoppingDevice() {
-  if (ffbProvider_) {
-    ffbProvider_->Stop();
-  }
-}
+void KnuckleDeviceDriver::StoppingDevice() {}

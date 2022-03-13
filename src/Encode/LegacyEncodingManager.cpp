@@ -60,7 +60,16 @@ VRInputData LegacyEncodingManager::Decode(const std::string& input) {
   return inputData;
 }
 
-std::string LegacyEncodingManager::Encode(const VRFFBData& input) {
-  std::string result = StringFormat("%d&%d&%d&%d&%d\n", input.thumbCurl, input.indexCurl, input.middleCurl, input.ringCurl, input.pinkyCurl);
-  return result;
+std::string LegacyEncodingManager::Encode(const VROutput& input) {
+  switch (input.type) {
+    case VROutputDataType::ForceFeedback: {
+      const VRFFBData& data = input.data.ffbData;
+      return StringFormat("%d&%d&%d&%d&%d", data.thumbCurl, data.indexCurl, data.middleCurl, data.ringCurl, data.pinkyCurl);
+    }
+
+    case VROutputDataType::Haptic: {
+      const VRHapticData& data = input.data.hapticData;
+      return StringFormat("%.2f&%.2f&%.2f&", data.duration, data.frequency, data.amplitude);
+    }
+  }
 }

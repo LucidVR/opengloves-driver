@@ -53,6 +53,10 @@ static enum class VRCommDataAlphaEncodingKey : int {
   BtnMenu,
   BtnCalib,
 
+  OutHapticDuration,
+  OutHapticFrequency,
+  OutHapticAmplitude,
+
   Null
 };
 
@@ -113,7 +117,11 @@ static const std::map<VRCommDataAlphaEncodingKey, std::string> VRCommDataAlphaEn
     {VRCommDataAlphaEncodingKey::FinIndex, "B"},   // index force feedback
     {VRCommDataAlphaEncodingKey::FinMiddle, "C"},  // middle force feedback
     {VRCommDataAlphaEncodingKey::FinRing, "D"},    // ring force feedback
-    {VRCommDataAlphaEncodingKey::FinPinky, "E"}    // pinky force feedback
+    {VRCommDataAlphaEncodingKey::FinPinky, "E"},   // pinky force feedback
+
+    {VRCommDataAlphaEncodingKey::OutHapticFrequency, "F"},
+    {VRCommDataAlphaEncodingKey::OutHapticDuration, "G"},
+    {VRCommDataAlphaEncodingKey::OutHapticAmplitude, "H"},
 };
 
 static std::map<VRCommDataAlphaEncodingKey, std::string> ParseInputToMap(const std::string& str) {
@@ -229,19 +237,38 @@ VRInputData AlphaEncodingManager::Decode(const std::string& input) {
   return inputData;
 }
 
-std::string AlphaEncodingManager::Encode(const VRFFBData& input) {
-  std::string result = StringFormat(
-      "%s%d%s%d%s%d%s%d%s%d\n",
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinThumb).c_str(),
-      input.thumbCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinIndex).c_str(),
-      input.indexCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinMiddle).c_str(),
-      input.middleCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinRing).c_str(),
-      input.ringCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinPinky).c_str(),
-      input.pinkyCurl);
+std::string AlphaEncodingManager::Encode(const VROutput& input) {
+  switch (input.type) {
+    case VROutputDataType::ForceFeedback: {
+      const VRFFBData& data = input.data.ffbData;
 
-  return result;
+      return StringFormat(
+          "%s%d%s%d%s%d%s%d%s%d",
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinThumb).c_str(),
+          data.thumbCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinIndex).c_str(),
+          data.indexCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinMiddle).c_str(),
+          data.middleCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinRing).c_str(),
+          data.ringCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinPinky).c_str(),
+          data.pinkyCurl);
+    }
+
+    case VROutputDataType::Haptic: {
+      const VRHapticData& data = input.data.hapticData;
+
+      return StringFormat(
+          "%s%.2f%s%.2f%s%.2f",
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticFrequency).c_str(),
+          data.frequency,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticDuration).c_str(),
+          data.duration,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticAmplitude).c_str(),
+          data.amplitude);
+    }
+  }
+
+  return "";
 }

@@ -8,6 +8,7 @@
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
 #include "openvr_driver.h"
+#include "ForceFeedback.h"
 
 class DeviceDriver : public vr::ITrackedDeviceServerDriver {
  public:
@@ -23,9 +24,13 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   void EnterStandby() override;
   void* GetComponent(const char* pchComponentNameAndVersion) override;
   vr::DriverPose_t GetPose() override;
+
   virtual std::string GetSerialNumber();
+  int32_t GetDeviceId() const;
+
   virtual bool IsActive();
-  virtual void RunFrame();
+
+  void OnEvent(vr::VREvent_t vrEvent) const;
 
  protected:
   virtual bool IsRightHand() const;
@@ -35,7 +40,7 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   virtual void SetupProps(vr::PropertyContainerHandle_t& props) = 0;
   virtual void StartingDevice() = 0;
   virtual void StoppingDevice() = 0;
-  void PoseUpdateThread();
+  void PoseUpdateThread() const;
 
   std::unique_ptr<CommunicationManager> communicationManager_;
   std::shared_ptr<BoneAnimator> boneAnimator_;
@@ -43,11 +48,15 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   std::string serialNumber_;
 
   std::unique_ptr<ControllerPose> controllerPose_;
+  std::unique_ptr<FFBListener> ffbProvider_;
+
   vr::VRInputComponentHandle_t skeletalComponentHandle_;
+  vr::VRInputComponentHandle_t haptic_;
+
   vr::VRBoneTransform_t handTransforms_[NUM_BONES];
 
   std::thread poseUpdateThread_;
 
   std::atomic<bool> hasActivated_;
-  uint32_t driverId_;
+  uint32_t deviceId_;
 };
