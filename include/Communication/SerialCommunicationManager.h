@@ -19,6 +19,8 @@ class SerialCommunicationManager : public CommunicationManager {
 
  protected:
   bool Connect() override;
+
+  void PrepareDisconnection() override;
   bool DisconnectFromDevice() override;
   void LogError(const char* message) override;
   void LogMessage(const char* message) override;

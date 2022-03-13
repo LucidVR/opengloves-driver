@@ -77,21 +77,27 @@ bool SerialCommunicationManager::Connect() {
     return false;
   }
 
+  PurgeBuffer();
+
+  if (!threadActive_) return false;
+
   // If everything went fine we're connected
   isConnected_ = true;
-
-  PurgeBuffer();
 
   LogMessage("Successfully connected to device");
 
   return true;
 }
 
-bool SerialCommunicationManager::DisconnectFromDevice() {
+void SerialCommunicationManager::PrepareDisconnection() {
   // Cancel any pending read operations
-  CancelIoEx(hSerial_, nullptr);
+  if (!CancelIoEx(hSerial_, nullptr)) {
+    LogError("Error cancelling communication");
+  }
+}
 
-  if (!CloseHandle(hSerial_)) {
+bool SerialCommunicationManager::DisconnectFromDevice() {
+  if (IsConnected() && !CloseHandle(hSerial_)) {
     LogError("Error disconnecting from device");
     return false;
   }

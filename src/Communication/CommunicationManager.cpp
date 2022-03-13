@@ -21,8 +21,14 @@ void CommunicationManager::BeginListener(const std::function<void(VRInputData)>&
 
 void CommunicationManager::Disconnect() {
   if (threadActive_.exchange(false)) {
-    DisconnectFromDevice();
+    // do anything needed to get ready to disconnect (cancelling read/write operations)
+    PrepareDisconnection();
+
+    // now wait for the thread to join
     thread_.join();
+
+    // then disconnect fully
+    DisconnectFromDevice();
   }
 }
 
