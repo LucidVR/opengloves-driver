@@ -76,4 +76,9 @@ void CommunicationManager::WaitAttemptConnection() {
   while (threadActive_ && !IsConnected() && !Connect()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(c_listenerWaitTime));
   }
+  if (!threadActive_) return;
+  // we're now connected
+
+  // discard anything we set beforehand
+  writeString_ = "";
 }
