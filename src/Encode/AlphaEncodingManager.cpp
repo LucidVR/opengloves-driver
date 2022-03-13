@@ -42,6 +42,7 @@ static enum class VRCommDataAlphaEncodingKey : int {
   JoyY,
   JoyBtn,
 
+  TrgValue,
   BtnTrg,
   BtnA,
   BtnB,
@@ -56,7 +57,7 @@ static enum class VRCommDataAlphaEncodingKey : int {
   OutHapticFrequency,
   OutHapticAmplitude,
 
-  Null,
+  Null
 };
 
 static const std::string keyCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ()";
@@ -107,7 +108,8 @@ static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEn
     {"M", VRCommDataAlphaEncodingKey::GesPinch},  // pinch gesture (boolean)
     {"N", VRCommDataAlphaEncodingKey::BtnMenu},   // system button pressed (opens SteamVR menu)
     {"O", VRCommDataAlphaEncodingKey::BtnCalib},  // calibration button
-    {"", VRCommDataAlphaEncodingKey::Null},       // Junk key
+    {"P", VRCommDataAlphaEncodingKey::TrgValue},  // analog trigger value
+    {"", VRCommDataAlphaEncodingKey::Null}        // Junk key
 };
 
 static const std::map<VRCommDataAlphaEncodingKey, std::string> VRCommDataAlphaEncodingOutputKeyString{
@@ -212,11 +214,18 @@ VRInputData AlphaEncodingManager::Decode(const std::string& input) {
   if (inputMap.find(VRCommDataAlphaEncodingKey::JoyY) != inputMap.end())
     joyY = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyY)) / maxAnalogValue_ - 1;
 
+  float trgValue = 0; 
+
+  // trigger value is 0.0f -> 1.0f inclusive
+  if (inputMap.find(VRCommDataAlphaEncodingKey::TrgValue) != inputMap.end())
+    trgValue = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::TrgValue)) / maxAnalogValue_;
+
   VRInputData inputData(
       jointFlexion,
       splay,
       joyX,
       joyY,
+      trgValue,
       inputMap.find(VRCommDataAlphaEncodingKey::JoyBtn) != inputMap.end(),
       inputMap.find(VRCommDataAlphaEncodingKey::BtnTrg) != inputMap.end(),
       inputMap.find(VRCommDataAlphaEncodingKey::BtnA) != inputMap.end(),

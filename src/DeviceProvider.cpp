@@ -134,8 +134,11 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
 VRDeviceConfiguration DeviceProvider::GetDeviceConfiguration(const vr::ETrackedControllerRole role) {
   const bool isRightHand = role == vr::TrackedControllerRole_RightHand;
 
+  DriverLog("Getting configuration for: %s", isRightHand ? "Right hand" : "Left hand");
+
   const bool isEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, isRightHand ? "right_enabled" : "left_enabled");
   const bool feedbackEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, "feedback_enabled");
+  const bool indexCurlTrigger = vr::VRSettings()->GetBool(c_knuckleDeviceSettingsSection, "index_curl_as_trigger");
 
   const auto communicationProtocol =
       static_cast<VRCommunicationProtocol>(vr::VRSettings()->GetInt32(c_driverSettingsSection, "communication_protocol"));
@@ -162,12 +165,13 @@ VRDeviceConfiguration DeviceProvider::GetDeviceConfiguration(const vr::ETrackedC
   const vr::HmdVector3_t offsetVector = {offsetXPos, offsetYPos, offsetZPos};
 
   // Convert the rotation to a quaternion
-  const vr::HmdQuaternion_t angleOffsetQuaternion = EulerToQuaternion(DegToRad(offsetXRot), DegToRad(offsetYRot), DegToRad(offsetZRot));
+  const vr::HmdQuaternion_t angleOffsetQuaternion = EulerToQuaternion(DegToRad(offsetZRot), DegToRad(offsetYRot), DegToRad(offsetXRot));
 
   return VRDeviceConfiguration(
       role,
       isEnabled,
       feedbackEnabled,
+      indexCurlTrigger,
       VRPoseConfiguration(offsetVector, angleOffsetQuaternion, poseTimeOffset, controllerOverrideEnabled, controllerIdOverride, calibrationButton),
       encodingProtocol,
       communicationProtocol,

@@ -1,8 +1,7 @@
 
 # Installation & Usage
 
-It is strongly recommended to use the **[Steam]** version <br>
-to receive `Automatic Updates` as well as a `Builtin UI`.
+It is strongly recommended to use the **[Steam]** version to receive sutomatic updates as well as additional tools.
 
 [![Steam Preview]][Steam]
 

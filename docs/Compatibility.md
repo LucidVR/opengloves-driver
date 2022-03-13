@@ -1,24 +1,6 @@
 
 # Compatibility
 
-<br>
-
-## Officially Hardware
-
-The following projects are known to be compatible with **OpenGloves**.
-
-- **[LucidGloves]** <br>
-    *by [Lucas VRTech]*
-
-- **[Fngrs]** <br>
-    *by [danwillm]*
-
-<br>
-
-**Made your own hardware? Let us know!**
-
----
-
 ## Your Hardware
 
 While **OpenGloves** is capable of handling <br>
@@ -50,18 +32,17 @@ This is our own **[Firmware]** that is compatible with <br>
 
 ##### Finger Curling
 
-Is supported in games that work with the **Index** controllers.
+Is supported in games which have finger tracking support for the **Index** controllers, or other controllers.
 
 <br>
 
 ##### Force Feedback
 
 Unfortunately, game compatibility <br>
-with this feature is **[More Limited][Game Compatibility]**.
+with Force Feedback is **[More Limited][Game Compatibility]**.
 
 If you'd like to make your **Game** / **Mod** compatible <br>
 with `Force Feedback`, please refer to the **[Wiki][Integration]**.
-
 
 
 <!----------------------------------------------------------------------------->
