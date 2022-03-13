@@ -97,13 +97,17 @@ bool BTSerialCommunicationManager::ConnectToDevice(const BTH_ADDR& deviceBtAddre
     return false;
   }
 
-  unsigned long nonBlockingMode = 1;
+  DWORD timeout = 1000;
+  setsockopt(btClientSocket_, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
+  setsockopt(btClientSocket_, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
+
+  /* unsigned long nonBlockingMode = 1;
   // set the socket to be non-blocking, meaning it will return right away when sending/receiving
   if (ioctlsocket(btClientSocket_, FIONBIO, &nonBlockingMode) != 0) {
     LogError("Could not set socket to be non-blocking");
     return false;
-  }
-
+  }*/
+  
   return true;
 }
 
@@ -165,7 +169,7 @@ bool BTSerialCommunicationManager::StartupWindowsSocket() {
 
 void BTSerialCommunicationManager::LogError(const char* message) {
   // message with port name and last error
-  DriverLog("%s (%s) - Error: %s", message, btSerialConfiguration_.name.c_str(), GetLastErrorAsString().c_str());
+  DriverLog("%s (%s) - Error: %s - WSA: %d", message, btSerialConfiguration_.name.c_str(), GetLastErrorAsString().c_str(), WSAGetLastError());
 }
 
 void BTSerialCommunicationManager::LogMessage(const char* message) {
