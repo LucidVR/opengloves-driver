@@ -1,5 +1,6 @@
 #include "Calibration.h"
 
+#include "DriverLog.h"
 #include "Util/Quaternion.h"
 
 Calibration::Calibration() : maintainPose_(), isCalibrating_(false), calibratingMethod_(CalibrationMethod::None) {}
@@ -53,9 +54,10 @@ VRPoseConfiguration Calibration::CompleteCalibration(
 
   const vr::HmdVector3_t eulerOffset = QuaternionToEuler(transformQuat);
 
-  vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees", eulerOffset.v[0]);
-  vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees", eulerOffset.v[1]);
-  vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees", eulerOffset.v[2]);
+  vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees", RadToDeg(eulerOffset.v[0]));
+  vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees", RadToDeg(eulerOffset.v[1]));
+  vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees", RadToDeg(eulerOffset.v[2]));
+
 
   return poseConfiguration;
 }

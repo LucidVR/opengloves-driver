@@ -20,15 +20,22 @@ void CommunicationManager::BeginListener(const std::function<void(VRInputData)>&
 }
 
 void CommunicationManager::Disconnect() {
-  if (threadActive_.exchange(false)) thread_.join();
+  if (threadActive_.exchange(false)) {
+    // do anything needed to get ready to disconnect (cancelling read/write operations)
+    PrepareDisconnection();
 
-  if (IsConnected()) DisconnectFromDevice();
+    // now wait for the thread to join
+    thread_.join();
+
+    // then disconnect fully
+    DisconnectFromDevice();
+  }
 }
 
-void CommunicationManager::QueueSend(const VRFFBData& data) {
+void CommunicationManager::QueueSend(const VROutput& data) {
   std::lock_guard lock(writeMutex_);
 
-  if(encodingManager_ != nullptr) writeString_ = encodingManager_->Encode(data);
+  if (encodingManager_ != nullptr) writeString_ += encodingManager_->Encode(data);
 }
 
 void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>& callback) {
@@ -41,7 +48,16 @@ void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>
         callback(commData);
 
         if (deviceConfiguration_.feedbackEnabled) {
+          std::lock_guard lock(writeMutex_);
+
+          // append a newline and send
+          writeString_ = writeString_ + "\n";
+
           SendMessageToDevice();
+
+          if (writeString_ != "\n") DriverLog("Wrote to device: %s", writeString_.c_str());
+
+          writeString_.clear();
         }
 
         continue;
@@ -66,4 +82,9 @@ void CommunicationManager::WaitAttemptConnection() {
   while (threadActive_ && !IsConnected() && !Connect()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(c_listenerWaitTime));
   }
+  if (!threadActive_) return;
+  // we're now connected
+
+  // discard anything we set beforehand
+  writeString_ = "";
 }

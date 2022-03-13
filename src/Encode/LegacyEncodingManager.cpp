@@ -17,7 +17,7 @@ enum class VRCommDataLegacyEncodingPosition : int {
   BtnB,
   GesGrab,
   GesPinch,
-  Max,
+  Max
 };
 
 LegacyEncodingManager::LegacyEncodingManager(const float maxAnalogValue) : EncodingManager(maxAnalogValue) {}
@@ -41,11 +41,13 @@ VRInputData LegacyEncodingManager::Decode(const std::string& input) {
 
   const float joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / maxAnalogValue_ - 1;
   const float joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / maxAnalogValue_ - 1;
+  const float trgValue = flexion[1];  // legacy trigger behavior for legacy encoding 
 
   VRInputData inputData(
       flexion,
       joyX,
       joyY,
+      trgValue,
       tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyBtn)] == 1,
       tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnTrg)] == 1,
       tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnA)] == 1,
@@ -58,7 +60,16 @@ VRInputData LegacyEncodingManager::Decode(const std::string& input) {
   return inputData;
 }
 
-std::string LegacyEncodingManager::Encode(const VRFFBData& input) {
-  std::string result = StringFormat("%d&%d&%d&%d&%d\n", input.thumbCurl, input.indexCurl, input.middleCurl, input.ringCurl, input.pinkyCurl);
-  return result;
+std::string LegacyEncodingManager::Encode(const VROutput& input) {
+  switch (input.type) {
+    case VROutputDataType::ForceFeedback: {
+      const VRFFBData& data = input.data.ffbData;
+      return StringFormat("%d&%d&%d&%d&%d", data.thumbCurl, data.indexCurl, data.middleCurl, data.ringCurl, data.pinkyCurl);
+    }
+
+    case VROutputDataType::Haptic: {
+      const VRHapticData& data = input.data.hapticData;
+      return StringFormat("%.2f&%.2f&%.2f&", data.duration, data.frequency, data.amplitude);
+    }
+  }
 }

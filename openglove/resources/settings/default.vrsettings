@@ -21,7 +21,8 @@
     "__type": "device_driver:1",
     "left_serial_number": "LHR-E217CD00",
     "right_serial_number": "LHR-E217CD01",
-	"approximate_thumb": true
+	"approximate_thumb": true,
+  "index_curl_as_trigger": true
   },
   "pose_settings":
   {

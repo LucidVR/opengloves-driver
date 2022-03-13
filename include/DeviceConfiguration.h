@@ -77,6 +77,7 @@ struct VRDeviceConfiguration {
   vr::ETrackedControllerRole role;
   bool enabled;
   bool feedbackEnabled;
+  bool indexCurlTrigger; 
   VRPoseConfiguration poseConfiguration;
   VREncodingProtocol encodingProtocol;
   VRCommunicationProtocol communicationProtocol;
@@ -86,6 +87,7 @@ struct VRDeviceConfiguration {
       const vr::ETrackedControllerRole role,
       const bool enabled,
       const bool feedbackEnabled,
+      const bool indexCurlTrigger, 
       const VRPoseConfiguration poseConfiguration,
       const VREncodingProtocol encodingProtocol,
       const VRCommunicationProtocol communicationProtocol,
@@ -93,6 +95,7 @@ struct VRDeviceConfiguration {
       : role(role),
         enabled(enabled),
         feedbackEnabled(feedbackEnabled),
+        indexCurlTrigger(indexCurlTrigger),
         poseConfiguration(poseConfiguration),
         encodingProtocol(encodingProtocol),
         communicationProtocol(communicationProtocol),

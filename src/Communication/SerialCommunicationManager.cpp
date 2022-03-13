@@ -16,6 +16,25 @@ bool SerialCommunicationManager::IsConnected() {
   return isConnected_;
 };
 
+bool SerialCommunicationManager::SetCommunicationTimeout(
+    unsigned long ReadIntervalTimeout,
+    unsigned long ReadTotalTimeoutMultiplier,
+    unsigned long ReadTotalTimeoutConstant,
+    unsigned long WriteTotalTimeoutMultiplier,
+    unsigned long WriteTotalTimeoutConstant) {
+  COMMTIMEOUTS timeout;
+
+  timeout.ReadIntervalTimeout = ReadIntervalTimeout;
+  timeout.ReadTotalTimeoutConstant = ReadTotalTimeoutConstant;
+  timeout.ReadTotalTimeoutMultiplier = ReadTotalTimeoutMultiplier;
+  timeout.WriteTotalTimeoutConstant = WriteTotalTimeoutConstant;
+  timeout.WriteTotalTimeoutMultiplier = WriteTotalTimeoutMultiplier;
+
+  if (!SetCommTimeouts(hSerial_, &timeout)) return false;
+
+  return true;
+}
+
 bool SerialCommunicationManager::Connect() {
   LogMessage("Attempting connection to device");
   // We're not yet connected
@@ -48,18 +67,37 @@ bool SerialCommunicationManager::Connect() {
     return false;
   }
 
-  // If everything went fine we're connected
-  isConnected_ = true;
+  if (!SetCommunicationTimeout(50, 0, 0, 50, 0)) {
+    LogError("Failed to set communication timeout");
+    return false;
+  }
+
+  if (!SetupComm(hSerial_, 200, 200)) {
+    LogError("Failed to setup comm");
+    return false;
+  }
 
   PurgeBuffer();
+
+  if (!threadActive_) return false;
+
+  // If everything went fine we're connected
+  isConnected_ = true;
 
   LogMessage("Successfully connected to device");
 
   return true;
 }
 
+void SerialCommunicationManager::PrepareDisconnection() {
+  // Cancel any pending read operations
+  if (!CancelIoEx(hSerial_, nullptr)) {
+    LogError("Error cancelling communication");
+  }
+}
+
 bool SerialCommunicationManager::DisconnectFromDevice() {
-  if (!CloseHandle(hSerial_)) {
+  if (IsConnected() && !CloseHandle(hSerial_)) {
     LogError("Error disconnecting from device");
     return false;
   }
@@ -101,14 +139,14 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   // will become saturated and block future reads. We've got the data we need so purge
   // anything else left in the buffer. There should be more data ready for us in the
   // buffer by the next time we poll for it.
-  PurgeBuffer();
+  // TODO: This is currently causing lag on ESP32's so purging has been removed for now.
+  // Things to try in the future are purging on a time increment, or shrinking the buffer size.
+  // PurgeBuffer();
 
   return true;
 }
 
 bool SerialCommunicationManager::SendMessageToDevice() {
-  std::lock_guard lock(writeMutex_);
-
   const char* buf = writeString_.c_str();
   DWORD bytesSent;
   if (!WriteFile(hSerial_, buf, static_cast<DWORD>(writeString_.length()), &bytesSent, nullptr) || bytesSent < writeString_.length()) {
