@@ -20,9 +20,10 @@ void CommunicationManager::BeginListener(const std::function<void(VRInputData)>&
 }
 
 void CommunicationManager::Disconnect() {
-  if (threadActive_.exchange(false)) thread_.join();
-
-  if (IsConnected()) DisconnectFromDevice();
+  if (threadActive_.exchange(false)) {
+    DisconnectFromDevice();
+    thread_.join();
+  }
 }
 
 void CommunicationManager::QueueSend(const VROutput& data) {
@@ -48,7 +49,7 @@ void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>
 
           SendMessageToDevice();
 
-          if(writeString_ != "\n") DriverLog("Wrote to device: %s", writeString_.c_str());
+          if (writeString_ != "\n") DriverLog("Wrote to device: %s", writeString_.c_str());
 
           writeString_.clear();
         }
