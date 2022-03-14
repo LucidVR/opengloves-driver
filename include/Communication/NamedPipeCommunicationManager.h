@@ -2,17 +2,19 @@
 
 #include <atomic>
 #include <memory>
+#include <array>
 
 #include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
 #include "Util/NamedPipeListener.h"
 
+template <class T>
 class NamedPipeCommunicationManager : public CommunicationManager {
  public:
   NamedPipeCommunicationManager(VRNamedPipeInputConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration);
   bool IsConnected() override;
 
-  //no sending for named pipes
+  // no sending for named pipes
   void QueueSend(const VROutput& data) override{};
 
  protected:
@@ -32,10 +34,11 @@ class NamedPipeCommunicationManager : public CommunicationManager {
   void BeginListener(const std::function<void(VRInputData)>& callback) override;
 
  private:
-  std::unique_ptr<NamedPipeListener<VRInputData>> namedPipeListener_;
   std::atomic<bool> isConnected_;
 
   std::function<void(VRInputData)> callback_;
 
   VRNamedPipeInputConfiguration configuration_;
+
+  std::array<std::unique_ptr<NamedPipeListener<T>> namedPipeListeners_;
 };

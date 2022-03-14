@@ -7,84 +7,60 @@
 #include "DriverLog.h"
 #include "openvr_driver.h"
 
-struct VRInputData {
-  VRInputData()
-      : VRInputData(
-            {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f, 0.0f, 0.0f}, 0.0f, 0.0f, 0.0f, false, false, false, false, false, false, false, false){};
+namespace VRInputDataVersion {
+  struct v1 {
+    const std::array<std::array<float, 4>, 5> flexion;
+    const std::array<float, 5> splay = {-2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
+    const float joyX;
+    const float joyY;
+    const bool joyButton;
+    const bool trgButton;
+    const bool aButton;
+    const bool bButton;
+    const bool grab;
+    const bool pinch;
+    const bool menu;
+    const bool calibrate;
+  };
 
-  VRInputData(
-      std::array<float, 5> flexion,
-      float joyX,
-      float joyY,
-      float trgValue,
-      bool joyButton,
-      bool trgButton,
-      bool aButton,
-      bool bButton,
-      bool grab,
-      bool pinch,
-      bool menu,
-      bool calibrate)
-      : flexion({
-            flexion[0], flexion[0], flexion[0], flexion[0], flexion[1], flexion[1], flexion[1], flexion[1], flexion[2], flexion[2],
-            flexion[2], flexion[2], flexion[3], flexion[3], flexion[3], flexion[3], flexion[4], flexion[4], flexion[4], flexion[4],
-        }),
-        joyX(joyX),
-        joyY(joyY),
-        trgValue(trgValue),
-        joyButton(joyButton),
-        trgButton(trgButton),
-        aButton(aButton),
-        bButton(bButton),
-        grab(grab),
-        pinch(pinch),
-        menu(menu),
-        calibrate(calibrate) {}
+  struct v2 {
+    std::array<std::array<float, 4>, 5> flexion;
+    std::array<float, 5> splay;
+    float joyX;
+    float joyY;
+    float trgValue;
+    bool joyButton;
+    bool trgButton;
+    bool aButton;
+    bool bButton;
+    bool grab;
+    bool pinch;
+    bool menu;
+    bool calibrate;
+  };
+}  // namespace VRInputDataVersion
 
-  VRInputData(
-      std::array<std::array<float, 4>, 5> flexion,
-      std::array<float, 5> splay,
-      float joyX,
-      float joyY,
-      float trgValue,
-      bool joyButton,
-      bool trgButton,
-      bool aButton,
-      bool bButton,
-      bool grab,
-      bool pinch,
-      bool menu,
-      bool calibrate)
-      : flexion(flexion),
-        splay(splay),
-        joyX(joyX),
-        joyY(joyY),
-        trgValue(trgValue), 
-        joyButton(joyButton),
-        trgButton(trgButton),
-        aButton(aButton),
-        bButton(bButton),
-        grab(grab),
-        pinch(pinch),
-        menu(menu),
-        calibrate(calibrate) {}
-
-  const std::array<std::array<float, 4>, 5> flexion;
-  const std::array<float, 5> splay = {-2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
-  const float joyX;
-  const float joyY;
-  const float trgValue;
-  const bool joyButton;
-  const bool trgButton;
-  const bool aButton;
-  const bool bButton;
-  const bool grab;
-  const bool pinch;
-  const bool menu;
-  const bool calibrate;
+struct VRInputData : public VRInputDataVersion::v2 {
+  VRInputData operator=(const VRInputDataVersion::v1& other) {
+    flexion = other.flexion;
+    splay = other.splay;
+    joyX = other.joyX;
+    joyY = other.joyY;
+    joyButton = other.joyButton;
+    trgButton = other.trgButton;
+    aButton = other.aButton;
+    bButton = other.bButton;
+    grab = other.grab;
+    pinch = other.pinch;
+    menu = other.menu;
+    calibrate = other.calibrate;
+  }
 };
 
-//force feedback
+template <typename T>
+std::map<std::string, T> VRInputDataVersions = {{"v1", VRInputDataVersion::v1}, {"v2", VRInputDataVersion::v2}};
+
+// force feedback
 struct VRFFBData {
   VRFFBData() : VRFFBData(0, 0, 0, 0, 0){};
   VRFFBData(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl)
