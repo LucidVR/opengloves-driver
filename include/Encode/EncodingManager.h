@@ -7,6 +7,14 @@
 #include "DriverLog.h"
 #include "openvr_driver.h"
 
+// This namespace contains previous versions of the VRInput struct. These structs are used directly when communicating with named pipes, so it is
+// important to maintain compatibility with previous versions as to give time for programs that use this type of communication to switch to newer
+// versions.
+
+// If you're looking to extend the input struct, create a new version in this namespace, and set up constructors on how to cast previous versions to
+// it. Then set VRInputData (used when communicating over bt or usb) to inherit from this new struct.
+// If you want your new struct to be compatible with named pipe communication, add an item in the vector in NamedPipeCommunicationManager.cpp with a
+// version name.
 namespace VRInputDataVersion {
   struct v1 {
     const std::array<std::array<float, 4>, 5> flexion;
@@ -81,14 +89,14 @@ struct VRInputData : public VRInputDataVersion::v2 {
 // force feedback
 struct VRFFBData {
   VRFFBData() : VRFFBData(0, 0, 0, 0, 0){};
-  VRFFBData(short thumbCurl, short indexCurl, short middleCurl, short ringCurl, short pinkyCurl)
+  VRFFBData(int16_t thumbCurl, int16_t indexCurl, int16_t middleCurl, int16_t ringCurl, int16_t pinkyCurl)
       : thumbCurl(thumbCurl), indexCurl(indexCurl), middleCurl(middleCurl), ringCurl(ringCurl), pinkyCurl(pinkyCurl){};
 
-  const short thumbCurl;
-  const short indexCurl;
-  const short middleCurl;
-  const short ringCurl;
-  const short pinkyCurl;
+  const int16_t thumbCurl;
+  const int16_t indexCurl;
+  const int16_t middleCurl;
+  const int16_t ringCurl;
+  const int16_t pinkyCurl;
 };
 
 // vibration
