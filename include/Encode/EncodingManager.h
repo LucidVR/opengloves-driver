@@ -28,7 +28,6 @@ namespace VRInputDataVersion {
     std::array<float, 5> splay;
     float joyX;
     float joyY;
-    float trgValue;
     bool joyButton;
     bool trgButton;
     bool aButton;
@@ -37,28 +36,47 @@ namespace VRInputDataVersion {
     bool pinch;
     bool menu;
     bool calibrate;
+
+    // new
+    float trgValue;
   };
 }  // namespace VRInputDataVersion
 
 struct VRInputData : public VRInputDataVersion::v2 {
-  VRInputData operator=(const VRInputDataVersion::v1& other) {
-    flexion = other.flexion;
-    splay = other.splay;
-    joyX = other.joyX;
-    joyY = other.joyY;
-    joyButton = other.joyButton;
-    trgButton = other.trgButton;
-    aButton = other.aButton;
-    bButton = other.bButton;
-    grab = other.grab;
-    pinch = other.pinch;
-    menu = other.menu;
-    calibrate = other.calibrate;
+  VRInputData() : VRInputDataVersion::v2(){};
+
+  VRInputData(const VRInputDataVersion::v1& data) {
+    flexion = data.flexion;
+    splay = data.splay;
+    joyX = data.joyX;
+    joyY = data.joyY;
+    joyButton = data.joyButton;
+    trgButton = data.trgButton;
+    trgValue = data.trgButton;
+    aButton = data.aButton;
+    bButton = data.bButton;
+    grab = data.grab;
+    pinch = data.pinch;
+    menu = data.menu;
+    calibrate = data.calibrate;
+  }
+  VRInputData(const VRInputDataVersion::v2& data) {
+    flexion = data.flexion;
+    splay = data.splay;
+    joyX = data.joyX;
+    joyY = data.joyY;
+    joyButton = data.joyButton;
+    trgButton = data.trgButton;
+    trgValue = data.trgButton;
+    aButton = data.aButton;
+    bButton = data.bButton;
+    grab = data.grab;
+    pinch = data.pinch;
+    menu = data.menu;
+    calibrate = data.calibrate;
+    trgValue = data.trgValue;
   }
 };
-
-template <typename T>
-std::map<std::string, T> VRInputDataVersions = {{"v1", VRInputDataVersion::v1}, {"v2", VRInputDataVersion::v2}};
 
 // force feedback
 struct VRFFBData {

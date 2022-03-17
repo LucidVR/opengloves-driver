@@ -8,7 +8,6 @@
 #include "DeviceConfiguration.h"
 #include "Util/NamedPipeListener.h"
 
-template <class T>
 class NamedPipeCommunicationManager : public CommunicationManager {
  public:
   NamedPipeCommunicationManager(VRNamedPipeInputConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration);
@@ -40,5 +39,5 @@ class NamedPipeCommunicationManager : public CommunicationManager {
 
   VRNamedPipeInputConfiguration configuration_;
 
-  std::array<std::unique_ptr<NamedPipeListener<T>> namedPipeListeners_;
+  std::vector<std::unique_ptr<IListener>> namedPipeListeners_;
 };

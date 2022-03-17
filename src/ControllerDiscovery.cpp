@@ -5,11 +5,12 @@ ControllerDiscovery::ControllerDiscovery(vr::ETrackedControllerRole role, std::f
   std::string pipeName =
       R"(\\.\pipe\vrapplication\discovery\)" + std::string(role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left");
 
-  pipe_ = std::make_unique<NamedPipeListener<ControllerDiscoveryPipeData>>(pipeName);
+  pipe_ =
+      std::make_unique<NamedPipeListener<ControllerDiscoveryPipeData>>(pipeName, [&](const ControllerDiscoveryPipeData* data) { callback_(*data); });
 };
 
 void ControllerDiscovery::Start() {
-  pipe_->StartListening([&](const ControllerDiscoveryPipeData* data) { callback_(*data); });
+  pipe_->StartListening();
 };
 
 void ControllerDiscovery::Stop() const {
