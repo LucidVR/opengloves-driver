@@ -23,6 +23,8 @@ enum class VRCommDataLegacyEncodingPosition : int {
 LegacyEncodingManager::LegacyEncodingManager(const float maxAnalogValue) : EncodingManager(maxAnalogValue) {}
 
 VRInputData LegacyEncodingManager::Decode(const std::string& input) {
+  VRInputData result;
+
   std::string buf;
   std::stringstream ss(input);
 
@@ -36,28 +38,21 @@ VRInputData LegacyEncodingManager::Decode(const std::string& input) {
 
   std::array<float, 5> flexion{};
   for (uint8_t flexionI = 0; flexionI < 5; flexionI++) {
-    flexion[flexionI] = tokens[flexionI] / maxAnalogValue_;
+    for (int k = 0; k < 4; k++) result.flexion[flexionI][k] = tokens[flexionI] / maxAnalogValue_;
   }
 
-  const float joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / maxAnalogValue_ - 1;
-  const float joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / maxAnalogValue_ - 1;
-  const float trgValue = flexion[1];  // legacy trigger behavior for legacy encoding 
+  result.joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / maxAnalogValue_ - 1;
+  result.joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / maxAnalogValue_ - 1;
 
-  VRInputData inputData(
-      flexion,
-      joyX,
-      joyY,
-      trgValue,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyBtn)] == 1,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnTrg)] == 1,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnA)] == 1,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnB)] == 1,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::GesGrab)] == 1,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::GesPinch)] == 1,
-      false,
-      false);
+  result.joyButton = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyBtn)] == 1;
 
-  return inputData;
+  result.trgButton = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnTrg)] == 1;
+  result.aButton = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnA)] == 1;
+  result.bButton = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnB)] == 1;
+  result.grab = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::GesGrab)] == 1;
+  result.pinch = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::GesPinch)] == 1;
+
+  return result;
 }
 
 std::string LegacyEncodingManager::Encode(const VROutput& input) {
