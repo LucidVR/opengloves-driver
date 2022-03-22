@@ -42,6 +42,7 @@ static enum class VRCommDataAlphaEncodingKey : int {
   JoyY,
   JoyBtn,
 
+  TrgValue,
   BtnTrg,
   BtnA,
   BtnB,
@@ -52,7 +53,11 @@ static enum class VRCommDataAlphaEncodingKey : int {
   BtnMenu,
   BtnCalib,
 
-  Null,
+  OutHapticDuration,
+  OutHapticFrequency,
+  OutHapticAmplitude,
+
+  Null
 };
 
 static const std::string keyCharacters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ()";
@@ -103,7 +108,8 @@ static const std::map<std::string, VRCommDataAlphaEncodingKey> VRCommDataAlphaEn
     {"M", VRCommDataAlphaEncodingKey::GesPinch},  // pinch gesture (boolean)
     {"N", VRCommDataAlphaEncodingKey::BtnMenu},   // system button pressed (opens SteamVR menu)
     {"O", VRCommDataAlphaEncodingKey::BtnCalib},  // calibration button
-    {"", VRCommDataAlphaEncodingKey::Null},       // Junk key
+    {"P", VRCommDataAlphaEncodingKey::TrgValue},  // analog trigger value
+    {"", VRCommDataAlphaEncodingKey::Null}        // Junk key
 };
 
 static const std::map<VRCommDataAlphaEncodingKey, std::string> VRCommDataAlphaEncodingOutputKeyString{
@@ -111,7 +117,11 @@ static const std::map<VRCommDataAlphaEncodingKey, std::string> VRCommDataAlphaEn
     {VRCommDataAlphaEncodingKey::FinIndex, "B"},   // index force feedback
     {VRCommDataAlphaEncodingKey::FinMiddle, "C"},  // middle force feedback
     {VRCommDataAlphaEncodingKey::FinRing, "D"},    // ring force feedback
-    {VRCommDataAlphaEncodingKey::FinPinky, "E"}    // pinky force feedback
+    {VRCommDataAlphaEncodingKey::FinPinky, "E"},   // pinky force feedback
+
+    {VRCommDataAlphaEncodingKey::OutHapticFrequency, "F"},
+    {VRCommDataAlphaEncodingKey::OutHapticDuration, "G"},
+    {VRCommDataAlphaEncodingKey::OutHapticAmplitude, "H"},
 };
 
 static std::map<VRCommDataAlphaEncodingKey, std::string> ParseInputToMap(const std::string& str) {
@@ -153,10 +163,9 @@ static std::map<VRCommDataAlphaEncodingKey, std::string> ParseInputToMap(const s
 }
 
 VRInputData AlphaEncodingManager::Decode(const std::string& input) {
-  std::array<float, 5> flexion = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
-  std::array<std::array<float, 4>, 5> jointFlexion;
+  VRInputData result;
 
-  std::array<float, 5> splay = {-2.0f, -2.0f, -2.0f, -2.0f, -2.0f};
+  std::array<float, 5> flexion = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
 
   // This map contains all the inputs we've got from the packet we received
   std::map<VRCommDataAlphaEncodingKey, std::string> inputMap = ParseInputToMap(input);
@@ -178,61 +187,77 @@ VRInputData AlphaEncodingManager::Decode(const std::string& input) {
   for (int i = 0; i < 5; i++) {
     for (int k = 0; k < 4; k++) {
       VRCommDataAlphaEncodingKey joint = static_cast<VRCommDataAlphaEncodingKey>(curJoint);
-      jointFlexion[i][k] = inputMap.find(joint) != inputMap.end() ? (std::stof(inputMap.at(joint)) / maxAnalogValue_) : flexion[i];
+      result.flexion[i][k] = inputMap.find(joint) != inputMap.end() ? (std::stof(inputMap.at(joint)) / maxAnalogValue_) : flexion[i];
       curJoint++;
     }
   }
 
   // splay is -1.0f -> 1.0f inclusive
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinSplayThumb) != inputMap.end())
-    splay[0] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayThumb)) / maxAnalogValue_ - 0.5f) * 2.0f;
+    result.splay[0] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayThumb)) / maxAnalogValue_ - 0.5f) * 2.0f;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinSplayIndex) != inputMap.end())
-    splay[1] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayIndex)) / maxAnalogValue_ - 0.5f) * 2.0f;
+    result.splay[1] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayIndex)) / maxAnalogValue_ - 0.5f) * 2.0f;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinSplayMiddle) != inputMap.end())
-    splay[2] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayMiddle)) / maxAnalogValue_ - 0.5f) * 2.0f;
+    result.splay[2] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayMiddle)) / maxAnalogValue_ - 0.5f) * 2.0f;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinSplayRing) != inputMap.end())
-    splay[3] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayRing)) / maxAnalogValue_ - 0.5f) * 2.0f;
+    result.splay[3] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayRing)) / maxAnalogValue_ - 0.5f) * 2.0f;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinSplayPinky) != inputMap.end())
-    splay[4] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayPinky)) / maxAnalogValue_ - 0.5f) * 2.0f;
-
-  float joyX = 0;
-  float joyY = 0;
+    result.splay[4] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayPinky)) / maxAnalogValue_ - 0.5f) * 2.0f;
 
   // joystick axis are -1.0f -> 1.0f inclusive
   if (inputMap.find(VRCommDataAlphaEncodingKey::JoyX) != inputMap.end())
-    joyX = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyX)) / maxAnalogValue_ - 1;
+    result.joyX = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyX)) / maxAnalogValue_ - 1;
   if (inputMap.find(VRCommDataAlphaEncodingKey::JoyY) != inputMap.end())
-    joyY = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyY)) / maxAnalogValue_ - 1;
+    result.joyY = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyY)) / maxAnalogValue_ - 1;
 
-  VRInputData inputData(
-      jointFlexion,
-      splay,
-      joyX,
-      joyY,
-      inputMap.find(VRCommDataAlphaEncodingKey::JoyBtn) != inputMap.end(),
-      inputMap.find(VRCommDataAlphaEncodingKey::BtnTrg) != inputMap.end(),
-      inputMap.find(VRCommDataAlphaEncodingKey::BtnA) != inputMap.end(),
-      inputMap.find(VRCommDataAlphaEncodingKey::BtnB) != inputMap.end(),
-      inputMap.find(VRCommDataAlphaEncodingKey::GesGrab) != inputMap.end(),
-      inputMap.find(VRCommDataAlphaEncodingKey::GesPinch) != inputMap.end(),
-      inputMap.find(VRCommDataAlphaEncodingKey::BtnMenu) != inputMap.end(),
-      inputMap.find(VRCommDataAlphaEncodingKey::BtnCalib) != inputMap.end());
-  return inputData;
-}
+  // trigger value is 0.0f -> 1.0f inclusive
+  if (inputMap.find(VRCommDataAlphaEncodingKey::TrgValue) != inputMap.end())
+    result.trgValue = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::TrgValue)) / maxAnalogValue_;
 
-std::string AlphaEncodingManager::Encode(const VRFFBData& input) {
-  std::string result = StringFormat(
-      "%s%d%s%d%s%d%s%d%s%d\n",
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinThumb).c_str(),
-      input.thumbCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinIndex).c_str(),
-      input.indexCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinMiddle).c_str(),
-      input.middleCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinRing).c_str(),
-      input.ringCurl,
-      VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinPinky).c_str(),
-      input.pinkyCurl);
+  result.joyButton = inputMap.find(VRCommDataAlphaEncodingKey::JoyBtn) != inputMap.end();
+  result.trgButton = inputMap.find(VRCommDataAlphaEncodingKey::BtnTrg) != inputMap.end();
+  result.aButton = inputMap.find(VRCommDataAlphaEncodingKey::BtnA) != inputMap.end();
+  result.bButton = inputMap.find(VRCommDataAlphaEncodingKey::BtnB) != inputMap.end();
+  result.grab = inputMap.find(VRCommDataAlphaEncodingKey::GesGrab) != inputMap.end();
+  result.pinch = inputMap.find(VRCommDataAlphaEncodingKey::GesPinch) != inputMap.end();
+  result.menu = inputMap.find(VRCommDataAlphaEncodingKey::BtnMenu) != inputMap.end();
+  result.calibrate = inputMap.find(VRCommDataAlphaEncodingKey::BtnCalib) != inputMap.end();
 
   return result;
+}
+
+std::string AlphaEncodingManager::Encode(const VROutput& input) {
+  switch (input.type) {
+    case VROutputDataType::ForceFeedback: {
+      const VRFFBData& data = input.data.ffbData;
+
+      return StringFormat(
+          "%s%d%s%d%s%d%s%d%s%d",
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinThumb).c_str(),
+          data.thumbCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinIndex).c_str(),
+          data.indexCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinMiddle).c_str(),
+          data.middleCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinRing).c_str(),
+          data.ringCurl,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::FinPinky).c_str(),
+          data.pinkyCurl);
+    }
+
+    case VROutputDataType::Haptic: {
+      const VRHapticData& data = input.data.hapticData;
+
+      return StringFormat(
+          "%s%.2f%s%.2f%s%.2f",
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticFrequency).c_str(),
+          data.frequency,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticDuration).c_str(),
+          data.duration,
+          VRCommDataAlphaEncodingOutputKeyString.at(VRCommDataAlphaEncodingKey::OutHapticAmplitude).c_str(),
+          data.amplitude);
+    }
+  }
+
+  return "";
 }

@@ -8,17 +8,18 @@ ControllerPose::ControllerPose(
     : poseConfiguration_(poseConfiguration), shadowDeviceOfRole_(shadowDeviceOfRole), thisDeviceManufacturer_(std::move(thisDeviceManufacturer)) {
   calibrationPipe_ = std::make_unique<NamedPipeListener<CalibrationDataIn>>(
       R"(\\.\pipe\vrapplication\functions\autocalibrate\)" +
-      std::string(shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left"));
+          std::string(shadowDeviceOfRole == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left"),
+      [&](const CalibrationDataIn* data) {
+        if (data->start) {
+          DriverLog("Starting calibration via external application");
+          StartCalibration(CalibrationMethod::Ui);
+        } else {
+          DriverLog("Stopping calibration via external application");
+          CompleteCalibration(CalibrationMethod::Ui);
+        }
+      });
 
-  calibrationPipe_->StartListening([&](const CalibrationDataIn* data) {
-    if (data->start) {
-      DriverLog("Starting calibration via external application");
-      StartCalibration(CalibrationMethod::Ui);
-    } else {
-      DriverLog("Stopping calibration via external application");
-      CompleteCalibration(CalibrationMethod::Ui);
-    }
-  });
+  calibrationPipe_->StartListening();
 
   if (poseConfiguration_.controllerOverrideEnabled) {
     shadowControllerId_ = poseConfiguration_.controllerIdOverride;
@@ -79,7 +80,10 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
       angularVelocityWorld.v[1] /= 100.0;
       angularVelocityWorld.v[2] /= 100.0;
 
-      vr::HmdQuaternion_t qAngularVelocityWorld = EulerToQuaternion(static_cast<double>(angularVelocityWorld.v[2]), static_cast<double>(angularVelocityWorld.v[1]), static_cast<double>(angularVelocityWorld.v[0]));
+      vr::HmdQuaternion_t qAngularVelocityWorld = EulerToQuaternion(
+          static_cast<double>(angularVelocityWorld.v[2]),
+          static_cast<double>(angularVelocityWorld.v[1]),
+          static_cast<double>(angularVelocityWorld.v[0]));
 
       vr::HmdQuaternion_t qAngularVelocityObject =
           MultiplyQuaternion(MultiplyQuaternion(QuatConjugate(newPose.qRotation), qAngularVelocityWorld), newPose.qRotation);

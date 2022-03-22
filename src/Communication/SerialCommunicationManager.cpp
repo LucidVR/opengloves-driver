@@ -77,18 +77,27 @@ bool SerialCommunicationManager::Connect() {
     return false;
   }
 
+  PurgeBuffer();
+
+  if (!threadActive_) return false;
+
   // If everything went fine we're connected
   isConnected_ = true;
-
-  PurgeBuffer();
 
   LogMessage("Successfully connected to device");
 
   return true;
 }
 
+void SerialCommunicationManager::PrepareDisconnection() {
+  // Cancel any pending read operations
+  if (!CancelIoEx(hSerial_, nullptr)) {
+    LogError("Error cancelling communication");
+  }
+}
+
 bool SerialCommunicationManager::DisconnectFromDevice() {
-  if (!CloseHandle(hSerial_)) {
+  if (IsConnected() && !CloseHandle(hSerial_)) {
     LogError("Error disconnecting from device");
     return false;
   }
@@ -138,8 +147,6 @@ bool SerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
 }
 
 bool SerialCommunicationManager::SendMessageToDevice() {
-  std::lock_guard lock(writeMutex_);
-
   const char* buf = writeString_.c_str();
   DWORD bytesSent;
   if (!WriteFile(hSerial_, buf, static_cast<DWORD>(writeString_.length()), &bytesSent, nullptr) || bytesSent < writeString_.length()) {

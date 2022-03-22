@@ -18,7 +18,6 @@ enum class LucidGloveDeviceComponentIndex : int {
   BtnB,
   GesGrab,
   GesPinch,
-  Haptic,
   TrgThumb,
   TrgIndex,
   TrgMiddle,

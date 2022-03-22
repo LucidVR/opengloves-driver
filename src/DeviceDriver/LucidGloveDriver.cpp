@@ -61,8 +61,6 @@ void LucidGloveDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
   vr::VRDriverInput()->CreateBooleanComponent(props, "/input/grab/click", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::GesGrab)]);
   vr::VRDriverInput()->CreateBooleanComponent(props, "/input/pinch/click", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::GesPinch)]);
 
-  vr::VRDriverInput()->CreateHapticComponent(props, "output/haptic", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::Haptic)]);
-
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/thumb", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgThumb)], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/index", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgIndex)], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/finger/middle", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::TrgMiddle)], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedOneSided);

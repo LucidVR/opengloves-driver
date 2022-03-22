@@ -17,12 +17,14 @@ enum class VRCommDataLegacyEncodingPosition : int {
   BtnB,
   GesGrab,
   GesPinch,
-  Max,
+  Max
 };
 
 LegacyEncodingManager::LegacyEncodingManager(const float maxAnalogValue) : EncodingManager(maxAnalogValue) {}
 
 VRInputData LegacyEncodingManager::Decode(const std::string& input) {
+  VRInputData result;
+
   std::string buf;
   std::stringstream ss(input);
 
@@ -36,29 +38,33 @@ VRInputData LegacyEncodingManager::Decode(const std::string& input) {
 
   std::array<float, 5> flexion{};
   for (uint8_t flexionI = 0; flexionI < 5; flexionI++) {
-    flexion[flexionI] = tokens[flexionI] / maxAnalogValue_;
+    for (int k = 0; k < 4; k++) result.flexion[flexionI][k] = tokens[flexionI] / maxAnalogValue_;
   }
 
-  const float joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / maxAnalogValue_ - 1;
-  const float joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / maxAnalogValue_ - 1;
+  result.joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / maxAnalogValue_ - 1;
+  result.joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / maxAnalogValue_ - 1;
 
-  VRInputData inputData(
-      flexion,
-      joyX,
-      joyY,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyBtn)] == 1,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnTrg)] == 1,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnA)] == 1,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnB)] == 1,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::GesGrab)] == 1,
-      tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::GesPinch)] == 1,
-      false,
-      false);
+  result.joyButton = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyBtn)] == 1;
 
-  return inputData;
+  result.trgButton = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnTrg)] == 1;
+  result.aButton = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnA)] == 1;
+  result.bButton = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::BtnB)] == 1;
+  result.grab = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::GesGrab)] == 1;
+  result.pinch = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::GesPinch)] == 1;
+
+  return result;
 }
 
-std::string LegacyEncodingManager::Encode(const VRFFBData& input) {
-  std::string result = StringFormat("%d&%d&%d&%d&%d\n", input.thumbCurl, input.indexCurl, input.middleCurl, input.ringCurl, input.pinkyCurl);
-  return result;
+std::string LegacyEncodingManager::Encode(const VROutput& input) {
+  switch (input.type) {
+    case VROutputDataType::ForceFeedback: {
+      const VRFFBData& data = input.data.ffbData;
+      return StringFormat("%d&%d&%d&%d&%d", data.thumbCurl, data.indexCurl, data.middleCurl, data.ringCurl, data.pinkyCurl);
+    }
+
+    case VROutputDataType::Haptic: {
+      const VRHapticData& data = input.data.hapticData;
+      return StringFormat("%.2f&%.2f&%.2f&", data.duration, data.frequency, data.amplitude);
+    }
+  }
 }
