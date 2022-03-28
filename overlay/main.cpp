@@ -85,6 +85,7 @@ void DiscoverController(const vr::ETrackedControllerRole role) {
       GetAndSendControllerId(curFound, role);
       lastFound = curFound;
     }
+
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
   }
 }
@@ -136,13 +137,7 @@ bool PipeHelper::ConnectAndSendPipe(const std::string& pipeName, ControllerPipeD
 
     if (pipeHandle_ != INVALID_HANDLE_VALUE) break;
 
-    if (GetLastError() != ERROR_PIPE_BUSY) {
-      return false;
-    }
-
-    if (!WaitNamedPipe(pipeName.c_str(), 1000)) {
-      return false;
-    }
+    WaitNamedPipe(pipeName.c_str(), 1000);
   }
 
   DWORD dwWritten;
