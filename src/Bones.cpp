@@ -180,8 +180,7 @@ void BoneAnimator::SetTransformForBone(
 
   if (splay >= -1.0f && splay <= 1.0f) {
     // only splay one bone (all the rest are done relative to this one)
-    if (IsBoneSplayableBone(boneIndex))
-      bone.orientation = MultiplyQuaternion(bone.orientation, EulerToQuaternion(0.0, DegToRad(splay * c_maxSplayAngle), 0.0));
+    if (IsBoneSplayableBone(boneIndex)) bone.orientation = bone.orientation * EulerToQuaternion(0.0, DegToRad(splay * c_maxSplayAngle), 0.0);
   }
 
   // we're guaranteed to have updated the bone, so we can safely apply a transformation

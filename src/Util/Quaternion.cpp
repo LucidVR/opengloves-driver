@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 #include "Util/Quaternion.h"
 
 #include <cmath>
@@ -27,16 +29,6 @@ vr::HmdVector3_t GetPosition(const vr::HmdMatrix34_t& matrix) {
   return vector;
 }
 
-vr::HmdVector3_t CombinePosition(const vr::HmdMatrix34_t& matrix, const vr::HmdVector3_t& vec) {
-  vr::HmdVector3_t vector{};
-
-  vector.v[0] = matrix.m[0][3] + vec.v[0];
-  vector.v[1] = matrix.m[1][3] + vec.v[1];
-  vector.v[2] = matrix.m[2][3] + vec.v[2];
-
-  return vector;
-}
-
 vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t& matrix) {
   vr::HmdQuaternion_t q{};
 
@@ -53,26 +45,14 @@ vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t& matrix) {
 }
 
 vr::HmdMatrix33_t GetRotationMatrix(const vr::HmdMatrix34_t& matrix) {
-  const vr::HmdMatrix33_t result = {
+  return {
       {{matrix.m[0][0], matrix.m[0][1], matrix.m[0][2]},
        {matrix.m[1][0], matrix.m[1][1], matrix.m[1][2]},
        {matrix.m[2][0], matrix.m[2][1], matrix.m[2][2]}}};
-
-  return result;
-}
-
-vr::HmdVector3_t MultiplyMatrix(const vr::HmdMatrix33_t& matrix, const vr::HmdVector3_t& vector) {
-  vr::HmdVector3_t result{};
-
-  result.v[0] = matrix.m[0][0] * vector.v[0] + matrix.m[0][1] * vector.v[1] + matrix.m[0][2] * vector.v[2];
-  result.v[1] = matrix.m[1][0] * vector.v[0] + matrix.m[1][1] * vector.v[1] + matrix.m[1][2] * vector.v[2];
-  result.v[2] = matrix.m[2][0] * vector.v[0] + matrix.m[2][1] * vector.v[1] + matrix.m[2][2] * vector.v[2];
-
-  return result;
 }
 
 vr::HmdMatrix33_t QuaternionToMatrix(const vr::HmdQuaternion_t& q) {
-  const vr::HmdMatrix33_t result = {
+  return {
       {{static_cast<float>(1 - 2 * q.y * q.y - 2 * q.z * q.z),
         static_cast<float>(2 * q.x * q.y - 2 * q.z * q.w),
         static_cast<float>(2 * q.x * q.z + 2 * q.y * q.w)},
@@ -82,35 +62,6 @@ vr::HmdMatrix33_t QuaternionToMatrix(const vr::HmdQuaternion_t& q) {
        {static_cast<float>(2 * q.x * q.z - 2 * q.y * q.w),
         static_cast<float>(2 * q.y * q.z + 2 * q.x * q.w),
         static_cast<float>(1 - 2 * q.x * q.x - 2 * q.y * q.y)}}};
-
-  return result;
-}
-
-vr::HmdQuaternion_t QuatConjugate(const vr::HmdQuaternion_t& q) {
-  const vr::HmdQuaternion_t quat = {q.w, -q.x, -q.y, -q.z};
-  return quat;
-}
-
-vr::HmdQuaternion_t MultiplyQuaternion(const vr::HmdQuaternion_t& q, const vr::HmdQuaternion_t& r) {
-  vr::HmdQuaternion_t result{};
-
-  result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
-  result.x = r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y;
-  result.y = r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x;
-  result.z = r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w;
-
-  return result;
-}
-
-vr::HmdQuaternionf_t MultiplyQuaternion(const vr::HmdQuaternionf_t& q, const vr::HmdQuaternion_t& r) {
-  vr::HmdQuaternionf_t result{};
-
-  result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
-  result.x = r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y;
-  result.y = r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x;
-  result.z = r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w;
-
-  return result;
 }
 
 vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, const double& roll) {
@@ -151,4 +102,54 @@ vr::HmdVector3_t QuaternionToEuler(const vr::HmdQuaternion_t& q) {
   result.v[0] = std::atan2(siny_cosp, cosy_cosp);
 
   return result;
+}
+
+vr::HmdQuaternion_t operator-(const vr::HmdQuaternion_t& q) {
+  return {q.w, -q.x, -q.y, -q.z};
+}
+
+vr::HmdQuaternion_t operator*(const vr::HmdQuaternion_t& q, const vr::HmdQuaternion_t& r) {
+  vr::HmdQuaternion_t result{};
+
+  result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
+  result.x = r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y;
+  result.y = r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x;
+  result.z = r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w;
+
+  return result;
+}
+
+vr::HmdQuaternionf_t operator*(const vr::HmdQuaternionf_t& q, const vr::HmdQuaternion_t& r) {
+  vr::HmdQuaternionf_t result{};
+
+  result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
+  result.x = r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y;
+  result.y = r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x;
+  result.z = r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w;
+
+  return result;
+}
+
+vr::HmdVector3_t operator+(const vr::HmdMatrix34_t& matrix, const vr::HmdVector3_t& vec) {
+  vr::HmdVector3_t vector{};
+
+  vector.v[0] = matrix.m[0][3] + vec.v[0];
+  vector.v[1] = matrix.m[1][3] + vec.v[1];
+  vector.v[2] = matrix.m[2][3] + vec.v[2];
+
+  return vector;
+}
+
+vr::HmdVector3_t operator*(const vr::HmdMatrix33_t& matrix, const vr::HmdVector3_t& vec) {
+  vr::HmdVector3_t result{};
+
+  result.v[0] = matrix.m[0][0] * vec.v[0] + matrix.m[0][1] * vec.v[1] + matrix.m[0][2] * vec.v[2];
+  result.v[1] = matrix.m[1][0] * vec.v[0] + matrix.m[1][1] * vec.v[1] + matrix.m[1][2] * vec.v[2];
+  result.v[2] = matrix.m[2][0] * vec.v[0] + matrix.m[2][1] * vec.v[1] + matrix.m[2][2] * vec.v[2];
+
+  return result;
+}
+
+vr::HmdVector3_t operator-(const vr::HmdVector3_t& vec, const vr::HmdMatrix34_t& matrix) {
+  return {vec.v[0] - matrix.m[0][3], vec.v[1] - matrix.m[1][3], vec.v[2] - matrix.m[2][3]};
 }
