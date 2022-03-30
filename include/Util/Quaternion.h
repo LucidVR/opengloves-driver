@@ -3,7 +3,9 @@
 #include "openvr_driver.h"
 
 double DegToRad(double degrees);
+float DegToRad(const float degrees);
 double RadToDeg(double rad);
+float RadToDeg(const float rad);
 
 // get the quaternion for rotation from a matrix
 vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t& matrix);

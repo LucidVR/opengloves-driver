@@ -5,7 +5,15 @@
 double DegToRad(const double degrees) {
   return degrees * M_PI / 180.0;
 }
+float DegToRad(const float degrees) {
+  return degrees * M_PI / 180.0;
+}
+
 double RadToDeg(const double rad) {
+  return rad * 180.0 / M_PI;
+}
+
+float RadToDeg(const float rad) {
   return rad * 180.0 / M_PI;
 }
 
@@ -124,23 +132,23 @@ vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, co
 
 vr::HmdVector3_t QuaternionToEuler(const vr::HmdQuaternion_t& q) {
   vr::HmdVector3_t result;
-  const double unit = (q.x * q.x) + (q.y * q.y) + (q.z * q.z) + (q.w * q.w);
 
-  const float test = q.x * q.w - q.y * q.z;
+  // roll (x-axis rotation)
+  double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+  double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+  result.v[2] = std::atan2(sinr_cosp, cosr_cosp);
 
-  if (test > 0.4995f * unit) {
-    result.v[0] = M_PI / 2;
-    result.v[1] = (2 * atan2(q.y / unit, q.x / unit));
-    result.v[2] = 0;
-  } else if (test < -0.4995f * unit) {
-    result.v[0] = -M_PI / 2;
-    result.v[1] = (-2 * atan2(q.y / unit, q.x / unit));
-    result.v[2] = 0;
-  } else {
-    result.v[0] = asin(2 * (q.w * q.x - q.y * q.z) / unit);
-    result.v[1] = atan2((2 / unit * q.w * q.y + 2 / unit * q.z * q.x), (1 - 2 / unit * (q.x * q.x + q.y * q.y)));
-    result.v[2] = atan2((2 / unit * q.w * q.z + 2 / unit * q.x * q.y), (1 - 2 / unit * (q.z * q.z + q.x * q.x)));
-  }
+  // pitch (y-axis rotation)
+  double sinp = 2 * (q.w * q.y - q.z * q.x);
+  if (std::abs(sinp) >= 1)
+    result.v[1] = std::copysign(M_PI / 2, sinp);  // use 90 degrees if out of range
+  else
+    result.v[1] = std::asin(sinp);
+
+  // yaw (z-axis rotation)
+  double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+  double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+  result.v[0] = std::atan2(siny_cosp, cosy_cosp);
 
   return result;
 }
