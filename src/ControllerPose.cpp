@@ -73,22 +73,15 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
 
       newPose.qRotation = controllerRotation * poseConfiguration_.angleOffsetQuaternion;
 
-      // Angular velocity
-      // Converted from euler angle provided in world space to euler angle in object space
-      vr::HmdVector3_t angularVelocityWorld = controllerPose.vAngularVelocity;
-      angularVelocityWorld.v[0] /= 100.0f;
-      angularVelocityWorld.v[1] /= 100.0f;
-      angularVelocityWorld.v[2] /= 100.0f;
+      const vr::HmdVector3_t& angularVelocityWorld = controllerPose.vAngularVelocity;
+      const vr::HmdQuaternion_t qAngularVelocity = {0.0, angularVelocityWorld.v[0], angularVelocityWorld.v[1], angularVelocityWorld.v[2]};
 
-      const vr::HmdQuaternion_t qAngularVelocityWorld = EulerToQuaternion(angularVelocityWorld.v[2], angularVelocityWorld.v[1], angularVelocityWorld.v[0]);
+      const vr::HmdQuaternion_t qAngularVelocityObject =
+          (poseConfiguration_.angleOffsetQuaternion * qAngularVelocity) * -poseConfiguration_.angleOffsetQuaternion;
 
-      const vr::HmdQuaternion_t qAngularVelocityObject = -newPose.qRotation * qAngularVelocityWorld * newPose.qRotation;
-
-      const vr::HmdVector3_t angularVelocityObject = QuaternionToEuler(qAngularVelocityObject);
-
-      newPose.vecAngularVelocity[0] = angularVelocityObject.v[0] * 100.0;
-      newPose.vecAngularVelocity[1] = angularVelocityObject.v[1] * 100.0;
-      newPose.vecAngularVelocity[2] = angularVelocityObject.v[2] * 100.0;
+      newPose.vecAngularVelocity[0] = -qAngularVelocityObject.x;
+      newPose.vecAngularVelocity[1] = -qAngularVelocityObject.y;
+      newPose.vecAngularVelocity[2] = -qAngularVelocityObject.z;
 
       newPose.vecVelocity[0] = controllerPose.vVelocity.v[0];
       newPose.vecVelocity[1] = controllerPose.vVelocity.v[1];
