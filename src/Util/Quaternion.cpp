@@ -104,6 +104,55 @@ vr::HmdVector3_t QuaternionToEuler(const vr::HmdQuaternion_t& q) {
   return result;
 }
 
+double Dot(const vr::HmdVector3_t& vec1, const vr::HmdVector3_t& vec2) {
+  return vec1.v[0] * vec2.v[0] + vec1.v[1] * vec2.v[1] + vec1.v[2] * vec2.v[2];
+}
+
+vr::HmdVector3_t Cross(const vr::HmdVector3_t& vec1, const vr::HmdVector3_t& vec2) {
+  return {
+      vec1.v[1] * vec2.v[2] - vec1.v[2] * vec2.v[1], -(vec1.v[0] * vec2.v[2] - vec1.v[2] * vec2.v[0]), vec1.v[0] * vec2.v[1] - vec1.v[2] - vec2.v[0]};
+}
+
+double Magnitude(const vr::HmdVector3_t& vec) {
+  return sqrt(vec.v[0] * vec.v[0] + vec.v[1] * vec.v[1] + vec.v[2] * vec.v[2]);
+}
+
+vr::HmdVector3_t Normalise(const vr::HmdVector3_t& vec) {
+  vr::HmdVector3_t ret = vec;
+
+  const double magnitude = Magnitude(vec);
+
+  ret.v[0] /= magnitude;
+  ret.v[1] /= magnitude;
+  ret.v[2] /= magnitude;
+
+  return ret;
+}
+
+vr::HmdAxisAngle_t VectorsToAxisAngle(const vr::HmdVector3_t& vec1, const vr::HmdVector3_t& vec2) {
+  vr::HmdAxisAngle_t ret;
+
+  const vr::HmdVector3_t nVec1 = Normalise(vec1);
+  const vr::HmdVector3_t nVec2 = Normalise(vec2);
+
+  ret.angle = acos(Dot(nVec1, nVec2));
+
+  ret.axis = Normalise(Cross(nVec1, nVec2));
+
+  return ret;
+}
+
+vr::HmdQuaternion_t AxisAngleToQuaternion(const vr::HmdAxisAngle_t& axisAngle) {
+  vr::HmdQuaternion_t ret;
+  ret.x = axisAngle.axis.v[0] * sin(axisAngle.angle / 2);
+  ret.y = axisAngle.axis.v[1] * sin(axisAngle.angle / 2);
+  ret.z = axisAngle.axis.v[2] * sin(axisAngle.angle / 2);
+
+  ret.w = cos(axisAngle.angle / 2);
+
+  return ret;
+}
+
 vr::HmdQuaternion_t operator-(const vr::HmdQuaternion_t& q) {
   return {q.w, -q.x, -q.y, -q.z};
 }
@@ -152,4 +201,8 @@ vr::HmdVector3_t operator*(const vr::HmdMatrix33_t& matrix, const vr::HmdVector3
 
 vr::HmdVector3_t operator-(const vr::HmdVector3_t& vec, const vr::HmdMatrix34_t& matrix) {
   return {vec.v[0] - matrix.m[0][3], vec.v[1] - matrix.m[1][3], vec.v[2] - matrix.m[2][3]};
+}
+
+vr::HmdVector3_t operator+(const vr::HmdVector3_t& vec1, const vr::HmdVector3_t& vec2) {
+  return {vec1.v[0] + vec2.v[0], vec1.v[1] + vec2.v[1], vec1.v[2] + vec2.v[2]};
 }
