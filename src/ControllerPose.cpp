@@ -49,50 +49,45 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
   if (calibration_->IsCalibrating()) return calibration_->GetMaintainPose();
 
   vr::DriverPose_t newPose = {0};
-  newPose.qWorldFromDriverRotation.w = 1;
-  newPose.qDriverFromHeadRotation.w = 1;
 
   if (shadowControllerId_ != vr::k_unTrackedDeviceIndexInvalid) {
     const vr::TrackedDevicePose_t controllerPose = GetControllerPose();
     if (controllerPose.bPoseIsValid) {
-      // get the matrix that represents the position of the controller that we are shadowing
       const vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
 
-      // get only the rotation (3x3 matrix), as the 3x4 matrix also includes position
-      const vr::HmdMatrix33_t controllerRotationMatrix = GetRotationMatrix(controllerMatrix);
       const vr::HmdQuaternion_t controllerRotation = GetRotation(controllerMatrix);
+      const vr::HmdVector3_t controllerPosition = GetPosition(controllerMatrix);
 
-      const vr::HmdVector3_t vectorOffset = controllerRotationMatrix * poseConfiguration_.offsetVector;
+      newPose.qWorldFromDriverRotation = controllerRotation;
+      newPose.vecWorldFromDriverTranslation[0] = controllerPosition.v[0];
+      newPose.vecWorldFromDriverTranslation[1] = controllerPosition.v[1];
+      newPose.vecWorldFromDriverTranslation[2] = controllerPosition.v[2];
 
-      // combine these positions to get the resultant position
-      const vr::HmdVector3_t newControllerPosition = controllerMatrix + vectorOffset;
+      newPose.qDriverFromHeadRotation.w = 1;
 
-      newPose.vecPosition[0] = newControllerPosition.v[0];
-      newPose.vecPosition[1] = newControllerPosition.v[1];
-      newPose.vecPosition[2] = newControllerPosition.v[2];
+      newPose.vecPosition[0] = poseConfiguration_.offsetVector.v[0];
+      newPose.vecPosition[1] = poseConfiguration_.offsetVector.v[1];
+      newPose.vecPosition[2] = poseConfiguration_.offsetVector.v[2];
 
-      newPose.qRotation = controllerRotation * poseConfiguration_.angleOffsetQuaternion;
+      const vr::HmdVector3_t objectVelocity = controllerPose.vVelocity * -controllerRotation;
 
-      const vr::HmdVector3_t& angularVelocityWorld = controllerPose.vAngularVelocity;
-      const vr::HmdQuaternion_t qAngularVelocity = {0.0, angularVelocityWorld.v[0], angularVelocityWorld.v[1], angularVelocityWorld.v[2]};
+      newPose.vecVelocity[0] = objectVelocity.v[0];
+      newPose.vecVelocity[1] = objectVelocity.v[1];
+      newPose.vecVelocity[2] = objectVelocity.v[2];
 
-      const vr::HmdQuaternion_t qAngularVelocityObject =
-          (poseConfiguration_.angleOffsetQuaternion * qAngularVelocity) * -poseConfiguration_.angleOffsetQuaternion;
+      const vr::HmdVector3_t objectAngularVelocity =
+          (controllerPose.vAngularVelocity * -controllerRotation) * poseConfiguration_.angleOffsetQuaternion;
 
-      newPose.vecAngularVelocity[0] = -qAngularVelocityObject.x;
-      newPose.vecAngularVelocity[1] = -qAngularVelocityObject.y;
-      newPose.vecAngularVelocity[2] = -qAngularVelocityObject.z;
+      newPose.vecAngularVelocity[0] = objectAngularVelocity.v[0];
+      newPose.vecAngularVelocity[1] = objectAngularVelocity.v[1];
+      newPose.vecAngularVelocity[2] = objectAngularVelocity.v[2];
 
-      newPose.vecVelocity[0] = controllerPose.vVelocity.v[0];
-      newPose.vecVelocity[1] = controllerPose.vVelocity.v[1];
-      newPose.vecVelocity[2] = controllerPose.vVelocity.v[2];
+      newPose.qRotation = poseConfiguration_.angleOffsetQuaternion;
 
       newPose.poseIsValid = true;
       newPose.deviceIsConnected = true;
 
       newPose.result = vr::TrackingResult_Running_OK;
-
-      newPose.poseTimeOffset = poseConfiguration_.poseTimeOffset;
     } else {
       newPose.poseIsValid = false;
       newPose.deviceIsConnected = true;
