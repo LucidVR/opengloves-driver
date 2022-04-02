@@ -49,6 +49,8 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
   if (calibration_->IsCalibrating()) return calibration_->GetMaintainPose();
 
   vr::DriverPose_t newPose = {0};
+  newPose.qDriverFromHeadRotation.w = 1;
+  newPose.qWorldFromDriverRotation.w = 1;
 
   if (shadowControllerId_ != vr::k_unTrackedDeviceIndexInvalid) {
     const vr::TrackedDevicePose_t controllerPose = GetControllerPose();
@@ -59,11 +61,10 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
       const vr::HmdVector3_t controllerPosition = GetPosition(controllerMatrix);
 
       newPose.qWorldFromDriverRotation = controllerRotation;
+
       newPose.vecWorldFromDriverTranslation[0] = controllerPosition.v[0];
       newPose.vecWorldFromDriverTranslation[1] = controllerPosition.v[1];
       newPose.vecWorldFromDriverTranslation[2] = controllerPosition.v[2];
-
-      newPose.qDriverFromHeadRotation.w = 1;
 
       newPose.vecPosition[0] = poseConfiguration_.offsetVector.v[0];
       newPose.vecPosition[1] = poseConfiguration_.offsetVector.v[1];
