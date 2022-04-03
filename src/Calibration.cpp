@@ -34,14 +34,17 @@ VRPoseConfiguration Calibration::CompleteCalibration(
   const vr::HmdVector3d_t newControllerPosition = GetPosition(controllerPose.mDeviceToAbsoluteTracking);
   const vr::HmdQuaternion_t newControllerRotation = GetRotation(controllerPose.mDeviceToAbsoluteTracking);
 
-  const vr::HmdVector3d_t lastControllerPosition{
-      maintainPose_.vecWorldFromDriverTranslation[0] + poseConfiguration.offsetVector.v[0],
-      maintainPose_.vecWorldFromDriverTranslation[1] + poseConfiguration.offsetVector.v[1],
-      maintainPose_.vecWorldFromDriverTranslation[2] + poseConfiguration.offsetVector.v[2],
-  };
   const vr::HmdQuaternion_t lastControllerRotation = maintainPose_.qWorldFromDriverRotation * poseConfiguration.angleOffsetQuaternion;
 
+  const vr::HmdVector3d_t lastOffsetVecPosition = poseConfiguration.offsetVector * maintainPose_.qWorldFromDriverRotation;
+  const vr::HmdVector3d_t lastControllerPosition{
+      maintainPose_.vecWorldFromDriverTranslation[0] + lastOffsetVecPosition.v[0],
+      maintainPose_.vecWorldFromDriverTranslation[1] + lastOffsetVecPosition.v[1],
+      maintainPose_.vecWorldFromDriverTranslation[2] + lastOffsetVecPosition.v[2],
+  };
+
   const vr::HmdQuaternion_t transformQuat = -newControllerRotation * lastControllerRotation;
+
   poseConfiguration.angleOffsetQuaternion = transformQuat;
 
   const vr::HmdVector3d_t differenceVector = lastControllerPosition - newControllerPosition;
