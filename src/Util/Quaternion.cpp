@@ -19,14 +19,8 @@ float RadToDeg(const float rad) {
   return rad * 180.0 / M_PI;
 }
 
-vr::HmdVector3_t GetPosition(const vr::HmdMatrix34_t& matrix) {
-  vr::HmdVector3_t vector{};
-
-  vector.v[0] = matrix.m[0][3];
-  vector.v[1] = matrix.m[1][3];
-  vector.v[2] = matrix.m[2][3];
-
-  return vector;
+vr::HmdVector3d_t GetPosition(const vr::HmdMatrix34_t& matrix) {
+  return {matrix.m[0][3], matrix.m[1][3], matrix.m[2][3]};
 }
 
 vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t& matrix) {
@@ -81,24 +75,24 @@ vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, co
   return q;
 }
 
-vr::HmdVector3_t QuaternionToEuler(const vr::HmdQuaternion_t& q) {
-  vr::HmdVector3_t result;
+vr::HmdVector3d_t QuaternionToEuler(const vr::HmdQuaternion_t& q) {
+  vr::HmdVector3d_t result{};
 
   // roll (x-axis rotation)
-  double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
-  double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+  const double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+  const double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
   result.v[2] = std::atan2(sinr_cosp, cosr_cosp);
 
   // pitch (y-axis rotation)
-  double sinp = 2 * (q.w * q.y - q.z * q.x);
+  const double sinp = 2 * (q.w * q.y - q.z * q.x);
   if (std::abs(sinp) >= 1)
     result.v[1] = std::copysign(M_PI / 2, sinp);  // use 90 degrees if out of range
   else
     result.v[1] = std::asin(sinp);
 
   // yaw (z-axis rotation)
-  double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
-  double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+  const double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+  const double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
   result.v[0] = std::atan2(siny_cosp, cosy_cosp);
 
   return result;
@@ -154,8 +148,19 @@ vr::HmdVector3_t operator-(const vr::HmdVector3_t& vec, const vr::HmdMatrix34_t&
   return {vec.v[0] - matrix.m[0][3], vec.v[1] - matrix.m[1][3], vec.v[2] - matrix.m[2][3]};
 }
 
-vr::HmdVector3_t operator+(const vr::HmdVector3_t& vec1, const vr::HmdVector3_t& vec2) {
+vr::HmdVector3d_t operator+(const vr::HmdVector3d_t& vec1, const vr::HmdVector3d_t& vec2) {
   return {vec1.v[0] + vec2.v[0], vec1.v[1] + vec2.v[1], vec1.v[2] + vec2.v[2]};
+}
+vr::HmdVector3d_t operator-(const vr::HmdVector3d_t& vec1, const vr::HmdVector3d_t& vec2) {
+  return {vec1.v[0] - vec2.v[0], vec1.v[1] - vec2.v[1], vec1.v[2] - vec2.v[2]};
+}
+
+vr::HmdVector3d_t operator*(const vr::HmdVector3d_t& vec, const vr::HmdQuaternion_t& q) {
+  const vr::HmdQuaternion_t qVec = {1.0, vec.v[0], vec.v[1], vec.v[2]};
+
+  const vr::HmdQuaternion_t qResult = q * qVec * -q;
+
+  return {qResult.x, qResult.y, qResult.z};
 }
 
 vr::HmdVector3_t operator*(const vr::HmdVector3_t& vec, const vr::HmdQuaternion_t& q) {

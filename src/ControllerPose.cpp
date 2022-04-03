@@ -58,7 +58,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
       const vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
 
       const vr::HmdQuaternion_t controllerRotation = GetRotation(controllerMatrix);
-      const vr::HmdVector3_t controllerPosition = GetPosition(controllerMatrix);
+      const vr::HmdVector3d_t controllerPosition = GetPosition(controllerMatrix);
 
       newPose.qWorldFromDriverRotation = controllerRotation;
 
@@ -76,8 +76,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
       newPose.vecVelocity[1] = objectVelocity.v[1];
       newPose.vecVelocity[2] = objectVelocity.v[2];
 
-      const vr::HmdVector3_t objectAngularVelocity =
-          (controllerPose.vAngularVelocity * -controllerRotation) * poseConfiguration_.angleOffsetQuaternion;
+      const vr::HmdVector3_t objectAngularVelocity = controllerPose.vAngularVelocity * -controllerRotation * -poseConfiguration_.angleOffsetQuaternion;
 
       newPose.vecAngularVelocity[0] = objectAngularVelocity.v[0];
       newPose.vecAngularVelocity[1] = objectAngularVelocity.v[1];

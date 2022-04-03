@@ -51,7 +51,7 @@ struct VRNamedPipeInputConfiguration {
 };
 
 struct VRPoseConfiguration {
-  vr::HmdVector3_t offsetVector;
+  vr::HmdVector3d_t offsetVector;
   vr::HmdQuaternion_t angleOffsetQuaternion;
   float poseTimeOffset;
   int controllerIdOverride;
@@ -59,7 +59,7 @@ struct VRPoseConfiguration {
   bool calibrationButtonEnabled;
 
   VRPoseConfiguration(
-      const vr::HmdVector3_t offsetVector,
+      const vr::HmdVector3d_t offsetVector,
       const vr::HmdQuaternion_t angleOffsetQuaternion,
       const float poseTimeOffset,
       const bool controllerOverrideEnabled,
