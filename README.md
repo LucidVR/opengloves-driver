@@ -13,7 +13,9 @@ A **SteamVR (OpenVR)** driver for VR Gloves and DIY Hardware.<br>
 
 ## Features
 
-### Driver Features
+<br>
+
+### Driver
 
 - **Force Feedback**
 
@@ -32,18 +34,33 @@ A **SteamVR (OpenVR)** driver for VR Gloves and DIY Hardware.<br>
     *- Named Pipes* <br>
     *- Serial USB*
 
-### Additional Tools
+<br>
+
+### Tools
 
 #### OpenGloves UI
+
 **[OpenGloves UI]** is an application that ships with the driver on Steam. <br>
 It provides additional features for configuring driver related features, such as:<br>
 - Managing driver settings
 - Force Feedback Testing
 - Automatically calibrating Controller ⟷ Glove offsets
 
+<br>
+
+---
+
+<br>
+
 ## Custom Hardware
 
 To make your own hardware compatible with **OpenGloves**, refer to the **[Driver Input]** page. <br>
+
+<br>
+
+---
+
+<br>
 
 ## Contributing
 
@@ -52,6 +69,8 @@ To make your own hardware compatible with **OpenGloves**, refer to the **[Driver
 *For major changes, please open an* <br>
 ***[Issue]*** *or contact us first to discuss* <br>
 *what you would like to change.*
+
+<br>
 
 ---
 
