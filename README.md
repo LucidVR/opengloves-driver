@@ -26,25 +26,27 @@ A **SteamVR (OpenVR)** driver for VR Gloves and DIY Hardware.<br>
 - **Tracker / Controller Positioning & Offsetting** <br>
 
 - **Button / Joystick Inputs** <br>
-    *➜ Trigger | A | B* <br>
-    *➜ Joystick | X | Y | Click*
+    **➜** <kbd>Trigger</kbd>    <kbd>A</kbd> <kbd>B</kbd> <br>
+    **➜** <kbd>Joystick</kbd> <kbd>X</kbd> <kbd>Y</kbd> <kbd>Click</kbd>
 
 - **Multiple Communication Methods** <br>
-    *- Bluetooth Serial* <br>
-    *- Named Pipes* <br>
-    *- Serial USB*
+    *Bluetooth Serial* <br>
+    *Named Pipes* <br>
+    *Serial USB*
 
 <br>
 
 ### Tools
 
-#### OpenGloves UI
+#### [OpenGloves UI]
 
-**[OpenGloves UI]** is an application that ships with the driver on Steam. <br>
-It provides additional features for configuring driver related features, such as:<br>
-- Managing driver settings
-- Force Feedback Testing
-- Automatically calibrating Controller ⟷ Glove offsets
+This application is shipped with the driver <br>
+via **Steam** and allows you to easy adjust <br>
+your driver settings, as well as to:
+
+- Test Force Feedback
+
+- Automatically Calibrating Controller ⟷ Glove Offsets
 
 <br>
 
@@ -74,7 +76,9 @@ To make your own hardware compatible with **OpenGloves**, refer to the **[Driver
 
 ---
 
-## Credits
+<br>
+
+## Maintainer
 
 | Author | Discord |
 |:------:|:-------:|
