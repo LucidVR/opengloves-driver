@@ -1,11 +1,18 @@
 
 # Installation & Usage
 
-It is strongly recommended to use the **[Steam]** version to receive sutomatic updates as well as additional tools.
+## Steam
+
+It is strongly recommended to use the **[Steam]** version <br>
+to receive automatic updates as well as additional tools.
 
 [![Steam Preview]][Steam]
 
+<br>
+
 ---
+
+<br>
 
 ## GitHub
 
