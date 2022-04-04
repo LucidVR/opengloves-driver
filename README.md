@@ -47,7 +47,7 @@ your driver settings, as well as to:
 
 - Test Force Feedback
 
-- Automatically Calibrating Controller ⟷ Glove Offsets
+- Automatically Calibrate Controllers ⟷ Glove Offsets
 
 <br>
 
