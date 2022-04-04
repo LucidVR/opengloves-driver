@@ -162,7 +162,7 @@ VRDeviceConfiguration DeviceProvider::GetDeviceConfiguration(const vr::ETrackedC
           : -1;
   const bool calibrationButton = vr::VRSettings()->GetBool(c_poseSettingsSection, "hardware_calibration_button_enabled");
 
-  const vr::HmdVector3_t offsetVector = {offsetXPos, offsetYPos, offsetZPos};
+  const vr::HmdVector3d_t offsetVector = {offsetXPos, offsetYPos, offsetZPos};
 
   // Convert the rotation to a quaternion
   const vr::HmdQuaternion_t angleOffsetQuaternion = EulerToQuaternion(DegToRad(offsetZRot), DegToRad(offsetYRot), DegToRad(offsetXRot));

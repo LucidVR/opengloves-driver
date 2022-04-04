@@ -23,28 +23,32 @@ VRPoseConfiguration Calibration::CompleteCalibration(
   if (calibratingMethod_ != method) return poseConfiguration;
 
   isCalibrating_ = false;
-  // get the matrix that represents the position of the controller that we are shadowing
-  const vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
 
-  const vr::HmdQuaternion_t controllerQuat = GetRotation(controllerMatrix);
-  const vr::HmdQuaternion_t handQuat = maintainPose_.qRotation;
+  // controllerPose = new position of controller
+  // controllerPose contains the position of the controller as qRotation and vecPosition
 
-  // qC * qT = qH   -> qC*qC^-1 * qT = qH * qC^-1   -> qT = qH * qC^-1
-  const vr::HmdQuaternion_t transformQuat = MultiplyQuaternion(QuatConjugate(controllerQuat), handQuat);
+  // maintainPose = previous position of controller
+  // maintainPose contains the position of the controller as DriverFromWorld<Rotation/Translation> and the offsets we apply as qRotation and
+  // vecPosition
 
-  poseConfiguration.angleOffsetQuaternion.w = transformQuat.w;
-  poseConfiguration.angleOffsetQuaternion.x = transformQuat.x;
-  poseConfiguration.angleOffsetQuaternion.y = transformQuat.y;
-  poseConfiguration.angleOffsetQuaternion.z = transformQuat.z;
+  const vr::HmdVector3d_t newControllerPosition = GetPosition(controllerPose.mDeviceToAbsoluteTracking);
+  const vr::HmdQuaternion_t newControllerRotation = GetRotation(controllerPose.mDeviceToAbsoluteTracking);
 
-  const vr::HmdVector3_t differenceVector = {
-      static_cast<float>(maintainPose_.vecPosition[0] - controllerMatrix.m[0][3]),
-      static_cast<float>(maintainPose_.vecPosition[1] - controllerMatrix.m[1][3]),
-      static_cast<float>(maintainPose_.vecPosition[2] - controllerMatrix.m[2][3])};
+  const vr::HmdQuaternion_t lastControllerRotation = maintainPose_.qWorldFromDriverRotation * poseConfiguration.angleOffsetQuaternion;
 
-  const vr::HmdQuaternion_t transformInverse = QuatConjugate(controllerQuat);
-  const vr::HmdMatrix33_t transformMatrix = QuaternionToMatrix(transformInverse);
-  const vr::HmdVector3_t transformVector = MultiplyMatrix(transformMatrix, differenceVector);
+  const vr::HmdVector3d_t lastOffsetVecPosition = poseConfiguration.offsetVector * maintainPose_.qWorldFromDriverRotation;
+  const vr::HmdVector3d_t lastControllerPosition{
+      maintainPose_.vecWorldFromDriverTranslation[0] + lastOffsetVecPosition.v[0],
+      maintainPose_.vecWorldFromDriverTranslation[1] + lastOffsetVecPosition.v[1],
+      maintainPose_.vecWorldFromDriverTranslation[2] + lastOffsetVecPosition.v[2],
+  };
+
+  const vr::HmdQuaternion_t transformQuat = -newControllerRotation * lastControllerRotation;
+
+  poseConfiguration.angleOffsetQuaternion = transformQuat;
+
+  const vr::HmdVector3d_t differenceVector = lastControllerPosition - newControllerPosition;
+  const vr::HmdVector3d_t transformVector = differenceVector * -newControllerRotation;
 
   poseConfiguration.offsetVector = transformVector;
 
@@ -52,12 +56,10 @@ VRPoseConfiguration Calibration::CompleteCalibration(
   vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_position" : "left_y_offset_position", transformVector.v[1]);
   vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_position" : "left_z_offset_position", transformVector.v[2]);
 
-  const vr::HmdVector3_t eulerOffset = QuaternionToEuler(transformQuat);
-
-  vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees", RadToDeg(eulerOffset.v[0]));
+  const vr::HmdVector3d_t eulerOffset = QuaternionToEuler(transformQuat);
+  vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees", RadToDeg(eulerOffset.v[2]));
   vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees", RadToDeg(eulerOffset.v[1]));
-  vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees", RadToDeg(eulerOffset.v[2]));
-
+  vr::VRSettings()->SetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees", RadToDeg(eulerOffset.v[0]));
 
   return poseConfiguration;
 }
