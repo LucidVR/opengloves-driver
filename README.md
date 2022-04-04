@@ -1,6 +1,6 @@
 # OpenGloves Driver [![Steam Badge]][Steam] [![Discord Badge]][Discord]
 
-A **SteamVR (OpenVR)** driver for VR Gloves and DIY Hardware.<br>
+A **SteamVR** / **OpenVR** driver for **VR Gloves** and **DIY Hardware**.<br>
 
 ---
 
@@ -56,7 +56,8 @@ your driver settings, as well as to:
 
 ## Custom Hardware
 
-To make your own hardware compatible with **OpenGloves**, refer to the **[Driver Input]** page. <br>
+To make your own hardware compatible with <br>
+**OpenGloves**, refer to the **[Driver Input]** page. <br>
 
 <br>
 
