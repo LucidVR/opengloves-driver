@@ -2,11 +2,14 @@
 
 A **SteamVR (OpenVR)** driver for VR Gloves and DIY Hardware.<br>
 
-## Download
-[![Steam Badge]][Steam]
+---
 
-OpenGloves is available on **[Steam]**,<br>
-where it comes with additional tools for configuring driver related features.
+ **⸢ [Installation] ⸥**
+ **⸢ [Building] ⸥**
+ **⸢ [Limitations] ⸥**
+ **⸢ [Compatibility] ⸥**
+
+---
 
 ## Features
 
@@ -59,11 +62,7 @@ To make your own hardware compatible with **OpenGloves**, refer to the **[Driver
 | **[danwillm]** | `danwillm#8254` |
 | **[Lucas VRTech]** | `LucidVR#0001` |
 
----
 
-**⸢ [Manual Installation] ⸥  ⸢ [Building] ⸥  ⸢ [Limitations] ⸥  ⸢ [Compatibility] ⸥**
-
----
 
 
 <!----------------------------------------------------------------------------->
@@ -75,7 +74,7 @@ To make your own hardware compatible with **OpenGloves**, refer to the **[Driver
 [Steam]: https://store.steampowered.com/app/1574050/OpenGloves
 [Steam Page]: https://store.steampowered.com/app/1574050/OpenGloves
 
-[Manual Installation]: docs/Installation.md
+[Installation]: docs/Installation.md
 [Building]: docs/Building.md
 [Limitations]: docs/Limitations.md
 [Compatibility]: docs/Compatibility.md
