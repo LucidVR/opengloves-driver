@@ -1,6 +1,6 @@
 # OpenGloves Driver [![Steam Badge]][Steam] [![Discord Badge]][Discord]
 
-A **SteamVR** / **OpenVR** driver for **VR Gloves** and **DIY Hardware**.
+*A* ***SteamVR*** */* ***OpenVR*** *driver for* ***VR Gloves*** *and* ***DIY Hardware*** *.*
 
 <br>
 
@@ -15,11 +15,7 @@ A **SteamVR** / **OpenVR** driver for **VR Gloves** and **DIY Hardware**.
 
 <br>
 
-## Features
-
-<br>
-
-### Driver
+## Driver Features
 
 - **Force Feedback**
 
@@ -39,10 +35,11 @@ A **SteamVR** / **OpenVR** driver for **VR Gloves** and **DIY Hardware**.
     *Serial USB*
 
 <br>
+<br>
 
-### Tools
+## Tools
 
-#### [OpenGloves UI]
+### [OpenGloves UI]
 
 This application is shipped with the driver <br>
 via **Steam** and allows you to easy adjust <br>
