@@ -1,6 +1,8 @@
 # OpenGloves Driver [![Steam Badge]][Steam] [![Discord Badge]][Discord]
 
-A **SteamVR** / **OpenVR** driver for **VR Gloves** and **DIY Hardware**.<br>
+A **SteamVR** / **OpenVR** driver for **VR Gloves** and **DIY Hardware**.
+
+<br>
 
 ---
 
@@ -10,6 +12,8 @@ A **SteamVR** / **OpenVR** driver for **VR Gloves** and **DIY Hardware**.<br>
  **⸢ [Compatibility] ⸥**
 
 ---
+
+<br>
 
 ## Features
 
@@ -86,7 +90,7 @@ To make your own hardware compatible with <br>
 | **[danwillm]** | `danwillm#8254` |
 | **[Lucas VRTech]** | `LucidVR#0001` |
 
-
+<br>
 
 
 <!----------------------------------------------------------------------------->
