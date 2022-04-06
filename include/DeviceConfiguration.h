@@ -1,5 +1,7 @@
 #pragma once
 
+#include <variant>
+
 #include "openvr_driver.h"
 
 extern const char* c_poseSettingsSection;
@@ -45,11 +47,7 @@ struct VRCommunicationNamedPipeConfiguration {
 struct VRCommunicationConfiguration {
   VRCommunicationProtocol communicationProtocol;
 
-  union {
-    VRCommunicationSerialConfiguration serial;
-    VRCommunicationBTSerialConfiguration btSerial;
-    VRCommunicationNamedPipeConfiguration namedPipe;
-  };
+  std::variant<VRCommunicationSerialConfiguration, VRCommunicationBTSerialConfiguration, VRCommunicationNamedPipeConfiguration> configuration;
 };
 
 struct VRDeviceKnucklesConfiguration {
@@ -65,14 +63,7 @@ struct VRDeviceLucidglovesConfiguration {
 
 struct VRDeviceConfiguration {
   VRDeviceType deviceType;
-
-  union configuration {
-    configuration(const VRDeviceKnucklesConfiguration& knuckles) : knuckles(knuckles){};
-    configuration(const VRDeviceLucidglovesConfiguration& lucidgloves) : lucidgloves(lucidgloves){};
-
-    VRDeviceKnucklesConfiguration knuckles;
-    VRDeviceLucidglovesConfiguration lucidgloves;
-  };
+  std::variant<VRDeviceKnucklesConfiguration, VRDeviceLucidglovesConfiguration> configuration;
 };
 
 struct VRAlphaEncodingConfiguration {
@@ -85,10 +76,8 @@ struct VRLegacyEncodingConfiguration {
 
 struct VREncodingConfiguration {
   VREncodingProtocol encodingProtocol;
-  union {
-    VRAlphaEncodingConfiguration alpha;
-    VRLegacyEncodingConfiguration legacy;
-  };
+
+  std::variant<VRAlphaEncodingConfiguration, VRLegacyEncodingConfiguration> configuration;
 };
 
 struct VRPoseConfiguration {
@@ -102,8 +91,9 @@ struct VRPoseConfiguration {
 
 struct VRDriverConfiguration {
   bool enabled;
-  bool feedbackEnabled;
   vr::ETrackedControllerRole role;
+
+  bool feedbackEnabled;
 
   VRDeviceConfiguration deviceConfiguration;
   VREncodingConfiguration encodingConfiguration;
@@ -111,4 +101,4 @@ struct VRDriverConfiguration {
   VRPoseConfiguration poseConfiguration;
 };
 
-VRDriverConfiguration GetDeviceConfiguration(const vr::ETrackedControllerRole& role);
+VRDriverConfiguration GetDriverConfiguration(const vr::ETrackedControllerRole& role);
