@@ -7,9 +7,9 @@ static const char* c_inputProfilePath = "{openglove}/input/openglove_profile.jso
 
 LucidGloveDeviceDriver::LucidGloveDeviceDriver(
     std::unique_ptr<CommunicationManager> communicationManager,
-    std::shared_ptr<BoneAnimator> boneAnimator,
+    std::unique_ptr<BoneAnimator> boneAnimator,
     const std::string& serialNumber,
-    const VRDeviceConfiguration configuration)
+    const VRDriverConfiguration configuration)
     : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration), inputComponentHandles_() {}
 
 void LucidGloveDeviceDriver::HandleInput(const VRInputData data) {
@@ -44,7 +44,7 @@ void LucidGloveDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
   vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, configuration_.role);  // tells OpenVR what kind of device this is
   vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, GetSerialNumber().c_str());
   vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
-  vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceDriverManufacturer);
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
   vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, vr::TrackedDeviceClass_Controller);
   vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, c_deviceControllerType);
 

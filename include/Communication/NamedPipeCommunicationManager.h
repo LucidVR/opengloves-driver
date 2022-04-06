@@ -10,7 +10,7 @@
 
 class NamedPipeCommunicationManager : public CommunicationManager {
  public:
-  NamedPipeCommunicationManager(VRNamedPipeInputConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration);
+  NamedPipeCommunicationManager(VRNamedPipeInputConfiguration configuration, const VRDriverConfiguration& deviceConfiguration);
   bool IsConnected() override;
 
   // no sending for named pipes

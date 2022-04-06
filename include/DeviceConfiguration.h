@@ -1,7 +1,5 @@
 #pragma once
 
-#include <utility>
-
 #include "openvr_driver.h"
 
 extern const char* c_poseSettingsSection;
@@ -13,7 +11,7 @@ extern const char* c_lucidGloveDeviceSettingsSection;
 extern const char* c_alphaEncodingSettingsSection;
 extern const char* c_legacyEncodingSettingsSection;
 
-extern const char* c_deviceDriverManufacturer;
+extern const char* c_deviceManufacturer;
 
 enum class VRCommunicationProtocol {
   Serial,
@@ -26,28 +24,71 @@ enum class VREncodingProtocol {
   Alpha = 1,
 };
 
-enum class VRDeviceDriver {
+enum class VRDeviceType {
   LucidGloves = 0,
   EmulatedKnuckles = 1,
 };
 
-struct VRSerialConfiguration {
+struct VRCommunicationSerialConfiguration {
   std::string port;
   int baudRate;
-
-  VRSerialConfiguration(std::string port, const int baudRate) : port(std::move(port)), baudRate(baudRate) {}
 };
 
-struct VRBTSerialConfiguration {
+struct VRCommunicationBTSerialConfiguration {
   std::string name;
-
-  explicit VRBTSerialConfiguration(std::string name) : name(std::move(name)) {}
 };
 
-struct VRNamedPipeInputConfiguration {
+struct VRCommunicationNamedPipeConfiguration {
   std::string pipeName;
+};
 
-  VRNamedPipeInputConfiguration(std::string pipeName) : pipeName(std::move(pipeName)) {}
+struct VRCommunicationConfiguration {
+  VRCommunicationProtocol communicationProtocol;
+
+  union {
+    VRCommunicationSerialConfiguration serial;
+    VRCommunicationBTSerialConfiguration btSerial;
+    VRCommunicationNamedPipeConfiguration namedPipe;
+  };
+};
+
+struct VRDeviceKnucklesConfiguration {
+  bool indexCurlTrigger;
+  bool approximateThumb;
+
+  std::string serialNumber;
+};
+
+struct VRDeviceLucidglovesConfiguration {
+  std::string serialNumber;
+};
+
+struct VRDeviceConfiguration {
+  VRDeviceType deviceType;
+
+  union configuration {
+    configuration(const VRDeviceKnucklesConfiguration& knuckles) : knuckles(knuckles){};
+    configuration(const VRDeviceLucidglovesConfiguration& lucidgloves) : lucidgloves(lucidgloves){};
+
+    VRDeviceKnucklesConfiguration knuckles;
+    VRDeviceLucidglovesConfiguration lucidgloves;
+  };
+};
+
+struct VRAlphaEncodingConfiguration {
+  unsigned int maxAnalogValue;
+};
+
+struct VRLegacyEncodingConfiguration {
+  unsigned int maxAnalogValue;
+};
+
+struct VREncodingConfiguration {
+  VREncodingProtocol encodingProtocol;
+  union {
+    VRAlphaEncodingConfiguration alpha;
+    VRLegacyEncodingConfiguration legacy;
+  };
 };
 
 struct VRPoseConfiguration {
@@ -57,47 +98,17 @@ struct VRPoseConfiguration {
   int controllerIdOverride;
   bool controllerOverrideEnabled;
   bool calibrationButtonEnabled;
-
-  VRPoseConfiguration(
-      const vr::HmdVector3d_t offsetVector,
-      const vr::HmdQuaternion_t angleOffsetQuaternion,
-      const float poseTimeOffset,
-      const bool controllerOverrideEnabled,
-      const int controllerIdOverride,
-      const bool calibrationButtonEnabled)
-      : offsetVector(offsetVector),
-        angleOffsetQuaternion(angleOffsetQuaternion),
-        poseTimeOffset(poseTimeOffset),
-        controllerIdOverride(controllerIdOverride),
-        controllerOverrideEnabled(controllerOverrideEnabled),
-        calibrationButtonEnabled(calibrationButtonEnabled) {}
 };
 
-struct VRDeviceConfiguration {
-  vr::ETrackedControllerRole role;
+struct VRDriverConfiguration {
   bool enabled;
   bool feedbackEnabled;
-  bool indexCurlTrigger; 
-  VRPoseConfiguration poseConfiguration;
-  VREncodingProtocol encodingProtocol;
-  VRCommunicationProtocol communicationProtocol;
-  VRDeviceDriver deviceDriver;
+  vr::ETrackedControllerRole role;
 
-  VRDeviceConfiguration(
-      const vr::ETrackedControllerRole role,
-      const bool enabled,
-      const bool feedbackEnabled,
-      const bool indexCurlTrigger, 
-      const VRPoseConfiguration poseConfiguration,
-      const VREncodingProtocol encodingProtocol,
-      const VRCommunicationProtocol communicationProtocol,
-      const VRDeviceDriver deviceDriver)
-      : role(role),
-        enabled(enabled),
-        feedbackEnabled(feedbackEnabled),
-        indexCurlTrigger(indexCurlTrigger),
-        poseConfiguration(poseConfiguration),
-        encodingProtocol(encodingProtocol),
-        communicationProtocol(communicationProtocol),
-        deviceDriver(deviceDriver) {}
+  VRDeviceConfiguration deviceConfiguration;
+  VREncodingConfiguration encodingConfiguration;
+  VRCommunicationConfiguration communicationConfiguration;
+  VRPoseConfiguration poseConfiguration;
 };
+
+VRDriverConfiguration GetDeviceConfiguration(const vr::ETrackedControllerRole& role);

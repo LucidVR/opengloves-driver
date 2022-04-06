@@ -4,7 +4,7 @@
 #include <utility>
 
 NamedPipeCommunicationManager::NamedPipeCommunicationManager(
-    VRNamedPipeInputConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration)
+    VRNamedPipeInputConfiguration configuration, const VRDriverConfiguration& deviceConfiguration)
     : CommunicationManager(deviceConfiguration), isConnected_(false), configuration_(std::move(configuration)){};
 
 bool NamedPipeCommunicationManager::Connect() {

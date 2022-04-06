@@ -41,56 +41,70 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
     return vr::VRInitError_Init_FileNotFound;
   }
 
-  const VRDeviceConfiguration leftConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_LeftHand);
-  const VRDeviceConfiguration rightConfiguration = GetDeviceConfiguration(vr::TrackedControllerRole_RightHand);
-
-  const auto boneAnimator = std::make_shared<BoneAnimator>(driverPath + R"(\resources\anims\glove_anim.glb)");
-
-  if (leftConfiguration.enabled) {
-    leftHand_ = InstantiateDeviceDriver(leftConfiguration, boneAnimator);
-    vr::VRServerDriverHost()->TrackedDeviceAdded(leftHand_->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, leftHand_.get());
-  }
-
-  if (rightConfiguration.enabled) {
-    rightHand_ = InstantiateDeviceDriver(rightConfiguration, boneAnimator);
-    vr::VRServerDriverHost()->TrackedDeviceAdded(rightHand_->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, rightHand_.get());
-  }
+  InitialiseDeviceDriver(vr::ETrackedControllerRole::TrackedControllerRole_LeftHand);
+  InitialiseDeviceDriver(vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
 
   return vr::VRInitError_None;
 }
 
+void DeviceProvider::InitialiseDeviceDriver(const vr::ETrackedControllerRole& role) {
+  const std::string driverPath = GetDriverPath();
+
+  const VRDriverConfiguration configuration = GetDeviceConfiguration(role);
+
+  const auto boneAnimator = std::make_shared<BoneAnimator>(driverPath + R"(\resources\anims\glove_anim.glb)");
+
+  // if we're re-initializing a device then make sure to store it's relevant properties
+  int deviceId = -1;
+  if (devices_.count(role) > 0 && devices_.at(role)->IsActive()) deviceId = devices_.at(role)->GetDeviceId();
+
+  if (configuration.enabled) devices_.insert_or_assign(role, InstantiateDeviceDriver(configuration, boneAnimator));
+
+  std::unique_ptr<DeviceDriver>& device = devices_.at(role);
+
+  if (deviceId > 0) {
+    // this device has previously been registered with SteamVR, so re-initialize it
+    device->Activate(deviceId);
+  } else {
+    // this device hasn't previously been registered, so register it with SteamVR
+    vr::VRServerDriverHost()->TrackedDeviceAdded(device->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, device.get());
+  }
+}
+
 std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
-    VRDeviceConfiguration configuration, std::shared_ptr<BoneAnimator> boneAnimator) const {
+    VRDriverConfiguration configuration, std::shared_ptr<BoneAnimator> boneAnimator) const {
   std::unique_ptr<CommunicationManager> communicationManager;
   std::unique_ptr<EncodingManager> encodingManager;
 
   const bool isRightHand = configuration.role == vr::TrackedControllerRole_RightHand;
 
   switch (configuration.encodingProtocol) {
+    case VREncodingProtocol::Alpha: {
+      DriverLog("Using alpha encoding");
+      const float maxAnalogValue = vr::VRSettings()->GetFloat(c_alphaEncodingSettingsSection, "max_analog_value");
+      encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
+      break;
+    }
     default:
       DriverLog("No encoding protocol set. Using legacy.");
     case VREncodingProtocol::Legacy: {
+      DriverLog("Using legacy encoding");
       const float maxAnalogValue = vr::VRSettings()->GetFloat(c_legacyEncodingSettingsSection, "max_analog_value");
       encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
-      break;
-    }
-    case VREncodingProtocol::Alpha: {
-      const float maxAnalogValue = vr::VRSettings()->GetFloat(c_alphaEncodingSettingsSection, "max_analog_value");
-      encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
       break;
     }
   }
 
   switch (configuration.communicationProtocol) {
     case VRCommunicationProtocol::NamedPipe: {
-      DriverLog("Communication set to Named Pipe");
+      DriverLog("Using named pipe communication");
       const std::string path = R"(\\.\pipe\vrapplication\input\glove\$version\)" + std::string(isRightHand ? "right" : "left");
       VRNamedPipeInputConfiguration namedPipeConfiguration(path);
       communicationManager = std::make_unique<NamedPipeCommunicationManager>(namedPipeConfiguration, configuration);
       break;
     }
     case VRCommunicationProtocol::BtSerial: {
-      DriverLog("Communication set to BTSerial");
+      DriverLog("Using bluetooth serial communication");
       char name[248];
       vr::VRSettings()->GetString(c_btserialCommunicationSettingsSection, isRightHand ? "right_name" : "left_name", name, sizeof name);
       VRBTSerialConfiguration btSerialSettings(name);
@@ -99,18 +113,22 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
     }
     default:
       DriverLog("No communication protocol set. Using serial.");
-    case VRCommunicationProtocol::Serial:
+    case VRCommunicationProtocol::Serial: {
+      DriverLog("Using serial communication");
       char port[16];
+
       vr::VRSettings()->GetString(c_serialCommunicationSettingsSection, isRightHand ? "right_port" : "left_port", port, sizeof port);
       const int baudRate = vr::VRSettings()->GetInt32(c_serialCommunicationSettingsSection, "baud_rate");
       VRSerialConfiguration serialSettings(port, baudRate);
 
       communicationManager = std::make_unique<SerialCommunicationManager>(std::move(encodingManager), serialSettings, configuration);
       break;
+    }
   }
 
   switch (configuration.deviceDriver) {
-    case VRDeviceDriver::EmulatedKnuckles: {
+    case VRDeviceType::EmulatedKnuckles: {
+      DriverLog("Using knuckles device driver");
       char serialNumber[32];
       vr::VRSettings()->GetString(
           c_knuckleDeviceSettingsSection, isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof serialNumber);
@@ -121,7 +139,8 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
 
     default:
       DriverLog("No device driver selected. Using lucidgloves.");
-    case VRDeviceDriver::LucidGloves: {
+    case VRDeviceType::LucidGloves: {
+      DriverLog("Using lucidglove device driver");
       char serialNumber[32];
       vr::VRSettings()->GetString(
           c_lucidGloveDeviceSettingsSection, isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof serialNumber);
@@ -129,53 +148,6 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
       return std::make_unique<LucidGloveDeviceDriver>(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration);
     }
   }
-}
-
-VRDeviceConfiguration DeviceProvider::GetDeviceConfiguration(const vr::ETrackedControllerRole role) {
-  const bool isRightHand = role == vr::TrackedControllerRole_RightHand;
-
-  DriverLog("Getting configuration for: %s", isRightHand ? "Right hand" : "Left hand");
-
-  const bool isEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, isRightHand ? "right_enabled" : "left_enabled");
-  const bool feedbackEnabled = vr::VRSettings()->GetBool(c_driverSettingsSection, "feedback_enabled");
-  const bool indexCurlTrigger = vr::VRSettings()->GetBool(c_knuckleDeviceSettingsSection, "index_curl_as_trigger");
-
-  const auto communicationProtocol =
-      static_cast<VRCommunicationProtocol>(vr::VRSettings()->GetInt32(c_driverSettingsSection, "communication_protocol"));
-  const auto encodingProtocol = static_cast<VREncodingProtocol>(vr::VRSettings()->GetInt32(c_driverSettingsSection, "encoding_protocol"));
-  const auto deviceDriver = static_cast<VRDeviceDriver>(vr::VRSettings()->GetInt32(c_driverSettingsSection, "device_driver"));
-
-  const float poseTimeOffset = vr::VRSettings()->GetFloat(c_poseSettingsSection, "pose_time_offset");
-
-  const float offsetXPos = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_position" : "left_x_offset_position");
-  const float offsetYPos = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_position" : "left_y_offset_position");
-  const float offsetZPos = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_position" : "left_z_offset_position");
-
-  const float offsetXRot = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_x_offset_degrees" : "left_x_offset_degrees");
-  const float offsetYRot = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_y_offset_degrees" : "left_y_offset_degrees");
-  const float offsetZRot = vr::VRSettings()->GetFloat(c_poseSettingsSection, isRightHand ? "right_z_offset_degrees" : "left_z_offset_degrees");
-
-  const bool controllerOverrideEnabled = vr::VRSettings()->GetBool(c_poseSettingsSection, "controller_override");
-  const int controllerIdOverride =
-      controllerOverrideEnabled
-          ? vr::VRSettings()->GetInt32(c_poseSettingsSection, isRightHand ? "controller_override_right" : "controller_override_left")
-          : -1;
-  const bool calibrationButton = vr::VRSettings()->GetBool(c_poseSettingsSection, "hardware_calibration_button_enabled");
-
-  const vr::HmdVector3d_t offsetVector = {offsetXPos, offsetYPos, offsetZPos};
-
-  // Convert the rotation to a quaternion
-  const vr::HmdQuaternion_t angleOffsetQuaternion = EulerToQuaternion(DegToRad(offsetZRot), DegToRad(offsetYRot), DegToRad(offsetXRot));
-
-  return VRDeviceConfiguration(
-      role,
-      isEnabled,
-      feedbackEnabled,
-      indexCurlTrigger,
-      VRPoseConfiguration(offsetVector, angleOffsetQuaternion, poseTimeOffset, controllerOverrideEnabled, controllerIdOverride, calibrationButton),
-      encodingProtocol,
-      communicationProtocol,
-      deviceDriver);
 }
 
 void DeviceProvider::Cleanup() {}
@@ -187,8 +159,16 @@ const char* const* DeviceProvider::GetInterfaceVersions() {
 void DeviceProvider::RunFrame() {
   vr::VREvent_t pEvent;
   while (vr::VRServerDriverHost()->PollNextEvent(&pEvent, sizeof(pEvent))) {
-    if (leftHand_ && leftHand_->IsActive()) leftHand_->OnEvent(pEvent);
-    if (rightHand_ && rightHand_->IsActive()) rightHand_->OnEvent(pEvent);
+    switch (pEvent.eventType) {
+      case vr::EVREventType::VREvent_OtherSectionSettingChanged: {
+        // settings have changed. Restart device drivers
+      }
+
+      default: {
+        if (leftHand_ && leftHand_->IsActive()) leftHand_->OnEvent(pEvent);
+        if (rightHand_ && rightHand_->IsActive()) rightHand_->OnEvent(pEvent);
+      }
+    }
   }
 }
 

@@ -14,9 +14,9 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
  public:
   DeviceDriver(
       std::unique_ptr<CommunicationManager> communicationManager,
-      std::shared_ptr<BoneAnimator> boneAnimator,
+      std::unique_ptr<BoneAnimator> boneAnimator,
       std::string serialNumber,
-      VRDeviceConfiguration configuration);
+      VRDriverConfiguration configuration);
 
   vr::EVRInitError Activate(uint32_t unObjectId) override;
   void Deactivate() override;
@@ -43,8 +43,9 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   void PoseUpdateThread() const;
 
   std::unique_ptr<CommunicationManager> communicationManager_;
-  std::shared_ptr<BoneAnimator> boneAnimator_;
-  VRDeviceConfiguration configuration_;
+  std::unique_ptr<BoneAnimator> boneAnimator_;
+
+  VRDriverConfiguration configuration_;
   std::string serialNumber_;
 
   std::unique_ptr<ControllerPose> controllerPose_;

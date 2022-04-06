@@ -6,7 +6,7 @@
 #include "Util/Windows.h"
 
 SerialCommunicationManager::SerialCommunicationManager(
-    std::unique_ptr<EncodingManager> encodingManager, VRSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration)
+    std::unique_ptr<EncodingManager> encodingManager, VRSerialConfiguration configuration, const VRDriverConfiguration& deviceConfiguration)
     : CommunicationManager(std::move(encodingManager), deviceConfiguration),
       serialConfiguration_(std::move(configuration)),
       isConnected_(false),

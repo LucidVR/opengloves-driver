@@ -10,7 +10,7 @@
 #include "Util/Windows.h"
 
 BTSerialCommunicationManager::BTSerialCommunicationManager(
-    std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration)
+    std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration configuration, const VRDriverConfiguration& deviceConfiguration)
     : CommunicationManager(std::move(encodingManager), deviceConfiguration),
       btSerialConfiguration_(configuration),
       isConnected_(false),

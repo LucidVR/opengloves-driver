@@ -6,9 +6,9 @@
 
 DeviceDriver::DeviceDriver(
     std::unique_ptr<CommunicationManager> communicationManager,
-    std::shared_ptr<BoneAnimator> boneAnimator,
+    std::unique_ptr<BoneAnimator> boneAnimator,
     std::string serialNumber,
-    const VRDeviceConfiguration configuration)
+    const VRDriverConfiguration configuration)
     : communicationManager_(std::move(communicationManager)),
       boneAnimator_(std::move(boneAnimator)),
       configuration_(configuration),
@@ -23,7 +23,7 @@ DeviceDriver::DeviceDriver(
 
 vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
   deviceId_ = unObjectId;
-  controllerPose_ = std::make_unique<ControllerPose>(configuration_.role, std::string(c_deviceDriverManufacturer), configuration_.poseConfiguration);
+  controllerPose_ = std::make_unique<ControllerPose>(configuration_.role, std::string(c_deviceManufacturer), configuration_.poseConfiguration);
 
   vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(
       deviceId_);  // this gets a container object where you store all the information about your driver

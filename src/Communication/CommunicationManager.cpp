@@ -6,9 +6,9 @@
 
 static const uint32_t c_listenerWaitTime = 1000;
 
-CommunicationManager::CommunicationManager(const VRDeviceConfiguration& deviceConfiguration) : CommunicationManager(nullptr, deviceConfiguration) {}
+CommunicationManager::CommunicationManager(const VRDriverConfiguration& deviceConfiguration) : CommunicationManager(nullptr, deviceConfiguration) {}
 
-CommunicationManager::CommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRDeviceConfiguration& deviceConfiguration)
+CommunicationManager::CommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRDriverConfiguration& deviceConfiguration)
     : encodingManager_(std::move(encodingManager)), deviceConfiguration_(deviceConfiguration), threadActive_(false) {
   // initially no force feedback
   QueueSend(VRFFBData(0, 0, 0, 0, 0));
