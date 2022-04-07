@@ -8,9 +8,8 @@ static const char* c_inputProfilePath = "{openglove}/input/openglove_profile.jso
 LucidGloveDeviceDriver::LucidGloveDeviceDriver(
     std::unique_ptr<CommunicationManager> communicationManager,
     std::unique_ptr<BoneAnimator> boneAnimator,
-    const std::string& serialNumber,
-    const VRDriverConfiguration configuration)
-    : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration), inputComponentHandles_() {}
+    const VRDeviceConfiguration& configuration)
+    : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), configuration), inputComponentHandles_() {}
 
 void LucidGloveDeviceDriver::HandleInput(const VRInputData data) {
   // clang-format off

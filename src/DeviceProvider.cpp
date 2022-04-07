@@ -48,19 +48,20 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 }
 
 void DeviceProvider::InitialiseDeviceDriver(const vr::ETrackedControllerRole& role) {
-  const std::string driverPath = GetDriverPath();
-
-  const VRDriverConfiguration configuration = GetDeviceConfiguration(role);
-
-  const auto boneAnimator = std::make_shared<BoneAnimator>(driverPath + R"(\resources\anims\glove_anim.glb)");
+  const VRDriverConfiguration configuration = GetDriverConfiguration(role);
 
   // if we're re-initializing a device then make sure to store it's relevant properties
   int deviceId = -1;
   if (devices_.count(role) > 0 && devices_.at(role)->IsActive()) deviceId = devices_.at(role)->GetDeviceId();
 
-  if (configuration.enabled) devices_.insert_or_assign(role, InstantiateDeviceDriver(configuration, boneAnimator));
+  if (!configuration.enabled) {
+    if (devices_.count(role) > 0) devices_.erase(role);
+    return;
+  }
 
-  std::unique_ptr<DeviceDriver>& device = devices_.at(role);
+  devices_.insert_or_assign(role, InstantiateDeviceDriver(configuration));
+
+  const std::unique_ptr<DeviceDriver>& device = devices_.at(role);
 
   if (deviceId > 0) {
     // this device has previously been registered with SteamVR, so re-initialize it
@@ -71,81 +72,58 @@ void DeviceProvider::InitialiseDeviceDriver(const vr::ETrackedControllerRole& ro
   }
 }
 
-std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(
-    VRDriverConfiguration configuration, std::shared_ptr<BoneAnimator> boneAnimator) const {
+std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(const VRDriverConfiguration& configuration) const {
   std::unique_ptr<CommunicationManager> communicationManager;
   std::unique_ptr<EncodingManager> encodingManager;
 
-  const bool isRightHand = configuration.role == vr::TrackedControllerRole_RightHand;
-
-  switch (configuration.encodingProtocol) {
-    case VREncodingProtocol::Alpha: {
-      DriverLog("Using alpha encoding");
-      const float maxAnalogValue = vr::VRSettings()->GetFloat(c_alphaEncodingSettingsSection, "max_analog_value");
-      encodingManager = std::make_unique<AlphaEncodingManager>(maxAnalogValue);
-      break;
-    }
-    default:
-      DriverLog("No encoding protocol set. Using legacy.");
+  switch (configuration.encodingConfiguration.encodingProtocol) {
     case VREncodingProtocol::Legacy: {
       DriverLog("Using legacy encoding");
-      const float maxAnalogValue = vr::VRSettings()->GetFloat(c_legacyEncodingSettingsSection, "max_analog_value");
-      encodingManager = std::make_unique<LegacyEncodingManager>(maxAnalogValue);
+      encodingManager = std::make_unique<LegacyEncodingManager>(configuration.encodingConfiguration);
+
+      break;
+    }
+
+    case VREncodingProtocol::Alpha: {
+      DriverLog("Using alpha encoding");
+      encodingManager = std::make_unique<AlphaEncodingManager>(configuration.encodingConfiguration);
+
       break;
     }
   }
 
-  switch (configuration.communicationProtocol) {
+  switch (configuration.communicationConfiguration.communicationProtocol) {
     case VRCommunicationProtocol::NamedPipe: {
       DriverLog("Using named pipe communication");
-      const std::string path = R"(\\.\pipe\vrapplication\input\glove\$version\)" + std::string(isRightHand ? "right" : "left");
-      VRNamedPipeInputConfiguration namedPipeConfiguration(path);
-      communicationManager = std::make_unique<NamedPipeCommunicationManager>(namedPipeConfiguration, configuration);
+      communicationManager = std::make_unique<NamedPipeCommunicationManager>(configuration.communicationConfiguration);
+
       break;
     }
+
     case VRCommunicationProtocol::BtSerial: {
       DriverLog("Using bluetooth serial communication");
-      char name[248];
-      vr::VRSettings()->GetString(c_btserialCommunicationSettingsSection, isRightHand ? "right_name" : "left_name", name, sizeof name);
-      VRBTSerialConfiguration btSerialSettings(name);
-      communicationManager = std::make_unique<BTSerialCommunicationManager>(std::move(encodingManager), btSerialSettings, configuration);
+      communicationManager = std::make_unique<BTSerialCommunicationManager>(configuration.communicationConfiguration, std::move(encodingManager));
+
       break;
     }
-    default:
-      DriverLog("No communication protocol set. Using serial.");
+
     case VRCommunicationProtocol::Serial: {
-      DriverLog("Using serial communication");
-      char port[16];
+      DriverLog("Using usb serial communication");
+      communicationManager = std::make_unique<SerialCommunicationManager>(configuration.communicationConfiguration, std::move(encodingManager));
 
-      vr::VRSettings()->GetString(c_serialCommunicationSettingsSection, isRightHand ? "right_port" : "left_port", port, sizeof port);
-      const int baudRate = vr::VRSettings()->GetInt32(c_serialCommunicationSettingsSection, "baud_rate");
-      VRSerialConfiguration serialSettings(port, baudRate);
-
-      communicationManager = std::make_unique<SerialCommunicationManager>(std::move(encodingManager), serialSettings, configuration);
       break;
     }
   }
 
-  switch (configuration.deviceDriver) {
+  std::unique_ptr<BoneAnimator> boneAnimator = std::make_unique<BoneAnimator>(GetDriverPath() + R"(\resources\anims\glove_anim.glb)");
+  switch (configuration.deviceConfiguration.deviceType) {
     case VRDeviceType::EmulatedKnuckles: {
       DriverLog("Using knuckles device driver");
-      char serialNumber[32];
-      vr::VRSettings()->GetString(
-          c_knuckleDeviceSettingsSection, isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof serialNumber);
-      bool approximateThumb = vr::VRSettings()->GetBool(c_knuckleDeviceSettingsSection, "approximate_thumb");
-      return std::make_unique<KnuckleDeviceDriver>(
-          std::move(communicationManager), std::move(boneAnimator), serialNumber, approximateThumb, configuration);
+      return std::make_unique<KnuckleDeviceDriver>(std::move(communicationManager), std::move(boneAnimator), configuration.deviceConfiguration);
     }
 
-    default:
-      DriverLog("No device driver selected. Using lucidgloves.");
     case VRDeviceType::LucidGloves: {
-      DriverLog("Using lucidglove device driver");
-      char serialNumber[32];
-      vr::VRSettings()->GetString(
-          c_lucidGloveDeviceSettingsSection, isRightHand ? "right_serial_number" : "left_serial_number", serialNumber, sizeof serialNumber);
-
-      return std::make_unique<LucidGloveDeviceDriver>(std::move(communicationManager), std::move(boneAnimator), serialNumber, configuration);
+      return std::make_unique<LucidGloveDeviceDriver>(std::move(communicationManager), std::move(boneAnimator), configuration.deviceConfiguration);
     }
   }
 }
@@ -161,12 +139,16 @@ void DeviceProvider::RunFrame() {
   while (vr::VRServerDriverHost()->PollNextEvent(&pEvent, sizeof(pEvent))) {
     switch (pEvent.eventType) {
       case vr::EVREventType::VREvent_OtherSectionSettingChanged: {
-        // settings have changed. Restart device drivers
+        InitialiseDeviceDriver(vr::ETrackedControllerRole::TrackedControllerRole_LeftHand);
+        InitialiseDeviceDriver(vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
+
+        break;
       }
 
       default: {
-        if (leftHand_ && leftHand_->IsActive()) leftHand_->OnEvent(pEvent);
-        if (rightHand_ && rightHand_->IsActive()) rightHand_->OnEvent(pEvent);
+        for (auto const& ptr : devices_) {
+          if (ptr.second->IsActive()) ptr.second->OnEvent(pEvent);
+        }
       }
     }
   }

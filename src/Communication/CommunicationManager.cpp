@@ -6,10 +6,10 @@
 
 static const uint32_t c_listenerWaitTime = 1000;
 
-CommunicationManager::CommunicationManager(const VRDriverConfiguration& deviceConfiguration) : CommunicationManager(nullptr, deviceConfiguration) {}
+CommunicationManager::CommunicationManager(VRCommunicationConfiguration configuration) : CommunicationManager(std::move(configuration), nullptr) {}
 
-CommunicationManager::CommunicationManager(std::unique_ptr<EncodingManager> encodingManager, const VRDriverConfiguration& deviceConfiguration)
-    : encodingManager_(std::move(encodingManager)), deviceConfiguration_(deviceConfiguration), threadActive_(false) {
+CommunicationManager::CommunicationManager(VRCommunicationConfiguration configuration, std::unique_ptr<EncodingManager> encodingManager)
+    : encodingManager_(std::move(encodingManager)), configuration_(std::move(configuration)), threadActive_(false) {
   // initially no force feedback
   QueueSend(VRFFBData(0, 0, 0, 0, 0));
 }
@@ -35,7 +35,7 @@ void CommunicationManager::Disconnect() {
 void CommunicationManager::QueueSend(const VROutput& data) {
   std::lock_guard lock(writeMutex_);
 
-  if (encodingManager_ != nullptr) writeString_ += encodingManager_->Encode(data);
+  if (encodingManager_ != nullptr && configuration_.feedbackEnabled) writeString_ += encodingManager_->Encode(data);
 }
 
 void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>& callback) {
@@ -47,7 +47,7 @@ void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>
         const VRInputData commData = encodingManager_->Decode(receivedString);
         callback(commData);
 
-        if (deviceConfiguration_.feedbackEnabled) {
+        if (configuration_.feedbackEnabled) {
           std::lock_guard lock(writeMutex_);
 
           // append a newline and send

@@ -32,8 +32,7 @@ class LucidGloveDeviceDriver : public DeviceDriver {
   LucidGloveDeviceDriver(
       std::unique_ptr<CommunicationManager> communicationManager,
       std::unique_ptr<BoneAnimator> boneAnimator,
-      const std::string& serialNumber,
-      VRDriverConfiguration configuration);
+      const VRDeviceConfiguration& configuration);
 
   void HandleInput(VRInputData data) override;
   void SetupProps(vr::PropertyContainerHandle_t& props) override;

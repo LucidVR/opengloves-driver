@@ -56,7 +56,7 @@ class DeviceProvider : public vr::IServerTrackedDeviceProvider {
   void LeaveStandby() override;
 
  private:
-  std::unique_ptr<DeviceDriver> InstantiateDeviceDriver(VRDriverConfiguration configuration, std::shared_ptr<BoneAnimator> boneAnimator) const;
+  std::unique_ptr<DeviceDriver> InstantiateDeviceDriver(const VRDriverConfiguration& configuration) const;
 
   void InitialiseDeviceDriver(const vr::ETrackedControllerRole& role);
 

@@ -7,16 +7,13 @@
 #include "Communication/CommunicationManager.h"
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
-#include "openvr_driver.h"
 #include "ForceFeedback.h"
+#include "openvr_driver.h"
 
 class DeviceDriver : public vr::ITrackedDeviceServerDriver {
  public:
   DeviceDriver(
-      std::unique_ptr<CommunicationManager> communicationManager,
-      std::unique_ptr<BoneAnimator> boneAnimator,
-      std::string serialNumber,
-      VRDriverConfiguration configuration);
+      std::unique_ptr<CommunicationManager> communicationManager, std::unique_ptr<BoneAnimator> boneAnimator, VRDeviceConfiguration configuration);
 
   vr::EVRInitError Activate(uint32_t unObjectId) override;
   void Deactivate() override;
@@ -45,7 +42,7 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   std::unique_ptr<CommunicationManager> communicationManager_;
   std::unique_ptr<BoneAnimator> boneAnimator_;
 
-  VRDriverConfiguration configuration_;
+  VRDeviceConfiguration configuration_;
   std::string serialNumber_;
 
   std::unique_ptr<ControllerPose> controllerPose_;

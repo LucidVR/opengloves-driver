@@ -5,14 +5,10 @@
 #include "DriverLog.h"
 
 DeviceDriver::DeviceDriver(
-    std::unique_ptr<CommunicationManager> communicationManager,
-    std::unique_ptr<BoneAnimator> boneAnimator,
-    std::string serialNumber,
-    const VRDriverConfiguration configuration)
+    std::unique_ptr<CommunicationManager> communicationManager, std::unique_ptr<BoneAnimator> boneAnimator, VRDeviceConfiguration configuration)
     : communicationManager_(std::move(communicationManager)),
       boneAnimator_(std::move(boneAnimator)),
-      configuration_(configuration),
-      serialNumber_(std::move(serialNumber)),
+      configuration_(std::move(configuration)),
       skeletalComponentHandle_(),
       handTransforms_(),
       hasActivated_(false),
@@ -41,16 +37,14 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
       NUM_BONES,
       &skeletalComponentHandle_);
 
-  if (configuration_.feedbackEnabled) {
-    ffbProvider_ = std::make_unique<FFBListener>(
-        [&](const VRFFBData data) {
-          // Queue the force feedback data for sending.
-          communicationManager_->QueueSend(data);
-        },
-        configuration_.role);
+  ffbProvider_ = std::make_unique<FFBListener>(
+      [&](const VRFFBData data) {
+        // Queue the force feedback data for sending.
+        communicationManager_->QueueSend(data);
+      },
+      configuration_.role);
 
-    ffbProvider_->Start();
-  };
+  ffbProvider_->Start();
 
   StartDevice();
 
@@ -63,7 +57,7 @@ void DeviceDriver::Deactivate() {
   if (hasActivated_.exchange(false)) {
     StoppingDevice();
 
-    if (ffbProvider_) ffbProvider_->Stop();
+    ffbProvider_->Stop();
 
     communicationManager_->Disconnect();
     deviceId_ = vr::k_unTrackedDeviceIndexInvalid;

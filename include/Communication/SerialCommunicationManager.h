@@ -12,8 +12,7 @@
 
 class SerialCommunicationManager : public CommunicationManager {
  public:
-  SerialCommunicationManager(
-      std::unique_ptr<EncodingManager> encodingManager, VRSerialConfiguration configuration, const VRDriverConfiguration& deviceConfiguration);
+  SerialCommunicationManager(const VRCommunicationConfiguration& configuration, std::unique_ptr<EncodingManager> encodingManager);
 
   bool IsConnected() override;
 
@@ -36,7 +35,7 @@ class SerialCommunicationManager : public CommunicationManager {
       unsigned long WriteTotalTimeoutMultiplier,
       unsigned long WriteTotalTimeoutConstant);
 
-  VRSerialConfiguration serialConfiguration_;
+  VRCommunicationSerialConfiguration serialConfiguration_;
 
   std::atomic<bool> isConnected_;
 

@@ -13,8 +13,7 @@
 
 class BTSerialCommunicationManager : public CommunicationManager {
  public:
-  BTSerialCommunicationManager(
-      std::unique_ptr<EncodingManager> encodingManager, VRBTSerialConfiguration configuration, const VRDriverConfiguration& deviceConfiguration);
+  BTSerialCommunicationManager(const VRCommunicationConfiguration& configuration, std::unique_ptr<EncodingManager> encodingManager);
 
   bool IsConnected() override;
 
@@ -31,9 +30,9 @@ class BTSerialCommunicationManager : public CommunicationManager {
   bool GetPairedDeviceBtAddress(BTH_ADDR* deviceBtAddress);
   bool StartupWindowsSocket();
 
-  VRBTSerialConfiguration btSerialConfiguration_;
+  VRCommunicationBTSerialConfiguration btSerialConfiguration_;
 
-  std::atomic<bool> isConnected_;
+  std::atomic<bool> isConnected_ = false;
 
-  std::atomic<SOCKET> btClientSocket_;
+  std::atomic<SOCKET> btClientSocket_ = NULL;
 };

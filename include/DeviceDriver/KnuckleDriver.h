@@ -39,11 +39,7 @@ enum class KnuckleDeviceComponentIndex : int {
 class KnuckleDeviceDriver : public DeviceDriver {
  public:
   KnuckleDeviceDriver(
-      std::unique_ptr<CommunicationManager> communicationManager,
-      std::unique_ptr<BoneAnimator> boneAnimator,
-      std::string serialNumber,
-      bool approximateThumb,
-      VRDriverConfiguration configuration);
+      std::unique_ptr<CommunicationManager> communicationManager, std::unique_ptr<BoneAnimator> boneAnimator, const VRDeviceConfiguration& configuration);
 
   void HandleInput(VRInputData data) override;
   void SetupProps(vr::PropertyContainerHandle_t& props) override;
@@ -52,5 +48,6 @@ class KnuckleDeviceDriver : public DeviceDriver {
 
  private:
   vr::VRInputComponentHandle_t inputComponentHandles_[static_cast<int>(KnuckleDeviceComponentIndex::_Count)];
-  bool approximateThumb_;
+
+  VRDeviceKnucklesConfiguration knucklesConfiguration_;
 };
