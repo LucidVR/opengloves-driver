@@ -56,9 +56,13 @@ class DeviceProvider : public vr::IServerTrackedDeviceProvider {
   void LeaveStandby() override;
 
  private:
+  std::unique_ptr<CommunicationManager> InstantiateCommunicationManager(const VRDriverConfiguration& configuration) const;
   std::unique_ptr<DeviceDriver> InstantiateDeviceDriver(const VRDriverConfiguration& configuration) const;
 
   void InitialiseDeviceDriver(const vr::ETrackedControllerRole& role);
 
+  void HandleSettingsUpdate(const vr::ETrackedControllerRole& role);
+
   std::map<vr::ETrackedControllerRole, std::unique_ptr<DeviceDriver>> devices_;
+  std::map<vr::ETrackedControllerRole, VRDriverConfiguration> deviceConfigurations_;
 };

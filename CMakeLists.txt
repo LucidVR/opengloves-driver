@@ -59,7 +59,7 @@ target_compile_definitions("${OPENGLOVE_PROJECT}" PRIVATE
 
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/include" PREFIX "Header Files" FILES ${HEADERS})
 source_group(TREE "${CMAKE_CURRENT_SOURCE_DIR}/src" PREFIX "Source Files" FILES ${SOURCES})
-set_property(TARGET "${OPENGLOVE_PROJECT}" PROPERTY CXX_STANDARD 17)
+set_property(TARGET "${OPENGLOVE_PROJECT}" PROPERTY CXX_STANDARD 20)
 
 
 # Copy driver assets to output folder

@@ -79,9 +79,14 @@ void CommunicationManager::ListenerThread(const std::function<void(VRInputData)>
 }
 
 void CommunicationManager::WaitAttemptConnection() {
+  LogMessage("Attempting connection to device...");
+
   while (threadActive_ && !IsConnected() && !Connect()) {
     std::this_thread::sleep_for(std::chrono::milliseconds(c_listenerWaitTime));
   }
+
+  LogMessage("Device successfully connected");
+
   if (!threadActive_) return;
   // we're now connected
 

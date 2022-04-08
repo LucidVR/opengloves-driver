@@ -36,7 +36,6 @@ bool SerialCommunicationManager::SetCommunicationTimeout(
 }
 
 bool SerialCommunicationManager::Connect() {
-  LogMessage("Attempting connection to device");
   // We're not yet connected
   isConnected_ = false;
 
@@ -163,6 +162,11 @@ bool SerialCommunicationManager::PurgeBuffer() const {
 
 void SerialCommunicationManager::LogError(const char* message) {
   // message with port name and last error
+  const DWORD thisError = GetLastError();
+
+  if (thisError == lastError_) return;
+
+  lastError_ = thisError;
   DriverLog("%s (%s) - Error: %s", message, serialConfiguration_.port.c_str(), GetLastErrorAsString().c_str());
 }
 

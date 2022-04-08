@@ -54,6 +54,7 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
 }
 
 void DeviceDriver::Deactivate() {
+  DriverLog("Deactivating device");
   if (hasActivated_.exchange(false)) {
     StoppingDevice();
 
@@ -84,7 +85,7 @@ vr::DriverPose_t DeviceDriver::GetPose() {
 }
 
 std::string DeviceDriver::GetSerialNumber() {
-  return serialNumber_;
+  return configuration_.serialNumber;
 }
 
 int32_t DeviceDriver::GetDeviceId() const {

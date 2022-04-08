@@ -170,3 +170,11 @@ vr::HmdVector3_t operator*(const vr::HmdVector3_t& vec, const vr::HmdQuaternion_
 
   return {static_cast<float>(qResult.x), static_cast<float>(qResult.y), static_cast<float>(qResult.z)};
 }
+
+bool operator==(const vr::HmdVector3d_t& v1, const vr::HmdVector3d_t& v2) {
+  return v1.v[0] == v2.v[0] && v1.v[1] == v2.v[1] && v1.v[2] == v2.v[2];
+}
+
+bool operator==(const vr::HmdQuaternion_t& q1, const vr::HmdQuaternion_t& q2) {
+  return q1.w == q2.w && q1.x == q2.x && q1.y == q2.y && q1.z == q2.z;
+}

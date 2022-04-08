@@ -43,7 +43,6 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   std::unique_ptr<BoneAnimator> boneAnimator_;
 
   VRDeviceConfiguration configuration_;
-  std::string serialNumber_;
 
   std::unique_ptr<ControllerPose> controllerPose_;
   std::unique_ptr<FFBListener> ffbProvider_;

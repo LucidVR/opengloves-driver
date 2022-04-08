@@ -40,4 +40,6 @@ class SerialCommunicationManager : public CommunicationManager {
   std::atomic<bool> isConnected_;
 
   std::atomic<HANDLE> hSerial_;
+
+  DWORD lastError_;
 };
