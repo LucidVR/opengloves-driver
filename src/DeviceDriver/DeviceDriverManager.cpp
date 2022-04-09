@@ -12,8 +12,10 @@ vr::EVRInitError DeviceDriverManager::Activate(uint32_t unObjectId) {
 }
 
 void DeviceDriverManager::Deactivate() {
+  if (device_ == nullptr) return;
   device_->Deactivate();
-  isActive_ = false;
+
+  device_ = nullptr;
 }
 
 void DeviceDriverManager::DebugRequest(const char* pchRequest, char* pchResponseBuffer, const uint32_t unResponseBufferSize) {}
@@ -52,4 +54,6 @@ void DeviceDriverManager::SetDeviceDriver(std::unique_ptr<DeviceDriver> newDevic
   if (isActive_) newDevice->Activate(deviceId_);
 
   device_ = std::move(newDevice);
+
+  DriverLog("Successfully updated device driver");
 }

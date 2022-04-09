@@ -147,6 +147,13 @@ void DeviceProvider::HandleSettingsUpdate(const vr::ETrackedControllerRole& role
     return;
   }
 
+  if (!newConfiguration.enabled && deviceConfigurations_.at(role).enabled) {
+    DriverLog("Deactivating device driver as it was disabled in settings");
+    deviceManagers_.at(role)->Deactivate();
+
+    return;
+  }
+
   deviceManagers_.at(role)->SetDeviceDriver(InstantiateDeviceDriver(newConfiguration));
 }
 

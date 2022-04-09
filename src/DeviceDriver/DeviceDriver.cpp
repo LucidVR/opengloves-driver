@@ -103,6 +103,11 @@ void DeviceDriver::PoseUpdateThread() const {
     std::this_thread::sleep_for(std::chrono::milliseconds(2));
   }
 
+  vr::DriverPose_t pose;
+  pose.deviceIsConnected = false;
+  pose.poseIsValid = false;
+  vr::VRServerDriverHost()->TrackedDevicePoseUpdated(deviceId_, pose, sizeof(vr::DriverPose_t));
+
   DriverLog("Closing pose thread...");
 }
 
