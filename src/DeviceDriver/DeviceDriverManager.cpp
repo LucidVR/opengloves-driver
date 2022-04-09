@@ -11,11 +11,16 @@ vr::EVRInitError DeviceDriverManager::Activate(uint32_t unObjectId) {
   return vr::VRInitError_None;
 }
 
-void DeviceDriverManager::Deactivate() {
+void DeviceDriverManager::DeactivateDeviceDriver() {
   if (device_ == nullptr) return;
-  device_->Deactivate();
 
-  device_ = nullptr;
+  device_->Deactivate();
+}
+
+void DeviceDriverManager::Deactivate() {
+  DeactivateDeviceDriver();
+
+  isActive_ = false;
 }
 
 void DeviceDriverManager::DebugRequest(const char* pchRequest, char* pchResponseBuffer, const uint32_t unResponseBufferSize) {}

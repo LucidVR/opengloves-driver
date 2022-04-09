@@ -26,10 +26,11 @@ class DeviceDriverManager : public vr::ITrackedDeviceServerDriver {
 
   void OnEvent(vr::VREvent_t vrEvent) const;
   void SetDeviceDriver(std::unique_ptr<DeviceDriver> newDevice);
+  void DeactivateDeviceDriver();
 
  private:
   std::unique_ptr<DeviceDriver> device_;
 
   int32_t deviceId_ = -1;
   std::atomic<bool> isActive_ = false;
-}; 
+};

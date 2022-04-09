@@ -49,7 +49,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 void DeviceProvider::InitialiseDeviceDriver(const vr::ETrackedControllerRole& role) {
   // we don't want to initialise devices that have already been created
   if (deviceManagers_.count(role) > 0) {
-    DriverLog("Attempting to intialise an previously initialised device. Will not initialise");
+    DriverLog("Attempting to initialise an device that is already initialised. Will not initialise");
 
     return;
   }
@@ -140,16 +140,18 @@ void DeviceProvider::HandleSettingsUpdate(const vr::ETrackedControllerRole& role
     return;
   }
 
-  if (deviceManagers_.count(role) == 0) {
-    DriverLog("Settings were updated and no device is currently initialised, checking if we need to initialise device");
-    InitialiseDeviceDriver(role);
-
+  if (!newConfiguration.enabled && deviceConfigurations_.at(role).enabled) {
+    DriverLog("Deactivating device driver as it was disabled in settings");
+    deviceManagers_[role]->DeactivateDeviceDriver();
+    deviceConfigurations_[role] = newConfiguration;
     return;
   }
 
-  if (!newConfiguration.enabled && deviceConfigurations_.at(role).enabled) {
-    DriverLog("Deactivating device driver as it was disabled in settings");
-    deviceManagers_.at(role)->Deactivate();
+  // we have something that's updated.
+  deviceConfigurations_[role] = newConfiguration;
+  if (deviceManagers_.count(role) == 0 && newConfiguration.enabled) {
+    DriverLog("Settings were updated, and need to initialise new device");
+    InitialiseDeviceDriver(role);
 
     return;
   }
