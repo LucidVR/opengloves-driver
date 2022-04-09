@@ -40,37 +40,41 @@ void DiscoverControllerThread(const vr::ETrackedControllerRole role) {
   } else {
     pipeName = R"(\\.\pipe\vrapplication\discovery\right)";
   }
+
   const auto pipeHelper = std::make_unique<PipeHelper>(pipeName);
+  pipeHelper->WaitCreatePipe();
+
+  short controllerId = -1;
 
   while (appActive) {
     for (short i = 1; i < vr::k_unMaxTrackedDeviceCount; i++) {
       char thisManufacturer[1024];
-      uint32_t err = vr::VRSystem()->GetStringTrackedDeviceProperty(
+
+      vr::VRSystem()->GetStringTrackedDeviceProperty(
           i, vr::ETrackedDeviceProperty::Prop_ManufacturerName_String, thisManufacturer, sizeof thisManufacturer);
 
       std::string sThisManufacturer(thisManufacturer);
-
       if (ourManufacturer == sThisManufacturer) continue;
 
-      const short deviceRole = vr::VRSystem()->GetControllerRoleForTrackedDeviceIndex(i);
-
       const int32_t controllerHint = vr::VRSystem()->GetInt32TrackedDeviceProperty(i, vr::ETrackedDeviceProperty::Prop_ControllerRoleHint_Int32);
-
       if (controllerHint == role) {
-        pipeHelper->SendPipe({i});
+        controllerId = i;
         break;
       }
 
       const int controllerType = vr::VRSystem()->GetInt32TrackedDeviceProperty(i, vr::ETrackedDeviceProperty::Prop_DeviceClass_Int32);
+      const short deviceRole = vr::VRSystem()->GetControllerRoleForTrackedDeviceIndex(i);
 
       if (controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker ||
           controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_Controller) {
         if (role == deviceRole) {
-          pipeHelper->SendPipe({i});
+          controllerId = i;
           break;
         }
       }
     }
+
+    while (!pipeHelper->SendPipe({controllerId})) pipeHelper->WaitCreatePipe();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(1000));
   }
@@ -111,7 +115,7 @@ int APIENTRY WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPTSTR lpCmdL
 PipeHelper::PipeHelper(const std::string& pipeName) : pipeName_(pipeName), pipeHandle_(nullptr){};
 
 void PipeHelper::WaitCreatePipe() {
-  while (true) {
+  while (appActive) {
     pipeHandle_ = CreateFile(
         pipeName_.c_str(),             // pipe name
         GENERIC_READ | GENERIC_WRITE,  // read and write access
@@ -130,9 +134,11 @@ void PipeHelper::WaitCreatePipe() {
 bool PipeHelper::SendPipe(const ControllerPipeData& data) {
   DWORD dwWritten;
 
-  WriteFile(pipeHandle_, &data, sizeof(ControllerPipeData), &dwWritten, nullptr);
+  bool success = WriteFile(pipeHandle_, &data, sizeof(ControllerPipeData), &dwWritten, nullptr);
 
+  return success;
+}
+
+void PipeHelper::ClosePipe() {
   CloseHandle(pipeHandle_);
-
-  return true;
 }

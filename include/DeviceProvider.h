@@ -7,7 +7,7 @@
 
 #include "Bones.h"
 #include "DeviceConfiguration.h"
-#include "DeviceDriver/DeviceDriver.h"
+#include "DeviceDriver/DeviceDriverManager.h"
 #include "openvr_driver.h"
 
 /**
@@ -63,6 +63,6 @@ class DeviceProvider : public vr::IServerTrackedDeviceProvider {
 
   void HandleSettingsUpdate(const vr::ETrackedControllerRole& role);
 
-  std::map<vr::ETrackedControllerRole, std::unique_ptr<DeviceDriver>> devices_;
+  std::map<vr::ETrackedControllerRole, std::unique_ptr<DeviceDriverManager>> deviceManagers_;
   std::map<vr::ETrackedControllerRole, VRDriverConfiguration> deviceConfigurations_;
 };

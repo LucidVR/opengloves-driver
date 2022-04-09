@@ -55,5 +55,5 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   std::thread poseUpdateThread_;
 
   std::atomic<bool> hasActivated_;
-  uint32_t deviceId_;
+  int32_t deviceId_;
 };

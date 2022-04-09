@@ -36,7 +36,7 @@ ControllerPose::ControllerPose(
 
 ControllerPose::~ControllerPose() {
   calibrationPipe_->StopListening();
-  if (controllerDiscoverer_) controllerDiscoverer_->Stop();
+  if (controllerDiscoverer_ != nullptr) controllerDiscoverer_->Stop();
 }
 
 vr::TrackedDevicePose_t ControllerPose::GetControllerPose() const {

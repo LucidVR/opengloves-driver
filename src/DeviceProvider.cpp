@@ -12,7 +12,6 @@
 #include "DriverLog.h"
 #include "Encode/AlphaEncodingManager.h"
 #include "Encode/LegacyEncodingManager.h"
-#include "Util/Quaternion.h"
 #include "Util/Windows.h"
 
 #ifndef GIT_COMMIT_HASH
@@ -36,7 +35,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
   // Create background process for the overlay (used for finding controllers to bind to for tracking)
   if (!CreateBackgroundProcess(driverPath + R"(\bin\win64\openglove_overlay.exe)")) {
-    DriverLog("Could not create background process: %c", GetLastErrorAsString().c_str());
+    DriverLog("Could not create background process: %s", GetLastErrorAsString().c_str());
 
     return vr::VRInitError_Init_FileNotFound;
   }
@@ -49,7 +48,7 @@ vr::EVRInitError DeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
 
 void DeviceProvider::InitialiseDeviceDriver(const vr::ETrackedControllerRole& role) {
   // we don't want to initialise devices that have already been created
-  if (devices_.count(role) > 0) {
+  if (deviceManagers_.count(role) > 0) {
     DriverLog("Attempting to intialise an previously initialised device. Will not initialise");
 
     return;
@@ -66,8 +65,8 @@ void DeviceProvider::InitialiseDeviceDriver(const vr::ETrackedControllerRole& ro
     return;
   }
 
-  devices_[role] = InstantiateDeviceDriver(configuration);
-  const std::unique_ptr<DeviceDriver>& device = devices_.at(role);
+  deviceManagers_[role] = std::make_unique<DeviceDriverManager>(InstantiateDeviceDriver(configuration));
+  const std::unique_ptr<DeviceDriverManager>& device = deviceManagers_.at(role);
 
   // this device hasn't previously been registered, so register it with SteamVR
   vr::VRServerDriverHost()->TrackedDeviceAdded(device->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, device.get());
@@ -121,6 +120,7 @@ std::unique_ptr<DeviceDriver> DeviceProvider::InstantiateDeviceDriver(const VRDr
     }
 
     case VRDeviceType::LucidGloves: {
+      DriverLog("Using lucidgloves device driver");
       return std::make_unique<LucidGloveDeviceDriver>(std::move(communicationManager), std::move(boneAnimator), configuration.deviceConfiguration);
     }
   }
@@ -135,26 +135,19 @@ const char* const* DeviceProvider::GetInterfaceVersions() {
 void DeviceProvider::HandleSettingsUpdate(const vr::ETrackedControllerRole& role) {
   const VRDriverConfiguration newConfiguration = GetDriverConfiguration(role);
 
-  // we don't want to update if there's nothing to update
-  if (devices_.count(role) > 0 && deviceConfigurations_.at(role) == newConfiguration) {
-    DriverLog(
-        "Settings were updated, but found no reason to update role: %s Hand",
-        role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "Right" : "Left");
+  if (deviceConfigurations_.at(role) == newConfiguration) {
+    DriverLog("Settings were updated, but opengloves did not need to update");
+    return;
+  }
+
+  if (deviceManagers_.count(role) == 0) {
+    DriverLog("Settings were updated and no device is currently initialised, checking if we need to initialise device");
+    InitialiseDeviceDriver(role);
 
     return;
   }
 
-  std::unique_ptr<DeviceDriver> newDevice = InstantiateDeviceDriver(newConfiguration);
-  devices_.at(role)->Deactivate();
-
-  newDevice->Activate(devices_.at(role)->GetDeviceId());
-
-
-  devices_.at(role).swap(newDevice);
-
-  DriverLog(
-      "Settings were updated, and successfully updated %s hand",
-      role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left");
+  deviceManagers_.at(role)->SetDeviceDriver(InstantiateDeviceDriver(newConfiguration));
 }
 
 void DeviceProvider::RunFrame() {
@@ -171,7 +164,7 @@ void DeviceProvider::RunFrame() {
       }
 
       default: {
-        for (auto const& ptr : devices_) {
+        for (auto const& ptr : deviceManagers_) {
           if (ptr.second->IsActive()) ptr.second->OnEvent(pEvent);
         }
       }

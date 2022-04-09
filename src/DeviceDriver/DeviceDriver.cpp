@@ -61,7 +61,6 @@ void DeviceDriver::Deactivate() {
     ffbProvider_->Stop();
 
     communicationManager_->Disconnect();
-    deviceId_ = vr::k_unTrackedDeviceIndexInvalid;
     hasActivated_ = false;
 
     poseUpdateThread_.join();
