@@ -32,6 +32,7 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   void OnEvent(vr::VREvent_t vrEvent) const;
 
   void UpdateDeviceConfiguration(VRDeviceConfiguration configuration);
+  void DisableDevice();
 
  protected:
   virtual bool IsRightHand() const;

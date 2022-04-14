@@ -45,10 +45,7 @@ void DeviceProvider::InitialiseDeviceDriver(const vr::ETrackedControllerRole& ro
   const VRDriverConfiguration& configuration = deviceConfigurations_.at(role);
 
   if (!configuration.enabled) {
-    DriverLog(
-        "Not loading device for %s hand as it was disabled in settings.",
-        role == vr::ETrackedControllerRole::TrackedControllerRole_RightHand ? "right" : "left");
-
+    DriverLog("Not enabling device as it was disabled in configuration.");
     return;
   }
 
@@ -100,7 +97,7 @@ void DeviceProvider::HandleSettingsUpdate(const vr::ETrackedControllerRole& role
       devices_.at(role)->UpdateDeviceConfiguration(newConfiguration.deviceConfiguration);
     } else {
       DriverLog("Settings were updated, and attempting to deactivate device as it was disabled");
-      devices_.at(role)->Deactivate();
+      devices_.at(role)->DisableDevice();
     }
   } else {
     if (newConfiguration.enabled) {
@@ -115,9 +112,10 @@ void DeviceProvider::RunFrame() {
   while (vr::VRServerDriverHost()->PollNextEvent(&pEvent, sizeof(pEvent))) {
     switch (pEvent.eventType) {
       case vr::EVREventType::VREvent_OtherSectionSettingChanged: {
-        DriverLog("A setting change was detected that might affect our drivers...");
+        DriverLog("A settings change was detected that might affect our drivers...");
 
-        for (auto const& ptr : devices_) HandleSettingsUpdate(ptr.first);
+        HandleSettingsUpdate(vr::ETrackedControllerRole::TrackedControllerRole_RightHand);
+        HandleSettingsUpdate(vr::ETrackedControllerRole::TrackedControllerRole_LeftHand);
 
         break;
       }

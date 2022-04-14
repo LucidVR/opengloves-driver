@@ -50,10 +50,7 @@ void DeviceDriver::Deactivate() {
     StoppingDevice();
   }
 
-  vr::DriverPose_t pose;
-  pose.deviceIsConnected = false;
-  pose.poseIsValid = false;
-  vr::VRServerDriverHost()->TrackedDevicePoseUpdated(deviceId_, pose, sizeof(vr::DriverPose_t));
+  DriverLog("Finished deactivating device, invalidating pose...");
 }
 
 void DeviceDriver::DebugRequest(const char* pchRequest, char* pchResponseBuffer, const uint32_t unResponseBufferSize) {
@@ -213,4 +210,14 @@ void DeviceDriver::StopDeviceComponents() {
 
     poseUpdateThread_.join();
   }
+
+  vr::DriverPose_t pose;
+  pose.deviceIsConnected = false;
+  pose.poseIsValid = false;
+  vr::VRServerDriverHost()->TrackedDevicePoseUpdated(deviceId_, pose, sizeof(vr::DriverPose_t));
+}
+
+void DeviceDriver::DisableDevice() {
+  DriverLog("Disabling device components...");
+  StopDeviceComponents();
 }
