@@ -33,6 +33,23 @@ enum class VRDeviceType {
   EmulatedKnuckles = 1,
 };
 
+struct VRAlphaEncodingConfiguration {
+  bool operator==(const VRAlphaEncodingConfiguration&) const = default;
+};
+
+struct VRLegacyEncodingConfiguration {
+  bool operator==(const VRLegacyEncodingConfiguration&) const = default;
+};
+
+struct VREncodingConfiguration {
+  VREncodingProtocol encodingProtocol;
+  unsigned int maxAnalogValue;
+
+  std::variant<VRAlphaEncodingConfiguration, VRLegacyEncodingConfiguration> configuration;
+
+  bool operator==(const VREncodingConfiguration&) const = default;
+};
+
 struct VRCommunicationSerialConfiguration {
   std::string port;
   int baudRate;
@@ -54,29 +71,13 @@ struct VRCommunicationNamedPipeConfiguration {
 
 struct VRCommunicationConfiguration {
   VRCommunicationProtocol communicationProtocol;
+  VREncodingConfiguration encodingConfiguration;
 
   bool feedbackEnabled;
 
   std::variant<VRCommunicationSerialConfiguration, VRCommunicationBTSerialConfiguration, VRCommunicationNamedPipeConfiguration> configuration;
 
   bool operator==(const VRCommunicationConfiguration&) const = default;
-};
-
-struct VRAlphaEncodingConfiguration {
-  bool operator==(const VRAlphaEncodingConfiguration&) const = default;
-};
-
-struct VRLegacyEncodingConfiguration {
-  bool operator==(const VRLegacyEncodingConfiguration&) const = default;
-};
-
-struct VREncodingConfiguration {
-  VREncodingProtocol encodingProtocol;
-  unsigned int maxAnalogValue;
-
-  std::variant<VRAlphaEncodingConfiguration, VRLegacyEncodingConfiguration> configuration;
-
-  bool operator==(const VREncodingConfiguration&) const = default;
 };
 
 struct VRPoseConfiguration {
@@ -110,6 +111,7 @@ struct VRDeviceConfiguration {
   vr::ETrackedControllerRole role;
 
   VRPoseConfiguration poseConfiguration;
+  VRCommunicationConfiguration communicationConfiguration;
 
   std::variant<VRDeviceKnucklesConfiguration, VRDeviceLucidglovesConfiguration> configuration;
 
@@ -119,8 +121,6 @@ struct VRDeviceConfiguration {
 struct VRDriverConfiguration {
   bool enabled;
 
-  VREncodingConfiguration encodingConfiguration;
-  VRCommunicationConfiguration communicationConfiguration;
   VRDeviceConfiguration deviceConfiguration;
 
   bool operator==(const VRDriverConfiguration&) const = default;

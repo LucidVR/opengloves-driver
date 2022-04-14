@@ -29,10 +29,7 @@ enum class LucidGloveDeviceComponentIndex : int {
 
 class LucidGloveDeviceDriver : public DeviceDriver {
  public:
-  LucidGloveDeviceDriver(
-      std::unique_ptr<CommunicationManager> communicationManager,
-      std::unique_ptr<BoneAnimator> boneAnimator,
-      const VRDeviceConfiguration& configuration);
+  LucidGloveDeviceDriver(const VRDeviceConfiguration& configuration);
 
   void HandleInput(VRInputData data) override;
   void SetupProps(vr::PropertyContainerHandle_t& props) override;

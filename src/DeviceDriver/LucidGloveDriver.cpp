@@ -5,11 +5,7 @@ static const char* c_deviceModelNumber = "lucidgloves1";
 static const char* c_basePosePath = "/pose/raw";
 static const char* c_inputProfilePath = "{openglove}/input/openglove_profile.json";
 
-LucidGloveDeviceDriver::LucidGloveDeviceDriver(
-    std::unique_ptr<CommunicationManager> communicationManager,
-    std::unique_ptr<BoneAnimator> boneAnimator,
-    const VRDeviceConfiguration& configuration)
-    : DeviceDriver(std::move(communicationManager), std::move(boneAnimator), configuration), inputComponentHandles_() {}
+LucidGloveDeviceDriver::LucidGloveDeviceDriver(const VRDeviceConfiguration& configuration) : DeviceDriver(configuration), inputComponentHandles_() {}
 
 void LucidGloveDeviceDriver::HandleInput(const VRInputData data) {
   // clang-format off

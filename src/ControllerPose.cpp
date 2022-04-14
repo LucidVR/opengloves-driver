@@ -97,8 +97,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
     }
 
   } else {
-    newPose.result = vr::TrackingResult_Uninitialized;
-    newPose.deviceIsConnected = false;
+    newPose.deviceIsConnected = true;
   }
 
   return newPose;
