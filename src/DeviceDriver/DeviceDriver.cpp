@@ -151,16 +151,22 @@ void DeviceDriver::SetupDeviceComponents() {
     case VRCommunicationProtocol::NamedPipe: {
       DriverLog("Using named pipe communication");
       communicationManager_ = std::make_unique<NamedPipeCommunicationManager>(communicationConfiguration);
+
+      break;
     }
 
     case VRCommunicationProtocol::BtSerial: {
       DriverLog("Using bluetooth serial communication");
       communicationManager_ = std::make_unique<BTSerialCommunicationManager>(communicationConfiguration, std::move(encodingManager));
+
+      break;
     }
 
     case VRCommunicationProtocol::Serial: {
       DriverLog("Using usb serial communication");
       communicationManager_ = std::make_unique<SerialCommunicationManager>(communicationConfiguration, std::move(encodingManager));
+
+      break;
     }
   }
 

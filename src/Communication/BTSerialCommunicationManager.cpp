@@ -51,7 +51,7 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
     const int receiveResult = recv(btClientSocket_, &nextChar, 1, 0);
 
     if (receiveResult == SOCKET_ERROR) {
-      LogError("Socket error while recieving data over bluetooth");
+      LogError("Socket error while receiving data over Bluetooth");
       return false;
     }
     if (receiveResult <= 0 || nextChar == '\n') continue;
