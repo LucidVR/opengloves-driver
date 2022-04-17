@@ -65,12 +65,10 @@ void DiscoverControllerThread(const vr::ETrackedControllerRole role) {
       const int controllerType = vr::VRSystem()->GetInt32TrackedDeviceProperty(i, vr::ETrackedDeviceProperty::Prop_DeviceClass_Int32);
       const short deviceRole = vr::VRSystem()->GetControllerRoleForTrackedDeviceIndex(i);
 
-      if (controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker ||
-          controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_Controller) {
-        if (role == deviceRole) {
-          controllerId = i;
-          break;
-        }
+      if ((controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_GenericTracker ||
+           controllerType == vr::ETrackedDeviceClass::TrackedDeviceClass_Controller) &&
+          role == deviceRole) {
+        controllerId = i;
       }
     }
 

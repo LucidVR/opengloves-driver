@@ -39,10 +39,11 @@ execute_process(
 
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH )
 
-add_subdirectory("overlay")
 
 set(DRIVER_NAME "openglove")
 set(OPENGLOVE_PROJECT "driver_${DRIVER_NAME}")
+
+add_subdirectory("overlay")
 
 file(GLOB_RECURSE HEADERS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 file(GLOB_RECURSE SOURCES "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
@@ -78,12 +79,4 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy
         $<TARGET_FILE:${OPENGLOVE_PROJECT}>
         $<TARGET_FILE_DIR:${OPENGLOVE_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${OPENGLOVE_PROJECT}>
-)
-
-add_custom_command(
-        TARGET ${OPENGLOVE_PROJECT}
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        $<TARGET_FILE_DIR:openglove_overlay>
-        $<TARGET_FILE_DIR:${OPENGLOVE_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}
 )
