@@ -125,14 +125,8 @@ void DeviceDriver::StartDevice() {
   communicationManager_->BeginListener([&](VRInputData data) {
     try {
       boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data, IsRightHand());
-      vr::EVRInputError err = vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
-      if (err != vr::EVRInputError::VRInputError_None) {
-        DriverLog("Error! %i", err);
-      }
-      err = vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
-      if (err != vr::EVRInputError::VRInputError_None) {
-        DriverLog("Error! %i", err);
-      }
+      vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
+      vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
 
       HandleInput(data);
 
