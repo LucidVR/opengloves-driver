@@ -6,7 +6,7 @@
 #include "DriverLog.h"
 #include "Util/Quaternion.h"
 
-static const float c_maxSplayAngle = 10.0f;
+static const float c_maxSplayAngle = 20.0f;
 
 static const std::array<float, 4> emptyRotation = {0.0f, 0.0f, 0.0f, 0.0f};
 static const std::array<float, 3> emptyTranslation = {0.0f, 0.0f, 0.0f};
