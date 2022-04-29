@@ -25,6 +25,7 @@ ControllerPose::ControllerPose(
     shadowControllerId_ = poseConfiguration_.controllerIdOverride;
   } else {
     controllerDiscoverer_ = std::make_unique<ControllerDiscovery>(shadowDeviceOfRole, [&](const ControllerDiscoveryPipeData data) {
+      if (shadowControllerId_ == data.controllerId) return;
       shadowControllerId_ = data.controllerId;
       DriverLog("Received controller id from overlay: %i", data.controllerId);
     });
@@ -36,7 +37,7 @@ ControllerPose::ControllerPose(
 
 ControllerPose::~ControllerPose() {
   calibrationPipe_->StopListening();
-  if (controllerDiscoverer_) controllerDiscoverer_->Stop();
+  if (controllerDiscoverer_ != nullptr) controllerDiscoverer_->Stop();
 }
 
 vr::TrackedDevicePose_t ControllerPose::GetControllerPose() const {
@@ -76,7 +77,8 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
       newPose.vecVelocity[1] = objectVelocity.v[1];
       newPose.vecVelocity[2] = objectVelocity.v[2];
 
-      const vr::HmdVector3_t objectAngularVelocity = controllerPose.vAngularVelocity * -controllerRotation * -poseConfiguration_.angleOffsetQuaternion;
+      const vr::HmdVector3_t objectAngularVelocity =
+          controllerPose.vAngularVelocity * -controllerRotation * -poseConfiguration_.angleOffsetQuaternion;
 
       newPose.vecAngularVelocity[0] = objectAngularVelocity.v[0];
       newPose.vecAngularVelocity[1] = objectAngularVelocity.v[1];
@@ -95,8 +97,7 @@ vr::DriverPose_t ControllerPose::UpdatePose() const {
     }
 
   } else {
-    newPose.result = vr::TrackingResult_Uninitialized;
-    newPose.deviceIsConnected = false;
+    newPose.deviceIsConnected = true;
   }
 
   return newPose;

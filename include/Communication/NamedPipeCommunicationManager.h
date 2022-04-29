@@ -1,8 +1,8 @@
 #pragma once
 
+#include <array>
 #include <atomic>
 #include <memory>
-#include <array>
 
 #include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
@@ -10,7 +10,7 @@
 
 class NamedPipeCommunicationManager : public CommunicationManager {
  public:
-  NamedPipeCommunicationManager(VRNamedPipeInputConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration);
+  NamedPipeCommunicationManager(const VRCommunicationConfiguration& configuration);
   bool IsConnected() override;
 
   // no sending for named pipes
@@ -31,13 +31,12 @@ class NamedPipeCommunicationManager : public CommunicationManager {
     return true;
   };
 
-
  private:
   std::atomic<bool> isConnected_;
 
   std::function<void(VRInputData)> callback_;
 
-  VRNamedPipeInputConfiguration configuration_;
+  VRCommunicationNamedPipeConfiguration namedPipeConfiguration_;
 
   std::vector<std::unique_ptr<IListener>> namedPipeListeners_;
 };

@@ -1,3 +1,5 @@
+#pragma once
+
 #include "openvr_driver.h"
 
 double DegToRad(double degrees);
@@ -5,12 +7,6 @@ float DegToRad(const float degrees);
 double RadToDeg(double rad);
 float RadToDeg(const float rad);
 
-namespace vr {
-  struct HmdAxisAngle_t {
-    double angle;
-    vr::HmdVector3_t axis;
-  };
-}  // namespace vr
 
 // get the quaternion for rotation from a matrix
 vr::HmdQuaternion_t GetRotation(const vr::HmdMatrix34_t& matrix);
@@ -33,4 +29,7 @@ vr::HmdVector3_t operator-(const vr::HmdVector3_t& vec, const vr::HmdMatrix34_t&
 vr::HmdVector3d_t operator+(const vr::HmdVector3d_t& vec1, const vr::HmdVector3d_t& vec2);
 vr::HmdVector3d_t operator-(const vr::HmdVector3d_t& vec1, const vr::HmdVector3d_t& vec2);
 vr::HmdVector3d_t operator*(const vr::HmdVector3d_t& vec, const vr::HmdQuaternion_t& q);
-vr::HmdVector3_t operator*(const vr::HmdVector3_t& dev, const vr::HmdQuaternion_t& q);
+vr::HmdVector3_t operator*(const vr::HmdVector3_t& vec, const vr::HmdQuaternion_t& q);
+
+bool operator==(const vr::HmdVector3d_t& v1, const vr::HmdVector3d_t& v2);
+bool operator==(const vr::HmdQuaternion_t& q1, const vr::HmdQuaternion_t& q2);

@@ -1,6 +1,6 @@
 #pragma once
-#include <openvr.h>
 #include <Windows.h>
+#include <openvr.h>
 
 struct ControllerPipeData {
   short controllerId;
@@ -8,10 +8,15 @@ struct ControllerPipeData {
 
 class PipeHelper {
  public:
-  PipeHelper();
+  PipeHelper(const std::string& pipeName);
 
-  bool ConnectAndSendPipe(const std::string& pipeName, ControllerPipeData data);
+  bool SendPipe(const ControllerPipeData& data);
+
+  void WaitCreatePipe();
+
+  void ClosePipe();
 
  private:
+  std::string pipeName_;
   HANDLE pipeHandle_;
 };
