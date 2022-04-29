@@ -11,3 +11,11 @@ add_custom_command(TARGET openglove_overlay POST_BUILD
 COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${PROJECT_SOURCE_DIR}/libraries/openvr/bin/win64/openvr_api.dll"
     $<TARGET_FILE_DIR:openglove_overlay>)
+
+add_custom_command(
+    TARGET openglove_overlay
+    POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    $<TARGET_FILE_DIR:openglove_overlay>
+    $<TARGET_FILE_DIR:${OPENGLOVE_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}
+)

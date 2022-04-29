@@ -1,6 +1,5 @@
 #include "Calibration.h"
 
-#include "DriverLog.h"
 #include "Util/Quaternion.h"
 
 Calibration::Calibration() : maintainPose_(), isCalibrating_(false), calibratingMethod_(CalibrationMethod::None) {}
