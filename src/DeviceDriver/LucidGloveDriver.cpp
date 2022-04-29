@@ -35,13 +35,22 @@ void LucidGloveDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
 
   // clang-format off
   vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, 2147483647);
-  vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, c_inputProfilePath);    // tell OpenVR where to get your driver's Input Profile
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_InputProfilePath_String, "{openglove}/input/openglove_profile.json");    // tell OpenVR where to get your driver's Input Profile
   vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, configuration_.role);  // tells OpenVR what kind of device this is
   vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, GetSerialNumber().c_str());
   vr::VRProperties()->SetStringProperty(props, vr::Prop_ModelNumber_String, c_deviceModelNumber);
   vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, c_deviceManufacturer);
   vr::VRProperties()->SetInt32Property(props, vr::Prop_DeviceClass_Int32, vr::TrackedDeviceClass_Controller);
-  vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, c_deviceControllerType);
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, "openglove");
+
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceOff_String, IsRightHand() ? "{openglove}/icons/right_controller_status_off.png" : "{openglove}/icons/left_controller_status_off.png");
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearching_String, IsRightHand() ? "{openglove}/icons/right_controller_status_searching.gif" : "{openglove}/icons/left_controller_status_searching.gif");
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceSearchingAlert_String, IsRightHand() ? "{openglove}/icons/right_controller_status_searching_alert.gif" : "{openglove}/icons/left_controller_status_searching_alert.gif");
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReady_String, IsRightHand() ? "{openglove}/icons/right_controller_status_ready.png" : "{openglove}/icons/left_controller_status_ready.png");
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceReadyAlert_String, IsRightHand() ? "{openglove}/icons/right_controller_status_ready_alert.png" : "{openglove}/icons/left_controller_status_ready_alert.png");
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceNotReady_String, IsRightHand() ? "{openglove}/icons/right_controller_status_error.png" : "{openglove}/icons/left_controller_status_error.png");
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceStandby_String, IsRightHand() ? "{openglove}/icons/right_controller_status_off.png" : "{openglove}/icons/left_controller_status_off.png");
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_NamedIconPathDeviceAlertLow_String, IsRightHand() ? "{openglove}/icons/right_controller_status_ready_low.png" : "{openglove}/icons/left_controller_status_ready_low.png");
 
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/joystick/x", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::JoyX)], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedTwoSided);
   vr::VRDriverInput()->CreateScalarComponent(props, "/input/joystick/y", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::JoyY)], vr::VRScalarType_Absolute, vr::VRScalarUnits_NormalizedTwoSided);
@@ -49,7 +58,7 @@ void LucidGloveDeviceDriver::SetupProps(vr::PropertyContainerHandle_t& props) {
 
   vr::VRDriverInput()->CreateBooleanComponent(props, "/input/trigger/click", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnTrg)]);
 
-  vr::VRDriverInput()->CreateBooleanComponent(props, isRightHand ? "/input/A/click" : "/input/system/click", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnA)]);
+  vr::VRDriverInput()->CreateBooleanComponent(props, "/input/A/click", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnA)]);
 
   vr::VRDriverInput()->CreateBooleanComponent(props, "/input/B/click", &inputComponentHandles_[static_cast<int>(LucidGloveDeviceComponentIndex::BtnB)]);
 
