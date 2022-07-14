@@ -20,8 +20,6 @@ enum class VRCommDataLegacyEncodingPosition : int {
   Max
 };
 
-LegacyEncodingManager::LegacyEncodingManager(const float maxAnalogValue) : EncodingManager(maxAnalogValue) {}
-
 VRInputData LegacyEncodingManager::Decode(const std::string& input) {
   VRInputData result;
 
@@ -38,11 +36,11 @@ VRInputData LegacyEncodingManager::Decode(const std::string& input) {
 
   std::array<float, 5> flexion{};
   for (uint8_t flexionI = 0; flexionI < 5; flexionI++) {
-    for (int k = 0; k < 4; k++) result.flexion[flexionI][k] = tokens[flexionI] / maxAnalogValue_;
+    for (int k = 0; k < 4; k++) result.flexion[flexionI][k] = tokens[flexionI] / configuration_.maxAnalogValue;
   }
 
-  result.joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / maxAnalogValue_ - 1;
-  result.joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / maxAnalogValue_ - 1;
+  result.joyX = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyX)] / configuration_.maxAnalogValue - 1;
+  result.joyY = 2 * tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyY)] / configuration_.maxAnalogValue - 1;
 
   result.joyButton = tokens[static_cast<int>(VRCommDataLegacyEncodingPosition::JoyBtn)] == 1;
 
@@ -66,5 +64,8 @@ std::string LegacyEncodingManager::Encode(const VROutput& input) {
       const VRHapticData& data = input.data.hapticData;
       return StringFormat("%.2f&%.2f&%.2f&", data.duration, data.frequency, data.amplitude);
     }
+
+    default:
+      return "";
   }
 }

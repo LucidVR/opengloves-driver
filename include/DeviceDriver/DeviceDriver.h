@@ -1,5 +1,8 @@
 #pragma once
 
+#undef _WINSOCKAPI_
+#define _WINSOCKAPI_
+
 #include <memory>
 #include <string>
 
@@ -7,16 +10,12 @@
 #include "Communication/CommunicationManager.h"
 #include "ControllerPose.h"
 #include "DeviceConfiguration.h"
-#include "openvr_driver.h"
 #include "ForceFeedback.h"
+#include "openvr_driver.h"
 
 class DeviceDriver : public vr::ITrackedDeviceServerDriver {
  public:
-  DeviceDriver(
-      std::unique_ptr<CommunicationManager> communicationManager,
-      std::shared_ptr<BoneAnimator> boneAnimator,
-      std::string serialNumber,
-      VRDeviceConfiguration configuration);
+  DeviceDriver(VRDeviceConfiguration configuration);
 
   vr::EVRInitError Activate(uint32_t unObjectId) override;
   void Deactivate() override;
@@ -32,6 +31,9 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
 
   void OnEvent(vr::VREvent_t vrEvent) const;
 
+  void UpdateDeviceConfiguration(VRDeviceConfiguration configuration);
+  void DisableDevice();
+
  protected:
   virtual bool IsRightHand() const;
   virtual void StartDevice();
@@ -42,10 +44,15 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   virtual void StoppingDevice() = 0;
   void PoseUpdateThread() const;
 
+ private:
+  void SetupDeviceComponents();
+  void StopDeviceComponents();
+
+ protected:
   std::unique_ptr<CommunicationManager> communicationManager_;
-  std::shared_ptr<BoneAnimator> boneAnimator_;
+  std::unique_ptr<BoneAnimator> boneAnimator_;
+
   VRDeviceConfiguration configuration_;
-  std::string serialNumber_;
 
   std::unique_ptr<ControllerPose> controllerPose_;
   std::unique_ptr<FFBListener> ffbProvider_;
@@ -57,6 +64,8 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
 
   std::thread poseUpdateThread_;
 
-  std::atomic<bool> hasActivated_;
-  uint32_t deviceId_;
+  std::atomic<bool> isRunning_;
+  std::atomic<bool> isActive_;
+
+  int32_t deviceId_;
 };

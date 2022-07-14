@@ -6,7 +6,7 @@
 #include "DriverLog.h"
 #include "Util/Quaternion.h"
 
-static const float c_maxSplayAngle = 10.0f;
+static const float c_maxSplayAngle = 20.0f;
 
 static const std::array<float, 4> emptyRotation = {0.0f, 0.0f, 0.0f, 0.0f};
 static const std::array<float, 3> emptyTranslation = {0.0f, 0.0f, 0.0f};
@@ -180,8 +180,7 @@ void BoneAnimator::SetTransformForBone(
 
   if (splay >= -1.0f && splay <= 1.0f) {
     // only splay one bone (all the rest are done relative to this one)
-    if (IsBoneSplayableBone(boneIndex))
-      bone.orientation = MultiplyQuaternion(bone.orientation, EulerToQuaternion(0.0, DegToRad(splay * c_maxSplayAngle), 0.0));
+    if (IsBoneSplayableBone(boneIndex)) bone.orientation = bone.orientation * EulerToQuaternion(0.0, DegToRad(splay * c_maxSplayAngle), 0.0);
   }
 
   // we're guaranteed to have updated the bone, so we can safely apply a transformation

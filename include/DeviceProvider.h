@@ -1,15 +1,12 @@
 #pragma once
 
-#undef _WINSOCKAPI_
-#define _WINSOCKAPI_
-
 #include <memory>
 
 #include "Bones.h"
+#include "Communication/CommunicationManager.h"
 #include "DeviceConfiguration.h"
 #include "DeviceDriver/DeviceDriver.h"
 #include "openvr_driver.h"
-
 /**
 This class instantiates all the device drivers you have, meaning if you've
 created multiple drivers for multiple different controllers, this class will
@@ -56,12 +53,12 @@ class DeviceProvider : public vr::IServerTrackedDeviceProvider {
   void LeaveStandby() override;
 
  private:
-  std::unique_ptr<DeviceDriver> leftHand_;
-  std::unique_ptr<DeviceDriver> rightHand_;
-  /**
-   * returns the configuration set in VRSettings for the device role given
-   **/
-  static VRDeviceConfiguration GetDeviceConfiguration(vr::ETrackedControllerRole role);
+  std::unique_ptr<DeviceDriver> InstantiateDeviceDriver(const VRDriverConfiguration& configuration) const;
 
-  std::unique_ptr<DeviceDriver> InstantiateDeviceDriver(VRDeviceConfiguration configuration, std::shared_ptr<BoneAnimator> boneAnimator) const;
+  void InitialiseDeviceDriver(const vr::ETrackedControllerRole& role);
+
+  void HandleSettingsUpdate(const vr::ETrackedControllerRole& role);
+
+  std::map<vr::ETrackedControllerRole, std::unique_ptr<DeviceDriver>> devices_;
+  std::map<vr::ETrackedControllerRole, VRDriverConfiguration> deviceConfigurations_;
 };

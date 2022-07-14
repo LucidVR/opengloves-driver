@@ -1,7 +1,9 @@
 #pragma once
 
-#include <utility>
+#include <variant>
 
+// quaternion used for == overloads
+#include "Util/Quaternion.h"
 #include "openvr_driver.h"
 
 extern const char* c_poseSettingsSection;
@@ -13,7 +15,7 @@ extern const char* c_lucidGloveDeviceSettingsSection;
 extern const char* c_alphaEncodingSettingsSection;
 extern const char* c_legacyEncodingSettingsSection;
 
-extern const char* c_deviceDriverManufacturer;
+extern const char* c_deviceManufacturer;
 
 enum class VRCommunicationProtocol {
   Serial,
@@ -26,78 +28,102 @@ enum class VREncodingProtocol {
   Alpha = 1,
 };
 
-enum class VRDeviceDriver {
+enum class VRDeviceType {
   LucidGloves = 0,
   EmulatedKnuckles = 1,
 };
 
-struct VRSerialConfiguration {
+struct VRAlphaEncodingConfiguration {
+  bool operator==(const VRAlphaEncodingConfiguration&) const = default;
+};
+
+struct VRLegacyEncodingConfiguration {
+  bool operator==(const VRLegacyEncodingConfiguration&) const = default;
+};
+
+struct VREncodingConfiguration {
+  VREncodingProtocol encodingProtocol;
+  unsigned int maxAnalogValue;
+
+  std::variant<VRAlphaEncodingConfiguration, VRLegacyEncodingConfiguration> configuration;
+
+  bool operator==(const VREncodingConfiguration&) const = default;
+};
+
+struct VRCommunicationSerialConfiguration {
   std::string port;
   int baudRate;
 
-  VRSerialConfiguration(std::string port, const int baudRate) : port(std::move(port)), baudRate(baudRate) {}
+  bool operator==(const VRCommunicationSerialConfiguration&) const = default;
 };
 
-struct VRBTSerialConfiguration {
+struct VRCommunicationBTSerialConfiguration {
   std::string name;
 
-  explicit VRBTSerialConfiguration(std::string name) : name(std::move(name)) {}
+  bool operator==(const VRCommunicationBTSerialConfiguration&) const = default;
 };
 
-struct VRNamedPipeInputConfiguration {
+struct VRCommunicationNamedPipeConfiguration {
   std::string pipeName;
 
-  VRNamedPipeInputConfiguration(std::string pipeName) : pipeName(std::move(pipeName)) {}
+  bool operator==(const VRCommunicationNamedPipeConfiguration&) const = default;
+};
+
+struct VRCommunicationConfiguration {
+  VRCommunicationProtocol communicationProtocol;
+  VREncodingConfiguration encodingConfiguration;
+
+  bool feedbackEnabled;
+
+  std::variant<VRCommunicationSerialConfiguration, VRCommunicationBTSerialConfiguration, VRCommunicationNamedPipeConfiguration> configuration;
+
+  bool operator==(const VRCommunicationConfiguration&) const = default;
 };
 
 struct VRPoseConfiguration {
-  vr::HmdVector3_t offsetVector;
+  vr::HmdVector3d_t offsetVector;
   vr::HmdQuaternion_t angleOffsetQuaternion;
   float poseTimeOffset;
   int controllerIdOverride;
   bool controllerOverrideEnabled;
   bool calibrationButtonEnabled;
 
-  VRPoseConfiguration(
-      const vr::HmdVector3_t offsetVector,
-      const vr::HmdQuaternion_t angleOffsetQuaternion,
-      const float poseTimeOffset,
-      const bool controllerOverrideEnabled,
-      const int controllerIdOverride,
-      const bool calibrationButtonEnabled)
-      : offsetVector(offsetVector),
-        angleOffsetQuaternion(angleOffsetQuaternion),
-        poseTimeOffset(poseTimeOffset),
-        controllerIdOverride(controllerIdOverride),
-        controllerOverrideEnabled(controllerOverrideEnabled),
-        calibrationButtonEnabled(calibrationButtonEnabled) {}
+  bool operator==(const VRPoseConfiguration&) const = default;
+};
+
+struct VRDeviceKnucklesConfiguration {
+  bool indexCurlTrigger;
+  bool approximateThumb;
+
+  bool operator==(const VRDeviceKnucklesConfiguration&) const = default;
+};
+
+struct VRDeviceLucidglovesConfiguration {
+  std::string serialNumber;
+
+  bool operator==(const VRDeviceLucidglovesConfiguration&) const = default;
 };
 
 struct VRDeviceConfiguration {
-  vr::ETrackedControllerRole role;
-  bool enabled;
-  bool feedbackEnabled;
-  bool indexCurlTrigger; 
-  VRPoseConfiguration poseConfiguration;
-  VREncodingProtocol encodingProtocol;
-  VRCommunicationProtocol communicationProtocol;
-  VRDeviceDriver deviceDriver;
+  VRDeviceType deviceType;
 
-  VRDeviceConfiguration(
-      const vr::ETrackedControllerRole role,
-      const bool enabled,
-      const bool feedbackEnabled,
-      const bool indexCurlTrigger, 
-      const VRPoseConfiguration poseConfiguration,
-      const VREncodingProtocol encodingProtocol,
-      const VRCommunicationProtocol communicationProtocol,
-      const VRDeviceDriver deviceDriver)
-      : role(role),
-        enabled(enabled),
-        feedbackEnabled(feedbackEnabled),
-        indexCurlTrigger(indexCurlTrigger),
-        poseConfiguration(poseConfiguration),
-        encodingProtocol(encodingProtocol),
-        communicationProtocol(communicationProtocol),
-        deviceDriver(deviceDriver) {}
+  std::string serialNumber;
+  vr::ETrackedControllerRole role;
+
+  VRPoseConfiguration poseConfiguration;
+  VRCommunicationConfiguration communicationConfiguration;
+
+  std::variant<VRDeviceKnucklesConfiguration, VRDeviceLucidglovesConfiguration> configuration;
+
+  bool operator==(const VRDeviceConfiguration&) const = default;
 };
+
+struct VRDriverConfiguration {
+  bool enabled;
+
+  VRDeviceConfiguration deviceConfiguration;
+
+  bool operator==(const VRDriverConfiguration&) const = default;
+};
+
+VRDriverConfiguration GetDriverConfiguration(const vr::ETrackedControllerRole& role);
