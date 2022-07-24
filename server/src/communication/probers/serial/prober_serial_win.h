@@ -5,14 +5,16 @@
 #include <string>
 #include <vector>
 
-class SerialCommunicationProber : public CommunicationProber {
+#include "communication_prober.h"
+#include "services/communication_service.h"
+
+class SerialCommunicationProber : public ICommunicationProber {
  public:
   SerialCommunicationProber() = default;
 
-  int InquireDevices(std::vector<std::unique_ptr<CommunicationService>>& out_devices) override;
-
+  int InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) override;
   std::string GetName() override;
 
  private:
-  std::function<void(std::unique_ptr<CommunicationService>)> callback_;
+  std::function<void(std::unique_ptr<ICommunicationService>)> callback_;
 };

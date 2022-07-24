@@ -1,6 +1,6 @@
-#include "communication/probers/serial/private/prober_serial_win.h"
+#include "serial/prober_serial_win.h"
 
-#include "communication/services/serial/service_serial.h"
+#include "services/serial/service_serial.h"
 
 // must be in this order
 
@@ -27,11 +27,11 @@ static const std::vector<ProberSearch> wanted_devices = {
     {"7523", "7524"}   // ch340
 };
 
-static std::unique_ptr<CommunicationService> SerialDeviceFound(const std::string& port_name) {
+static std::unique_ptr<ICommunicationService> SerialDeviceFound(const std::string& port_name) {
   return std::make_unique<SerialCommunicationService>(port_name);
 }
 
-int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<CommunicationService>>& out_devices) {
+int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) {
   DWORD dwSize = 0;
   DWORD Error = 0;
 
@@ -85,5 +85,5 @@ int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<Commun
 }
 
 std::string SerialCommunicationProber::GetName() {
-  return "lucidgloves serial prober";
+  return "serial";
 }

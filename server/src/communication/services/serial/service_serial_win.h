@@ -2,11 +2,12 @@
 
 #include <string>
 
-#include "../../../../include/communication/services/communication_service.h"
+#include "services/communication_service.h"
+#include <windows.h>
 
-class SerialCommunicationService : public CommunicationService {
+class SerialCommunicationService : public ICommunicationService {
  public:
-  SerialCommunicationService(const std::string& port_name);
+  explicit SerialCommunicationService(const std::string& port_name);
 
   int ReceiveNextPacket(std::string& buff) override;
 
@@ -15,5 +16,8 @@ class SerialCommunicationService : public CommunicationService {
   void AttachEventHandler(std::function<void(CommunicationServiceEvent event)> callback) override;
 
  private:
-  std::string port_name;
+  std::string port_name_;
+
+  HANDLE handle_;
+  bool is_connected_;
 };

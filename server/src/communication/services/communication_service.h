@@ -19,5 +19,7 @@ class ICommunicationService {
 
   virtual int ReceiveNextPacket(std::string& buff) = 0;
 
+  virtual std::string GetAddress() = 0;
+
   virtual int Disconnect() = 0;
 };

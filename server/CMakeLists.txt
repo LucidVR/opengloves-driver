@@ -1,9 +1,7 @@
-cmake_minimum_required(VERSION 3.7.1)
-set(CMAKE_CXX_STANDARD 20)
+add_subdirectory(src)
 
-project(opengloves_server)
+project(opengloves_server-includes)
 
+add_library(opengloves_server-includes INTERFACE)
 
-add_library("${PROJECT_NAME}" STATIC include/opengloves_interface.h)
-
-target_sources("${PROJECT_NAME}" PRIVATE src/opengloves_server.cpp)
+target_include_directories(opengloves_server-includes INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
