@@ -46,7 +46,7 @@ ProberManager::~ProberManager() {
       prober_thread.join();
     }
 
-    for (int i = 0; i < prober_threads_.size(); i++) {
+    for (unsigned int i = 0; i < prober_threads_.size(); i++) {
       const std::string prober_name = probers_[i]->GetName();
       logger.Log(kLoggerLevel_Info, "Attempting to clean up prober: %s", prober_name.c_str());
 

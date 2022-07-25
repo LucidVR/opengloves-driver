@@ -1,20 +1,29 @@
-project(communication_services)
-
 add_library(communication_services STATIC
         communication_service.h
-        serial/service_serial.h
+
         bluetooth/service_bluetooth.h
-
-        bluetooth/service_bluetooth_linux.h
-        bluetooth/service_bluetooth_win.h
-
-        serial/service_serial_linux.h
-        serial/service_serial_win.h
-        serial/service_serial_win.cpp
+        serial/service_serial.h
         )
-
 set_target_properties(communication_services PROPERTIES LINKER_LANGUAGE CXX)
 
-target_include_directories(communication_services PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+if (WIN32)
+    target_sources(communication_services
+            PRIVATE
+            serial/service_serial_win.h
+            serial/service_serial_win.cpp
 
-target_link_libraries(communication_services communication-includes)
+            bluetooth/service_bluetooth_win.h
+            bluetooth/service_bluetooth_win.cpp
+            )
+elseif (UNIX AND NOT APPLE)
+    target_sources(communication_services
+            PRIVATE
+            bluetooth/service_bluetooth_linux.h
+
+            serial/service_serial_linux.h
+            )
+endif ()
+
+target_include_directories(communication_services PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
+
+target_link_libraries(communication_services)

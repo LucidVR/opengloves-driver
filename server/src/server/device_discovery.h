@@ -14,17 +14,12 @@ enum DeviceDiscoveryError {
 
 class DeviceDiscovery {
  public:
-  int StartDiscovery(std::function<void(std::unique_ptr<og::Device>* device)>& callback);
-
-  void DiscoveryProberThread();
-
-  int StopDiscovery();
+  DeviceDiscovery(std::function<void(std::unique_ptr<og::Device>* device)>& callback);
 
   ~DeviceDiscovery();
 
  private:
-  std::vector<std::unique_ptr<ICommunicationProber>> probers_;
-  std::vector<std::string> active_device_addresses_;
+  void OnDeviceDiscovered(std::unique_ptr<ICommunicationService> communication_service);
 
-  std::vector<std::thread> prober_threads_;
+  std::unique_ptr<ProberManager> prober_manager_;
 };

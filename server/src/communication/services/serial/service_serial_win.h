@@ -2,8 +2,9 @@
 
 #include <string>
 
-#include "services/communication_service.h"
-#include <windows.h>
+#include <Windows.h>
+
+#include "communication_service.h"
 
 class SerialCommunicationService : public ICommunicationService {
  public:

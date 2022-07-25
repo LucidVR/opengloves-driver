@@ -2,6 +2,8 @@
 
 SerialCommunicationService::SerialCommunicationService(const std::string &port_name) {
   port_name_ = port_name;
+
+  Connect();
 }
 
 int SerialCommunicationService::Connect() {
@@ -9,5 +11,5 @@ int SerialCommunicationService::Connect() {
 
   handle_ = CreateFile(port_name_.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
-  if(handle_ ==)
+  return 0;
 }

@@ -27,8 +27,20 @@ static const std::vector<ProberSearch> wanted_devices = {
     {"7523", "7524"}   // ch340
 };
 
-static std::unique_ptr<ICommunicationService> SerialDeviceFound(const std::string& port_name) {
-  return std::make_unique<SerialCommunicationService>(port_name);
+// tries to connect to a serial port, if the serial port is open then someone (probably us) is already connected to it. Prevents us rediscovering a
+// previously discovered device
+static bool SerialDeviceIsConnectable(const std::string& port_name) {
+  HANDLE handle = CreateFile(port_name.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+
+  if (handle == INVALID_HANDLE_VALUE) {
+    // handle is not connectable
+    return false;
+  }
+
+  // we connected to the handle. close so we can connect again properly.
+  CloseHandle(handle);
+
+  return true;
 }
 
 int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) {
@@ -66,8 +78,11 @@ int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommu
       DWORD type = 0;
 
       if ((RegQueryValueEx(device_registery_key, "PortName", NULL, &type, (LPBYTE)port_name, &port_name_size) == ERROR_SUCCESS) && (type == REG_SZ)) {
-        out_devices.emplace_back(SerialDeviceFound(port_name));
-        found_devices++;
+        if (SerialDeviceIsConnectable(port_name)) {
+          found_devices++;
+
+          out_devices.emplace_back(std::make_unique<SerialCommunicationService>(port_name));
+        }
 
         RegCloseKey(device_registery_key);
       }

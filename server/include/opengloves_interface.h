@@ -1,12 +1,13 @@
 #pragma once
 
+#include <array>
 #include <functional>
 #include <string>
 
 namespace og {
-
   enum Hand { kHandLeft, kHandRight };
 
+  // config structs
   struct BluetoothConfiguration {
     std::string name;
   };
@@ -28,7 +29,91 @@ namespace og {
     EncodingConfiguration encoding_configuration;
   };
 
-  class Device {};
+  // IO structs
+  struct Button {
+    float value;
+    bool pressed;
+  };
+
+  struct Joystick {
+    float x;
+    float y;
+    bool pressed;
+  };
+
+  struct Gesture {
+    bool activated;
+  };
+
+  struct InputInfoData {
+    int firmware_version;
+  };
+
+  // input data from device to server about buttons, joysticks, etc.
+  struct InputPeripheralData {
+    float flexion[5][4];
+    float splay[5];
+
+    Button trigger;
+    Button A;
+    Button B;
+    Button menu;
+    Button calibrate;
+
+    Joystick joystick;
+
+    Gesture grab;
+    Gesture pinch;
+  };
+
+  union InputData {
+    InputInfoData info;
+    InputPeripheralData peripheral;
+  };
+
+  enum InputDataType { kInputDataType_Invalid, kInputDataType_Info, kInputDataType_Peripheral };
+
+  // input data from glove to server
+  struct Input {
+    InputData data;
+    InputDataType type;
+  };
+
+  // force feedback output data from server to device
+  struct OutputForceFeedbackData {
+    int16_t thumb;
+    int16_t index;
+    int16_t middle;
+    int16_t ring;
+    int16_t pinky;
+  };
+
+  // haptic vibration output from server to device
+  struct OutputHapticData {
+    float duration;
+    float frequency;
+    float amplitude;
+  };
+
+  struct OutputFetchInfoData {};
+
+  union OutputData {
+    OutputFetchInfoData fetch_info;
+    OutputHapticData haptic_data;
+    OutputForceFeedbackData force_feedback_data;
+  };
+
+  enum OutputDataType { kOutputDataType_Empty, kOutputDataType_FetchInfo, kOutputDataType_Haptic, kOutputData_Type_ForceFeedback };
+
+  // output data from driver to glove
+  struct Output {
+    OutputDataType type;
+    OutputData data;
+  };
+
+  class Device {
+   public:
+  };
 
   class Server {
    public:
@@ -69,7 +154,6 @@ namespace og {
 
     template <typename... Args>
     void Log(LoggerLevel level, const char* format, Args... args) {
-
       const std::string message = StringFormat(format, args...);
 
       for (auto& callback : callbacks_) {
@@ -91,7 +175,7 @@ namespace og {
     static std::string StringFormat(const std::string& format, Args... args) {
       int size_s = std::snprintf(nullptr, 0, format.c_str(), args...) + 1;
       if (size_s <= 0) {
-        throw std::runtime_error("Error during formatting.");
+        return "unknown (bad formatting)";
       }
       auto size = static_cast<size_t>(size_s);
       auto buf = std::make_unique<char[]>(size);
