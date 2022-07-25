@@ -6,6 +6,6 @@ add_library(encoding_services STATIC
 
 set_target_properties(encoding_services PROPERTIES LINKER_LANGUAGE CXX)
 
-target_include_directories(encoding_services PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_include_directories(encoding_services PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
 target_link_libraries(encoding_services PRIVATE opengloves_server-includes)

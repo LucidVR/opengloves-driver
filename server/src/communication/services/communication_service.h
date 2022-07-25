@@ -23,7 +23,7 @@ class ICommunicationService {
 
   virtual int RawWrite(std::string buff) = 0;
 
-  virtual std::string GetAddress() = 0;
+  virtual void PurgeBuffer() = 0;
 
   virtual int Disconnect() = 0;
 

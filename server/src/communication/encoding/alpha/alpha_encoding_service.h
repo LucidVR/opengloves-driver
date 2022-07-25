@@ -62,6 +62,11 @@ enum AlphaEncodingKey {
 
   kAlphaEncodingKey_Info,
   kAlphaEncodingKey_Info_FWVersion,
+  kAlphaEncodingKey_Info_DeviceType,
+  kAlphaEncodingKey_Info_Hand,
+
+  kAlphaEncodingKey_Info_StartStreaming,
+  kAlphaEncodingKey_Info_StopStreaming,
 
   kAlphaEncodingKey_OutHapticFrequency,
   kAlphaEncodingKey_OutHapticDuration,
@@ -74,8 +79,8 @@ class AlphaEncodingService : public IEncodingService {
  public:
   AlphaEncodingService(const og::EncodingConfiguration& encoding_configuration);
 
-  og::Input DecodePacket(const std::string& buff);
-  std::string EncodePacket(const og::Output& output);
+  og::Input DecodePacket(const std::string& buff) override;
+  std::string EncodePacket(const og::Output& output) override;
 
  private:
   og::InputPeripheralData DecodePeripheralPacket(const std::map<AlphaEncodingKey, std::string>& input_map);

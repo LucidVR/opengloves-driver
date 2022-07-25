@@ -5,3 +5,4 @@ target_include_directories(communication-includes INTERFACE ${CMAKE_CURRENT_SOUR
 add_subdirectory(probers)
 add_subdirectory(services)
 add_subdirectory(encoding)
+add_subdirectory(managers)

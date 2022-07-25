@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <map>
+#include <stdexcept>
 
 static og::Logger& logger = og::Logger::GetInstance();
 
@@ -51,12 +52,18 @@ static const std::map<std::string, AlphaEncodingKey> alpha_encoding_input_key_st
     {"P", kAlphaEncodingKey_Trigger_Value},       // analog trigger value
 
     {"Z", kAlphaEncodingKey_Info},
-    {"(ZV)", kAlphaEncodingKey_Info_FWVersion},  // firmware version
-    {"", kAlphaEncodingKey_Max}                  // Junk key
+    {"(ZV)", kAlphaEncodingKey_Info_FWVersion},   // firmware version
+    {"(ZG)", kAlphaEncodingKey_Info_DeviceType},  // glove type (ie lucidgloves)
+    {"(ZH)", kAlphaEncodingKey_Info_Hand},        // hand (left/right)
+
+    {"", kAlphaEncodingKey_Max}  // Junk key
 };
 
 static const std::map<AlphaEncodingKey, std::string> alpha_encoding_output_key_strings{
     {kAlphaEncodingKey_Info, "Z"},
+
+    {"(ZA)", kAlphaEncodingKey_Info_StartStreaming},
+    {"(ZZ)", kAlphaEncodingKey_Info_StopStreaming},
 
     {kAlphaEncodingKey_ThumbCurl, "A"},   // thumb force feedback
     {kAlphaEncodingKey_IndexCurl, "B"},   // index force feedback
@@ -188,14 +195,22 @@ og::InputPeripheralData AlphaEncodingService::DecodePeripheralPacket(const std::
   result.menu.pressed = KeyInMap(kAlphaEncodingKey_Menu_Click, input_map);
   result.calibrate.pressed = KeyInMap(kAlphaEncodingKey_Calibration_Click, input_map);
 
+  if (result == og::InputPeripheralData{}) throw std::runtime_error("Peripheral packet was empty.");
+
   return result;
 }
 
 og::InputInfoData AlphaEncodingService::DecodeInfoPacket(const std::map<AlphaEncodingKey, std::string>& input_map) {
   og::InputInfoData result{};
 
-  if (KeyInMap(kAlphaEncodingKey_Info_FWVersion, input_map))  // get firwmare version
+  if (KeyInMap(kAlphaEncodingKey_Info_FWVersion, input_map))  // get firmware version
     result.firmware_version = std::stoi(input_map.at(kAlphaEncodingKey_Info_FWVersion));
+  if (KeyInMap(kAlphaEncodingKey_Info_DeviceType, input_map))  // device type (ie. lucidgloves)
+    result.device_type = (og::DeviceType)std::stoi(input_map.at(kAlphaEncodingKey_Info_DeviceType));
+  if (KeyInMap(kAlphaEncodingKey_Info_Hand, input_map))  // handedness (left/right)
+    result.hand = (og::Hand)std::stoi(input_map.at(kAlphaEncodingKey_Info_Hand));
+
+  if (result == og::InputInfoData{}) throw std::runtime_error("Info packet was empty.");
 
   return result;
 }
@@ -245,8 +260,13 @@ static std::string StringFormat(const std::string& format, Args... args) {
 std::string AlphaEncodingService::EncodePacket(const og::Output& output) {
   switch (output.type) {
     case og::kOutputDataType_FetchInfo: {
-      //"Z"
-      return StringFormat("%s", alpha_encoding_output_key_strings.at(kAlphaEncodingKey_Info).c_str());
+      const og::OutputFetchInfoData& data = output.data.fetch_info;
+      std::string result = "";
+
+      if (data.start_streaming) result += alpha_encoding_output_key_strings.at(kAlphaEncodingKey_Info_StartStreaming);
+      if (data.get_info) result += alpha_encoding_output_key_strings.at(kAlphaEncodingKey_Info);
+
+      return result;
     }
 
     case og::kOutputData_Type_ForceFeedback: {

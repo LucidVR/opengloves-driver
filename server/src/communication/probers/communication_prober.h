@@ -21,7 +21,7 @@ class ICommunicationProber {
 class ProberManager {
  public:
   ProberManager(std::function<void(std::unique_ptr<ICommunicationService> service)> device);
-
+  
   ~ProberManager();
 
  private:

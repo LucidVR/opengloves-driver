@@ -14,12 +14,16 @@ enum DeviceDiscoveryError {
 
 class DeviceDiscovery {
  public:
-  DeviceDiscovery(std::function<void(std::unique_ptr<og::Device>* device)>& callback);
+  DeviceDiscovery(const og::LegacyConfiguration& legacy_configuration, std::function<void(std::unique_ptr<og::Device> device)>& callback);
 
   ~DeviceDiscovery();
 
  private:
+  std::function<void(std::unique_ptr<og::Device> device)> callback_;
+
   void OnDeviceDiscovered(std::unique_ptr<ICommunicationService> communication_service);
 
   std::unique_ptr<ProberManager> prober_manager_;
+
+  og::LegacyConfiguration legacy_configuration_;
 };

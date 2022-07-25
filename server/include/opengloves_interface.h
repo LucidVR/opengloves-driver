@@ -31,26 +31,40 @@ namespace og {
 
   // IO structs
   struct Button {
+    auto operator<=>(const Button&) const = default;
     float value;
     bool pressed;
   };
 
   struct Joystick {
+    auto operator<=>(const Joystick&) const = default;
     float x;
     float y;
     bool pressed;
   };
 
   struct Gesture {
+    auto operator<=>(const Gesture&) const = default;
     bool activated;
   };
 
-  struct InputInfoData {
-    int firmware_version;
+  enum DeviceType {
+    kGloveType_lucidgloves,
   };
+
+  struct InputInfoData {
+    auto operator<=>(const InputInfoData&) const = default;
+    int firmware_version;
+    DeviceType device_type;
+    Hand hand;
+  };
+
+  typedef InputInfoData DeviceInfoData;
 
   // input data from device to server about buttons, joysticks, etc.
   struct InputPeripheralData {
+    auto operator<=>(const InputPeripheralData&) const = default;
+
     float flexion[5][4];
     float splay[5];
 
@@ -95,7 +109,10 @@ namespace og {
     float amplitude;
   };
 
-  struct OutputFetchInfoData {};
+  struct OutputFetchInfoData {
+    bool start_streaming;
+    bool get_info;
+  };
 
   union OutputData {
     OutputFetchInfoData fetch_info;
@@ -113,6 +130,9 @@ namespace og {
 
   class Device {
    public:
+    DeviceInfoData GetInfo();
+
+    void ListenForInput(std::function<void(InputPeripheralData data)> callback);
   };
 
   class Server {
