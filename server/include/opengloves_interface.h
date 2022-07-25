@@ -4,7 +4,10 @@
 #include <functional>
 #include <string>
 
+class CommunicationManager;
+
 namespace og {
+
   enum Hand { kHandLeft, kHandRight };
 
   // config structs
@@ -130,9 +133,17 @@ namespace og {
 
   class Device {
    public:
+    Device(DeviceInfoData info_data, std::unique_ptr<CommunicationManager> communication_manager);
+
     DeviceInfoData GetInfo();
 
-    void ListenForInput(std::function<void(InputPeripheralData data)> callback);
+    void ListenForInput(std::function<void(InputPeripheralData data)>& callback);
+
+   private:
+    std::unique_ptr<CommunicationManager> communication_manager_;
+    std::function<void(InputPeripheralData data)> callback_;
+
+    DeviceInfoData info_data_;
   };
 
   class Server {
@@ -148,7 +159,7 @@ namespace og {
     /***
      * Start looking for devices. The callback will be called for every new device found.
      */
-    int StartProber(std::function<void(Device* device)>);
+    int StartProber(std::function<void(std::unique_ptr<Device> device)>);
 
     int StopProber();
 

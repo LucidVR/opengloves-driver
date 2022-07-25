@@ -12,13 +12,11 @@ CommunicationManager::CommunicationManager(
   encoding_service_ = std::move(encoding_service);
 }
 
-void CommunicationManager::BeginListener(std::function<void(og::Input)>& callback) {
+void CommunicationManager::BeginListener(std::function<void(og::Input)> callback) {
   if (thread_active_) {
     logger.Log(kLoggerLevel_Warning, "Did not start communication listener as the listener was already active.");
     return;
   }
-
-  
 
   thread_active_ = true;
 
@@ -35,13 +33,11 @@ void CommunicationManager::CommunicationThread() {
 
     // now write information we might have
     queued_write_string += "\n";
-
     communication_service_->RawWrite(queued_write_string);
 
     if (queued_write_string != "\n")  // log any data we've sent to the device
       logger.Log(kLoggerLevel_Info, "Wrote data to device: %s", queued_write_string.c_str());
 
-    // clear the data
     queued_write_string.clear();
   }
 }

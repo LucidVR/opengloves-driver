@@ -11,7 +11,7 @@ class CommunicationManager {
  public:
   CommunicationManager(std::unique_ptr<ICommunicationService> communication_service, std::unique_ptr<IEncodingService> encoding_service);
 
-  void BeginListener(std::function<void(og::Input)>& callback);
+  void BeginListener(std::function<void(og::Input)> callback);
 
   ~CommunicationManager();
 
