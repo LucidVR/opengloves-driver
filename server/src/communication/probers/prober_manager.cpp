@@ -19,19 +19,20 @@ ProberManager::ProberManager(std::function<void(std::unique_ptr<ICommunicationSe
   is_active_ = true;
 
   for (auto& prober : probers_) {
-    prober_threads_.emplace_back(&ProberManager::ProberThread, prober);
+    std::thread thread = std::thread(&ProberManager::ProberThread, this, prober.get());
+    prober_threads_.emplace_back(std::move(thread));
 
     logger.Log(kLoggerLevel_Info, "Started prober: %s", prober->GetName().c_str());
   }
 }
 
-void ProberManager::ProberThread(std::unique_ptr<ICommunicationProber>& prober) {
+void ProberManager::ProberThread(ICommunicationProber* prober) {
   while (is_active_) {
     std::vector<std::unique_ptr<ICommunicationService>> services_found;
     prober->InquireDevices(services_found);
 
     for (auto& service : services_found) {
-      logger.Log(kLoggerLevel_Info, "Device discovered on %s with prober: %s", service->GetAddress().c_str(), prober->GetName().c_str());
+      logger.Log(kLoggerLevel_Info, "Device discovered with prober: %s", prober->GetName().c_str());
 
       callback_(std::move(service));
     }

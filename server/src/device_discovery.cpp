@@ -84,7 +84,7 @@ void DeviceDiscovery::OnDeviceDiscovered(std::unique_ptr<ICommunicationService> 
       std::unique_ptr<CommunicationManager> communication_manager =
           std::make_unique<CommunicationManager>(std::move(communication_service), std::move(encoding_service));
 
-      callback_(std::make_unique<og::Device>());
+     // callback_(std::make_unique<og::Device>());
     }
   }
 }

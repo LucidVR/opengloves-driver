@@ -25,7 +25,7 @@ class ProberManager {
   ~ProberManager();
 
  private:
-  void ProberThread(std::unique_ptr<ICommunicationProber>& prober);
+  void ProberThread(ICommunicationProber* prober);
 
   std::function<void(std::unique_ptr<ICommunicationService> service)> callback_;
 

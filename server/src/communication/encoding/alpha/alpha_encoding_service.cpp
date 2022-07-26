@@ -62,8 +62,8 @@ static const std::map<std::string, AlphaEncodingKey> alpha_encoding_input_key_st
 static const std::map<AlphaEncodingKey, std::string> alpha_encoding_output_key_strings{
     {kAlphaEncodingKey_Info, "Z"},
 
-    {"(ZA)", kAlphaEncodingKey_Info_StartStreaming},
-    {"(ZZ)", kAlphaEncodingKey_Info_StopStreaming},
+    {kAlphaEncodingKey_Info_StartStreaming, "(ZA)"},
+    {kAlphaEncodingKey_Info_StopStreaming, "(ZZ)"},
 
     {kAlphaEncodingKey_ThumbCurl, "A"},   // thumb force feedback
     {kAlphaEncodingKey_IndexCurl, "B"},   // index force feedback

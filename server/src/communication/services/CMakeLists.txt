@@ -26,4 +26,4 @@ endif ()
 
 target_include_directories(communication_services PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
-target_link_libraries(communication_services)
+target_link_libraries(communication_services opengloves_server-includes)

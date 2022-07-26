@@ -1,8 +1,9 @@
 #pragma once
 
-#include <string>
-
 #include <Windows.h>
+
+#include <atomic>
+#include <string>
 
 #include "communication_service.h"
 
@@ -10,15 +11,25 @@ class SerialCommunicationService : public ICommunicationService {
  public:
   explicit SerialCommunicationService(const std::string& port_name);
 
-  int ReceiveNextPacket(std::string& buff) override;
+  bool ReceiveNextPacket(std::string& buff) override;
+  bool RawWrite(const std::string& buff) override;
 
-  int Connect() override;
+  bool PurgeBuffer() override;
 
-  void AttachEventHandler(std::function<void(CommunicationServiceEvent event)> callback) override;
+  ~SerialCommunicationService();
 
  private:
+  bool CancelIO();
+
+  bool Connect();
+  bool Disconnect();
+
+  void LogError(const std::string&, bool with_win_error);
+
   std::string port_name_;
 
   HANDLE handle_;
-  bool is_connected_;
+  
+  std::atomic<bool> is_connected_ = false;
+  std::atomic<bool> is_disconnecting_ = false;
 };

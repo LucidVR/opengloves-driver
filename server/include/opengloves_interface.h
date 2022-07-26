@@ -5,6 +5,7 @@
 #include <string>
 
 class CommunicationManager;
+class DeviceDiscovery;
 
 namespace og {
 
@@ -154,7 +155,7 @@ namespace og {
      * Not calling this before starting to probe for devices is fine, but means that any devices running firmware
      * where we can't get data from them will be dropped.
      */
-    void SetLegacyConfiguration(const LegacyConfiguration& configuration);
+    void SetLegacyConfiguration(const LegacyConfiguration&);
 
     /***
      * Start looking for devices. The callback will be called for every new device found.
@@ -166,6 +167,9 @@ namespace og {
     ~Server();
 
    private:
+    std::function<void(std::unique_ptr<Device> device)> callback_;
+
+    std::unique_ptr<DeviceDiscovery> device_discovery_;
     LegacyConfiguration legacy_configuration_;
   };
 

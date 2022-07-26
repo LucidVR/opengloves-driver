@@ -7,7 +7,10 @@ class BluetoothCommunicationProber : public ICommunicationProber {
   BluetoothCommunicationProber() = default;
 
   int InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) override;
-  std::string GetName() override;
+
+  std::string GetName() override {
+    return "bluetooth";
+  }
 
  private:
   std::function<void(std::unique_ptr<ICommunicationService>)> callback_;

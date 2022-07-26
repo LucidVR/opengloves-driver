@@ -1,3 +1,5 @@
+#pragma once
+
 #include "opengloves_interface.h"
 
 class IEncodingService {

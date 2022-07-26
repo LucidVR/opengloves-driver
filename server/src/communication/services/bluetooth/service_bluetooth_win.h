@@ -3,6 +3,7 @@
 #include <WinSock2.h>
 #include <bluetoothapis.h>
 
+#include <atomic>
 
 #include "communication_service.h"
 
@@ -10,24 +11,23 @@ class BluetoothCommunicationService : public ICommunicationService {
  public:
   explicit BluetoothCommunicationService(BTH_ADDR bt_address);
 
-  int Connect() override {
-    return 0;
-  }
+  bool ReceiveNextPacket(std::string& buff) override;
+  bool RawWrite(const std::string& buff) override;
 
-  void AttachEventHandler(std::function<void(CommunicationServiceEvent event)> callback){};
+  bool PurgeBuffer() override;
 
-  int ReceiveNextPacket(std::string& buff) {
-    return 0;
-  };
-
-  std::string GetAddress() {
-    return "";
-  }
-
-  int Disconnect() {
-    return 0;
-  }
+  ~BluetoothCommunicationService();
 
  private:
+  bool Connect();
+  bool Disconnect();
+
+  void LogError(const std::string&, bool with_win_error);
+
   BTH_ADDR bt_address_;
+
+  SOCKET sock_;
+
+  std::atomic<bool> is_connected_;
+  std::atomic<bool> is_disconnecting_;
 };
