@@ -19,7 +19,9 @@ using namespace og;
 
 static Logger& logger = Logger::GetInstance();
 
-static const std::vector<std::string> find_device_names = {"lucidgloves", "lucidgloves-left", "lucigloves-right"};
+BluetoothCommunicationProber::BluetoothCommunicationProber(std::vector<std::string> wanted_devices) {
+  wanted_devices_ = wanted_devices;
+}
 
 static bool BluetoothDeviceIsConnectable(const BTH_ADDR& bt_address) {
   SOCKET sock = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
@@ -60,7 +62,7 @@ int BluetoothCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICo
   int dev_found = 0;
 
   do {
-    for (const auto& find_device_name : find_device_names) {
+    for (const auto& find_device_name : wanted_devices_) {
       const auto wfind_device_name = std::wstring(find_device_name.begin(), find_device_name.end());
       const WCHAR* wcharfind_device_name = const_cast<WCHAR*>(wfind_device_name.c_str());
 

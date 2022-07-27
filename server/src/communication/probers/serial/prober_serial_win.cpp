@@ -14,18 +14,9 @@
 #include <string>
 #include <vector>
 
-struct ProberSearch {
-  auto operator<=>(const ProberSearch&) const = default;
-
-  std::string vid;
-  std::string pid;
-};
-
-// what vids and pids to search for
-static const std::vector<ProberSearch> wanted_devices = {
-    {"10C4", "EA60"},  // cp2102
-    {"7523", "7524"}   // ch340
-};
+SerialCommunicationProber::SerialCommunicationProber(const std::vector<SerialProberSearchParam>& params) {
+  params_ = params;
+}
 
 // tries to connect to a serial port, if the serial port is open then someone (probably us) is already connected to it. Prevents us rediscovering a
 // previously discovered device
@@ -63,9 +54,9 @@ int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommu
             device_info_set, &device_info_data, SPDRP_HARDWAREID, &property_type, (BYTE*)property_buff, sizeof(property_buff), &dwSize)) {
       // extract pid and vid from the property and check if it's an available device
       std::stringstream fmt;
-      ProberSearch search;
+      SerialProberSearchParam search;
       fmt << "VID_" << search.vid << ".PID_" << search.pid;
-      if (!(std::find(wanted_devices.begin(), wanted_devices.end(), search) != wanted_devices.end())) continue;
+      if (!(std::find(params_.begin(), params_.end(), search) != params_.end())) continue;
 
       HKEY device_registery_key = SetupDiOpenDevRegKey(device_info_set, &device_info_data, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
       if (device_registery_key == INVALID_HANDLE_VALUE) {

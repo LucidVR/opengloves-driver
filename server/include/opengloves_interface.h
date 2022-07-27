@@ -5,7 +5,7 @@
 #include <string>
 
 class CommunicationManager;
-class DeviceDiscovery;
+class DeviceDiscoverer;
 
 namespace og {
 
@@ -169,7 +169,8 @@ namespace og {
    private:
     std::function<void(std::unique_ptr<Device> device)> callback_;
 
-    std::unique_ptr<DeviceDiscovery> device_discovery_;
+    std::vector<std::unique_ptr<DeviceDiscoverer>> device_discoverers_;
+
     LegacyConfiguration legacy_configuration_;
   };
 

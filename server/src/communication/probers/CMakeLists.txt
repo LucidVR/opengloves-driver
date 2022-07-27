@@ -1,11 +1,9 @@
 add_library(communication_probers STATIC
         communication_prober.h
-        prober_manager.cpp
 
         serial/prober_serial.h
         bluetooth/prober_bluetooth.h
         )
-
 set_target_properties(communication_probers PROPERTIES LINKER_LANGUAGE CXX)
 
 if (WIN32)
@@ -29,6 +27,7 @@ elseif (UNIX AND NOT APPLE)
             bluetooth/prober_bluetooth_linux.cpp
             )
 endif ()
+
 target_include_directories(communication_probers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 target_link_libraries(communication_probers PRIVATE communication_services)
 target_link_libraries(communication_probers PUBLIC communication-includes opengloves_server-includes)

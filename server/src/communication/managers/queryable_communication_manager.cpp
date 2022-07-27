@@ -1,5 +1,9 @@
-#include "communication_manager.h"
+/**
+ * A communication manager that manages a resources that can be queried and writes to/from the device in strings using an encoding scheme. Ie.
+ * Bluetooth, Serial, etc. But **NOT** ipc methods like named pipes.
+ */
 
+#include "communication_manager.h"
 #include "opengloves_interface.h"
 
 using namespace og;

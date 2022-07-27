@@ -17,20 +17,3 @@ class ICommunicationProber {
   // Get a pretty name for the prober
   virtual std::string GetName() = 0;
 };
-
-class ProberManager {
- public:
-  ProberManager(std::function<void(std::unique_ptr<ICommunicationService> service)> device);
-  
-  ~ProberManager();
-
- private:
-  void ProberThread(ICommunicationProber* prober);
-
-  std::function<void(std::unique_ptr<ICommunicationService> service)> callback_;
-
-  std::vector<std::unique_ptr<ICommunicationProber>> probers_;
-  std::vector<std::thread> prober_threads_;
-
-  std::atomic<bool> is_active_;
-};

@@ -1,26 +1,53 @@
-#include "device_discovery.h"
+#include "lucidgloves_fw_discovery.h"
 
-#include "alpha/alpha_encoding_service.h"
-#include "communication_manager.h"
-#include "encoding_service.h"
-#include "opengloves_interface.h"
+#include <chrono>
+
+#include "encoding/alpha/alpha_encoding_service.h"
+#include "probers/bluetooth/prober_bluetooth.h"
+#include "probers/serial/prober_serial.h"
+#include "managers/communication_manager.h"
 
 using namespace og;
 
 static Logger& logger = Logger::GetInstance();
 
-DeviceDiscovery::DeviceDiscovery(
-    const og::LegacyConfiguration& legacy_configuration, std::function<void(std::unique_ptr<og::Device> device)>& callback) {
-  callback_ = callback;
+static const std::vector<SerialProberSearchParam> lucidgloves_serial_ids = {
+    {"10C4", "EA60"},  // cp2102
+    {"7523", "7524"}   // ch340
+};
+static const std::vector<std::string> lucidgloves_bt_ids = {"lucidgloves", "lucidgloves-left", "lucidgloves-right"};
 
-  prober_manager_ = std::make_unique<ProberManager>(
-      [&](std::unique_ptr<ICommunicationService> communication_service) { OnDeviceDiscovered(std::move(communication_service)); });
-
+LucidglovesDeviceDiscoverer::LucidglovesDeviceDiscoverer(const og::LegacyConfiguration& legacy_configuration) {
   legacy_configuration_ = legacy_configuration;
 }
 
-void DeviceDiscovery::OnDeviceDiscovered(std::unique_ptr<ICommunicationService> communication_service) {
-  // assume alpha encoding
+void LucidglovesDeviceDiscoverer::StartDiscovery(std::function<void(std::unique_ptr<og::Device> device)> callback) {
+  callback_ = callback;
+
+  // setup queryable device discoverers
+  queryable_probers_.emplace_back(std::make_unique<SerialCommunicationProber>(lucidgloves_serial_ids));
+  queryable_probers_.emplace_back(std::make_unique<BluetoothCommunicationProber>(lucidgloves_bt_ids));
+
+  for (auto& prober : queryable_probers_) {
+    std::thread prober_thread = std::thread(&LucidglovesDeviceDiscoverer::QueryableProberThread, this, prober.get());
+  }
+}
+
+void LucidglovesDeviceDiscoverer::QueryableProberThread(ICommunicationProber* prober) {
+  while (is_active_) {
+    std::vector<std::unique_ptr<ICommunicationService>> found_services;
+
+    for (auto& service : found_services) {
+      logger.Log(kLoggerLevel_Info, "Device discovered with prober: %s", prober->GetName().c_str());
+
+      OnQueryableDeviceFound(std::move(service));
+    }
+  }
+}
+
+void LucidglovesDeviceDiscoverer::OnQueryableDeviceFound(std::unique_ptr<ICommunicationService> communication_service) {
+  std::lock_guard<std::mutex> lock(device_found_mutex_);
+
   std::unique_ptr<IEncodingService> encoding_service = std::make_unique<AlphaEncodingService>(legacy_configuration_.encoding_configuration);
 
   Output fetch_info_output = {
@@ -77,14 +104,14 @@ void DeviceDiscovery::OnDeviceDiscovered(std::unique_ptr<ICommunicationService> 
   // eventually we want this to be able to perform custom device-based logic
   switch (device_info.device_type) {
     default:
-      logger.Log(og::kLoggerLevel_Warning, "Device does not support fetching info. setting device type to lucidgloves.");
+      logger.Log(og::kLoggerLevel_Warning, "Device does not support fetching info from lucidgloves firmware. setting device type to lucidgloves.");
     case og::kGloveType_lucidgloves: {
       logger.Log(og::kLoggerLevel_Info, "Setting up lucidgloves device");
 
       std::unique_ptr<CommunicationManager> communication_manager =
           std::make_unique<CommunicationManager>(std::move(communication_service), std::move(encoding_service));
 
-     // callback_(std::make_unique<og::Device>());
+      // callback_(std::make_unique<og::Device>());
     }
   }
 }

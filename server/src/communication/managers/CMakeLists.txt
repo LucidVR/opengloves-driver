@@ -1,4 +1,4 @@
-add_library(communication_managers STATIC communication_manager.h communication_manager.cpp)
+add_library(communication_managers STATIC communication_manager.h queryable_communication_manager.cpp)
 
 target_include_directories(communication_managers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 

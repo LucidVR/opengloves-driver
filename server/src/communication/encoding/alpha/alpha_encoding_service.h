@@ -1,6 +1,8 @@
+#pragma once
+
 #include <map>
 
-#include "encoding_service.h"
+#include "encoding/encoding_service.h"
 #include "opengloves_interface.h"
 
 enum AlphaEncodingKey {

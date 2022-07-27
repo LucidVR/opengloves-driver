@@ -1,10 +1,13 @@
 #pragma once
 
-#include "communication_prober.h"
+#include <string>
+#include <vector>
+
+#include "probers/communication_prober.h"
 
 class BluetoothCommunicationProber : public ICommunicationProber {
  public:
-  BluetoothCommunicationProber() = default;
+  BluetoothCommunicationProber(std::vector<std::string> wanted_devices);
 
   int InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) override;
 
@@ -14,4 +17,6 @@ class BluetoothCommunicationProber : public ICommunicationProber {
 
  private:
   std::function<void(std::unique_ptr<ICommunicationService>)> callback_;
+
+  std::vector<std::string> wanted_devices_;
 };
