@@ -3,9 +3,9 @@
 #include <chrono>
 
 #include "encoding/alpha/alpha_encoding_service.h"
+#include "managers/communication_manager.h"
 #include "probers/bluetooth/prober_bluetooth.h"
 #include "probers/serial/prober_serial.h"
-#include "managers/communication_manager.h"
 
 using namespace og;
 
@@ -114,4 +114,22 @@ void LucidglovesDeviceDiscoverer::OnQueryableDeviceFound(std::unique_ptr<ICommun
       // callback_(std::make_unique<og::Device>());
     }
   }
+}
+
+void LucidglovesDeviceDiscoverer::StopDiscovery() {
+  if (is_active_.exchange(false)) {
+    for (unsigned int i = 0; i < queryable_probers_.size(); i++) {
+      const std::string prober_name = queryable_probers_[i]->GetName();
+      logger.Log(kLoggerLevel_Info, "Attempting to clean up prober: %s", prober_name.c_str());
+
+      queryable_prober_threads_[i].join();
+      queryable_probers_[i].reset();
+
+      logger.Log(kLoggerLevel_Info, "Cleaned up prober: %s", prober_name.c_str());
+    }
+  }
+}
+
+LucidglovesDeviceDiscoverer::~LucidglovesDeviceDiscoverer() {
+  StopDiscovery();
 }

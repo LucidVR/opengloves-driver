@@ -3,6 +3,8 @@
 
 using namespace og;
 
+static Logger& logger = Logger::GetInstance();
+
 Device::Device(DeviceInfoData info_data, std::unique_ptr<CommunicationManager> communication_manager) {
   communication_manager_ = std::move(communication_manager);
 
@@ -21,4 +23,11 @@ void Device::ListenForInput(std::function<void(InputPeripheralData data)>& callb
       callback_(data.data.peripheral);
     }
   });
+}
+
+Device::~Device() {
+  logger.Log(kLoggerLevel_Info, "Attempting to clean up communication manager...");
+  communication_manager_.reset();
+
+  logger.Log(kLoggerLevel_Info, "Successfully cleaned up communication manager");
 }

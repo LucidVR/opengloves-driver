@@ -140,6 +140,8 @@ namespace og {
 
     void ListenForInput(std::function<void(InputPeripheralData data)>& callback);
 
+    ~Device();
+
    private:
     std::unique_ptr<CommunicationManager> communication_manager_;
     std::function<void(InputPeripheralData data)> callback_;

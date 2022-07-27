@@ -1,5 +1,5 @@
 #pragma once
 
-#include "../communication_prober.h"
+#include "communication_prober.h"
 
-class BluetoothProber : CommunicationProber {};
+class BluetoothProber : ICommunicationProber {};

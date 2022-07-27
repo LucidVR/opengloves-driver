@@ -2,4 +2,4 @@ add_library(device_discoverers STATIC device_discovery.h lucidgloves_fw_discover
 
 target_include_directories(device_discoverers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
-target_link_libraries(device_discoverers PRIVATE opengloves_server-includes communication-includes)
+target_link_libraries(device_discoverers PRIVATE opengloves_server-includes communication-includes encoding_services communication_probers communication_services communication_managers)

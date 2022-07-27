@@ -3,9 +3,9 @@
 #include <thread>
 #include <atomic>
 
-#include "encoding/encoding_service.h"
+#include "encoding_service.h"
 #include "opengloves_interface.h"
-#include "services/communication_service.h"
+#include "communication_service.h"
 
 class CommunicationManager {
  public:

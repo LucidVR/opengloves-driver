@@ -48,6 +48,9 @@ void CommunicationManager::CommunicationThread() {
 
 CommunicationManager::~CommunicationManager() {
   if (thread_active_.exchange(false)) {
+    logger.Log(kLoggerLevel_Info, "Attempting to cleanup communication thread...");
     communication_thread_.join();
+
+    logger.Log(kLoggerLevel_Info, "Successfully cleaned up communication thread");
   }
 }

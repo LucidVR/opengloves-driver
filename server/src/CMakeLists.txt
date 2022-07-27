@@ -1,7 +1,7 @@
 add_subdirectory(communication)
 add_subdirectory(device)
 
-add_library(opengloves_server STATIC opengloves_server.cpp opengloves_device.cpp)
+add_library(opengloves_server STATIC opengloves_server.cpp)
 
 target_include_directories(opengloves_server PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
 
