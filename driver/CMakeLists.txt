@@ -6,43 +6,33 @@ project("opengloves_openvr_driver")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # driver setup
-set(DRIVER_NAME "driver_opengloves")
+set(DRIVER_NAME "opengloves")
 set(OPENGLOVES_PROJECT "driver_${DRIVER_NAME}")
 
-# get commit hash
-execute_process(
-        COMMAND git rev-parse --abbrev-ref HEAD
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        OUTPUT_VARIABLE GIT_BRANCH
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
-execute_process(
-        COMMAND git rev-parse HEAD
-        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
-        OUTPUT_VARIABLE GIT_COMMIT_HASH
-        OUTPUT_STRIP_TRAILING_WHITESPACE)
+add_library("${OPENGLOVES_PROJECT}" SHARED src/driver_factory.cpp)
+add_subdirectory(src)
 
+#openvr
+set(OPENVR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/headers")
+find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH)
 
-#
-## openvr
-#set(OPENVR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/headers")
-#find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH)
-#target_include_directories(${OPENGLOVES_PROJECT} PUBLIC "${OPENVR_INCLUDE_DIR}")
-#target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC "${OPENVR_LIB}")
-#
-## tinygltf
-#set(TINYGLTF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/tinygltf")
-#target_include_directories(${OPENGLOVES_PROJECT} PUBLIC "${TINYGLTF_INCLUDE_DIR}")
-#
+add_library(openvr-includes INTERFACE)
+target_include_directories(openvr-includes INTERFACE "${OPENVR_INCLUDE_DIR}")
+
+target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC "${OPENVR_LIB}" openvr-includes)
+
+#tinygltf
+set(TINYGLTF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/tinygltf")
+target_include_directories(${OPENGLOVES_PROJECT} PUBLIC "${TINYGLTF_INCLUDE_DIR}")
+
 ## opengloves
-#target_include_directories(${OPENGLOVES_PROJECT} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
-#target_compile_definitions(${OPENGLOVES_PROJECT} PRIVATE
-#        "-DGIT_COMMIT_HASH=\"${GIT_COMMIT_HASH}\"")
-#
-#
-#if (WIN32)
-#    target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC setupapi wsock32 ws2_32 bthprops)
-#endif ()
-#
+target_include_directories(${OPENGLOVES_PROJECT} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
+
+target_link_libraries(${OPENGLOVES_PROJECT} PRIVATE opengloves_server)
+
+
+target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC driver_factory)
+
 ## Copy driver assets to output folder
 #add_custom_command(
 #        TARGET ${OPENGLOVES_PROJECT}

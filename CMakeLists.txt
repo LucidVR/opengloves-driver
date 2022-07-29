@@ -3,13 +3,18 @@ set(CMAKE_CXX_STANDARD 20)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
+project(opengloves)
+
 # platform
-set(SIZEOF_VOIDP ${CMAKE_SIZEOF_VOID_P})
-if (CMAKE_SIZEOF_VOID_P EQUAL 8)
-    set(PROCESSOR_ARCH "64")
-elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
-    set(PROCESSOR_ARCH "32")
-endif ()
+if(NOT PLATFORM)
+    if(CMAKE_SIZEOF_VOID_P MATCHES 8)
+        set(PROCESSOR_ARCH 64)
+    else()
+        set(PROCESSOR_ARCH 32)
+    endif()
+endif()
+message(STATUS "Compilation set for ${PROCESSOR_ARCH}bits architectures.")
+
 
 if (WIN32)
     set(PLATFORM_NAME "win")

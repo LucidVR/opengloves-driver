@@ -1,0 +1,4 @@
+add_library(device_providers STATIC hook_device_provider.h hook_device_provider.cpp physical_device_provider.h physical_device_provider.cpp)
+
+target_link_libraries(device_providers PRIVATE openvr-includes)
+target_include_directories(device_providers PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")

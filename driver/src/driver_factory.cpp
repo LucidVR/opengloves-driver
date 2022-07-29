@@ -1,8 +1,7 @@
-#include <openvr_driver.h>
-
 #include <cstring>
 
-#include "device_provider.h"
+#include "device_providers/physical_device_provider.h"
+#include "openvr_driver.h"
 #include "util/driver_log.h"
 
 #if defined(_WIN32)
@@ -15,12 +14,12 @@
 #error "Unsupported Platform."
 #endif
 
-DeviceProvider device_provider;
+PhysicalDeviceProvider physical_device_provider;  // only physical devices supported right now
 
 HMD_DLL_EXPORT
 void* HmdDriverFactory(const char* interfaceName, int* returnCode) {
   if (strcmp(vr::IServerTrackedDeviceProvider_Version, interfaceName) == 0) {
-    return &device_provider;
+    return &physical_device_provider;
   }
 
   DriverLog("HmdDriverFactory called for %s", interfaceName);
