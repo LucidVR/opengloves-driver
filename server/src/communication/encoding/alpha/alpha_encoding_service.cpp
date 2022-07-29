@@ -235,6 +235,7 @@ og::Input AlphaEncodingService::DecodePacket(const std::string& buff) {
 
   } catch (const std::exception& ex) {
     logger.Log(og::kLoggerLevel_Error, "Failed to parse data with alpha encoding: %s", ex.what());
+    logger.Log(og::kLoggerLevel_Info, "Packet that failed: %s", buff.c_str());
 
     result.type = og::kInputDataType_Invalid;
     return result;
