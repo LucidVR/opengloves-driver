@@ -5,15 +5,15 @@ using namespace og;
 
 static Logger& logger = Logger::GetInstance();
 
-void Server::SetLegacyConfiguration(const LegacyConfiguration& legacy_configuration) {
-  legacy_configuration_ = legacy_configuration;
+void Server::SetDefaultConfiguration(const og::DeviceDefaultConfiguration& configuration) {
+  default_configuration_ = configuration;
 }
 
 int Server::StartProber(std::function<void(std::unique_ptr<Device> device)> callback) {
   callback_ = callback;
 
   // lucidgloves firmware discovery (or other firmwares that use the same communication methods and encoding schemes)
-  device_discoverers_.emplace_back(std::make_unique<LucidglovesDeviceDiscoverer>(legacy_configuration_));
+  device_discoverers_.emplace_back(std::make_unique<LucidglovesDeviceDiscoverer>(default_configuration_));
 
   for (auto& discoverer : device_discoverers_) {
     discoverer->StartDiscovery(callback);

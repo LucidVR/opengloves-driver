@@ -2,6 +2,7 @@
 
 #include <array>
 #include <functional>
+#include <map>
 #include <string>
 
 class CommunicationManager;
@@ -24,13 +25,15 @@ namespace og {
     unsigned int max_analog_value;
   };
 
-  struct LegacyConfiguration {
+  struct DeviceLegacyConfiguration {
     Hand hand;
 
     SerialConfiguration serial_configuration;
     BluetoothConfiguration bluetooth_configuration;
+  };
 
-    EncodingConfiguration encoding_configuration;
+  struct DeviceDefaultConfiguration {
+    struct EncodingConfiguration encoding_configuration;
   };
 
   // IO structs
@@ -151,13 +154,10 @@ namespace og {
 
   class Server {
    public:
-    /**
-     * Used to provide legacy configuration values (explicitly setting comm ports, bluetooth name, encoding, etc.)
-     * Not needed for newer versions of the firmware.
-     * Not calling this before starting to probe for devices is fine, but means that any devices running firmware
-     * where we can't get data from them will be dropped.
+    /***
+     * Sets the default configuration to fall back to when a device cannot communicate its configuration.
      */
-    void SetLegacyConfiguration(const LegacyConfiguration&);
+    void SetDefaultConfiguration(const DeviceDefaultConfiguration& configuration);
 
     /***
      * Start looking for devices. The callback will be called for every new device found.
@@ -173,7 +173,7 @@ namespace og {
 
     std::vector<std::unique_ptr<DeviceDiscoverer>> device_discoverers_;
 
-    LegacyConfiguration legacy_configuration_;
+    DeviceDefaultConfiguration default_configuration_;
   };
 
   enum LoggerLevel { kLoggerLevel_Info, kLoggerLevel_Warning, kLoggerLevel_Error };

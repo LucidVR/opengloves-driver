@@ -13,7 +13,7 @@
 
 class LucidglovesDeviceDiscoverer : public DeviceDiscoverer {
  public:
-  LucidglovesDeviceDiscoverer(const og::LegacyConfiguration& legacy_configuration);
+  LucidglovesDeviceDiscoverer(const og::DeviceDefaultConfiguration& default_configuration);
 
   void StartDiscovery(std::function<void(std::unique_ptr<og::Device> device)> callback);
 
@@ -34,5 +34,5 @@ class LucidglovesDeviceDiscoverer : public DeviceDiscoverer {
 
   std::atomic<bool> is_active_;
 
-  og::LegacyConfiguration legacy_configuration_;
+  og::DeviceDefaultConfiguration default_configuration_;
 };

@@ -1,4 +1,3 @@
-add_library(device_providers STATIC hook_device_provider.h hook_device_provider.cpp physical_device_provider.h physical_device_provider.cpp)
-
-target_link_libraries(device_providers PRIVATE openvr-includes)
+add_library(device_providers STATIC physical_device_provider.h physical_device_provider.cpp hook_device_provider.h hook_device_provider.cpp)
 target_include_directories(device_providers PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
+target_link_libraries(device_providers PRIVATE opengloves_server-includes opengloves_server openvr-includes driver-includes driver_utils device_configuration)

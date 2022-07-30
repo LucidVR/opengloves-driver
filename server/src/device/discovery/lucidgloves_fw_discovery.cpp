@@ -17,8 +17,8 @@ static const std::vector<SerialProberSearchParam> lucidgloves_serial_ids = {
 };
 static const std::vector<std::string> lucidgloves_bt_ids = {"lucidgloves", "lucidgloves-left", "lucidgloves-right"};
 
-LucidglovesDeviceDiscoverer::LucidglovesDeviceDiscoverer(const og::LegacyConfiguration& legacy_configuration) {
-  legacy_configuration_ = legacy_configuration;
+LucidglovesDeviceDiscoverer::LucidglovesDeviceDiscoverer(const og::DeviceDefaultConfiguration& default_configuration) {
+  default_configuration_ = default_configuration;
 }
 
 void LucidglovesDeviceDiscoverer::StartDiscovery(std::function<void(std::unique_ptr<og::Device> device)> callback) {
@@ -48,7 +48,7 @@ void LucidglovesDeviceDiscoverer::QueryableProberThread(ICommunicationProber* pr
 void LucidglovesDeviceDiscoverer::OnQueryableDeviceFound(std::unique_ptr<ICommunicationService> communication_service) {
   std::lock_guard<std::mutex> lock(device_found_mutex_);
 
-  std::unique_ptr<IEncodingService> encoding_service = std::make_unique<AlphaEncodingService>(legacy_configuration_.encoding_configuration);
+  std::unique_ptr<IEncodingService> encoding_service = std::make_unique<AlphaEncodingService>(default_configuration_.encoding_configuration);
 
   Output fetch_info_output = {
       .type = kOutputDataType_FetchInfo,
