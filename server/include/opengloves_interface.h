@@ -154,6 +154,8 @@ namespace og {
 
   class Server {
    public:
+    Server();
+
     /***
      * Sets the default configuration to fall back to when a device cannot communicate its configuration.
      */
@@ -186,7 +188,7 @@ namespace og {
       return instance;
     };
 
-    void SubscribeToLogger(std::function<void(const std::string& message, LoggerLevel level)>& callback) {
+    void SubscribeToLogger(std::function<void(const std::string& message, LoggerLevel level)> callback) {
       callbacks_.emplace_back(callback);
     }
 

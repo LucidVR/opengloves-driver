@@ -32,20 +32,20 @@ target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC opengloves_server-includes de
 target_link_libraries(${OPENGLOVES_PROJECT} PRIVATE opengloves_server)
 
 
-## Copy driver assets to output folder
-#add_custom_command(
-#        TARGET ${OPENGLOVES_PROJECT}
-#        PRE_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E copy_directory
-#        ${CMAKE_SOURCE_DIR}/${DRIVER_NAME}
-#        $<TARGET_FILE_DIR:${OPENGLOVES_PROJECT}>/${DRIVER_NAME}
-#)
-#
-## Copy dll to output folder
-#add_custom_command(
-#        TARGET ${OPENGLOVES_PROJECT}
-#        POST_BUILD
-#        COMMAND ${CMAKE_COMMAND} -E copy
-#        $<TARGET_FILE:${OPENGLOVES_PROJECT}>
-#        $<TARGET_FILE_DIR:${OPENGLOVES_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${OPENGLOVES_PROJECT}>
-#)
+# Copy driver assets to output folder
+add_custom_command(
+        TARGET ${OPENGLOVES_PROJECT}
+        PRE_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_SOURCE_DIR}/${DRIVER_NAME}
+        $<TARGET_FILE_DIR:${OPENGLOVES_PROJECT}>/${DRIVER_NAME}
+)
+
+# Copy dll to output folder
+add_custom_command(
+        TARGET ${OPENGLOVES_PROJECT}
+        POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:${OPENGLOVES_PROJECT}>
+        $<TARGET_FILE_DIR:${OPENGLOVES_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${OPENGLOVES_PROJECT}>
+)

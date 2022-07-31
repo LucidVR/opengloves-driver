@@ -4,13 +4,7 @@
 #include "driver_log.h"
 
 vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
-  const vr::EVRInitError err = vr::InitServerDriverContext(pDriverContext);
-
-  if (err != vr::VRInitError_None) {
-    DriverLog("Failed to initialise server driver context! Error: %i", err);
-
-    return err;
-  }
+  VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
 
   if (!InitDriverLog(vr::VRDriverLog())) {
     DriverLog("Failed to initialise driver logs!");
@@ -20,10 +14,28 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
 
   DebugDriverLog("OpenGloves is running in DEBUG MODE");
 
-  // initialise opengloves
- // ogserver_ = std::make_unique<og::Server>();
+  static og::Logger& logger = og::Logger::GetInstance();
+  logger.SubscribeToLogger([&](const std::string& message, og::LoggerLevel log_level) {
+    std::string str_level;
+    switch (log_level) {
+      case og::LoggerLevel::kLoggerLevel_Info:
+        str_level = "Info";
+        break;
+      case og::LoggerLevel::kLoggerLevel_Warning:
+        str_level = "Warning";
+        break;
+      case og::LoggerLevel::kLoggerLevel_Error:
+        str_level = "ERROR";
+        break;
+    }
 
- // ogserver_->SetLegacyConfiguration(GetDriverLegacyConfiguration(vr::TrackedControllerRole_LeftHand));
+    DriverLog("server %s: %s", str_level.c_str(), message.c_str());
+  });
+
+  // initialise opengloves
+  ogserver_ = std::make_unique<og::Server>();
+
+  ogserver_->SetDefaultConfiguration(GetDriverLegacyConfiguration(vr::TrackedControllerRole_LeftHand));
 
   return vr::VRInitError_None;
 }

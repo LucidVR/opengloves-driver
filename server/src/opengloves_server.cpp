@@ -5,6 +5,8 @@ using namespace og;
 
 static Logger& logger = Logger::GetInstance();
 
+Server::Server() : device_discoverers_(), default_configuration_() {}
+
 void Server::SetDefaultConfiguration(const og::DeviceDefaultConfiguration& configuration) {
   default_configuration_ = configuration;
 }

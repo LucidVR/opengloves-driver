@@ -26,13 +26,9 @@ static void GetAlphaEncodingSettings(const vr::ETrackedControllerRole role, og::
   out_configuration.max_analog_value = settings_helper.GetInt32(k_alpha_encoding_settings_section, "max_analog_value");
 }
 
-og::LegacyConfiguration GetDriverLegacyConfiguration(const vr::ETrackedControllerRole role) {
-  og::LegacyConfiguration result;
+og::DeviceDefaultConfiguration GetDriverLegacyConfiguration(const vr::ETrackedControllerRole role) {
+  og::DeviceDefaultConfiguration result{};
 
-  result.hand = role == vr::TrackedControllerRole_LeftHand ? og::kHandLeft : og::kHandRight;
-
-  GetBluetoothSerialSettings(role, result.bluetooth_configuration);
-  GetSerialSettings(role, result.serial_configuration);
   GetAlphaEncodingSettings(role, result.encoding_configuration);
 
   return result;
