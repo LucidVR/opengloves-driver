@@ -24,6 +24,5 @@ elseif (UNIX AND NOT APPLE)
             )
 endif ()
 
-target_include_directories(communication_services PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-
-target_link_libraries(communication_services opengloves_server-includes)
+target_link_libraries(communication_services PUBLIC communication-includes)
+target_link_libraries(communication_services PRIVATE opengloves_server-includes)

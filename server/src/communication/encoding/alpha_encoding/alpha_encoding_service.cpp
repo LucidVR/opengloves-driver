@@ -1,4 +1,4 @@
-#include "alpha/alpha_encoding_service.h"
+#include "encoding/alpha_encoding/alpha_encoding_service.h"
 
 #include <algorithm>
 #include <map>
@@ -234,7 +234,7 @@ og::Input AlphaEncodingService::DecodePacket(const std::string& buff) {
     return result;
 
   } catch (const std::exception& ex) {
-    logger.Log(og::kLoggerLevel_Error, "Failed to parse data with alpha encoding: %s", ex.what());
+    logger.Log(og::kLoggerLevel_Error, "Failed to parse data with alpha_encoding encoding: %s", ex.what());
     logger.Log(og::kLoggerLevel_Info, "Packet that failed: %s", buff.c_str());
 
     result.type = og::kInputDataType_Invalid;

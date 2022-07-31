@@ -6,32 +6,31 @@ project("opengloves_openvr_driver")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 # driver setup
+add_subdirectory(src)
+
 set(DRIVER_NAME "opengloves")
 set(OPENGLOVES_PROJECT "driver_${DRIVER_NAME}")
 
 add_library("${OPENGLOVES_PROJECT}" SHARED src/driver_factory.cpp)
-add_subdirectory(src)
 
 #openvr
 set(OPENVR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/headers")
 find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH)
-
 add_library(openvr-includes INTERFACE)
-target_include_directories(openvr-includes INTERFACE "${OPENVR_INCLUDE_DIR}")
+target_include_directories(openvr-includes INTERFACE ${OPENVR_INCLUDE_DIR})
 
-target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC "${OPENVR_LIB}" openvr-includes)
+target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC ${OPENVR_LIB} openvr-includes)
 
 #tinygltf
 set(TINYGLTF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/tinygltf")
 target_include_directories(${OPENGLOVES_PROJECT} PUBLIC "${TINYGLTF_INCLUDE_DIR}")
 
 ## opengloves
-target_include_directories(${OPENGLOVES_PROJECT} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include/")
+target_include_directories(${OPENGLOVES_PROJECT} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
+target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC opengloves_server-includes device_providers)
 target_link_libraries(${OPENGLOVES_PROJECT} PRIVATE opengloves_server)
 
-
-target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC driver_factory)
 
 ## Copy driver assets to output folder
 #add_custom_command(

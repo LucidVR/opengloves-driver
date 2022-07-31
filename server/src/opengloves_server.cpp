@@ -1,4 +1,4 @@
-#include "lucidgloves_fw_discovery.h"
+#include "device/discovery/lucidgloves_fw_discovery.h"
 #include "opengloves_interface.h"
 
 using namespace og;
@@ -32,4 +32,9 @@ int Server::StopProber() {
   logger.Log(kLoggerLevel_Info, "Successfully stopped device discovery");
 
   return 0;
+}
+
+Server::~Server() {
+  logger.Log(kLoggerLevel_Info, "Shutting down server");
+  StopProber();
 }

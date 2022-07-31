@@ -1,6 +1,6 @@
 #include <cstring>
 
-#include "device_providers/physical_device_provider.h"
+#include "device/providers/physical_device_provider.h"
 #include "openvr_driver.h"
 #include "util/driver_log.h"
 

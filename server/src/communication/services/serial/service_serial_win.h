@@ -5,7 +5,7 @@
 #include <atomic>
 #include <string>
 
-#include "communication_service.h"
+#include "services/communication_service.h"
 
 class SerialCommunicationService : public ICommunicationService {
  public:

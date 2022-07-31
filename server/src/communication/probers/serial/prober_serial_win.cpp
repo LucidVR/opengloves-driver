@@ -1,4 +1,4 @@
-#include "serial/prober_serial_win.h"
+#include "probers/serial/prober_serial_win.h"
 
 #include "services/serial/service_serial.h"
 

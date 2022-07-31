@@ -1,7 +1,7 @@
 #include "physical_device_provider.h"
 
-#include "device_configuration/device_configuration.h"
-#include "util/driver_log.h"
+#include "configuration/device_configuration.h"
+#include "driver_log.h"
 
 vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
   const vr::EVRInitError err = vr::InitServerDriverContext(pDriverContext);

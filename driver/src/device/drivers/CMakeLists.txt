@@ -1,0 +1,3 @@
+add_library(device_drivers STATIC knuckle_device_driver.h knuckle_device_driver.cpp)
+
+target_link_libraries(device_drivers PUBLIC device-includes)

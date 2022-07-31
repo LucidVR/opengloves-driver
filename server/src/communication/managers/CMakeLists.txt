@@ -1,5 +1,4 @@
 add_library(communication_managers STATIC communication_manager.h queryable_communication_manager.cpp)
 
-target_include_directories(communication_managers PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}")
-
-target_link_libraries(communication_managers PRIVATE opengloves_server-includes communication-includes communication_services encoding_services)
+target_link_libraries(communication_managers PUBLIC communication-includes)
+target_link_libraries(communication_managers PRIVATE communication_services encoding_services)

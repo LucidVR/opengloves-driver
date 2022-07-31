@@ -24,7 +24,5 @@ elseif (APPLE)
     set(PLATFORM_NAME "osx")
 endif ()
 
-project(opengloves)
-
 add_subdirectory(server)
 add_subdirectory(driver)

@@ -1,4 +1,4 @@
-#include "communication_manager.h"
+#include "managers/communication_manager.h"
 #include "opengloves_interface.h"
 
 using namespace og;

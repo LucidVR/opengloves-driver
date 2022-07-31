@@ -2,7 +2,7 @@
 
 #include <chrono>
 
-#include "encoding/alpha/alpha_encoding_service.h"
+#include "encoding/alpha_encoding/alpha_encoding_service.h"
 #include "managers/communication_manager.h"
 #include "probers/bluetooth/prober_bluetooth.h"
 #include "probers/serial/prober_serial.h"
