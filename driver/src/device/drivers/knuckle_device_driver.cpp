@@ -1,6 +1,6 @@
 #include "knuckle_device_driver.h"
 
-#include "util/driver_log.h"
+#include "driver_log.h"
 
 vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
   return vr::VRInitError_None;

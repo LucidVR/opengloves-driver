@@ -22,12 +22,11 @@ class LucidglovesDeviceDiscoverer : public DeviceDiscoverer {
   ~LucidglovesDeviceDiscoverer();
 
  private:
-  void QueryableProberThread(ICommunicationProber* prober);
+  void QueryableProberThread(std::unique_ptr<ICommunicationProber> prober);
   void OnQueryableDeviceFound(std::unique_ptr<ICommunicationService> communication_service);
 
   std::mutex device_found_mutex_;
 
-  std::vector<std::unique_ptr<ICommunicationProber>> queryable_probers_;
   std::vector<std::thread> queryable_prober_threads_;
 
   std::function<void(std::unique_ptr<og::Device> device)> callback_;

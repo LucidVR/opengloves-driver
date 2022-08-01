@@ -2,6 +2,7 @@
 
 #include <chrono>
 
+#include "devices/lucidgloves_device.h"
 #include "encoding/alpha_encoding/alpha_encoding_service.h"
 #include "managers/communication_manager.h"
 #include "probers/bluetooth/prober_bluetooth.h"
@@ -24,24 +25,36 @@ LucidglovesDeviceDiscoverer::LucidglovesDeviceDiscoverer(const og::DeviceDefault
 void LucidglovesDeviceDiscoverer::StartDiscovery(std::function<void(std::unique_ptr<og::Device> device)> callback) {
   callback_ = callback;
 
-  // setup queryable device discoverers
-  queryable_probers_.emplace_back(std::make_unique<SerialCommunicationProber>(lucidgloves_serial_ids));
-  queryable_probers_.emplace_back(std::make_unique<BluetoothCommunicationProber>(lucidgloves_bt_ids));
+  // setup queryable device probers
+  std::vector<std::unique_ptr<ICommunicationProber>> queryable_probers;
 
-  for (auto& prober : queryable_probers_) {
-    std::thread prober_thread = std::thread(&LucidglovesDeviceDiscoverer::QueryableProberThread, this, prober.get());
+  queryable_probers.emplace_back(std::make_unique<SerialCommunicationProber>(lucidgloves_serial_ids));
+  // queryable_probers_.emplace_back(std::make_unique<BluetoothCommunicationProber>(lucidgloves_bt_ids));
+
+  is_active_ = true;
+
+  for (auto& prober : queryable_probers) {
+    std::thread prober_thread =
+        std::thread(&LucidglovesDeviceDiscoverer::QueryableProberThread, this, std::make_unique<SerialCommunicationProber>(lucidgloves_serial_ids));
+    queryable_prober_threads_.emplace_back(std::move(prober_thread));
   }
 }
 
-void LucidglovesDeviceDiscoverer::QueryableProberThread(ICommunicationProber* prober) {
+void LucidglovesDeviceDiscoverer::QueryableProberThread(std::unique_ptr<ICommunicationProber> prober) {
   while (is_active_) {
-    std::vector<std::unique_ptr<ICommunicationService>> found_services;
+    std::vector<std::unique_ptr<ICommunicationService>> found_services{};
+
+    prober->InquireDevices(found_services);
+
+    if (found_services.size() == 0) logger.Log(kLoggerLevel_Info, "Prober %s found no devices.", prober->GetName().c_str());
 
     for (auto& service : found_services) {
       logger.Log(kLoggerLevel_Info, "Device discovered with prober: %s", prober->GetName().c_str());
 
       OnQueryableDeviceFound(std::move(service));
     }
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
   }
 }
 
@@ -111,22 +124,19 @@ void LucidglovesDeviceDiscoverer::OnQueryableDeviceFound(std::unique_ptr<ICommun
       std::unique_ptr<CommunicationManager> communication_manager =
           std::make_unique<CommunicationManager>(std::move(communication_service), std::move(encoding_service));
 
-      // callback_(std::make_unique<og::Device>());
+      callback_(std::make_unique<LucidglovesDevice>(device_info, std::move(communication_manager)));
     }
   }
 }
 
 void LucidglovesDeviceDiscoverer::StopDiscovery() {
   if (is_active_.exchange(false)) {
-    for (unsigned int i = 0; i < queryable_probers_.size(); i++) {
-      const std::string prober_name = queryable_probers_[i]->GetName();
-      logger.Log(kLoggerLevel_Info, "Attempting to clean up prober: %s", prober_name.c_str());
-
-      queryable_prober_threads_[i].join();
-      queryable_probers_[i].reset();
-
-      logger.Log(kLoggerLevel_Info, "Cleaned up prober: %s", prober_name.c_str());
+    logger.Log(kLoggerLevel_Info, "Attempting to clean up queryable device probers...");
+    for (auto& prober_thread : queryable_prober_threads_) {
+      prober_thread.join();
     }
+
+    logger.Log(kLoggerLevel_Info, "Cleaned up queryable device probers.");
   }
 }
 

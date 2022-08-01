@@ -37,6 +37,10 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
 
   ogserver_->SetDefaultConfiguration(GetDriverLegacyConfiguration(vr::TrackedControllerRole_LeftHand));
 
+  ogserver_->StartProber([&](std::unique_ptr<og::Device> found_device) {
+    DriverLog("Physical device provider found a device, hand: %s", found_device->GetInfo().hand == og::kHandLeft ? "Left" : "Right");
+  });
+
   return vr::VRInitError_None;
 }
 

@@ -15,7 +15,11 @@
 #include <vector>
 
 SerialCommunicationProber::SerialCommunicationProber(const std::vector<SerialProberSearchParam>& params) {
-  params_ = params;
+  // conver serial pid vid struct to a string we can easily search for
+  for (const auto& serial_param : params) {
+    std::string formatted_param = "VID_" + serial_param.vid + "&PID_" + serial_param.pid;
+    strids_.emplace_back(formatted_param);
+  }
 }
 
 // tries to connect to a serial port, if the serial port is open then someone (probably us) is already connected to it. Prevents us rediscovering a
@@ -48,15 +52,20 @@ int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommu
   DWORD device_index = 0;
   int found_devices = 0;
   while (SetupDiEnumDeviceInfo(device_info_set, device_index, &device_info_data)) {
+    break;
     DEVPROPTYPE property_type;
     char property_buff[1024] = {0};
     if (SetupDiGetDeviceRegistryProperty(
             device_info_set, &device_info_data, SPDRP_HARDWAREID, &property_type, (BYTE*)property_buff, sizeof(property_buff), &dwSize)) {
       // extract pid and vid from the property and check if it's an available device
-      std::stringstream fmt;
-      SerialProberSearchParam search;
-      fmt << "VID_" << search.vid << ".PID_" << search.pid;
-      if (!(std::find(params_.begin(), params_.end(), search) != params_.end())) continue;
+
+      std::string strproperty_buff = property_buff;
+
+      if (std::find_if(
+              strids_.begin(),  //
+              strids_.end(),    //
+              [&](const std::string& param) { return strproperty_buff.find(param) != std::string::npos; }) == strids_.end())
+        continue;
 
       HKEY device_registery_key = SetupDiOpenDevRegKey(device_info_set, &device_info_data, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
       if (device_registery_key == INVALID_HANDLE_VALUE) {

@@ -9,8 +9,6 @@
 #include "services/communication_service.h"
 
 struct SerialProberSearchParam {
-  auto operator<=>(const SerialProberSearchParam&) const = default;
-
   std::string vid;
   std::string pid;
 };
@@ -25,5 +23,5 @@ class SerialCommunicationProber : public ICommunicationProber {
  private:
   std::function<void(std::unique_ptr<ICommunicationService>)> callback_;
 
-  std::vector<SerialProberSearchParam> params_;
+  std::vector<std::string> strids_;
 };

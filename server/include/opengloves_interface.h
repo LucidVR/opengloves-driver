@@ -5,9 +5,6 @@
 #include <map>
 #include <string>
 
-class CommunicationManager;
-class DeviceDiscoverer;
-
 namespace og {
 
   enum Hand { kHandLeft, kHandRight };
@@ -137,19 +134,11 @@ namespace og {
 
   class Device {
    public:
-    Device(DeviceInfoData info_data, std::unique_ptr<CommunicationManager> communication_manager);
+    virtual DeviceInfoData GetInfo() = 0;
 
-    DeviceInfoData GetInfo();
+    virtual void ListenForInput(std::function<void(InputPeripheralData data)>& callback) = 0;
 
-    void ListenForInput(std::function<void(InputPeripheralData data)>& callback);
-
-    ~Device();
-
-   private:
-    std::unique_ptr<CommunicationManager> communication_manager_;
-    std::function<void(InputPeripheralData data)> callback_;
-
-    DeviceInfoData info_data_;
+    virtual ~Device() = default;
   };
 
   class Server {
@@ -164,18 +153,19 @@ namespace og {
     /***
      * Start looking for devices. The callback will be called for every new device found.
      */
-    int StartProber(std::function<void(std::unique_ptr<Device> device)>);
+    bool StartProber(std::function<void(std::unique_ptr<Device> device)> callback);
 
-    int StopProber();
+    /***
+     * Stop looking for devices.
+     * @return
+     */
+    bool StopProber();
 
     ~Server();
 
    private:
-    std::function<void(std::unique_ptr<Device> device)> callback_;
-
-    std::vector<std::unique_ptr<DeviceDiscoverer>> device_discoverers_;
-
-    DeviceDefaultConfiguration default_configuration_;
+    class Impl;
+    std::unique_ptr<Impl> pImpl_;
   };
 
   enum LoggerLevel { kLoggerLevel_Info, kLoggerLevel_Warning, kLoggerLevel_Error };
