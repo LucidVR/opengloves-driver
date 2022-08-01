@@ -20,5 +20,7 @@ class ICommunicationService {
   virtual bool ReceiveNextPacket(std::string& buff) = 0;
   virtual bool RawWrite(const std::string& buff) = 0;
 
+  virtual bool IsConnected() = 0;
+
   virtual bool PurgeBuffer() = 0;
 };

@@ -44,6 +44,10 @@ void BluetoothCommunicationService::LogError(const std::string& message, bool wi
   logger.Log(kLoggerLevel_Error, "%llu, %s: %s", bt_address_, message.c_str(), with_win_error ? GetLastErrorAsString().c_str() : "");
 }
 
+bool BluetoothCommunicationService::IsConnected() {
+  return true;
+}
+
 bool BluetoothCommunicationService::Connect() {
   WSAData data;
 

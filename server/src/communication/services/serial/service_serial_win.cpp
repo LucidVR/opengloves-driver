@@ -44,6 +44,10 @@ SerialCommunicationService::SerialCommunicationService(const std::string& port_n
   Connect();
 }
 
+bool SerialCommunicationService::IsConnected() {
+  return is_connected_;
+}
+
 bool SerialCommunicationService::Connect() {
   is_connected_ = false;
 

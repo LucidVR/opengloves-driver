@@ -14,6 +14,8 @@ class BluetoothCommunicationService : public ICommunicationService {
   bool ReceiveNextPacket(std::string& buff) override;
   bool RawWrite(const std::string& buff) override;
 
+  bool IsConnected() override;
+
   bool PurgeBuffer() override;
 
   ~BluetoothCommunicationService();

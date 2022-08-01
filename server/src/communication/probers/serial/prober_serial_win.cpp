@@ -1,5 +1,6 @@
 #include "probers/serial/prober_serial_win.h"
 
+#include "opengloves_interface.h"
 #include "services/serial/service_serial.h"
 
 // must be in this order
@@ -14,28 +15,16 @@
 #include <string>
 #include <vector>
 
+using namespace og;
+
+static Logger& logger = Logger::GetInstance();
+
 SerialCommunicationProber::SerialCommunicationProber(const std::vector<SerialProberSearchParam>& params) {
   // conver serial pid vid struct to a string we can easily search for
   for (const auto& serial_param : params) {
     std::string formatted_param = "VID_" + serial_param.vid + "&PID_" + serial_param.pid;
     strids_.emplace_back(formatted_param);
   }
-}
-
-// tries to connect to a serial port, if the serial port is open then someone (probably us) is already connected to it. Prevents us rediscovering a
-// previously discovered device
-static bool SerialDeviceIsConnectable(const std::string& port_name) {
-  HANDLE handle = CreateFile(port_name.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
-
-  if (handle == INVALID_HANDLE_VALUE) {
-    // handle is not connectable
-    return false;
-  }
-
-  // we connected to the handle. close so we can connect again properly.
-  CloseHandle(handle);
-
-  return true;
 }
 
 int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) {
@@ -52,7 +41,7 @@ int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommu
   DWORD device_index = 0;
   int found_devices = 0;
   while (SetupDiEnumDeviceInfo(device_info_set, device_index, &device_info_data)) {
-    break;
+    device_index++;
     DEVPROPTYPE property_type;
     char property_buff[1024] = {0};
     if (SetupDiGetDeviceRegistryProperty(
@@ -78,16 +67,26 @@ int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommu
       DWORD type = 0;
 
       if ((RegQueryValueEx(device_registery_key, "PortName", NULL, &type, (LPBYTE)port_name, &port_name_size) == ERROR_SUCCESS) && (type == REG_SZ)) {
-        if (SerialDeviceIsConnectable(port_name)) {
-          found_devices++;
+        std::string port = std::string("\\\\.\\") + std::string(port_name);
 
-          out_devices.emplace_back(std::make_unique<SerialCommunicationService>(port_name));
+        std::unique_ptr<ICommunicationService> communication_service = std::make_unique<SerialCommunicationService>(port);
+
+        // this means that the device is probably opened by us (or someone else). Ignore it.
+        if (!communication_service->IsConnected()) {
+          logger.Log(
+              kLoggerLevel_Warning,
+              "A device was discovered on port: %s, but did not connect as it is already being used by another process (or is unreachable).",
+              port.c_str());
+
+          continue;
         }
+
+        out_devices.emplace_back(std::move(communication_service));
+        found_devices++;
 
         RegCloseKey(device_registery_key);
       }
     }
-    device_index++;
   }
 
   if (device_info_set) {

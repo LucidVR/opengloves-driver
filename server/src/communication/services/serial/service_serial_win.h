@@ -14,6 +14,8 @@ class SerialCommunicationService : public ICommunicationService {
   bool ReceiveNextPacket(std::string& buff) override;
   bool RawWrite(const std::string& buff) override;
 
+  bool IsConnected() override;
+
   bool PurgeBuffer() override;
 
   ~SerialCommunicationService();
@@ -29,7 +31,7 @@ class SerialCommunicationService : public ICommunicationService {
   std::string port_name_;
 
   HANDLE handle_;
-  
+
   std::atomic<bool> is_connected_ = false;
   std::atomic<bool> is_disconnecting_ = false;
 };
