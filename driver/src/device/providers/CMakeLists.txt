@@ -1,4 +1,6 @@
 add_library(device_providers STATIC physical_device_provider.h physical_device_provider.cpp hook_device_provider.h hook_device_provider.cpp)
 
-target_link_libraries(device_providers PUBLIC openvr-includes opengloves_server-includes)
+find_package(OpenVR REQUIRED)
+
+target_link_libraries(device_providers PUBLIC OpenVR::OpenVR opengloves_server-includes)
 target_link_libraries(device_providers PRIVATE device-includes driver_utils driver_utils-includes device_configuration)

@@ -1,5 +1,6 @@
 add_subdirectory(communication)
 add_subdirectory(device)
+add_subdirectory(ipc/grpc)
 
 add_library(opengloves_server STATIC opengloves_server.cpp)
 

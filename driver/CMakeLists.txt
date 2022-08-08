@@ -14,12 +14,8 @@ set(OPENGLOVES_PROJECT "driver_${DRIVER_NAME}")
 add_library("${OPENGLOVES_PROJECT}" SHARED src/driver_factory.cpp)
 
 #openvr
-set(OPENVR_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/headers")
-find_library(OPENVR_LIB openvr_api HINTS "${CMAKE_CURRENT_SOURCE_DIR}/libraries/openvr/lib/${PLATFORM_NAME}${PROCESSOR_ARCH}/" NO_DEFAULT_PATH)
-add_library(openvr-includes INTERFACE)
-target_include_directories(openvr-includes INTERFACE ${OPENVR_INCLUDE_DIR})
-
-target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC ${OPENVR_LIB} openvr-includes)
+find_package(OpenVR REQUIRED)
+target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC OpenVR::OpenVR)
 
 #tinygltf
 set(TINYGLTF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/libraries/tinygltf")

@@ -5,6 +5,8 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 project(opengloves)
 
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
 # platform
 if(NOT PLATFORM)
     if(CMAKE_SIZEOF_VOID_P MATCHES 8)
@@ -24,5 +26,8 @@ elseif (APPLE)
     set(PLATFORM_NAME "osx")
 endif ()
 
+add_subdirectory(libraries/opengloves-protocol)
+
 add_subdirectory(server)
 add_subdirectory(driver)
+
