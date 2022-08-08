@@ -9,8 +9,12 @@
 #include "protos/server/server_output.grpc.pb.h"
 
 
-
-class GRPCDeviceOutputImpl final : public DeviceOutput::Service {
- public:
-
-};
+//class GRPCDeviceOutputImpl final : public server_output::DeviceOutput::Service {
+// public:
+//
+//
+//
+//  grpc::Status GetDeviceInfos(grpc::ServerContext* context, const server_output::DeviceInfoRequest* request, server_output::DeviceInfoResponse* response) {
+//
+//  }
+//};

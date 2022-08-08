@@ -274,7 +274,7 @@ std::string AlphaEncodingService::EncodePacket(const og::Output& output) {
       const og::OutputForceFeedbackData& data = output.data.force_feedback_data;
 
       return StringFormat(
-          "%s%d%s%d%s%d%s%d%s%d",
+          "%s%d%s%d%s%d%s%d%s%d\n",
           alpha_encoding_output_key_strings.at(kAlphaEncodingKey_ThumbCurl).c_str(),
           data.thumb,
           alpha_encoding_output_key_strings.at(kAlphaEncodingKey_IndexCurl).c_str(),
@@ -291,7 +291,7 @@ std::string AlphaEncodingService::EncodePacket(const og::Output& output) {
       const og::OutputHapticData& data = output.data.haptic_data;
 
       return StringFormat(
-          "%s%.2f%s%.2f%s%.2f",
+          "%s%.2f%s%.2f%s%.2f\n",
           alpha_encoding_output_key_strings.at(kAlphaEncodingKey_OutHapticFrequency).c_str(),
           data.frequency,
           alpha_encoding_output_key_strings.at(kAlphaEncodingKey_OutHapticDuration).c_str(),
@@ -303,7 +303,7 @@ std::string AlphaEncodingService::EncodePacket(const og::Output& output) {
     default:
       logger.Log(og::kLoggerLevel_Warning, "Unable to deduce output data type.");
     case og::kOutputDataType_Empty: {
-      return "";
+      return "\n";
     }
   }
 }
