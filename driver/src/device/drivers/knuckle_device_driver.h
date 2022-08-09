@@ -1,17 +1,18 @@
 #pragma once
 
-#include "openvr_driver.h"
+#include <string>
 
-class KnuckleDeviceDriver : vr::ITrackedDeviceServerDriver {
-  virtual vr::EVRInitError Activate(uint32_t unObjectId) = 0;
+#include "device_driver.h"
 
-  void Deactivate() override;
+class KnuckleDeviceDriver : public DeviceDriver {
+ private:
+  KnuckleDeviceDriver(const std::string& serial_number);
 
-  void EnterStandby() override;
+  void SetupProperties(vr::PropertyContainerHandle_t& props) override;
+  void SetupComponents(vr::PropertyContainerHandle_t& props) override;
 
-  void *GetComponent(const char *pchComponentNameAndVersion) override;
+  void HandleInput(const og::InputPeripheralData& data) override;
 
-  void DebugRequest(const char *pchRequest, char *pchResponseBuffer, uint32_t unResponseBufferSize) override;
-
-  vr::DriverPose_t GetPose() override;
+ private:
+  std::string serial_number_;
 };

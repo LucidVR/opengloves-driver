@@ -1,26 +1,16 @@
 #include "knuckle_device_driver.h"
 
-#include "driver_log.h"
-
-vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
-  return vr::VRInitError_None;
+KnuckleDeviceDriver::KnuckleDeviceDriver(const std::string& serial_number) {
+  serial_number_ = serial_number;
 }
 
-vr::DriverPose_t KnuckleDeviceDriver::GetPose() {
-  DriverLog("Get pose called for knuckle device driver. Returning empty pose.");
-
-  vr::DriverPose_t pose{};
-  return pose;
+void KnuckleDeviceDriver::SetupProperties(vr::PropertyContainerHandle_t& props) {
+  vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, 2000000000);
+  vr::VRProperties()->SetInt32Property(props, )
 }
 
-void* KnuckleDeviceDriver::GetComponent(const char* pchComponentNameAndVersion) {
-  return nullptr;
+void KnuckleDeviceDriver::SetupComponents(vr::PropertyContainerHandle_t& props) {}
+
+void KnuckleDeviceDriver::HandleInput(const og::InputPeripheralData &data) {
+
 }
-
-void KnuckleDeviceDriver::DebugRequest(const char* pchRequest, char* pchResponseBuffer, const uint32_t unResponseBufferSize) {
-  if (unResponseBufferSize >= 1) pchResponseBuffer[0] = 0;
-}
-
-void KnuckleDeviceDriver::EnterStandby() {}
-
-void KnuckleDeviceDriver::Deactivate() {}
