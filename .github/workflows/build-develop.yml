@@ -43,7 +43,7 @@ jobs:
       - name: Run CMake with Ninja
         uses: lukka/run-cmake@v10
         with:
-          cmakeListsTxtPath: '${{ github.workspace }}/FindTinyGLTF.cmake'
+          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
           configurePreset: 'ci-default'
           buildPreset: 'ci-build'
 
