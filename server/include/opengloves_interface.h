@@ -69,8 +69,8 @@ namespace og {
   struct InputPeripheralData {
     auto operator<=>(const InputPeripheralData&) const = default;
 
-    float flexion[5][4];
-    float splay[5];
+    std::array<std::array<float, 4>, 5> flexion;
+    std::array<float, 5> splay;
 
     Button trigger;
     Button A;
@@ -136,7 +136,7 @@ namespace og {
    public:
     virtual DeviceInfoData GetInfo() = 0;
 
-    virtual void ListenForInput(std::function<void(InputPeripheralData data)>& callback) = 0;
+    virtual void ListenForInput(std::function<void(InputPeripheralData data)> callback) = 0;
 
     virtual ~Device() = default;
   };

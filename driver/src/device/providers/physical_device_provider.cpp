@@ -2,6 +2,7 @@
 
 #include "configuration/device_configuration.h"
 #include "driver_log.h"
+#include "drivers/knuckle_device_driver.h"
 
 vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
   VR_INIT_SERVER_DRIVER_CONTEXT(pDriverContext);
@@ -39,6 +40,20 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
 
   ogserver_->StartProber([&](std::unique_ptr<og::Device> found_device) {
     DriverLog("Physical device provider found a device, hand: %s", found_device->GetInfo().hand == og::kHandLeft ? "Left" : "Right");
+
+    switch (found_device->GetInfo().device_type) {
+      default:
+        DriverLog("Physical device provider was given an unknown device type");
+      case og::kGloveType_lucidgloves:
+        DriverLog("Physical device provider activating lucidgloves");
+
+        std::unique_ptr<KnuckleDeviceDriver> device_driver = std::make_unique<KnuckleDeviceDriver>(std::move(found_device));
+
+        vr::VRServerDriverHost()->TrackedDeviceAdded(
+            device_driver->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, device_driver.get());
+        
+        device_drivers_.emplace_back(std::move(device_driver));
+    }
   });
 
   return vr::VRInitError_None;

@@ -26,4 +26,6 @@ class PhysicalDeviceProvider : public vr::IServerTrackedDeviceProvider {
 
  private:
   std::unique_ptr<og::Server> ogserver_;
+
+  std::vector<std::unique_ptr<vr::ITrackedDeviceServerDriver>> device_drivers_;
 };

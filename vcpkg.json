@@ -5,6 +5,7 @@
     "dependencies": [
         "openvr",
         "grpc",
-        "protobuf"
+        "protobuf",
+        "tinygltf"
     ]
 }

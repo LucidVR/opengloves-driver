@@ -3,7 +3,7 @@ find_package(OpenVR REQUIRED)
 add_library(driver_utils-includes INTERFACE)
 target_include_directories(driver_utils-includes INTERFACE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_BINARY_DIR})
 
-add_library(driver_utils STATIC driver_log.h driver_log.cpp)
+add_library(driver_utils STATIC driver_log.h driver_log.cpp file_path.h file_path_win.cpp driver_math.h driver_math.cpp)
 
 target_include_directories(driver_utils PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}")
 
