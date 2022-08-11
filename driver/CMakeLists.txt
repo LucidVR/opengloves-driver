@@ -5,9 +5,10 @@ set(CMAKE_CXX_STANDARD 20)
 project("opengloves_openvr_driver")
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-
 set(DRIVER_NAME "opengloves")
 set(OPENGLOVES_PROJECT "driver_${DRIVER_NAME}")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH})
 
 add_library("${OPENGLOVES_PROJECT}" SHARED src/driver_factory.cpp)
 
@@ -29,20 +30,12 @@ target_include_directories(${OPENGLOVES_PROJECT} PUBLIC "${CMAKE_CURRENT_SOURCE_
 target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC opengloves_server-includes device_providers)
 target_link_libraries(${OPENGLOVES_PROJECT} PRIVATE opengloves_server)
 
+
 # Copy driver assets to output folder
 add_custom_command(
         TARGET ${OPENGLOVES_PROJECT}
         PRE_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_CURRENT_SOURCE_DIR}/${DRIVER_NAME}
-        $<TARGET_FILE_DIR:${OPENGLOVES_PROJECT}>/${DRIVER_NAME}
-)
-
-# Copy shared library to output folder
-add_custom_command(
-        TARGET ${OPENGLOVES_PROJECT}
-        POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        $<TARGET_FILE:${OPENGLOVES_PROJECT}>
-        $<TARGET_FILE_DIR:${OPENGLOVES_PROJECT}>/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}/$<TARGET_FILE_NAME:${OPENGLOVES_PROJECT}>
+        ${CMAKE_CURRENT_BINARY_DIR}/${DRIVER_NAME}
 )
