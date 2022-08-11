@@ -7,6 +7,8 @@ project(opengloves)
 
 list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
+add_compile_definitions(_USE_MATH_DEFINES)
+
 # platform
 if(NOT PLATFORM)
     if(CMAKE_SIZEOF_VOID_P MATCHES 8)

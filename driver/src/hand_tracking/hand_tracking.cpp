@@ -2,12 +2,10 @@
 
 #include <algorithm>
 
-#include "driver_log.h"
-#include "driver_math.h"
+#include "util/driver_log.h"
+#include "util/driver_math.h"
 
 #define HAND_TRACKING_OPENVR_BONE_COUNT 31
-
-
 
 static const float k_max_splay_angle = 20.0f;
 
@@ -157,8 +155,7 @@ void HandTracking::LoadDefaultSkeletonByHand(vr::VRBoneTransform_t* bone_transfo
   }
 }
 
-void HandTracking::SetTransformForBone(
-    vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, float curl, float splay, bool rightHand) {
+void HandTracking::SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, float curl, float splay, bool rightHand) {
   // We don't clamp this, as chances are if it's invalid we don't really want to use it anyway.
   if (curl < 0.0f || curl > 1.0f) return;
 

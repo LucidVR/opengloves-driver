@@ -1,6 +1,6 @@
 #include "device_configuration.h"
 
-#include "driver_math.h"
+#include "util/driver_math.h"
 
 const char* k_driver_settings_section = "driver_opengloves";
 const char* k_pose_settings_section = "pose_settings";
@@ -52,4 +52,17 @@ PoseConfiguration GetPoseConfiguration(vr::ETrackedControllerRole role) {
   result.offset_orientation = EulerToQuaternion(DEG_TO_RAD(offsetZRot), DEG_TO_RAD(offsetYRot), DEG_TO_RAD(offsetXRot));
 
   return result;
+}
+
+void SetPoseConfiguration(const PoseConfiguration& configuration, vr::ETrackedControllerRole role) {
+  bool is_right_hand = role == vr::TrackedControllerRole_RightHand;
+  vr::VRSettings()->SetFloat(k_pose_settings_section, is_right_hand ? "right_x_offset_position" : "left_x_offset_position", configuration.offset_position.v[0]);
+  vr::VRSettings()->SetFloat(k_pose_settings_section, is_right_hand ? "right_y_offset_position" : "left_y_offset_position", configuration.offset_position.v[1]);
+  vr::VRSettings()->SetFloat(k_pose_settings_section, is_right_hand ? "right_z_offset_position" : "left_z_offset_position", configuration.offset_position.v[2]);
+
+  const vr::HmdVector3d_t eulerOffset = QuaternionToEuler(configuration.offset_orientation);
+  vr::VRSettings()->SetFloat(k_pose_settings_section, is_right_hand ? "right_x_offset_degrees" : "left_x_offset_degrees", RAD_TO_DEG(eulerOffset.v[2]));
+  vr::VRSettings()->SetFloat(k_pose_settings_section, is_right_hand ? "right_y_offset_degrees" : "left_y_offset_degrees", RAD_TO_DEG(eulerOffset.v[1]));
+  vr::VRSettings()->SetFloat(k_pose_settings_section, is_right_hand ? "right_z_offset_degrees" : "left_z_offset_degrees", RAD_TO_DEG(eulerOffset.v[0]));
+
 }

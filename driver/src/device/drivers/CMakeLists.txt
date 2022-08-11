@@ -2,5 +2,5 @@ add_library(device_drivers STATIC knuckle_device_driver.h knuckle_device_driver.
 
 find_package(OpenVR REQUIRED)
 
-target_link_libraries(device_drivers PUBLIC OpenVR::OpenVR device-includes opengloves_server-includes)
-target_link_libraries(device_drivers PRIVATE driver_utils driver_utils-includes hand_tracking hand_tracking-includes device_pose)
+target_link_libraries(device_drivers PUBLIC OpenVR::OpenVR opengloves_server-includes)
+target_link_libraries(device_drivers PRIVATE driver-includes driver_utils hand_tracking device_pose)

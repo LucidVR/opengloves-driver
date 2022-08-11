@@ -1,7 +1,7 @@
 #include "knuckle_device_driver.h"
 
-#include "file_path.h"
-#include "hand_tracking.h"
+#include "util/file_path.h"
+#include "hand_tracking/hand_tracking.h"
 
 class KnuckleDeviceDriver::Impl {
  public:
@@ -24,7 +24,7 @@ class KnuckleDeviceDriver::Impl {
 };
 
 KnuckleDeviceDriver::KnuckleDeviceDriver(std::unique_ptr<og::Device> device)
-    : pImpl_(std::make_unique<Impl>(GetDriverPath() + "/anims/glove_anim.glb")), ogdevice_(std::move(device)) {}
+    : pImpl_(std::make_unique<Impl>(GetDriverRootPath() + "/anims/glove_anim.glb")), ogdevice_(std::move(device)) {}
 
 vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
   // clang-format off

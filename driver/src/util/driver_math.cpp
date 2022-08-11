@@ -17,6 +17,48 @@ vr::HmdQuaternion_t EulerToQuaternion(const double& yaw, const double& pitch, co
   return q;
 }
 
+vr::HmdVector3d_t QuaternionToEuler(const vr::HmdQuaternion_t& q) {
+  vr::HmdVector3d_t result{};
+
+  // roll (x-axis rotation)
+  const double sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+  const double cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+  result.v[2] = std::atan2(sinr_cosp, cosr_cosp);
+
+  // pitch (y-axis rotation)
+  const double sinp = 2 * (q.w * q.y - q.z * q.x);
+  if (std::abs(sinp) >= 1)
+    result.v[1] = std::copysign(M_PI / 2, sinp);  // use 90 degrees if out of range
+  else
+    result.v[1] = std::asin(sinp);
+
+  // yaw (z-axis rotation)
+  const double siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+  const double cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+  result.v[0] = std::atan2(siny_cosp, cosy_cosp);
+
+  return result;
+}
+
+vr::HmdVector3d_t MatrixToPosition(const vr::HmdMatrix34_t& matrix) {
+  return {matrix.m[0][3], matrix.m[1][3], matrix.m[2][3]};
+}
+
+vr::HmdQuaternion_t MatrixToOrientation(const vr::HmdMatrix34_t& matrix) {
+  vr::HmdQuaternion_t q{};
+
+  q.w = sqrt(fmax(0, 1 + matrix.m[0][0] + matrix.m[1][1] + matrix.m[2][2])) / 2;
+  q.x = sqrt(fmax(0, 1 + matrix.m[0][0] - matrix.m[1][1] - matrix.m[2][2])) / 2;
+  q.y = sqrt(fmax(0, 1 - matrix.m[0][0] + matrix.m[1][1] - matrix.m[2][2])) / 2;
+  q.z = sqrt(fmax(0, 1 - matrix.m[0][0] - matrix.m[1][1] + matrix.m[2][2])) / 2;
+
+  q.x = copysign(q.x, matrix.m[2][1] - matrix.m[1][2]);
+  q.y = copysign(q.y, matrix.m[0][2] - matrix.m[2][0]);
+  q.z = copysign(q.z, matrix.m[1][0] - matrix.m[0][1]);
+
+  return q;
+}
+
 vr::HmdQuaternion_t operator-(const vr::HmdQuaternion_t& q) {
   return {q.w, -q.x, -q.y, -q.z};
 }

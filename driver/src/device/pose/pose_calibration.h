@@ -1,20 +1,20 @@
 #include "openvr_driver.h"
 
-#include "configuration/device_configuration.h"
+#include "device/configuration/device_configuration.h"
 
-enum class CalibrationMethod {
-  Hardware,
-  Ui,
-  None,
+enum CalibrationMethod {
+  kCalibrationMethod_Hardware,
+  kCalibrationMethod_Ui,
+  kCalibrationMethod_None,
 };
 
 
 class PoseCalibration {
  public:
-  void StartCalibration(vr::DriverPose_t maintainPose, CalibrationMethod method);
+  void StartCalibration(const vr::DriverPose_t& maintain_pose, CalibrationMethod method);
 
-  VRPoseConfiguration CompleteCalibration(
-      vr::TrackedDevicePose_t controllerPose, VRPoseConfiguration poseConfiguration, bool isRightHand, CalibrationMethod method);
+  PoseConfiguration CompleteCalibration(
+      const vr::TrackedDevicePose_t& controller_pose, const PoseConfiguration& pose_configuration, bool is_right_hand, CalibrationMethod method);
 
   void CancelCalibration(CalibrationMethod method);
 

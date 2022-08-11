@@ -11,9 +11,10 @@ extern const char* k_alpha_encoding_settings_section;
 
 struct PoseConfiguration {
   vr::HmdQuaternion_t offset_orientation;
-  vr::HmdVector3_t offset_position;
+  vr::HmdVector3d_t offset_position;
 };
 
 og::DeviceDefaultConfiguration GetDriverLegacyConfiguration(vr::ETrackedControllerRole role);
 
 PoseConfiguration GetPoseConfiguration(vr::ETrackedControllerRole role);
+void SetPoseConfiguration(const PoseConfiguration& configuration, vr::ETrackedControllerRole role);
