@@ -1,3 +1,8 @@
+
+#ifdef WIN32
+#include <Windows.h>
+#endif
+
 #include <grpc/grpc.h>
 #include <grpcpp/create_channel.h>
 
@@ -46,7 +51,14 @@ void DiscoveryThread(vr::ETrackedControllerRole role, std::function<void(uint32_
   }
 }
 
-int main() {
+#ifdef WIN32
+int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE hPreInst, LPWSTR nCmdLine, int nCmdShow)
+#endif
+#ifndef WIN32
+    int main(int argc, char **argv)
+#endif
+
+{
   vr::EVRInitError err;
   VR_Init(&err, vr::VRApplication_Background);
 

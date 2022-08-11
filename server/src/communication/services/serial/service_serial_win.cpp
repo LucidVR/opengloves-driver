@@ -54,7 +54,6 @@ bool SerialCommunicationService::Connect() {
   handle_ = CreateFile(port_name_.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
   if (handle_ == INVALID_HANDLE_VALUE) {
-    LogError("Failed to connect to serial port");
     return false;
   }
 
@@ -106,7 +105,7 @@ bool SerialCommunicationService::ReceiveNextPacket(std::string& buff) {
 
     if (bytes_read <= 0 || next_char == '\n') continue;
 
-  } while (next_char != '\n' && is_disconnecting_);
+  } while (next_char != '\n' && !is_disconnecting_);
 
   return true;
 }

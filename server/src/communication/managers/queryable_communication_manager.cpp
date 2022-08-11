@@ -22,6 +22,8 @@ void CommunicationManager::BeginListener(std::function<void(og::Input)> callback
     return;
   }
 
+  callback_ = callback;
+
   thread_active_ = true;
 
   communication_thread_ = std::thread(&CommunicationManager::CommunicationThread, this);
