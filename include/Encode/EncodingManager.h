@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include "DeviceConfiguration.h"
 #include "DriverLog.h"
 #include "openvr_driver.h"
 
@@ -130,12 +131,13 @@ struct VROutput {
 
 class EncodingManager {
  public:
-  explicit EncodingManager(float maxAnalogValue) : maxAnalogValue_(maxAnalogValue){};
+  explicit EncodingManager(VREncodingConfiguration configuration) : configuration_(std::move(configuration)){};
+
   virtual VRInputData Decode(const std::string& input) = 0;
   virtual std::string Encode(const VROutput& data) = 0;
 
  protected:
-  float maxAnalogValue_;
+  VREncodingConfiguration configuration_;
 };
 
 template <typename... Args>

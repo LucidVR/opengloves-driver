@@ -166,53 +166,53 @@ VRInputData AlphaEncodingManager::Decode(const std::string& input) {
   VRInputData result;
 
   std::array<float, 5> flexion = {-1.0f, -1.0f, -1.0f, -1.0f, -1.0f};
-
+  
   // This map contains all the inputs we've got from the packet we received
   std::map<VRCommDataAlphaEncodingKey, std::string> inputMap = ParseInputToMap(input);
 
   // curl is 0.0f -> 1.0f inclusive
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinThumb) != inputMap.end())
-    flexion[0] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinThumb)) / maxAnalogValue_;
+    flexion[0] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinThumb)) / configuration_.maxAnalogValue;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinIndex) != inputMap.end())
-    flexion[1] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinIndex)) / maxAnalogValue_;
+    flexion[1] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinIndex)) / configuration_.maxAnalogValue;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinMiddle) != inputMap.end())
-    flexion[2] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinMiddle)) / maxAnalogValue_;
+    flexion[2] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinMiddle)) / configuration_.maxAnalogValue;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinRing) != inputMap.end())
-    flexion[3] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinRing)) / maxAnalogValue_;
+    flexion[3] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinRing)) / configuration_.maxAnalogValue;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinPinky) != inputMap.end())
-    flexion[4] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinPinky)) / maxAnalogValue_;
+    flexion[4] = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinPinky)) / configuration_.maxAnalogValue;
 
   // fill all the joints
   int curJoint = (int)VRCommDataAlphaEncodingKey::FinJointThumb0;
   for (int i = 0; i < 5; i++) {
     for (int k = 0; k < 4; k++) {
       VRCommDataAlphaEncodingKey joint = static_cast<VRCommDataAlphaEncodingKey>(curJoint);
-      result.flexion[i][k] = inputMap.find(joint) != inputMap.end() ? (std::stof(inputMap.at(joint)) / maxAnalogValue_) : flexion[i];
+      result.flexion[i][k] = inputMap.find(joint) != inputMap.end() ? (std::stof(inputMap.at(joint)) / configuration_.maxAnalogValue) : flexion[i];
       curJoint++;
     }
   }
 
   // splay is -1.0f -> 1.0f inclusive
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinSplayThumb) != inputMap.end())
-    result.splay[0] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayThumb)) / maxAnalogValue_ - 0.5f) * 2.0f;
+    result.splay[0] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayThumb)) / configuration_.maxAnalogValue - 0.5f) * 2.0f;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinSplayIndex) != inputMap.end())
-    result.splay[1] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayIndex)) / maxAnalogValue_ - 0.5f) * 2.0f;
+    result.splay[1] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayIndex)) / configuration_.maxAnalogValue - 0.5f) * 2.0f;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinSplayMiddle) != inputMap.end())
-    result.splay[2] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayMiddle)) / maxAnalogValue_ - 0.5f) * 2.0f;
+    result.splay[2] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayMiddle)) / configuration_.maxAnalogValue - 0.5f) * 2.0f;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinSplayRing) != inputMap.end())
-    result.splay[3] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayRing)) / maxAnalogValue_ - 0.5f) * 2.0f;
+    result.splay[3] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayRing)) / configuration_.maxAnalogValue - 0.5f) * 2.0f;
   if (inputMap.find(VRCommDataAlphaEncodingKey::FinSplayPinky) != inputMap.end())
-    result.splay[4] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayPinky)) / maxAnalogValue_ - 0.5f) * 2.0f;
+    result.splay[4] = (std::stof(inputMap.at(VRCommDataAlphaEncodingKey::FinSplayPinky)) / configuration_.maxAnalogValue - 0.5f) * 2.0f;
 
   // joystick axis are -1.0f -> 1.0f inclusive
   if (inputMap.find(VRCommDataAlphaEncodingKey::JoyX) != inputMap.end())
-    result.joyX = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyX)) / maxAnalogValue_ - 1;
+    result.joyX = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyX)) / configuration_.maxAnalogValue - 1;
   if (inputMap.find(VRCommDataAlphaEncodingKey::JoyY) != inputMap.end())
-    result.joyY = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyY)) / maxAnalogValue_ - 1;
+    result.joyY = 2 * std::stof(inputMap.at(VRCommDataAlphaEncodingKey::JoyY)) / configuration_.maxAnalogValue - 1;
 
   // trigger value is 0.0f -> 1.0f inclusive
   if (inputMap.find(VRCommDataAlphaEncodingKey::TrgValue) != inputMap.end())
-    result.trgValue = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::TrgValue)) / maxAnalogValue_;
+    result.trgValue = std::stof(inputMap.at(VRCommDataAlphaEncodingKey::TrgValue)) / configuration_.maxAnalogValue;
 
   result.joyButton = inputMap.find(VRCommDataAlphaEncodingKey::JoyBtn) != inputMap.end();
   result.trgButton = inputMap.find(VRCommDataAlphaEncodingKey::BtnTrg) != inputMap.end();

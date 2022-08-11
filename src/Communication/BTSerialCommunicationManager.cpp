@@ -10,11 +10,9 @@
 #include "Util/Windows.h"
 
 BTSerialCommunicationManager::BTSerialCommunicationManager(
-    std::unique_ptr<EncodingManager> encodingManager, const VRBTSerialConfiguration configuration, const VRDeviceConfiguration& deviceConfiguration)
-    : CommunicationManager(std::move(encodingManager), deviceConfiguration),
-      btSerialConfiguration_(configuration),
-      isConnected_(false),
-      btClientSocket_(NULL) {}
+    const VRCommunicationConfiguration& configuration, std::unique_ptr<EncodingManager> encodingManager)
+    : CommunicationManager(configuration, std::move(encodingManager)),
+      btSerialConfiguration_(std::get<VRCommunicationBTSerialConfiguration>(configuration.configuration)){};
 
 bool BTSerialCommunicationManager::IsConnected() {
   return isConnected_;
@@ -51,9 +49,9 @@ bool BTSerialCommunicationManager::ReceiveNextPacket(std::string& buff) {
   char nextChar = 0;
   do {
     const int receiveResult = recv(btClientSocket_, &nextChar, 1, 0);
-    
+
     if (receiveResult == SOCKET_ERROR) {
-      LogError("Socket error while recieving data over bluetooth");
+      LogError("Socket error while receiving data over Bluetooth");
       return false;
     }
     if (receiveResult <= 0 || nextChar == '\n') continue;
@@ -96,7 +94,7 @@ bool BTSerialCommunicationManager::ConnectToDevice(const BTH_ADDR& deviceBtAddre
   DWORD timeout = 1000;
   setsockopt(btClientSocket_, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof(timeout));
   setsockopt(btClientSocket_, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof(timeout));
-  
+
   return true;
 }
 

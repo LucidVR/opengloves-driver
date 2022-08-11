@@ -1,6 +1,7 @@
 {
   "jsonid": "input_profile",
   "controller_type": "openglove",
+  "compatibility_mode_controller_type": "knuckles",
   "input_bindingui_mode" : "controller_handed",
   "input_bindingui_left" :
   {
