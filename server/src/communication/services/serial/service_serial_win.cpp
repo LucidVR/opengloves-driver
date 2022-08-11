@@ -92,6 +92,19 @@ bool SerialCommunicationService::ReceiveNextPacket(std::string& buff) {
     return false;
   }
 
+  if (!SetCommMask(handle_, EV_RXCHAR)) {
+    LogError("Error setting comm mask");
+    return false;
+  }
+
+  DWORD dwCommEvent = 0;
+  do {
+    if (!WaitCommEvent(handle_, &dwCommEvent, nullptr)) {
+      LogError("Error waiting for event");
+      return false;
+    }
+  } while (is_connected_ && (dwCommEvent & EV_RXCHAR) != EV_RXCHAR);
+
   char next_char = 0;
   DWORD bytes_read = 0;
   do {
@@ -101,11 +114,11 @@ bool SerialCommunicationService::ReceiveNextPacket(std::string& buff) {
       return false;
     }
 
-    buff += next_char;
-
     if (bytes_read <= 0 || next_char == '\n') continue;
 
-  } while (next_char != '\n' && !is_disconnecting_);
+    buff += next_char;
+
+  } while (next_char != '\n' && !is_disconnecting_ && is_connected_);
 
   return true;
 }

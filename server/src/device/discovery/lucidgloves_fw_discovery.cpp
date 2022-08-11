@@ -61,9 +61,9 @@ void LucidglovesDeviceDiscoverer::OnDeviceFound(std::unique_ptr<ICommunicationSe
   std::unique_ptr<IEncodingService> encoding_service = std::make_unique<AlphaEncodingService>(default_configuration_.encoding_configuration);
 
   std::string soutput = encoding_service->EncodePacket({
-                            .type = kOutputDataType_FetchInfo,
-                            .data = {.fetch_info = {.get_info = true}},
-                        });
+      .type = kOutputDataType_FetchInfo,
+      .data = {.fetch_info = {.get_info = true}},
+  });
 
   // try to retrieve information from the device
   int retries = 0;
@@ -108,6 +108,8 @@ void LucidglovesDeviceDiscoverer::OnDeviceFound(std::unique_ptr<ICommunicationSe
 
     return;
   }
+
+  logger.Log(og::kLoggerLevel_Info, "Found a compatible opengloves device. Initialising device...");
 
   // eventually we want this to be able to perform custom device-based logic
   switch (device_info.device_type) {
