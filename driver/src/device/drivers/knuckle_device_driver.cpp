@@ -1,7 +1,7 @@
 #include "knuckle_device_driver.h"
 
-#include "util/file_path.h"
 #include "hand_tracking/hand_tracking.h"
+#include "util/file_path.h"
 
 class KnuckleDeviceDriver::Impl {
  public:
@@ -24,7 +24,9 @@ class KnuckleDeviceDriver::Impl {
 };
 
 KnuckleDeviceDriver::KnuckleDeviceDriver(std::unique_ptr<og::Device> device)
-    : pImpl_(std::make_unique<Impl>(GetDriverRootPath() + "/anims/glove_anim.glb")), ogdevice_(std::move(device)) {}
+    : pImpl_(std::make_unique<Impl>(GetDriverRootPath() + "/anims/glove_anim.glb")),
+      ogdevice_(std::move(device)),
+      pose_(std::make_unique<DevicePose>(GetRole())) {}
 
 vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
   // clang-format off
@@ -41,6 +43,21 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
   vr::VRProperties()->SetInt32Property(
       props, vr::Prop_ControllerRoleHint_Int32, IsRightHand() ? vr::TrackedControllerRole_RightHand : vr::TrackedControllerRole_LeftHand);
   vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, "knuckles");
+
+  vr::VRDriverInput()->CreateSkeletonComponent(
+      props,
+      IsRightHand() ? "/input/skeleton/right" : "/input/skeleton/left",
+      IsRightHand() ? "/skeleton/hand/right" : "/skeleton/hand/left",
+      "/pose/raw",
+      vr::EVRSkeletalTrackingLevel::VRSkeletalTracking_Full,
+      skeleton_,
+      31,
+      &skeleton_handle_);
+
+  //update the skeleton so steamvr knows we have an active skeletal input device
+  pImpl_->SetDefaultSkeleton(skeleton_, IsRightHand() ? vr::TrackedControllerRole_RightHand : vr::TrackedControllerRole_LeftHand);
+  vr::VRDriverInput()->UpdateSkeletonComponent(skeleton_handle_, vr::VRSkeletalMotionRange_WithController, skeleton_, 31);
+  vr::VRDriverInput()->UpdateSkeletonComponent(skeleton_handle_, vr::VRSkeletalMotionRange_WithoutController, skeleton_, 31);
 
   vr::VRDriverInput()->CreateBooleanComponent(props, "/input/system/click", &input_components_[kKnuckleDeviceComponentIndex_SystemClick]);
   vr::VRDriverInput()->CreateBooleanComponent(props, "/input/system/touch", &input_components_[kKnuckleDeviceComponentIndex_SystemTouch]);
@@ -69,6 +86,10 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 
   ogdevice_->ListenForInput([&](og::InputPeripheralData data) {
     // clang-format off
+    pImpl_->SetSkeleton(skeleton_, data, IsRightHand() ? vr::TrackedControllerRole_RightHand : vr::TrackedControllerRole_LeftHand);
+    vr::VRDriverInput()->UpdateSkeletonComponent(skeleton_handle_, vr::VRSkeletalMotionRange_WithController, skeleton_, 31);
+    vr::VRDriverInput()->UpdateSkeletonComponent(skeleton_handle_, vr::VRSkeletalMotionRange_WithoutController, skeleton_, 31);
+
     vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_ThumbstickX], data.joystick.x, 0);
     vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_ThumbstickY], data.joystick.y, 0);
 
@@ -100,8 +121,6 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
   return vr::VRInitError_None;
 }
 
-void KnuckleDeviceDriver::HandleInput(const og::InputPeripheralData &data) {}
-
 void KnuckleDeviceDriver::EnterStandby() {}
 
 void *KnuckleDeviceDriver::GetComponent(const char *pchComponentNameAndVersion) {
@@ -125,6 +144,17 @@ std::string KnuckleDeviceDriver::GetSerialNumber() {
 
 bool KnuckleDeviceDriver::IsRightHand() const {
   return ogdevice_->GetInfo().hand == og::kHandRight;
+}
+
+vr::ETrackedControllerRole KnuckleDeviceDriver::GetRole() const {
+  switch (ogdevice_->GetInfo().hand) {
+    case og::kHandRight:
+      return vr::TrackedControllerRole_RightHand;
+    case og::kHandLeft:
+      return vr::TrackedControllerRole_LeftHand;
+    default:
+      return vr::TrackedControllerRole_Invalid;
+  }
 }
 
 KnuckleDeviceDriver::~KnuckleDeviceDriver() = default;

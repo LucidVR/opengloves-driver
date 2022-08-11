@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <map>
 
 #include "openvr_driver.h"
@@ -17,7 +18,7 @@ class TrackingReferenceDiscovery {
     return instance;
   };
 
-  bool GetTrackingReferenceForRole(vr::ETrackedControllerRole role, TrackingReferenceResult& out_result);
+  void AddCallback(std::function<void(const TrackingReferenceResult&)> callback);
 
   void Stop();
 
@@ -33,4 +34,5 @@ class TrackingReferenceDiscovery {
  private:
   std::map<vr::ETrackedControllerRole, TrackingReferenceResult> tracking_references_discovered_;
 
+  std::vector<std::function<void(const TrackingReferenceResult&)>> callbacks_;
 };

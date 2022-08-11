@@ -136,7 +136,7 @@ namespace og {
    public:
     virtual DeviceInfoData GetInfo() = 0;
 
-    virtual void ListenForInput(std::function<void(InputPeripheralData data)> callback) = 0;
+    virtual void ListenForInput(std::function<void(const InputPeripheralData& data)> callback) = 0;
 
     virtual ~Device() = default;
   };

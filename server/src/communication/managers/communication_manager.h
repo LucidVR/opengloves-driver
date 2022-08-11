@@ -13,7 +13,7 @@ class CommunicationManager {
  public:
   CommunicationManager(std::unique_ptr<ICommunicationService> communication_service, std::unique_ptr<IEncodingService> encoding_service);
 
-  void BeginListener(std::function<void(og::Input)> callback);
+  void BeginListener(std::function<void(const og::Input&)> callback);
 
   ~CommunicationManager();
 
@@ -25,7 +25,7 @@ class CommunicationManager {
 
   std::string queued_write_string;
 
-  std::function<void(og::Input)> callback_;
+  std::function<void(const og::Input&)> callback_;
 
   std::unique_ptr<ICommunicationService> communication_service_;
   std::unique_ptr<IEncodingService> encoding_service_;

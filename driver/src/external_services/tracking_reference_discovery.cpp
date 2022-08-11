@@ -38,8 +38,13 @@ static std::unique_ptr<TrackingReferenceDiscoveryService> service;
 static std::unique_ptr<grpc::Server> server;
 
 TrackingReferenceDiscovery::TrackingReferenceDiscovery() {
-  service = std::make_unique<TrackingReferenceDiscoveryService>(
-      [&](const TrackingReferenceResult& result) { tracking_references_discovered_.insert_or_assign(result.role, result); });
+  service = std::make_unique<TrackingReferenceDiscoveryService>([&](const TrackingReferenceResult& result) {
+    for (auto callback : callbacks_) {
+      callback(result);
+    }
+
+    tracking_references_discovered_.insert_or_assign(result.role, result);
+  });
 
   grpc::ServerBuilder builder;
   builder.AddListeningPort("0.0.0.0:52050", grpc::InsecureServerCredentials());
@@ -51,17 +56,13 @@ TrackingReferenceDiscovery::TrackingReferenceDiscovery() {
   is_initialised_ = true;
 }
 
-bool TrackingReferenceDiscovery::GetTrackingReferenceForRole(vr::ETrackedControllerRole role, TrackingReferenceResult& out_result) {
-  if (!is_initialised_) {
-    DriverLog("Cannot get tracking references as discovery failed to initialise");
-    return false;
+void TrackingReferenceDiscovery::AddCallback(std::function<void(const TrackingReferenceResult&)> callback) {
+  callbacks_.emplace_back(callback);
+
+  // trigger the callback with all the references we've discovered so far
+  for (auto const& reference : tracking_references_discovered_) {
+    callback(reference.second);
   }
-
-  if (tracking_references_discovered_.find(role) == tracking_references_discovered_.end()) return false;
-
-  out_result = tracking_references_discovered_.at(role);
-
-  return true;
 }
 
 void TrackingReferenceDiscovery::Stop() {

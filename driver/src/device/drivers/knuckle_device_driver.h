@@ -2,8 +2,9 @@
 
 #include <string>
 
-#include "openvr_driver.h"
+#include "device/pose/device_pose.h"
 #include "opengloves_interface.h"
+#include "openvr_driver.h"
 
 enum KnuckleDeviceComponentIndex {
   kKnuckleDeviceComponentIndex_SystemClick = 0,
@@ -51,15 +52,19 @@ class KnuckleDeviceDriver : public vr::ITrackedDeviceServerDriver {
   std::string GetSerialNumber();
 
   ~KnuckleDeviceDriver();
+
  private:
   class Impl;
   std::unique_ptr<Impl> pImpl_;
 
-  void HandleInput(const og::InputPeripheralData& data);
-
   [[nodiscard]] bool IsRightHand() const;
+  [[nodiscard]] vr::ETrackedControllerRole GetRole() const;
 
   std::unique_ptr<og::Device> ogdevice_;
 
+  vr::VRBoneTransform_t skeleton_[31]{};
   std::array<vr::VRInputComponentHandle_t, kKnuckleDeviceComponentIndex_Count> input_components_{};
+  vr::VRInputComponentHandle_t skeleton_handle_{};
+
+  std::unique_ptr<DevicePose> pose_;
 };
