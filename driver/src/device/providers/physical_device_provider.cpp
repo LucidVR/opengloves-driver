@@ -2,13 +2,13 @@
 
 #include "device/configuration/device_configuration.h"
 #include "device/drivers/knuckle_device_driver.h"
-#include "external_services/tracking_reference_discovery.h"
+#include "external_services/driver_internal.h"
 #include "util/driver_log.h"
 #include "util/file_path.h"
 
 static bool InitialiseExternalServices() {
   // spin up the tracking discovery service before the process so we know we have a server running before the client
-  TrackingReferenceDiscovery::GetInstance();
+  DriverInternalServer::GetInstance();
 
   const std::string bin_path = GetDriverBinPath();
 
@@ -28,10 +28,10 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
 
   DebugDriverLog("OpenGloves is running in DEBUG MODE");
 
-  if (!InitialiseExternalServices()) {
-    DriverLog("Failed to initialise external services. Exiting..");
-    return vr::VRInitError_Init_FileNotFound;
-  }
+  //if (!InitialiseExternalServices()) {
+  //  DriverLog("Failed to initialise external services. Exiting..");
+  //  return vr::VRInitError_Init_FileNotFound;
+  //}
 
   static og::Logger& logger = og::Logger::GetInstance();
   logger.SubscribeToLogger([&](const std::string& message, og::LoggerLevel log_level) {
@@ -95,5 +95,5 @@ bool PhysicalDeviceProvider::ShouldBlockStandbyMode() {
 
 void PhysicalDeviceProvider::Cleanup() {
   ogserver_->StopProber();
-  TrackingReferenceDiscovery::GetInstance().Stop();
+  DriverInternalServer::GetInstance().Stop();
 }

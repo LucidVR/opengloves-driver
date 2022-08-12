@@ -1,15 +1,15 @@
 #include "device_pose.h"
 
-#include "external_services/tracking_reference_discovery.h"
+#include "external_services/driver_internal.h"
 #include "util/driver_log.h"
 #include "util/driver_math.h"
 
-static TrackingReferenceDiscovery& tracking_discovery = TrackingReferenceDiscovery::GetInstance();
+static DriverInternalServer& driver_server = DriverInternalServer::GetInstance();
 
 DevicePose::DevicePose(vr::ETrackedControllerRole role) : role_(role), calibration_(std::make_unique<PoseCalibration>()) {
   configuration_ = GetPoseConfiguration(role);
 
-  tracking_discovery.AddCallback([&](const TrackingReferenceResult& result) {
+  driver_server.AddTrackingReferenceRequestCallback([&](const TrackingReferenceResult& result) {
     if (result.role == role) {
       controller_id_ = result.controller_id;
     }

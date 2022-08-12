@@ -28,8 +28,6 @@ elseif (APPLE)
     set(PLATFORM_NAME "osx")
 endif ()
 
-add_subdirectory(libraries/opengloves-protocol)
-
 add_subdirectory(server)
 add_subdirectory(driver)
 

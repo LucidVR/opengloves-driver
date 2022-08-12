@@ -4,8 +4,9 @@
     "version-string": "1.0",
     "dependencies": [
         "openvr",
-        "grpc",
-        "protobuf",
+        "crow",
+        "nlohmann-json",
+        "restclient-cpp",
         "tinygltf"
     ]
 }

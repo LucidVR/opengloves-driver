@@ -3,22 +3,26 @@
 #include <Windows.h>
 #endif
 
-#include <grpc/grpc.h>
-#include <grpcpp/create_channel.h>
-
 #include <atomic>
 #include <chrono>
 #include <functional>
 #include <iostream>
+#include <map>
 #include <thread>
 
+#include "nlohmann/json.hpp"
 #include "openvr.h"
-#include "protos/driver/driver_input.grpc.pb.h"
-#include "protos/driver/driver_input.pb.h"
+#include "restclient-cpp/restclient.h"
 
 static std::string this_manufacturer = "LucidVR";
 
 static std::atomic<bool> app_active = false;
+
+enum ServerAddress {
+  kServerAddress_DriverInternal,
+};
+
+std::map<ServerAddress, std::string> server_addresses_{{kServerAddress_DriverInternal, "http://localhost:52050"}};
 
 void DiscoveryThread(vr::ETrackedControllerRole role, std::function<void(uint32_t id)> callback) {
   uint32_t last_found_id = -1;
@@ -67,30 +71,20 @@ int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE hPreInst, LPWSTR nCmdLine, int 
     return 1;
   }
 
-  // create grpc channel
-  auto channel = grpc::CreateChannel("localhost:52050", grpc::InsecureChannelCredentials());
-  std::unique_ptr<driver_input::DriverInput::Stub> driver_input_stub = driver_input::DriverInput::NewStub(channel);
-
-  grpc::ClientContext context;
-
   std::thread left_controller_thread = std::thread(DiscoveryThread, vr::TrackedControllerRole_LeftHand, [&](uint32_t id) {
-    driver_input::TrackingReferenceInfo info;
-    info.set_hand(driver_input::TrackingReferenceInfo::LEFT);
-    info.set_openvr_id(id);
+    nlohmann::json json;
+    json["openvr_id"] = id;
+    json["openvr_role"] = vr::TrackedControllerRole_LeftHand;
 
-    driver_input::TrackingReferenceResponse response;
-
-    grpc::Status status = driver_input_stub->TrackingReferenceFound(&context, info, &response);
+    RestClient::Response response = RestClient::post(server_addresses_.at(kServerAddress_DriverInternal), "application/json", json.dump());
   });
 
   std::thread right_controller_thread = std::thread(DiscoveryThread, vr::TrackedControllerRole_RightHand, [&](uint32_t id) {
-    driver_input::TrackingReferenceInfo info;
-    info.set_hand(driver_input::TrackingReferenceInfo::RIGHT);
-    info.set_openvr_id(id);
+    nlohmann::json json;
+    json["openvr_id"] = id;
+    json["openvr_role"] = vr::TrackedControllerRole_RightHand;
 
-    driver_input::TrackingReferenceResponse response;
-
-    grpc::Status status = driver_input_stub->TrackingReferenceFound(&context, info, &response);
+    RestClient::Response response = RestClient::post(server_addresses_.at(kServerAddress_DriverInternal), "application/json", json.dump());
   });
 
   app_active = true;
