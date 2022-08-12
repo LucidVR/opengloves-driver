@@ -46,6 +46,8 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
   vr::VRProperties()->SetInt32Property(
       props, vr::Prop_ControllerRoleHint_Int32, IsRightHand() ? vr::TrackedControllerRole_RightHand : vr::TrackedControllerRole_LeftHand);
   vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, "knuckles");
+  
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, IsRightHand() ? "{indexcontroller}valve_controller_knu_1_0_right" : "{indexcontroller}valve_controller_knu_1_0_left");
 
   vr::VRDriverInput()->CreateSkeletonComponent(
       props,

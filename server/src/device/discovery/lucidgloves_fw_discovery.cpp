@@ -92,12 +92,15 @@ void LucidglovesDeviceDiscoverer::OnDeviceFound(std::unique_ptr<ICommunicationSe
       Output device_start_stream = {.type = kOutputDataType_FetchInfo, .data = {.fetch_info = {.start_streaming = true}}};
       communication_service->RawWrite(encoding_service->EncodePacket(device_start_stream));
 
+      logger.Log(og::kLoggerLevel_Info, "Lucidgloves device found and provides information");
+
       break;
 
     } else if (received.type == og::kInputDataType_Peripheral) {
+      logger.Log(og::kLoggerLevel_Info, "Lucidgloves device found but does not provide information");
       fw_is_valid = true;
     } else {
-      logger.Log(og::kLoggerLevel_Warning, "Device discovery received an invalid packet.");
+      logger.Log(og::kLoggerLevel_Warning, "Device discovery received an invalid packet");
     }
 
     retries++;
@@ -114,7 +117,7 @@ void LucidglovesDeviceDiscoverer::OnDeviceFound(std::unique_ptr<ICommunicationSe
   // eventually we want this to be able to perform custom device-based logic
   switch (device_info.device_type) {
     default:
-      logger.Log(og::kLoggerLevel_Warning, "Device does not support fetching info from lucidgloves firmware. setting device type to lucidgloves.");
+      logger.Log(og::kLoggerLevel_Warning, "Device does not support fetching info from lucidgloves firmware. setting device type to lucidgloves");
     case og::kGloveType_lucidgloves: {
       logger.Log(og::kLoggerLevel_Info, "Setting up lucidgloves device");
 
@@ -133,7 +136,7 @@ void LucidglovesDeviceDiscoverer::StopDiscovery() {
       prober_thread.join();
     }
 
-    logger.Log(kLoggerLevel_Info, "Cleaned up queryable device probers.");
+    logger.Log(kLoggerLevel_Info, "Cleaned up queryable device probers");
   }
 }
 
