@@ -1,6 +1,8 @@
 
 # Installation & Usage
 
+<br>
+
 ## Steam
 
 It is strongly recommended to use the **[Steam]** version <br>
@@ -9,15 +11,14 @@ to receive automatic updates as well as additional tools.
 [![Steam Preview]][Steam]
 
 <br>
-
----
-
 <br>
 
 ## GitHub
 
 While ***not recommended***, it is possible to install **OpenGloves** <br>
 manually by downloading a **[Release]** and **[Building]** it yourself.
+
+<br>
 
 
 <!----------------------------------------------------------------------------->
