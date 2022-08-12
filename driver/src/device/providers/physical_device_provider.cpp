@@ -28,10 +28,10 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
 
   DebugDriverLog("OpenGloves is running in DEBUG MODE");
 
-  //if (!InitialiseExternalServices()) {
-  //  DriverLog("Failed to initialise external services. Exiting..");
-  //  return vr::VRInitError_Init_FileNotFound;
-  //}
+  if (!InitialiseExternalServices()) {
+    DriverLog("Failed to initialise external services. Exiting..");
+    return vr::VRInitError_Init_FileNotFound;
+  }
 
   static og::Logger& logger = og::Logger::GetInstance();
   logger.SubscribeToLogger([&](const std::string& message, og::LoggerLevel log_level) {
@@ -48,7 +48,7 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
         break;
     }
 
-    DriverLog("server %s: %s", str_level.c_str(), message.c_str());
+    DriverLog("OpenGloves Server %s: %s", str_level.c_str(), message.c_str());
   });
 
   // initialise opengloves

@@ -1,6 +1,8 @@
 #pragma once
 
+#include <atomic>
 #include <string>
+#include <thread>
 
 #include "device/pose/device_pose.h"
 #include "opengloves_interface.h"
@@ -57,8 +59,12 @@ class KnuckleDeviceDriver : public vr::ITrackedDeviceServerDriver {
   class Impl;
   std::unique_ptr<Impl> pImpl_;
 
+  std::atomic<uint32_t> device_id_;
+
   [[nodiscard]] bool IsRightHand() const;
   [[nodiscard]] vr::ETrackedControllerRole GetRole() const;
+
+  void PoseThread();
 
   std::unique_ptr<og::Device> ogdevice_;
 
@@ -67,4 +73,7 @@ class KnuckleDeviceDriver : public vr::ITrackedDeviceServerDriver {
   vr::VRInputComponentHandle_t skeleton_handle_{};
 
   std::unique_ptr<DevicePose> pose_;
+
+  std::atomic<bool> is_active_;
+  std::thread pose_thread_;
 };

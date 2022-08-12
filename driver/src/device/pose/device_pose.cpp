@@ -10,7 +10,11 @@ DevicePose::DevicePose(vr::ETrackedControllerRole role) : role_(role), calibrati
   configuration_ = GetPoseConfiguration(role);
 
   driver_server.AddTrackingReferenceRequestCallback([&](const TrackingReferenceResult& result) {
-    if (result.role == role) {
+    if (result.role == role_) {
+      DriverLog(
+          "Controller that %s hand is tracking from has been updated to id: %i",
+          role_ == vr::TrackedControllerRole_RightHand ? "right" : "left",
+          result.controller_id);
       controller_id_ = result.controller_id;
     }
   });

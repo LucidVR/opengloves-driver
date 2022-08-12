@@ -24,15 +24,18 @@ class KnuckleDeviceDriver::Impl {
 };
 
 KnuckleDeviceDriver::KnuckleDeviceDriver(std::unique_ptr<og::Device> device)
-    : pImpl_(std::make_unique<Impl>(GetDriverRootPath() + "/anims/glove_anim.glb")),
+    : pImpl_(std::make_unique<Impl>(GetDriverRootPath() + "\\resources\\anims\\glove_anim.glb")),
       ogdevice_(std::move(device)),
       pose_(std::make_unique<DevicePose>(GetRole())) {}
 
 vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
+  device_id_ = unObjectId;
+
   // clang-format off
   const vr::PropertyContainerHandle_t props = vr::VRProperties()->TrackedDeviceToPropertyContainer(unObjectId);
 
   vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, IsRightHand() ? "LHR-E217CD01" : "LHR-E217CD00");
+  vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, "LucidVR");
 
   vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, 2000000000);
   vr::VRProperties()->SetFloatProperty(props, vr::Prop_DeviceBatteryPercentage_Float, 1.f);
@@ -118,7 +121,19 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
     // clang-format on
   });
 
+  pose_thread_ = std::thread(&KnuckleDeviceDriver::PoseThread, this);
+
+  is_active_ = true;
+
   return vr::VRInitError_None;
+}
+
+void KnuckleDeviceDriver::PoseThread() {
+  while (is_active_) {
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, pose_->UpdatePose(), sizeof vr::DriverPose_t);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
 }
 
 void KnuckleDeviceDriver::EnterStandby() {}
@@ -129,7 +144,12 @@ void *KnuckleDeviceDriver::GetComponent(const char *pchComponentNameAndVersion) 
 
 void KnuckleDeviceDriver::DebugRequest(const char *pchRequest, char *pchResponseBuffer, uint32_t unResponseBufferSize) {}
 
-void KnuckleDeviceDriver::Deactivate() {}
+void KnuckleDeviceDriver::Deactivate() {
+  if (is_active_.exchange(false)) {
+    ogdevice_.reset();
+    pose_thread_.join();
+  }
+}
 
 vr::DriverPose_t KnuckleDeviceDriver::GetPose() {
   vr::DriverPose_t pose{};
@@ -143,7 +163,7 @@ std::string KnuckleDeviceDriver::GetSerialNumber() {
 }
 
 bool KnuckleDeviceDriver::IsRightHand() const {
-  return ogdevice_->GetInfo().hand == og::kHandRight;
+  return is_active_ && ogdevice_->GetInfo().hand == og::kHandRight;
 }
 
 vr::ETrackedControllerRole KnuckleDeviceDriver::GetRole() const {

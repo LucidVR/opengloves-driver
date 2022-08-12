@@ -186,6 +186,9 @@ namespace og {
     void Log(LoggerLevel level, const char* format, Args... args) {
       const std::string message = StringFormat(format, args...);
 
+      if(last_message_ == message) return;
+      last_message_ = message;
+
       for (auto& callback : callbacks_) {
         callback(message, level);
       }
@@ -200,6 +203,8 @@ namespace og {
 
    private:
     std::vector<std::function<void(const std::string& message, LoggerLevel level)>> callbacks_;
+
+    std::string last_message_;
 
     template <typename... Args>
     static std::string StringFormat(const std::string& format, Args... args) {

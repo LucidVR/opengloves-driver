@@ -139,6 +139,8 @@ HandTracking::HandTracking(std::string file_name) {
 }
 
 void HandTracking::LoadDefaultSkeletonByHand(vr::VRBoneTransform_t* bone_transforms, vr::ETrackedControllerRole role) {
+  if (!model_loaded_) return;
+
   for (int i = 0; i < HAND_TRACKING_OPENVR_BONE_COUNT; i++) {
     Transform transform = model_manager_->GetTransformByBoneIndex((HandSkeletonBone)i);
     bone_transforms[i].orientation.w = transform.rotation[0];
@@ -156,6 +158,7 @@ void HandTracking::LoadDefaultSkeletonByHand(vr::VRBoneTransform_t* bone_transfo
 }
 
 void HandTracking::SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, float curl, float splay, bool rightHand) {
+  if (!model_loaded_) return;
   // We don't clamp this, as chances are if it's invalid we don't really want to use it anyway.
   if (curl < 0.0f || curl > 1.0f) return;
 

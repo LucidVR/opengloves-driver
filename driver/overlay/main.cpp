@@ -76,7 +76,8 @@ int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE hPreInst, LPWSTR nCmdLine, int 
     json["openvr_id"] = id;
     json["openvr_role"] = vr::TrackedControllerRole_LeftHand;
 
-    RestClient::Response response = RestClient::post(server_addresses_.at(kServerAddress_DriverInternal), "application/json", json.dump());
+    RestClient::Response response =
+        RestClient::post(server_addresses_.at(kServerAddress_DriverInternal) + "/tracking_reference", "application/json", json.dump());
   });
 
   std::thread right_controller_thread = std::thread(DiscoveryThread, vr::TrackedControllerRole_RightHand, [&](uint32_t id) {
@@ -84,7 +85,8 @@ int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE hPreInst, LPWSTR nCmdLine, int 
     json["openvr_id"] = id;
     json["openvr_role"] = vr::TrackedControllerRole_RightHand;
 
-    RestClient::Response response = RestClient::post(server_addresses_.at(kServerAddress_DriverInternal), "application/json", json.dump());
+    RestClient::Response response =
+        RestClient::post(server_addresses_.at(kServerAddress_DriverInternal) + "/tracking_reference", "application/json", json.dump());
   });
 
   app_active = true;

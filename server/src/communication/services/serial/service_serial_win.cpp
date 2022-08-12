@@ -61,7 +61,7 @@ bool SerialCommunicationService::Connect() {
 
   if (!GetCommState(handle_, &serial_params)) ERROR_DISCONNECT_AND_RETURN("Failed to get current port parameters");
 
-  serial_params.BaudRate = BAUD_115200;
+  serial_params.BaudRate = 115200;
   serial_params.ByteSize = 8;
   serial_params.StopBits = ONESTOPBIT;
   serial_params.fParity = NOPARITY;
@@ -70,10 +70,10 @@ bool SerialCommunicationService::Connect() {
   if (!SetCommState(handle_, &serial_params)) ERROR_DISCONNECT_AND_RETURN("Failed to set serial parameters");
 
   COMMTIMEOUTS timeout;
-  timeout.ReadIntervalTimeout = 10;
+  timeout.ReadIntervalTimeout = 50;
   timeout.ReadTotalTimeoutConstant = 0;
   timeout.ReadTotalTimeoutMultiplier = 0;
-  timeout.WriteTotalTimeoutConstant = 10;
+  timeout.WriteTotalTimeoutConstant = 50;
   timeout.WriteTotalTimeoutMultiplier = 0;
   if (!SetCommTimeouts(handle_, &timeout)) ERROR_DISCONNECT_AND_RETURN("Failed to set port timeouts");
 
