@@ -29,17 +29,22 @@
 
 <br>
 
-- **Force Feedback**
+- **Tracker / Controller Positioning & Offsetting** <br>
 
+    <br>
+    
+-   **Multiple Communication Methods** <br>
+    
+    - *Bluetooth Serial*
+    - *Named Pipes*
+    - *Serial USB*
+    
     <br>
 
 - **Full Finger Tracking** <br>
     
     - *Individual Joint Support*
     - *Splay Support*
-
-
-- **Tracker / Controller Positioning & Offsetting** <br>
 
     <br>
 
@@ -49,12 +54,10 @@
     - <kbd>  Joystick  </kbd>  <kbd>  X  </kbd>  <kbd>  Y  </kbd>  <kbd>  Click  </kbd>
     
     <br>
-
--   **Multiple Communication Methods** <br>
     
-    - *Bluetooth Serial*
-    - *Named Pipes*
-    - *Serial USB*
+- **Force Feedback**
+
+    <br>
 
 <br>
 <br>
@@ -67,9 +70,10 @@ This application is shipped with the driver <br>
 via **Steam** and allows you to easy adjust <br>
 your driver settings, as well as to:
 
+- Automatically Calibrate Controllers  ⟷  Glove Offsets
+
 - Test Force Feedback
 
-- Automatically Calibrate Controllers ⟷ Glove Offsets
 
 <br>
 <br>
