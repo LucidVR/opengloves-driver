@@ -27,38 +27,26 @@
 
 ## Driver Features
 
-<br>
+- **Tracker / Controller Positioning & Offsetting**
 
-- **Tracker / Controller Positioning & Offsetting** <br>
+- **Force Feedback**
 
-    <br>
-    
--   **Multiple Communication Methods** <br>
+-   **Multiple Communication Methods**
     
     - *Bluetooth Serial*
     - *Named Pipes*
     - *Serial USB*
     
-    <br>
-
-- **Full Finger Tracking** <br>
+- **Full Finger Tracking**
     
     - *Individual Joint Support*
     - *Splay Support*
-
-    <br>
 
 -   **Button / Joystick Inputs**
 
     - <kbd>      Trigger      </kbd>  <kbd>  A  </kbd>  <kbd>  B  </kbd> <br>
     - <kbd>  Joystick  </kbd>  <kbd>  X  </kbd>  <kbd>  Y  </kbd>  <kbd>  Click  </kbd>
     
-    <br>
-    
-- **Force Feedback**
-
-    <br>
-
 <br>
 <br>
 
