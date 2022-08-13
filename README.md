@@ -44,8 +44,8 @@
 
 -   **Button / Joystick Inputs**
 
-    - <kbd>      Trigger      </kbd>  <kbd>  A  </kbd>  <kbd>  B  </kbd> <br>
-    - <kbd>  Joystick  </kbd>  <kbd>  X  </kbd>  <kbd>  Y  </kbd>  <kbd>  Click  </kbd>
+    - **Trigger**  | **A** | **B** <br>
+    - **Joystick** | **X** | **Y** | **Click**
     
 <br>
 <br>
