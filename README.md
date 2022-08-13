@@ -97,7 +97,7 @@ To make your own hardware compatible with <br>
 <br>
 <br>
 
-## Maintainer
+## Maintainers
 
 [![Badge GitHub Dan]][GitHub Dan]   ![Badge Discord Dan]
 
