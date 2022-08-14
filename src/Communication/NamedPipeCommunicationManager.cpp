@@ -17,7 +17,7 @@ bool NamedPipeCommunicationManager::Connect() {
   return true;
 }
 
-void NamedPipeCommunicationManager::BeginListener(const std::function<void(VRInputData)>& callback) {
+void NamedPipeCommunicationManager::BeginListener(const std::function<void(const VRInputData&)>& callback) {
   callback_ = callback;
 
   if (!Connect()) {

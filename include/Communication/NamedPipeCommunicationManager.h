@@ -15,7 +15,7 @@ class NamedPipeCommunicationManager : public CommunicationManager {
 
   // no sending for named pipes
   void QueueSend(const VROutput& data) override{};
-  void BeginListener(const std::function<void(VRInputData)>& callback) override;
+  void BeginListener(const std::function<void(const VRInputData&)>& callback) override;
 
  protected:
   bool Connect() override;
@@ -34,7 +34,7 @@ class NamedPipeCommunicationManager : public CommunicationManager {
  private:
   std::atomic<bool> isConnected_;
 
-  std::function<void(VRInputData)> callback_;
+  std::function<void(const VRInputData&)> callback_;
 
   VRCommunicationNamedPipeConfiguration namedPipeConfiguration_;
 

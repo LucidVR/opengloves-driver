@@ -4,6 +4,7 @@
 #define _WINSOCKAPI_
 
 #include <memory>
+#include <mutex>
 #include <string>
 
 #include "Bones.h"
@@ -43,6 +44,7 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   virtual void StartingDevice() = 0;
   virtual void StoppingDevice() = 0;
   void PoseUpdateThread() const;
+  void InputUpdateThread();
 
  private:
   void SetupDeviceComponents();
@@ -63,6 +65,10 @@ class DeviceDriver : public vr::ITrackedDeviceServerDriver {
   vr::VRBoneTransform_t handTransforms_[NUM_BONES];
 
   std::thread poseUpdateThread_;
+
+  std::thread inputUpdateThread_;
+  VRInputData lastInput_;
+  std::mutex inputMutex_;
 
   std::atomic<bool> isRunning_;
   std::atomic<bool> isActive_;

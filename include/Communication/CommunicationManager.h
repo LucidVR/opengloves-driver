@@ -15,7 +15,7 @@ class CommunicationManager {
   explicit CommunicationManager(VRCommunicationConfiguration configuration);
   CommunicationManager(VRCommunicationConfiguration configuration, std::unique_ptr<EncodingManager> encodingManager);
 
-  virtual void BeginListener(const std::function<void(VRInputData)>& callback);
+  virtual void BeginListener(const std::function<void(const VRInputData&)>& callback);
   virtual void Disconnect();
   virtual void QueueSend(const VROutput& data);
 

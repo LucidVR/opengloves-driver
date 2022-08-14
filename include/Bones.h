@@ -25,4 +25,6 @@ class BoneAnimator {
   std::unique_ptr<IModelManager> modelManager_;
   bool loaded_;
   std::vector<float> keyframes_;
+
+  std::array<float, NUM_BONES> accumulator_;
 };

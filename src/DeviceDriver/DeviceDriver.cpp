@@ -35,6 +35,7 @@ vr::EVRInitError DeviceDriver::Activate(uint32_t unObjectId) {
       NUM_BONES,
       &skeletalComponentHandle_);
 
+
   StartDevice();
 
   isRunning_ = true;
@@ -92,6 +93,21 @@ void DeviceDriver::PoseUpdateThread() const {
   DriverLog("Closing pose thread...");
 }
 
+void DeviceDriver::InputUpdateThread() {
+  while (isActive_) {
+    {
+      std::lock_guard<std::mutex> lock(inputMutex_);
+
+      boneAnimator_->ComputeSkeletonTransforms(handTransforms_, lastInput_, IsRightHand());
+    }
+
+    vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
+    vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
+
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+  }
+}
+
 bool DeviceDriver::IsRightHand() const {
   return configuration_.role == vr::TrackedControllerRole_RightHand;
 }
@@ -105,6 +121,8 @@ void DeviceDriver::StartDevice() {
 
   vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
   vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
+
+    inputUpdateThread_ = std::thread(&DeviceDriver::InputUpdateThread, this);
 }
 
 void DeviceDriver::OnEvent(vr::VREvent_t vrEvent) const {
@@ -186,10 +204,6 @@ void DeviceDriver::SetupDeviceComponents() {
 
   communicationManager_->BeginListener([&](VRInputData data) {
     try {
-      boneAnimator_->ComputeSkeletonTransforms(handTransforms_, data, IsRightHand());
-      vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithoutController, handTransforms_, NUM_BONES);
-      vr::VRDriverInput()->UpdateSkeletonComponent(skeletalComponentHandle_, vr::VRSkeletalMotionRange_WithController, handTransforms_, NUM_BONES);
-
       HandleInput(data);
 
       if (configuration_.poseConfiguration.calibrationButtonEnabled) {
@@ -198,6 +212,12 @@ void DeviceDriver::SetupDeviceComponents() {
         } else {
           if (controllerPose_->IsCalibrating()) controllerPose_->CompleteCalibration(CalibrationMethod::Hardware);
         }
+      }
+
+      {
+        std::lock_guard<std::mutex> lock(inputMutex_);
+
+        lastInput_ = data;
       }
 
     } catch (const std::exception&) {
@@ -215,6 +235,7 @@ void DeviceDriver::StopDeviceComponents() {
     communicationManager_->Disconnect();
 
     poseUpdateThread_.join();
+    inputUpdateThread_.join();
   }
 
   vr::DriverPose_t pose;

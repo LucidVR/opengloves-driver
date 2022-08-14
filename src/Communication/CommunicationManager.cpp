@@ -14,7 +14,7 @@ CommunicationManager::CommunicationManager(VRCommunicationConfiguration configur
   QueueSend(VRFFBData(0, 0, 0, 0, 0));
 }
 
-void CommunicationManager::BeginListener(const std::function<void(VRInputData)>& callback) {
+void CommunicationManager::BeginListener(const std::function<void(const VRInputData&)>& callback) {
   threadActive_ = true;
   thread_ = std::thread(&CommunicationManager::ListenerThread, this, callback);
 }

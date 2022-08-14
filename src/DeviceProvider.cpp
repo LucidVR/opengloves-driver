@@ -108,6 +108,8 @@ void DeviceProvider::HandleSettingsUpdate(const vr::ETrackedControllerRole& role
 }
 
 void DeviceProvider::RunFrame() {
+  return;  // don't listen for events for now
+
   vr::VREvent_t pEvent;
   while (vr::VRServerDriverHost()->PollNextEvent(&pEvent, sizeof(pEvent))) {
     switch (pEvent.eventType) {
