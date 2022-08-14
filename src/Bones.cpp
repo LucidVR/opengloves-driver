@@ -146,7 +146,7 @@ void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, co
 
     const float alpha = 0.2f;
     accumulator_[i] = (alpha * curl) + (1.0f - alpha) * accumulator_[i];
-    accumulatorSplay_[i] = (alpha * splay) + (1.0f - alpha) * accumulator_[i];
+    accumulatorSplay_[i] = (alpha * splay) + (1.0f - alpha) * accumulatorSplay_[i];
 
 
     SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), accumulator_[i], accumulatorSplay_[i], rightHand);
