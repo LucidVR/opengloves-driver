@@ -124,6 +124,7 @@ BoneAnimator::BoneAnimator(const std::string& fileName) : fileName_(fileName) {
   loaded_ = modelManager_->Load();
 
   accumulator_.fill(0.0f);
+  accumulatorSplay_.fill(0.0f);
 }
 
 void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, const VRInputData& inputData, const bool rightHand) {
@@ -141,12 +142,14 @@ void BoneAnimator::ComputeSkeletonTransforms(vr::VRBoneTransform_t* skeleton, co
     else
       curl = inputData.flexion[iFinger][i - static_cast<int>(GetRootFingerBoneFromFingerIndex(finger))];
 
-    const float alpha = 0.2f;
-    accumulator_[i] = (alpha * curl) + (1.0f - alpha) * accumulator_[i];
-
     const float splay = inputData.splay[iFinger];
 
-    SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), accumulator_[i], splay, rightHand);
+    const float alpha = 0.2f;
+    accumulator_[i] = (alpha * curl) + (1.0f - alpha) * accumulator_[i];
+    accumulatorSplay_[i] = (alpha * splay) + (1.0f - alpha) * accumulator_[i];
+
+
+    SetTransformForBone(skeleton[i], static_cast<HandSkeletonBone>(i), accumulator_[i], accumulatorSplay_[i], rightHand);
   }
 }
 

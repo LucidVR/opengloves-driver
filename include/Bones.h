@@ -27,4 +27,5 @@ class BoneAnimator {
   std::vector<float> keyframes_;
 
   std::array<float, NUM_BONES> accumulator_;
+  std::array<float, NUM_BONES> accumulatorSplay_;
 };
