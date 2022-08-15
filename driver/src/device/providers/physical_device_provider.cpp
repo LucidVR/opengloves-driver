@@ -2,6 +2,7 @@
 
 #include "device/configuration/device_configuration.h"
 #include "device/drivers/knuckle_device_driver.h"
+#include "external_services/driver_external.h"
 #include "external_services/driver_internal.h"
 #include "util/driver_log.h"
 #include "util/file_path.h"
@@ -9,6 +10,7 @@
 static bool InitialiseExternalServices() {
   // spin up the tracking discovery service before the process so we know we have a server running before the client
   DriverInternalServer::GetInstance();
+  DriverExternalServer::GetInstance();
 
   const std::string bin_path = GetDriverBinPath();
 
@@ -54,7 +56,7 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
   // initialise opengloves
   ogserver_ = std::make_unique<og::Server>();
 
-  ogserver_->SetDefaultConfiguration(GetDriverLegacyConfiguration(vr::TrackedControllerRole_LeftHand));
+  // ogserver_->SetDefaultConfiguration(GetDriverLegacyConfiguration(vr::TrackedControllerRole_LeftHand));
 
   ogserver_->StartProber([&](std::unique_ptr<og::Device> found_device) {
     DriverLog("Physical device provider found a device, hand: %s", found_device->GetInfo().hand == og::kHandLeft ? "Left" : "Right");
@@ -96,4 +98,5 @@ bool PhysicalDeviceProvider::ShouldBlockStandbyMode() {
 void PhysicalDeviceProvider::Cleanup() {
   ogserver_->StopProber();
   DriverInternalServer::GetInstance().Stop();
+  DriverExternalServer::GetInstance().Stop();
 }

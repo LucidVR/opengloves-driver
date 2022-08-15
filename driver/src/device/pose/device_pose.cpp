@@ -100,4 +100,6 @@ void DevicePose::CompleteCalibration(CalibrationMethod method) {
 
   configuration_ =
       calibration_->CompleteCalibration(GetControllerPose(controller_id_), configuration_, role_ == vr::TrackedControllerRole_RightHand, method);
+
+  SetPoseConfiguration(configuration_, role_);
 }

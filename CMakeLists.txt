@@ -22,6 +22,8 @@ message(STATUS "Compilation set for ${PROCESSOR_ARCH}bits architectures.")
 
 if (WIN32)
     set(PLATFORM_NAME "win")
+
+    add_definitions(-D_WIN32_WINNT=0x0601)
 elseif (UNIX AND NOT APPLE)
     set(PLATFORM_NAME "linux")
 elseif (APPLE)

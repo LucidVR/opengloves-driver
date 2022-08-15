@@ -40,7 +40,7 @@ static bool BluetoothDeviceIsConnectable(const BTH_ADDR& bt_address) {
 }
 
 int BluetoothCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) {
-  constexpr BLUETOOTH_DEVICE_SEARCH_PARAMS bt_dev_sp = {
+  BLUETOOTH_DEVICE_SEARCH_PARAMS bt_dev_sp = {
       sizeof(BLUETOOTH_DEVICE_SEARCH_PARAMS),  // size of object
       1,                                       // return authenticated devices
       0,                                       // return remembered devices

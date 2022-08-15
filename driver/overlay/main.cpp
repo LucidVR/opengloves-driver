@@ -22,7 +22,7 @@ enum ServerAddress {
   kServerAddress_DriverInternal,
 };
 
-std::map<ServerAddress, std::string> server_addresses_{{kServerAddress_DriverInternal, "http://localhost:52050"}};
+std::map<ServerAddress, std::string> server_addresses_{{kServerAddress_DriverInternal, "http://localhost:52061"}};
 
 void DiscoveryThread(vr::ETrackedControllerRole role, std::function<void(uint32_t id)> callback) {
   uint32_t last_found_id = -1;

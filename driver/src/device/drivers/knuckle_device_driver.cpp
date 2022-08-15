@@ -132,7 +132,7 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
 
 void KnuckleDeviceDriver::PoseThread() {
   while (is_active_) {
-    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, pose_->UpdatePose(), sizeof vr::DriverPose_t);
+    vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, pose_->UpdatePose(), sizeof(vr::DriverPose_t));
 
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }

@@ -1,6 +1,9 @@
 #pragma once
 
-#include "opengloves_interface.h"
+#include "nlohmann/json.hpp"
+
+#include <variant>
+
 #include "openvr_driver.h"
 
 extern const char* k_driver_settings_section;
@@ -14,7 +17,12 @@ struct PoseConfiguration {
   vr::HmdVector3d_t offset_position;
 };
 
-og::DeviceDefaultConfiguration GetDriverLegacyConfiguration(vr::ETrackedControllerRole role);
+nlohmann::ordered_map<std::string, std::variant<bool>> GetDriverConfigurationMap();
+nlohmann::ordered_map<std::string, std::variant<bool, std::string>> GetBluetoothSerialConfigurationMap();
+nlohmann::ordered_map<std::string, std::variant<bool, std::string>> GetSerialConfigurationMap();
+nlohmann::ordered_map<std::string, std::variant<float, bool>> GetPoseConfigurationMap();
+
+//og::DeviceDefaultConfiguration GetDriverLegacyConfiguration(vr::ETrackedControllerRole role);
 
 PoseConfiguration GetPoseConfiguration(vr::ETrackedControllerRole role);
 void SetPoseConfiguration(const PoseConfiguration& configuration, vr::ETrackedControllerRole role);
