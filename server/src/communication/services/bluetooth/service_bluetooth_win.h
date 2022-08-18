@@ -24,11 +24,11 @@ class BluetoothCommunicationService : public ICommunicationService {
   bool Connect();
   bool Disconnect();
 
-  void LogError(const std::string&, bool with_win_error);
+  void LogError(const std::string&, bool with_win_error) const;
 
   BTH_ADDR bt_address_;
 
-  SOCKET sock_;
+  SOCKET sock_{};
 
   std::atomic<bool> is_connected_;
   std::atomic<bool> is_disconnecting_;

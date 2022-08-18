@@ -21,7 +21,7 @@ target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC OpenVR::OpenVR)
 ## opengloves
 target_include_directories(${OPENGLOVES_PROJECT} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
-target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC opengloves_server-includes device_providers)
+target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC opengloves_interface-includes device_providers)
 target_link_libraries(${OPENGLOVES_PROJECT} PRIVATE opengloves_server)
 
 # Copy driver assets to output folder

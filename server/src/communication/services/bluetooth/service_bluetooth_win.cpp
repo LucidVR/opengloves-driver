@@ -38,7 +38,7 @@ BluetoothCommunicationService::BluetoothCommunicationService(BTH_ADDR bt_address
   Connect();
 }
 
-void BluetoothCommunicationService::LogError(const std::string& message, bool with_win_error = true) {
+void BluetoothCommunicationService::LogError(const std::string& message, bool with_win_error = true) const {
   std::ostringstream oss;
 
   logger.Log(kLoggerLevel_Error, "%llu, %s: %s", bt_address_, message.c_str(), with_win_error ? GetLastErrorAsString().c_str() : "");
