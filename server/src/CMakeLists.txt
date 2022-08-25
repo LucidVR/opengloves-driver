@@ -8,4 +8,4 @@ target_include_directories(server-includes INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}
 add_library(opengloves_server STATIC opengloves_server.cpp)
 
 target_link_libraries(opengloves_server PUBLIC opengloves_interface-includes)
-target_link_libraries(opengloves_server PRIVATE communication_managers communication-includes device_discoverers)
+target_link_libraries(opengloves_server PRIVATE communication_managers device_discoverers)

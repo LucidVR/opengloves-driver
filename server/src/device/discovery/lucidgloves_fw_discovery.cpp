@@ -2,11 +2,11 @@
 
 #include <chrono>
 
+#include "communication/encoding/alpha_encoding_service.h"
+#include "communication/managers/hardware_communication_manager.h"
+#include "communication/probers/bluetooth/prober_bluetooth.h"
+#include "communication/probers/serial/prober_serial.h"
 #include "devices/lucidgloves_device.h"
-#include "encoding/alpha_encoding/alpha_encoding_service.h"
-#include "managers/communication_manager.h"
-#include "probers/bluetooth/prober_bluetooth.h"
-#include "probers/serial/prober_serial.h"
 
 using namespace og;
 
@@ -121,8 +121,8 @@ void LucidglovesDeviceDiscoverer::OnDeviceFound(std::unique_ptr<ICommunicationSe
     case og::kGloveType_lucidgloves: {
       logger.Log(og::kLoggerLevel_Info, "Setting up lucidgloves device");
 
-      std::unique_ptr<CommunicationManager> communication_manager =
-          std::make_unique<CommunicationManager>(std::move(communication_service), std::move(encoding_service));
+      std::unique_ptr<ICommunicationManager> communication_manager =
+          std::make_unique<HardwareCommunicationManager>(std::move(communication_service), std::move(encoding_service));
 
       callback_(std::make_unique<LucidglovesDevice>(device_info, std::move(communication_manager)));
     }

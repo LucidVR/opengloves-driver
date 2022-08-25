@@ -5,8 +5,8 @@
 #include <string>
 #include <vector>
 
-#include "probers/communication_prober.h"
-#include "services/communication_service.h"
+#include "communication/probers/communication_prober.h"
+#include "communication/services/communication_service.h"
 
 struct SerialProberSearchParam {
   std::string vid;

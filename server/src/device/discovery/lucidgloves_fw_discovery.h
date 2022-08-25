@@ -8,14 +8,14 @@
 
 #include "device_discovery.h"
 #include "opengloves_interface.h"
-#include "probers/communication_prober.h"
-#include "services/communication_service.h"
+#include "communication/probers/communication_prober.h"
+#include "communication/services/communication_service.h"
 
-class LucidglovesDeviceDiscoverer : public DeviceDiscoverer {
+class LucidglovesDeviceDiscoverer : public IDeviceDiscoverer {
  public:
-  LucidglovesDeviceDiscoverer(const og::DeviceDefaultConfiguration& default_configuration);
+  explicit LucidglovesDeviceDiscoverer(const og::DeviceDefaultConfiguration& default_configuration);
 
-  void StartDiscovery(std::function<void(std::unique_ptr<og::Device> device)> callback);
+  void StartDiscovery(std::function<void(std::unique_ptr<og::Device> device)> callback) override;
 
   void StopDiscovery();
 

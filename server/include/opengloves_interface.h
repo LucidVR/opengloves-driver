@@ -138,8 +138,6 @@ namespace og {
     virtual DeviceInfoData GetInfo() = 0;
 
     virtual void ListenForInput(std::function<void(const InputPeripheralData& data)> callback) = 0;
-
-    virtual ~Device() = default;
   };
 
   class Server {

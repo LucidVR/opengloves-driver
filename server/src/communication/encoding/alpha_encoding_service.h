@@ -2,7 +2,7 @@
 
 #include <map>
 
-#include "encoding/encoding_service.h"
+#include "communication/encoding/encoding_service.h"
 #include "opengloves_interface.h"
 
 enum AlphaEncodingKey {

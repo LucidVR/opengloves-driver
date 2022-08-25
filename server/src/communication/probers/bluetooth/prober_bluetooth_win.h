@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "probers/communication_prober.h"
+#include "communication/probers/communication_prober.h"
 
 class BluetoothCommunicationProber : public ICommunicationProber {
  public:

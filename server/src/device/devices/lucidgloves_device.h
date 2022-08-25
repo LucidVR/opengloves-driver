@@ -4,11 +4,11 @@
 
 #include "opengloves_interface.h"
 
-#include "managers/communication_manager.h"
+#include "communication/managers/communication_manager.h"
 
 class LucidglovesDevice : public og::Device {
  public:
-  LucidglovesDevice(const og::DeviceInfoData& device_info, std::unique_ptr<CommunicationManager> communication_manager);
+  LucidglovesDevice(const og::DeviceInfoData& device_info, std::unique_ptr<ICommunicationManager> communication_manager);
 
   og::DeviceInfoData GetInfo() override;
   void ListenForInput(std::function<void(const og::InputPeripheralData& data)> callback) override;
@@ -20,5 +20,5 @@ class LucidglovesDevice : public og::Device {
 
   og::DeviceInfoData device_info_;
 
-  std::unique_ptr<CommunicationManager> communication_manager_;
+  std::unique_ptr<ICommunicationManager> communication_manager_;
 };

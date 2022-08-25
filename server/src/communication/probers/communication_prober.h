@@ -4,7 +4,7 @@
 #include <thread>
 #include <vector>
 
-#include "services/communication_service.h"
+#include "communication/services/communication_service.h"
 
 // A prober for a communication method. There can be multiple probers for one communication service (ie. bluetooth, serial, etc.) but the devices that
 // each prober attempt to discover should not be the same.

@@ -5,7 +5,7 @@
 
 #include <atomic>
 
-#include "services/communication_service.h"
+#include "communication/services/communication_service.h"
 
 class BluetoothCommunicationService : public ICommunicationService {
  public:

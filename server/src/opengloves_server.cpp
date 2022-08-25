@@ -40,7 +40,7 @@ class Server::Impl {
 
  private:
   std::function<void(std::unique_ptr<Device> device)> callback_;
-  std::vector<std::unique_ptr<DeviceDiscoverer>> device_discoverers_;
+  std::vector<std::unique_ptr<IDeviceDiscoverer>> device_discoverers_;
   DeviceDefaultConfiguration default_configuration_;
 };
 

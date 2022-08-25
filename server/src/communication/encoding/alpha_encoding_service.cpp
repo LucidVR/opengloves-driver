@@ -1,4 +1,4 @@
-#include "encoding/alpha_encoding/alpha_encoding_service.h"
+#include "communication/encoding/alpha_encoding_service.h"
 
 #include <algorithm>
 #include <map>
