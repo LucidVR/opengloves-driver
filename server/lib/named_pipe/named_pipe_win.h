@@ -7,7 +7,6 @@
 #include <utility>
 
 #include "opengloves_interface.h"
-
 #include "win/win_util.h"
 
 enum class NamedPipeListenerState { Connecting, Reading, Callback };
@@ -15,7 +14,6 @@ enum class NamedPipeListenerState { Connecting, Reading, Callback };
 class INamedPipeListener {
  public:
   virtual bool StartListening() = 0;
-  virtual void StopListening() = 0;
 };
 
 template <typename T>
@@ -54,23 +52,31 @@ class NamedPipeListener : public INamedPipeListener {
 
     return true;
   }
-  void StopListening() override {
+
+  void StopListening() {
     if (thread_active_.exchange(false))
       // Thread running
       thread_.join();
   }
+
   bool IsConnected() const {
     return thread_active_;
   }
+
   void LogError(const char* error) const {
     static og::Logger& logger = og::Logger::GetInstance();
 
     logger.Log(og::LoggerLevel::kLoggerLevel_Error, "%s (%s) - Error: %s", error, pipe_name_.c_str(), GetLastErrorAsString().c_str());
   }
+
   void LogMessage(const char* message) const {
     static og::Logger& logger = og::Logger::GetInstance();
 
     logger.Log(og::LoggerLevel::kLoggerLevel_Info, "%s (%s)", message, pipe_name_.c_str());
+  }
+
+  ~NamedPipeListener() {
+    StopListening();
   }
 
  private:
@@ -98,12 +104,14 @@ class NamedPipeListener : public INamedPipeListener {
 
     return false;
   }
+
   void DisconnectAndReconnect(NamedPipeListenerData<T>* data) {
     LogMessage("Disconnecting and reconnecting named pipe");
     if (!DisconnectNamedPipe(data->handle)) LogError("Failed to disconnect");
 
     if (!Connect(data)) LogError("Error reconnecting to pipe from disconnect");
   }
+
   void ListenerThread() {
     HANDLE hEvent = CreateEventA(nullptr, TRUE, TRUE, nullptr);
     if (hEvent == nullptr) {
@@ -130,7 +138,6 @@ class NamedPipeListener : public INamedPipeListener {
     NamedPipeListenerData<T> listener_data{};
     listener_data.overlap.hEvent = hEvent;
     listener_data.handle = hPipeInst;
-
 
     if (!Connect(&listener_data)) return;
 

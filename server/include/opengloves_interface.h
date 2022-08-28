@@ -3,8 +3,8 @@
 #include <array>
 #include <functional>
 #include <map>
-#include <string>
 #include <memory>
+#include <string>
 
 namespace og {
 
@@ -55,6 +55,7 @@ namespace og {
 
   enum DeviceType {
     kGloveType_lucidgloves,
+    kGloveType_lucidglovesVirtual,  // named pipe device
   };
 
   struct InputInfoData {
@@ -185,7 +186,7 @@ namespace og {
     void Log(LoggerLevel level, const char* format, Args... args) {
       const std::string message = StringFormat(format, args...);
 
-      if(last_message_ == message) return;
+      if (last_message_ == message) return;
       last_message_ = message;
 
       for (auto& callback : callbacks_) {

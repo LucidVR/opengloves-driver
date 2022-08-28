@@ -1,40 +1,52 @@
 #include "lucidgloves_named_pipe_discovery.h"
 
-#include <regex>
+#include "communication/managers/named_pipe_communication_manager.h"
+#include "devices/lucidgloves_device.h"
 
-#include "named_pipe/named_pipe_win.h"
+static og::Logger& logger = og::Logger::GetInstance();
 
 class LucidglovesNamedPipeDiscovery::Impl {
  public:
-  Impl(bool is_right_hand, std::function<void()> on_client_connected_callback, std::function<void(const og::InputData&)> on_data_callback)
-      : on_client_connected_callback_(std::move(on_client_connected_callback)), on_data_callback_(std::move(on_data_callback)) {
-    std::string base_name = R"(\\.\pipe\vrapplication\input\glove\$version\)" + std::string(is_right_hand ? "right" : "left");
+  Impl(){};
 
-    named_pipes_.emplace_back(std::make_unique<NamedPipeListener<og::InputData>>(
-        std::regex_replace(base_name, std::regex("\\$version"), "v1"),
-        [&](const NamedPipeListenerEvent& event) {
-          switch (event.type) {
-            case NamedPipeListenerEventType::ClientConnected:
-              on_client_connected_callback_();
-              break;
-          }
-        },
-        [&](og::InputData* data) {
+  void StartListeners(std::function<void(og::Hand hand, std::unique_ptr<ICommunicationManager>)> on_client_connected_callback) {
+    on_client_connected_callback_ = std::move(on_client_connected_callback);
 
-        }));
-  };
+    left_named_pipe_manager_ = std::make_unique<NamedPipeCommunicationManager>(og::kHandLeft, [&]() {
+      if (left_named_pipe_manager_ == nullptr) return;
+      on_client_connected_callback_(og::kHandLeft, std::move(left_named_pipe_manager_));
+    });
+
+    right_named_pipe_manager_ = std::make_unique<NamedPipeCommunicationManager>(og::kHandRight, [&]() {
+      if (right_named_pipe_manager_ == nullptr) return;
+      on_client_connected_callback_(og::kHandRight, std::move(right_named_pipe_manager_));
+    });
+  }
 
  private:
-  std::vector<std::unique_ptr<INamedPipeListener>> named_pipes_;
-  std::function<void()> on_client_connected_callback_;
+  std::unique_ptr<NamedPipeCommunicationManager> left_named_pipe_manager_;
+  std::unique_ptr<NamedPipeCommunicationManager> right_named_pipe_manager_;
+
+  std::function<void(og::Hand hand, std::unique_ptr<ICommunicationManager>)> on_client_connected_callback_;
   std::function<void(const og::InputData&)> on_data_callback_;
 };
 
-LucidglovesNamedPipeDiscovery::LucidglovesNamedPipeDiscovery() {}
+void LucidglovesNamedPipeDiscovery::StartDiscovery(std::function<void(std::unique_ptr<og::Device>)> callback) {
+  device_discovered_callback_ = std::move(callback);
 
-void LucidglovesNamedPipeDiscovery::StartDiscovery(std::function<void(std::unique_ptr<og::Device>)> callback) {}
+  pImpl_->StartListeners([&](og::Hand hand, std::unique_ptr<ICommunicationManager> communication_manager) {
+    og::DeviceInfoData info;
 
-void LucidglovesNamedPipeDiscovery::StopDiscovery() {}
+    info.hand = hand;
+    info.device_type = og::kGloveType_lucidglovesVirtual;
+
+    device_discovered_callback_(std::make_unique<LucidglovesDevice>(info, std::move(communication_manager)));
+  });
+}
+
+void LucidglovesNamedPipeDiscovery::StopDiscovery() {
+  pImpl_.reset();
+}
 
 LucidglovesNamedPipeDiscovery::~LucidglovesNamedPipeDiscovery() {
   StopDiscovery();
