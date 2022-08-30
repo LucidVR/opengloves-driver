@@ -16,9 +16,9 @@ class LucidglovesDevice : public og::Device {
   ~LucidglovesDevice();
 
  private:
-  std::function<void(og::InputPeripheralData)> callback_;
+  class Impl;
+  std::unique_ptr<Impl> pImpl_;
 
   og::DeviceInfoData device_info_;
 
-  std::unique_ptr<ICommunicationManager> communication_manager_;
 };

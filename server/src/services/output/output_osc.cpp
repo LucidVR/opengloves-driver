@@ -48,7 +48,13 @@ OutputOSCServer::OutputOSCServer() {
 }
 
 void OutputOSCServer::Send(og::Hand hand, const og::InputPeripheralData& input) {
+  std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+
+  //send once every 50 milliseconds
+  if(std::chrono::duration_cast<std::chrono::milliseconds>(now - last_send_time_).count() < 50) return;
+
   pImpl_->Send(hand, input);
+  last_send_time_ = now;
 }
 
 void OutputOSCServer::Stop() {

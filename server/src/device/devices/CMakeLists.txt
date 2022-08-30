@@ -1,3 +1,5 @@
 add_library(opengloves_devices STATIC lucidgloves_device.h lucidgloves_device.cpp)
 
-target_link_libraries(opengloves_devices PUBLIC opengloves_interface-includes communication_managers server_services_output server-includes)
+target_link_libraries(opengloves_devices PUBLIC opengloves_interface-includes communication_managers server-includes)
+
+target_link_libraries(opengloves_devices PRIVATE server_services_output)

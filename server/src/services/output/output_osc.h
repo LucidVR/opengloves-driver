@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <chrono>
 
 #include "opengloves_interface.h"
 
@@ -28,4 +29,6 @@ class OutputOSCServer {
  private:
   class Impl;
   std::unique_ptr<Impl> pImpl_;
+
+  std::chrono::steady_clock::time_point last_send_time_;
 };
