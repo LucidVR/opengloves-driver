@@ -6,10 +6,11 @@
 #include <string>
 
 #include "communication/services/communication_service.h"
+#include "opengloves_interface.h"
 
 class SerialCommunicationService : public ICommunicationService {
  public:
-  explicit SerialCommunicationService(const std::string& port_name);
+  explicit SerialCommunicationService(og::DeviceSerialCommunicationConfiguration configuration);
 
   bool ReceiveNextPacket(std::string& buff) override;
   bool RawWrite(const std::string& buff) override;
@@ -28,7 +29,7 @@ class SerialCommunicationService : public ICommunicationService {
 
   void LogError(const std::string&, bool with_win_error);
 
-  std::string port_name_;
+  og::DeviceSerialCommunicationConfiguration configuration_;
 
   HANDLE handle_;
 

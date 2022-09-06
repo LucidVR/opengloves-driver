@@ -4,6 +4,7 @@
 #include "device/drivers/knuckle_device_driver.h"
 #include "external_services/driver_external.h"
 #include "external_services/driver_internal.h"
+#include "nlohmann/json.hpp"
 #include "util/driver_log.h"
 #include "util/file_path.h"
 
@@ -17,6 +18,40 @@ static bool InitialiseExternalServices() {
   DriverLog("Binary path located: %s", bin_path.c_str());
 
   return CreateBackgroundProcess(bin_path, "opengloves_overlay.exe");
+}
+
+static og::ServerConfiguration CreateServerConfiguration() {
+  og::ServerConfiguration result{};
+
+  auto driver_configuration = GetDriverConfigurationMap();
+  auto communication_configuration = GetCommunicationConfigurationMap();
+  auto serial_configuration = GetSerialConfigurationMap();
+  auto bluetooth_configuration = GetSerialConfigurationMap();
+
+  result = {
+      .communication =
+          {
+              .auto_probe = std::get<bool>(communication_configuration["auto_probe"]),
+              .serial =
+                  {
+                      .enabled = std::get<bool>(serial_configuration["enabled"]),
+                  },
+              .bluetooth =
+                  {
+                      .enabled = std::get<bool>(bluetooth_configuration["enabled"]),
+                  },
+          },
+      .devices = {
+          {
+              .enabled = std::get<bool>(driver_configuration["left_enabled"]),
+              .hand = og::kHandLeft,
+
+              .device_type = og::kDeviceType_lucidgloves
+          },
+
+      }};
+
+  return result;
 }
 
 vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverContext) {
@@ -54,17 +89,17 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
   });
 
   // initialise opengloves
-  ogserver_ = std::make_unique<og::Server>();
+  ogserver_ = std::make_unique<og::Server>(CreateServerConfiguration());
 
   // ogserver_->SetDefaultConfiguration(GetDriverLegacyConfiguration(vr::TrackedControllerRole_LeftHand));
 
   ogserver_->StartProber([&](std::unique_ptr<og::Device> found_device) {
-    DriverLog("Physical device provider found a device, hand: %s", found_device->GetInfo().hand == og::kHandLeft ? "Left" : "Right");
+    DriverLog("Physical device provider found a device, hand: %s", found_device->GetConfiguration().hand == og::kHandLeft ? "Left" : "Right");
 
-    switch (found_device->GetInfo().device_type) {
+    switch (found_device->GetConfiguration().device_type) {
       default:
         DriverLog("Physical device provider was given an unknown device type");
-      case og::kGloveType_lucidgloves:
+      case og::kDeviceType_lucidgloves:
         DriverLog("Physical device provider activating lucidgloves");
 
         std::unique_ptr<KnuckleDeviceDriver> device_driver = std::make_unique<KnuckleDeviceDriver>(std::move(found_device));

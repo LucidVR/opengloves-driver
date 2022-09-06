@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "device/discovery/lucidgloves_fw_discovery.h"
 #include "opengloves_interface.h"
 
@@ -7,17 +9,16 @@ static Logger& logger = Logger::GetInstance();
 
 class Server::Impl {
  public:
-  void SetDefaultConfiguration(const og::DeviceDefaultConfiguration& configuration) {
-    default_configuration_ = configuration;
-  }
+  Impl(ServerConfiguration configuration) : configuration_(std::move(configuration)){};
 
   bool StartProber(const std::function<void(std::unique_ptr<Device> device)>& callback) {
     logger.Log(kLoggerLevel_Info, "Starting server prober...");
 
     callback_ = callback;
 
+
     // lucidgloves firmware discovery (or other firmwares that use the same communication methods and encoding schemes)
-    device_discoverers_.emplace_back(std::make_unique<LucidglovesDeviceDiscoverer>(default_configuration_));
+    device_discoverers_.emplace_back(std::make_unique<LucidglovesDeviceDiscoverer>(configuration_.communication,configuration_.devices));
 
     for (auto& discoverer : device_discoverers_) {
       discoverer->StartDiscovery(callback);
@@ -41,15 +42,12 @@ class Server::Impl {
  private:
   std::function<void(std::unique_ptr<Device> device)> callback_;
   std::vector<std::unique_ptr<IDeviceDiscoverer>> device_discoverers_;
-  DeviceDefaultConfiguration default_configuration_;
+
+  ServerConfiguration configuration_;
 };
 
-Server::Server() {
-  pImpl_ = std::make_unique<Server::Impl>();
-}
-
-void Server::SetDefaultConfiguration(const og::DeviceDefaultConfiguration& configuration) {
-  pImpl_->SetDefaultConfiguration(configuration);
+Server::Server(ServerConfiguration configuration) {
+  pImpl_ = std::make_unique<Server::Impl>(std::move(configuration));
 }
 
 bool Server::StartProber(std::function<void(std::unique_ptr<Device> device)> callback) {

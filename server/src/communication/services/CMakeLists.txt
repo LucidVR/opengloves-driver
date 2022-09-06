@@ -24,5 +24,4 @@ elseif (UNIX AND NOT APPLE)
             )
 endif ()
 
-target_link_libraries(communication_services PUBLIC server-includes)
-target_link_libraries(communication_services PRIVATE opengloves_interface-includes)
+target_link_libraries(communication_services PUBLIC server-includes opengloves_interface-includes)

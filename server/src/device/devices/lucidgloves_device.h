@@ -8,9 +8,9 @@
 
 class LucidglovesDevice : public og::Device {
  public:
-  LucidglovesDevice(const og::DeviceInfoData& device_info, std::unique_ptr<ICommunicationManager> communication_manager);
+  LucidglovesDevice(og::DeviceConfiguration configuration, std::unique_ptr<ICommunicationManager> communication_manager);
 
-  og::DeviceInfoData GetInfo() override;
+  og::DeviceConfiguration GetConfiguration() override;
   void ListenForInput(std::function<void(const og::InputPeripheralData& data)> callback) override;
 
   ~LucidglovesDevice();
@@ -19,6 +19,6 @@ class LucidglovesDevice : public og::Device {
   class Impl;
   std::unique_ptr<Impl> pImpl_;
 
-  og::DeviceInfoData device_info_;
+  og::DeviceConfiguration configuration_;
 
 };

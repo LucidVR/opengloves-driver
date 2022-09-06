@@ -14,33 +14,33 @@ static Logger& logger = Logger::GetInstance();
   }
 
 static std::string GetLastErrorAsString() {
-  const DWORD errorMessageId = ::GetLastError();
-  if (errorMessageId == 0) return std::string();
+  const DWORD error_id = ::GetLastError();
+  if (error_id == 0) return "";
 
-  LPSTR messageBuffer = nullptr;
+  LPSTR message_buffer = nullptr;
   const size_t size = FormatMessageA(
       FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
       nullptr,
-      errorMessageId,
+      error_id,
       MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-      reinterpret_cast<LPSTR>(&messageBuffer),
+      reinterpret_cast<LPSTR>(&message_buffer),
       0,
       nullptr);
 
-  std::string message(messageBuffer, size);
+  std::string message(message_buffer, size);
 
-  LocalFree(messageBuffer);
+  LocalFree(message_buffer);
 
   return message;
 }
 
 void SerialCommunicationService::LogError(const std::string& message, bool with_win_error = true) {
-  logger.Log(kLoggerLevel_Error, "%s, %s: %s", port_name_.c_str(), message.c_str(), with_win_error ? GetLastErrorAsString().c_str() : "");
+  logger.Log(
+      kLoggerLevel_Error, "%s, %s: %s", configuration_.port_name.c_str(), message.c_str(), with_win_error ? GetLastErrorAsString().c_str() : "");
 }
 
-SerialCommunicationService::SerialCommunicationService(const std::string& port_name) {
-  port_name_ = port_name;
-
+SerialCommunicationService::SerialCommunicationService(og::DeviceSerialCommunicationConfiguration configuration)
+    : configuration_(std::move(configuration)) {
   Connect();
 }
 
@@ -51,11 +51,9 @@ bool SerialCommunicationService::IsConnected() {
 bool SerialCommunicationService::Connect() {
   is_connected_ = false;
 
-  handle_ = CreateFile(port_name_.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+  handle_ = CreateFile(configuration_.port_name.c_str(), GENERIC_READ | GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
 
-  if (handle_ == INVALID_HANDLE_VALUE) {
-    return false;
-  }
+  if (handle_ == INVALID_HANDLE_VALUE) return false;
 
   DCB serial_params{};
 
@@ -79,7 +77,7 @@ bool SerialCommunicationService::Connect() {
 
   if (!SetupComm(handle_, 200, 200)) ERROR_DISCONNECT_AND_RETURN("Failed to set port buffer size");
 
-  logger.Log(og::kLoggerLevel_Info, "Successfully connected to COM port: %s", port_name_.c_str());
+  logger.Log(og::kLoggerLevel_Info, "Successfully connected to COM port: %s", configuration_.port_name.c_str());
 
   is_connected_ = true;
 

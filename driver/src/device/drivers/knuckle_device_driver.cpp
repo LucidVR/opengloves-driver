@@ -165,11 +165,11 @@ std::string KnuckleDeviceDriver::GetSerialNumber() {
 }
 
 bool KnuckleDeviceDriver::IsRightHand() const {
-  return is_active_ && ogdevice_->GetInfo().hand == og::kHandRight;
+  return is_active_ && ogdevice_->GetConfiguration().hand == og::kHandRight;
 }
 
 vr::ETrackedControllerRole KnuckleDeviceDriver::GetRole() const {
-  switch (ogdevice_->GetInfo().hand) {
+  switch (ogdevice_->GetConfiguration().hand) {
     case og::kHandRight:
       return vr::TrackedControllerRole_RightHand;
     case og::kHandLeft:

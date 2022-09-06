@@ -5,33 +5,65 @@
 #include <map>
 #include <memory>
 #include <string>
+#include <variant>
 
 namespace og {
 
   enum Hand { kHandLeft, kHandRight };
 
-  // config structs
-  struct BluetoothConfiguration {
-    std::string name;
+  enum EncodingType { kEncodingType_Alpha };
+  enum CommunicationType { kCommunicationType_Serial, kCommunicationType_Bluetooth, kCommunicationType_Invalid };
+
+  enum DeviceType {
+    kDeviceType_lucidgloves,
   };
 
-  struct SerialConfiguration {
-    std::string port_name;
-  };
-
-  struct EncodingConfiguration {
+  struct DeviceAlphaEncodingConfiguration {
     unsigned int max_analog_value;
   };
 
-  struct DeviceLegacyConfiguration {
-    Hand hand;
-
-    SerialConfiguration serial_configuration;
-    BluetoothConfiguration bluetooth_configuration;
+  struct DeviceBluetoothCommunicationConfiguration {
+    std::string name;  // must be set if auto probe is disabled
+  };
+  struct DeviceSerialCommunicationConfiguration {
+    std::string port_name;  // must be set if auto probe is disabled
   };
 
-  struct DeviceDefaultConfiguration {
-    struct EncodingConfiguration encoding_configuration;
+  struct DeviceCommunicationConfiguration {
+    std::variant<DeviceSerialCommunicationConfiguration, DeviceBluetoothCommunicationConfiguration> communication;
+    CommunicationType communication_type;
+
+    std::variant<DeviceAlphaEncodingConfiguration> encoding;
+    EncodingType encoding_type;
+  };
+
+  struct DeviceConfiguration {
+    bool enabled;
+
+    Hand hand;
+
+    DeviceType device_type;
+
+    DeviceCommunicationConfiguration device_communication;
+  };
+
+  struct BluetoothCommunicationConfiguration {
+    bool enabled;
+  };
+  struct SerialCommunicationConfiguration {
+    bool enabled;
+  };
+  struct CommunicationConfiguration {
+    bool auto_probe;
+
+    SerialCommunicationConfiguration serial;
+    BluetoothCommunicationConfiguration bluetooth;
+  };
+
+  struct ServerConfiguration {
+    CommunicationConfiguration communication;
+
+    std::vector<DeviceConfiguration> devices;  // this doesn't need to be provided if auto probing is enabled
   };
 
   // IO structs
@@ -53,20 +85,6 @@ namespace og {
     bool activated;
   };
 
-  enum DeviceType {
-    kGloveType_lucidgloves,
-    kGloveType_lucidglovesVirtual,  // named pipe device
-  };
-
-  struct InputInfoData {
-    auto operator<=>(const InputInfoData&) const = default;
-    int firmware_version;
-    DeviceType device_type;
-    Hand hand;
-  };
-
-  typedef InputInfoData DeviceInfoData;
-
   // input data from device to server about buttons, joysticks, etc.
   struct InputPeripheralData {
     auto operator<=>(const InputPeripheralData&) const = default;
@@ -84,6 +102,15 @@ namespace og {
 
     Gesture grab;
     Gesture pinch;
+  };
+
+  struct InputInfoData {
+    auto operator<=>(const InputInfoData&) const = default;
+
+    Hand hand;
+    DeviceType device_type;
+
+    int firmware_version;
   };
 
   union InputData {
@@ -107,14 +134,12 @@ namespace og {
     int16_t ring;
     int16_t pinky;
   };
-
   // haptic vibration output from server to device
   struct OutputHapticData {
     float duration;
     float frequency;
     float amplitude;
   };
-
   struct OutputFetchInfoData {
     bool start_streaming;
     bool get_info;
@@ -125,7 +150,6 @@ namespace og {
     OutputHapticData haptic_data;
     OutputForceFeedbackData force_feedback_data;
   };
-
   enum OutputDataType { kOutputDataType_Empty, kOutputDataType_FetchInfo, kOutputDataType_Haptic, kOutputData_Type_ForceFeedback };
 
   // output data from driver to glove
@@ -136,19 +160,14 @@ namespace og {
 
   class Device {
    public:
-    virtual DeviceInfoData GetInfo() = 0;
+    virtual DeviceConfiguration GetConfiguration() = 0;
 
     virtual void ListenForInput(std::function<void(const InputPeripheralData& data)> callback) = 0;
   };
 
   class Server {
    public:
-    Server();
-
-    /***
-     * Sets the default configuration to fall back to when a device cannot communicate its configuration.
-     */
-    void SetDefaultConfiguration(const DeviceDefaultConfiguration& configuration);
+    explicit Server(ServerConfiguration configuration);
 
     /***
      * Start looking for devices. The callback will be called for every new device found.
@@ -195,7 +214,8 @@ namespace og {
     }
 
    private:
-    Logger(){};
+    Logger() = default;
+    ;
 
    public:
     Logger(const Logger&) = delete;
@@ -215,7 +235,7 @@ namespace og {
       auto size = static_cast<size_t>(size_s);
       auto buf = std::make_unique<char[]>(size);
       std::snprintf(buf.get(), size, format.c_str(), args...);
-      return std::string(buf.get(), buf.get() + size - 1);
+      return {buf.get(), buf.get() + size - 1};
     }
   };
 }  // namespace og

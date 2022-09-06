@@ -1,7 +1,7 @@
 #include "communication/probers/serial/prober_serial_win.h"
 
-#include "opengloves_interface.h"
 #include "communication/services/serial/service_serial.h"
+#include "opengloves_interface.h"
 
 // must be in this order
 
@@ -13,26 +13,52 @@
 #include <algorithm>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 using namespace og;
 
 static Logger& logger = Logger::GetInstance();
 
-SerialCommunicationProber::SerialCommunicationProber(const std::vector<SerialProberSearchParam>& params) {
-  // conver serial pid vid struct to a string we can easily search for
-  for (const auto& serial_param : params) {
-    std::string formatted_param = "VID_" + serial_param.vid + "&PID_" + serial_param.pid;
-    strids_.emplace_back(formatted_param);
+static std::string GetLastErrorAsString() {
+  const DWORD errorMessageId = ::WSAGetLastError();
+  if (errorMessageId == 0) return std::string();
+
+  LPSTR messageBuffer = nullptr;
+  const size_t size = FormatMessageA(
+      FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+      nullptr,
+      errorMessageId,
+      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+      reinterpret_cast<LPSTR>(&messageBuffer),
+      0,
+      nullptr);
+
+  std::string message(messageBuffer, size);
+
+  LocalFree(messageBuffer);
+
+  return message;
+}
+
+SerialCommunicationProber::SerialCommunicationProber(SerialProberConfiguration configuration) : configuration_(std::move(configuration)) {
+  // convert serial pid vid struct to a string we can easily search for
+  for (const auto& identifier : configuration_.identifiers) {
+    std::string formatted_param = "VID_" + identifier.vid + "&PID_" + identifier.pid;
+    identifiers_.emplace_back(formatted_param);
   }
 }
 
-int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) {
+og::CommunicationType SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) {
   DWORD dwSize = 0;
   DWORD Error = 0;
 
   HDEVINFO device_info_set = SetupDiGetClassDevs(NULL, "USB", NULL, DIGCF_ALLCLASSES | DIGCF_PRESENT);
-  if (device_info_set == INVALID_HANDLE_VALUE) return -GetLastError();
+  if (device_info_set == INVALID_HANDLE_VALUE) {
+    logger.Log(og::kLoggerLevel_Error, "Failed to set up serial prober: %s", GetLastErrorAsString().c_str());
+
+    return og::kCommunicationType_Invalid;
+  }
 
   SP_DEVINFO_DATA device_info_data;
   ZeroMemory(&device_info_data, sizeof(SP_DEVINFO_DATA));
@@ -51,9 +77,9 @@ int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommu
       std::string strproperty_buff = property_buff;
 
       if (std::find_if(
-              strids_.begin(),  //
-              strids_.end(),    //
-              [&](const std::string& param) { return strproperty_buff.find(param) != std::string::npos; }) == strids_.end())
+              identifiers_.begin(),  //
+              identifiers_.end(),    //
+              [&](const std::string& param) { return strproperty_buff.find(param) != std::string::npos; }) == identifiers_.end())
         continue;
 
       HKEY device_registery_key = SetupDiOpenDevRegKey(device_info_set, &device_info_data, DICS_FLAG_GLOBAL, 0, DIREG_DEV, KEY_READ);
@@ -67,9 +93,10 @@ int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommu
       DWORD type = 0;
 
       if ((RegQueryValueEx(device_registery_key, "PortName", NULL, &type, (LPBYTE)port_name, &port_name_size) == ERROR_SUCCESS) && (type == REG_SZ)) {
-        std::string port = std::string("\\\\.\\") + std::string(port_name);
+        std::string port = std::string(R"(\\.\)") + port_name;
 
-        std::unique_ptr<ICommunicationService> communication_service = std::make_unique<SerialCommunicationService>(port);
+        og::DeviceSerialCommunicationConfiguration serial_configuration{port};
+        std::unique_ptr<ICommunicationService> communication_service = std::make_unique<SerialCommunicationService>(serial_configuration);
 
         // this means that the device is probably opened by us (or someone else). Ignore it.
         if (!communication_service->IsConnected()) {
@@ -93,9 +120,7 @@ int SerialCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommu
     SetupDiDestroyDeviceInfoList(device_info_set);
   }
 
-  if (Error) return -Error;
-
-  return found_devices;
+  return og::CommunicationType::kCommunicationType_Serial;
 }
 
 std::string SerialCommunicationProber::GetName() {

@@ -7,7 +7,7 @@ using namespace og;
 
 class LucidglovesDevice::Impl {
  public:
-  Impl(og::Hand hand) : hand_(hand) {};
+  explicit Impl(og::Hand hand) : hand_(hand){};
 
   void ListenForInput(std::function<void(const og::InputPeripheralData &)> callback) {
     callback_ = std::move(callback);
@@ -29,17 +29,15 @@ class LucidglovesDevice::Impl {
   std::unique_ptr<OutputForceFeedbackData> force_feedback_;
 };
 
-LucidglovesDevice::LucidglovesDevice(const DeviceInfoData &device_info, std::unique_ptr<ICommunicationManager> communication_manager)
-    : device_info_(device_info), pImpl_(std::make_unique<Impl>(device_info.hand)) {
+LucidglovesDevice::LucidglovesDevice(og::DeviceConfiguration configuration, std::unique_ptr<ICommunicationManager> communication_manager)
+    : configuration_(std::move(configuration)), pImpl_(std::make_unique<Impl>(configuration_.hand)) {
   OutputOSCServer::GetInstance();
 };
 
-void LucidglovesDevice::ListenForInput(std::function<void(const og::InputPeripheralData &)> callback) {
+void LucidglovesDevice::ListenForInput(std::function<void(const og::InputPeripheralData &)> callback) {}
 
-}
-
-og::DeviceInfoData LucidglovesDevice::GetInfo() {
-  return device_info_;
+og::DeviceConfiguration LucidglovesDevice::GetConfiguration() {
+  return configuration_;
 }
 
 LucidglovesDevice::~LucidglovesDevice() {

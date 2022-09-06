@@ -4,12 +4,15 @@
 #include <bluetoothapis.h>
 
 #include <atomic>
+#include <string>
 
 #include "communication/services/communication_service.h"
 
+#include "opengloves_interface.h"
+
 class BluetoothCommunicationService : public ICommunicationService {
  public:
-  explicit BluetoothCommunicationService(BTH_ADDR bt_address);
+  explicit BluetoothCommunicationService(og::DeviceBluetoothCommunicationConfiguration configuration);
 
   bool ReceiveNextPacket(std::string& buff) override;
   bool RawWrite(const std::string& buff) override;
@@ -26,7 +29,7 @@ class BluetoothCommunicationService : public ICommunicationService {
 
   void LogError(const std::string&, bool with_win_error) const;
 
-  BTH_ADDR bt_address_;
+  og::DeviceBluetoothCommunicationConfiguration configuration_;
 
   SOCKET sock_{};
 

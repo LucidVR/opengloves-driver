@@ -79,7 +79,7 @@ enum AlphaEncodingKey {
 
 class AlphaEncodingService : public IEncodingService {
  public:
-  AlphaEncodingService(const og::EncodingConfiguration& encoding_configuration);
+  AlphaEncodingService(const og::DeviceAlphaEncodingConfiguration& encoding_configuration);
 
   og::Input DecodePacket(const std::string& buff) override;
   std::string EncodePacket(const og::Output& output) override;
@@ -88,5 +88,5 @@ class AlphaEncodingService : public IEncodingService {
   og::InputPeripheralData DecodePeripheralPacket(const std::map<AlphaEncodingKey, std::string>& input_map);
   og::InputInfoData DecodeInfoPacket(const std::map<AlphaEncodingKey, std::string>& input_map);
 
-  og::EncodingConfiguration configuration_;
+  og::DeviceAlphaEncodingConfiguration configuration_;
 };

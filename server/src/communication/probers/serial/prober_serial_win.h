@@ -7,21 +7,28 @@
 
 #include "communication/probers/communication_prober.h"
 #include "communication/services/communication_service.h"
+#include "opengloves_interface.h"
 
-struct SerialProberSearchParam {
+struct SerialProberIdentifier {
   std::string vid;
   std::string pid;
 };
 
+struct SerialProberConfiguration {
+  std::vector<SerialProberIdentifier> identifiers;
+};
+
 class SerialCommunicationProber : public ICommunicationProber {
  public:
-  SerialCommunicationProber(const std::vector<SerialProberSearchParam>& params);
+  explicit SerialCommunicationProber(SerialProberConfiguration configuration);
 
-  int InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) override;
+  og::CommunicationType InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) override;
   std::string GetName() override;
 
  private:
   std::function<void(std::unique_ptr<ICommunicationService>)> callback_;
 
-  std::vector<std::string> strids_;
+  std::vector<std::string> identifiers_;
+
+  SerialProberConfiguration configuration_;
 };

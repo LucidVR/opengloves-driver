@@ -6,14 +6,14 @@
 #include <mutex>
 #include <vector>
 
-#include "device_discovery.h"
-#include "opengloves_interface.h"
 #include "communication/probers/communication_prober.h"
 #include "communication/services/communication_service.h"
+#include "device_discovery.h"
+#include "opengloves_interface.h"
 
 class LucidglovesDeviceDiscoverer : public IDeviceDiscoverer {
  public:
-  explicit LucidglovesDeviceDiscoverer(const og::DeviceDefaultConfiguration& default_configuration);
+  LucidglovesDeviceDiscoverer(og::CommunicationConfiguration communication_configuration, std::vector<og::DeviceConfiguration> device_configurations);
 
   void StartDiscovery(std::function<void(std::unique_ptr<og::Device> device)> callback) override;
 
@@ -23,7 +23,7 @@ class LucidglovesDeviceDiscoverer : public IDeviceDiscoverer {
 
  private:
   void ProberThread(std::unique_ptr<ICommunicationProber> prober);
-  void OnDeviceFound(std::unique_ptr<ICommunicationService> communication_service);
+  void OnDeviceFound(std::unique_ptr<ICommunicationService> communication_service, og::CommunicationType communication_type);
 
   std::function<void(std::unique_ptr<og::Device> device)> callback_;
 
@@ -33,5 +33,6 @@ class LucidglovesDeviceDiscoverer : public IDeviceDiscoverer {
 
   std::atomic<bool> is_active_;
 
-  og::DeviceDefaultConfiguration default_configuration_;
+  std::vector<og::DeviceConfiguration> device_configurations_;
+  og::CommunicationConfiguration communication_configuration_;
 };

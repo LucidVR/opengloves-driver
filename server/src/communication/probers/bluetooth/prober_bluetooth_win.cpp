@@ -10,18 +10,17 @@
 #include "prober_bluetooth_win.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 
-#include "opengloves_interface.h"
 #include "communication/services/bluetooth/service_bluetooth.h"
+#include "opengloves_interface.h"
 
 using namespace og;
 
 static Logger& logger = Logger::GetInstance();
 
-BluetoothCommunicationProber::BluetoothCommunicationProber(std::vector<std::string> wanted_devices) {
-  wanted_devices_ = wanted_devices;
-}
+BluetoothCommunicationProber::BluetoothCommunicationProber(BluetoothProberConfiguration configuration) : configuration_(std::move(configuration)) {}
 
 static bool BluetoothDeviceIsConnectable(const BTH_ADDR& bt_address) {
   SOCKET sock = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
@@ -39,7 +38,7 @@ static bool BluetoothDeviceIsConnectable(const BTH_ADDR& bt_address) {
   return true;
 }
 
-int BluetoothCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) {
+og::CommunicationType BluetoothCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) {
   BLUETOOTH_DEVICE_SEARCH_PARAMS bt_dev_sp = {
       sizeof(BLUETOOTH_DEVICE_SEARCH_PARAMS),  // size of object
       1,                                       // return authenticated devices
@@ -56,13 +55,13 @@ int BluetoothCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICo
 
   if (bt_dev == nullptr) {
     logger.Log(kLoggerLevel_Info, "Could not find any bluetooth devices");
-    return 0;
+    return og::kCommunicationType_Invalid;
   }
 
   int dev_found = 0;
 
   do {
-    for (const auto& find_device_name : wanted_devices_) {
+    for (const std::string& find_device_name : configuration_.identifiers) {
       const auto wfind_device_name = std::wstring(find_device_name.begin(), find_device_name.end());
       const WCHAR* wcharfind_device_name = const_cast<WCHAR*>(wfind_device_name.c_str());
 
@@ -72,7 +71,9 @@ int BluetoothCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICo
 
           if (BluetoothDeviceIsConnectable(dev_bt_address)) {
             logger.Log(kLoggerLevel_Info, "Discovered a new device: %s", find_device_name.c_str());
-            out_devices.emplace_back(std::make_unique<BluetoothCommunicationService>(dev_bt_address));
+
+            og::DeviceBluetoothCommunicationConfiguration bluetooth_configuration{find_device_name};
+            out_devices.emplace_back(std::make_unique<BluetoothCommunicationService>(bluetooth_configuration));
 
             dev_found++;
           }
@@ -85,5 +86,5 @@ int BluetoothCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICo
 
   } while (BluetoothFindNextDevice(bt_dev, &bt_dev_info));
 
-  return dev_found;
+  return og::kCommunicationType_Bluetooth;
 }

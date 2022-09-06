@@ -129,15 +129,15 @@ static std::map<AlphaEncodingKey, std::string> ParseToMap(const std::string& buf
   return result;
 }
 
-AlphaEncodingService::AlphaEncodingService(const og::EncodingConfiguration& encoding_configuration) {
+AlphaEncodingService::AlphaEncodingService(const og::DeviceAlphaEncodingConfiguration& encoding_configuration) {
   configuration_ = encoding_configuration;
 }
 
 og::InputPeripheralData AlphaEncodingService::DecodePeripheralPacket(const std::map<AlphaEncodingKey, std::string>& input_map) {
-  og::InputPeripheralData result;
+  og::InputPeripheralData result{};
 
   // default flexion curl values for the whole finger
-  std::array<float, 5> flexion;
+  std::array<float, 5> flexion{};
   flexion.fill(-1.0f);
 
   // parse full finger curls first in a temporary array (so we can fallback to them if needed)

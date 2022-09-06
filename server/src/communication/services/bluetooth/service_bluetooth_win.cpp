@@ -32,16 +32,14 @@ static std::string GetLastErrorAsString() {
   return message;
 }
 
-BluetoothCommunicationService::BluetoothCommunicationService(BTH_ADDR bt_address) {
-  bt_address_ = bt_address;
-
+BluetoothCommunicationService::BluetoothCommunicationService(og::DeviceBluetoothCommunicationConfiguration configuration) : configuration_(std::move(configuration)) {
   Connect();
 }
 
 void BluetoothCommunicationService::LogError(const std::string& message, bool with_win_error = true) const {
   std::ostringstream oss;
 
-  logger.Log(kLoggerLevel_Error, "%llu, %s: %s", bt_address_, message.c_str(), with_win_error ? GetLastErrorAsString().c_str() : "");
+  logger.Log(kLoggerLevel_Error, "%llu, %s: %s", configuration_.name.c_str(), message.c_str(), with_win_error ? GetLastErrorAsString().c_str() : "");
 }
 
 bool BluetoothCommunicationService::IsConnected() {
@@ -57,13 +55,53 @@ bool BluetoothCommunicationService::Connect() {
     return false;
   }
 
+  // find by name
+  constexpr BLUETOOTH_DEVICE_SEARCH_PARAMS btDeviceSearchParameters = {
+      sizeof(BLUETOOTH_DEVICE_SEARCH_PARAMS),  // size of object
+      1,                                       // return authenticated devices
+      0,                                       // return remembered devices
+      1,                                       // return unknown devices
+      1,                                       // return connected devices
+      1,                                       // issue in query
+      2,                                       // timeout multiplier. Multiply this value by 1.28 seconds to get timeout.
+      nullptr                                  // radio handler
+  };
+
+  BLUETOOTH_DEVICE_INFO btDeviceInfo = {sizeof(BLUETOOTH_DEVICE_INFO), {0}};  // default
+  const HBLUETOOTH_DEVICE_FIND btDevice =
+      BluetoothFindFirstDevice(&btDeviceSearchParameters, &btDeviceInfo);  // returns first BT device connected to this machine
+
+  BTH_ADDR device_address = 0;
+  if (btDevice == nullptr) {
+    logger.Log(og::kLoggerLevel_Warning, "Could not find any bluetooth devices");
+    device_address = NULL;
+    return false;
+  }
+
+  const auto thiswstring = std::wstring(configuration_.name.begin(), configuration_.name.end());
+  const WCHAR* wcDeviceName = const_cast<WCHAR*>(thiswstring.c_str());
+
+  do {
+    if (wcscmp(btDeviceInfo.szName, wcDeviceName) == 0) {
+      logger.Log(og::kLoggerLevel_Info, "Bluetooth Device found");
+      if (btDeviceInfo.fAuthenticated)  // I found that if fAuthenticated is true it means the device is paired.
+      {
+        logger.Log(og::kLoggerLevel_Info, "Bluetooth Device is authenticated");
+        device_address = btDeviceInfo.Address.ullLong;
+        return true;
+      } else {
+        logger.Log(og::kLoggerLevel_Warning, "This Bluetooth Device is not authenticated. Please pair with it first");
+      }
+    }
+  } while (BluetoothFindNextDevice(btDevice, &btDeviceInfo));  // loop through remaining BT devices connected to this machine
+
   sock_ = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
 
   SOCKADDR_BTH sock_address{};
   sock_address.addressFamily = AF_BTH;
   sock_address.serviceClassId = RFCOMM_PROTOCOL_UUID;
   sock_address.port = 0;
-  sock_address.btAddr = bt_address_;
+  sock_address.btAddr = device_address;
 
   if (connect(sock_, reinterpret_cast<SOCKADDR*>(&sock_address), sizeof sock_address) != 0) {
     LogError("Failed to connect to bluetooth device");
@@ -81,6 +119,8 @@ bool BluetoothCommunicationService::Connect() {
 }
 
 bool BluetoothCommunicationService::ReceiveNextPacket(std::string& buff) {
+  if (!is_connected_) return false;
+
   char next_char = 0;
 
   do {
@@ -99,6 +139,8 @@ bool BluetoothCommunicationService::ReceiveNextPacket(std::string& buff) {
 }
 
 bool BluetoothCommunicationService::RawWrite(const std::string& buff) {
+  if (!is_connected_) return false;
+
   const char* cbuff = buff.c_str();
 
   if (send(sock_, cbuff, strlen(cbuff), 0) < 0) {
@@ -111,6 +153,8 @@ bool BluetoothCommunicationService::RawWrite(const std::string& buff) {
 }
 
 bool BluetoothCommunicationService::PurgeBuffer() {
+  if (!is_connected_) return false;
+
   logger.Log(og::kLoggerLevel_Info, "Attempting to purge bluetooth buffer");
 
   char buff[100];
@@ -126,13 +170,15 @@ bool BluetoothCommunicationService::PurgeBuffer() {
 }
 
 bool BluetoothCommunicationService::Disconnect() {
-  if (shutdown(sock_, SD_BOTH) != 0) {
-    LogError("Failed to disconnect from bluetooth socket device");
+  if (is_connected_.exchange(false)) {
+    if (shutdown(sock_, SD_BOTH) != 0) {
+      LogError("Failed to disconnect from bluetooth socket device");
 
-    return false;
+      return false;
+    }
+
+    is_connected_ = false;
   }
-
-  is_connected_ = false;
 
   return true;
 }
