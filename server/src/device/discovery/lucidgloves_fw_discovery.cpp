@@ -5,10 +5,10 @@
 
 #include "communication/encoding/alpha_encoding_service.h"
 #include "communication/managers/hardware_communication_manager.h"
-#include "communication/probers/bluetooth/prober_bluetooth.h"
-#include "communication/probers/serial/prober_serial.h"
-#include "communication/services/bluetooth/service_bluetooth.h"
-#include "communication/services/serial/service_serial.h"
+#include "communication/probers/prober_bluetooth.h"
+#include "communication/probers/prober_serial.h"
+#include "communication/services/service_bluetooth.h"
+#include "communication/services/service_serial.h"
 #include "devices/lucidgloves_device.h"
 #include "opengloves_interface.h"
 

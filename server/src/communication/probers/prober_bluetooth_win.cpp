@@ -13,7 +13,7 @@
 #include <utility>
 #include <vector>
 
-#include "communication/services/bluetooth/service_bluetooth.h"
+#include "communication/services/service_bluetooth.h"
 #include "opengloves_interface.h"
 
 using namespace og;

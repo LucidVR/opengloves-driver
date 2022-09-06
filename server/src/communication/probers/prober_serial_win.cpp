@@ -1,6 +1,6 @@
-#include "communication/probers/serial/prober_serial_win.h"
+#include "prober_serial_win.h"
 
-#include "communication/services/serial/service_serial.h"
+#include "communication/services/service_serial.h"
 #include "opengloves_interface.h"
 
 // must be in this order
