@@ -1,6 +1,8 @@
 #pragma once
 
 #include <memory>
+#include <string>
+#include <functional>
 
 class DriverExternalServer {
  public:
@@ -9,6 +11,8 @@ class DriverExternalServer {
 
     return instance;
   };
+
+  void RegisterFunctionCallback(const std::string& path, const std::function<void(const std::string& body)>& callback);
 
   void Stop();
 

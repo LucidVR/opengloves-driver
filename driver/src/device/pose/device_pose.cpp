@@ -1,15 +1,18 @@
 #include "device_pose.h"
 
+#include "external_services/driver_external.h"
 #include "external_services/driver_internal.h"
+#include "nlohmann/json.hpp"
 #include "util/driver_log.h"
 #include "util/driver_math.h"
 
-static DriverInternalServer& driver_server = DriverInternalServer::GetInstance();
+static DriverInternalServer& internal_server = DriverInternalServer::GetInstance();
+static DriverExternalServer& external_server = DriverExternalServer::GetInstance();
 
 DevicePose::DevicePose(vr::ETrackedControllerRole role) : role_(role), calibration_(std::make_unique<PoseCalibration>()) {
   configuration_ = GetPoseConfiguration(role);
 
-  driver_server.AddTrackingReferenceRequestCallback([&](const TrackingReferenceResult& result) {
+  internal_server.AddTrackingReferenceRequestCallback([&](const TrackingReferenceResult& result) {
     if (result.role == role_) {
       DriverLog(
           "Controller that %s hand is tracking from has been updated to id: %i",
@@ -18,6 +21,18 @@ DevicePose::DevicePose(vr::ETrackedControllerRole role) : role_(role), calibrati
       controller_id_ = result.controller_id;
     }
   });
+
+  external_server.RegisterFunctionCallback(
+      std::string("/functions/pose_calibration/") + std::string(role == vr::TrackedControllerRole_LeftHand ? "left" : "right"),
+      [&](const std::string& body) {
+        const nlohmann::json data = nlohmann::json::parse(body);
+        if (!data.contains("start")) return;
+        if (data["start"]) {
+          StartCalibration(kCalibrationMethod_Ui);
+        } else {
+          CompleteCalibration(kCalibrationMethod_Ui);
+        }
+      });
 };
 
 vr::TrackedDevicePose_t DevicePose::GetControllerPose(uint32_t controller_id) {
