@@ -162,3 +162,7 @@ void NamedPipeCommunicationManager::BeginListener(std::function<void(const og::I
     on_data_callback_(result);
   });
 }
+
+void NamedPipeCommunicationManager::WriteOutput(const og::Output& output) {
+  // not implemented yet
+}

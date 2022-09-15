@@ -19,7 +19,9 @@ class HardwareCommunicationManager : public ICommunicationManager {
 
   void BeginListener(std::function<void(const og::Input&)> callback) override;
 
-  ~HardwareCommunicationManager();
+  void WriteOutput(const og::Output& output) override;
+
+  ~HardwareCommunicationManager() override;
 
  private:
   void CommunicationThread();

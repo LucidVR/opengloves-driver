@@ -1,7 +1,11 @@
 #include "knuckle_device_driver.h"
 
+#include "external_services/driver_external.h"
 #include "hand_tracking/hand_tracking.h"
+#include "nlohmann/json.hpp"
 #include "util/file_path.h"
+
+static DriverExternalServer &external_server = DriverExternalServer::GetInstance();
 
 class KnuckleDeviceDriver::Impl {
  public:
@@ -121,6 +125,26 @@ vr::EVRInitError KnuckleDeviceDriver::Activate(uint32_t unObjectId) {
     vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerRing], pImpl_->GetAverageFingerCurlValue(data.flexion[3]), 0);
     vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerPinky], pImpl_->GetAverageFingerCurlValue(data.flexion[4]), 0);
     // clang-format on
+  });
+
+  external_server.RegisterFunctionCallback("/force_feedback/" + std::string(IsRightHand() ? "right" : "left"), [&](const std::string &data) {
+    const nlohmann::json json = nlohmann::json::parse(data);
+
+    int16_t thumb = json["thumb"];
+    int16_t index = json["index"];
+    int16_t middle = json["middle"];
+    int16_t ring = json["ring"];
+    int16_t pinky = json["pinky"];
+
+    og::Output output{};
+    output.type = og::kOutputData_Type_ForceFeedback;
+
+    og::OutputForceFeedbackData force_feedback_data = {thumb, index, middle, ring, pinky};
+    output.data.force_feedback_data = force_feedback_data;
+
+    ogdevice_->Output(output);
+
+    return true;
   });
 
   pose_thread_ = std::thread(&KnuckleDeviceDriver::PoseThread, this);

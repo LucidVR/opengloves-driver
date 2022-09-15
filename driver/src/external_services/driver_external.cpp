@@ -116,9 +116,21 @@ class DriverExternalServer::Impl {
         .methods("POST"_method)([&](const crow::request& req, const std::string& function_name, const std::string& role) {
           if (!crow::json::load(req.body)) return crow::response(crow::status::BAD_REQUEST);
 
-          if (!request_callbacks_.count(req.url)) return crow::response(404);
-          for (const auto& callback : request_callbacks_.at(req.url)) {
-            callback(req.body);
+          if (!request_callbacks_.count(req.url) && request_callbacks_.at(req.url) != nullptr) {
+            return crow::response(404);
+          }
+
+          try {
+            if (!request_callbacks_.at(req.url)(req.body)) {
+              return crow::response(400);
+            }
+          } catch (const std::exception& e) {
+            logger.Log(og::kLoggerLevel_Error, "failed to call function %s: %s", function_name.c_str(), e.what());
+
+            return crow::response(500, e.what());
+          } catch (...) {
+            logger.Log(og::kLoggerLevel_Error, "fatal error calling function: %s", function_name.c_str());
+            return crow::response(500);
           }
 
           return crow::response(200);
@@ -127,12 +139,12 @@ class DriverExternalServer::Impl {
     server_ = app_.port(52060).multithreaded().run_async();
   }
 
-  void RegisterCallback(const std::string& path, const std::function<void(const std::string& body)>& callback) {
-    if (request_callbacks_.count(path)) {
-      request_callbacks_.at(path).emplace_back(callback);
-    } else {
-      request_callbacks_[path] = {callback};
-    }
+  void RegisterFunctionCallback(const std::string& path, const std::function<bool(const std::string& body)>& callback) {
+    request_callbacks_[path] = {callback};
+  }
+
+  void RemoveFunctionCallback(const std::string& path) {
+    request_callbacks_.erase(path);
   }
 
   void Stop() {
@@ -147,15 +159,19 @@ class DriverExternalServer::Impl {
   crow::SimpleApp app_;
   std::future<void> server_;
 
-  std::map<std::string, std::vector<std::function<void(const std::string& body)>>> request_callbacks_;
+  std::map<std::string, std::function<bool(const std::string& body)>> request_callbacks_;
 };
 
 DriverExternalServer::DriverExternalServer() {
   pImpl_ = std::make_unique<Impl>();
 }
 
-void DriverExternalServer::RegisterFunctionCallback(const std::string& path, const std::function<void(const std::string& body)>& callback) {
-  pImpl_->RegisterCallback(path, callback);
+void DriverExternalServer::RegisterFunctionCallback(const std::string& path, const std::function<bool(const std::string& body)>& callback) {
+  pImpl_->RegisterFunctionCallback(path, callback);
+}
+
+void DriverExternalServer::RemoveFunctionCallback(const std::string& path) {
+  pImpl_->RemoveFunctionCallback(path);
 }
 
 void DriverExternalServer::Stop() {

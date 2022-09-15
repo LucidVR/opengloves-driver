@@ -13,6 +13,8 @@ class LucidglovesDevice : public og::Device {
   og::DeviceConfiguration GetConfiguration() override;
   void ListenForInput(std::function<void(const og::InputPeripheralData& data)> callback) override;
 
+  void Output(const og::Output& output) override;
+
   ~LucidglovesDevice();
 
  private:

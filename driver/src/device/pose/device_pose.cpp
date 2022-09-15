@@ -26,12 +26,14 @@ DevicePose::DevicePose(vr::ETrackedControllerRole role) : role_(role), calibrati
       std::string("/functions/pose_calibration/") + std::string(role == vr::TrackedControllerRole_LeftHand ? "left" : "right"),
       [&](const std::string& body) {
         const nlohmann::json data = nlohmann::json::parse(body);
-        if (!data.contains("start")) return;
+        if (!data.contains("start")) return false;
         if (data["start"]) {
           StartCalibration(kCalibrationMethod_Ui);
         } else {
           CompleteCalibration(kCalibrationMethod_Ui);
         }
+
+        return true;
       });
 };
 

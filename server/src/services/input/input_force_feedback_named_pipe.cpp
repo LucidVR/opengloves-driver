@@ -27,3 +27,5 @@ class InputForceFeedbackNamedPipe::Impl {
 
 InputForceFeedbackNamedPipe::InputForceFeedbackNamedPipe(og::Hand hand, std::function<void(const ForceFeedbackCurlData&)> on_data_callback)
     : pImpl_(std::make_unique<Impl>(hand, std::move(on_data_callback))){};
+
+InputForceFeedbackNamedPipe::~InputForceFeedbackNamedPipe() = default;

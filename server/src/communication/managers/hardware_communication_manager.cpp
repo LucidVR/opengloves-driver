@@ -42,6 +42,11 @@ void HardwareCommunicationManager::CommunicationThread() {
   }
 }
 
+void HardwareCommunicationManager::WriteOutput(const og::Output& output) {
+  const std::string encoded_string = encoding_service_->EncodePacket(output);
+  queued_write_string += encoded_string;
+}
+
 HardwareCommunicationManager::~HardwareCommunicationManager() {
   if (thread_active_.exchange(false)) {
     logger.Log(kLoggerLevel_Info, "Attempting to cleanup communication thread...");

@@ -203,7 +203,7 @@ class NamedPipeListener : public INamedPipeListener {
     CloseHandle(hPipeInst);
     CloseHandle(hEvent);
   }
-
+  
   const std::string pipe_name_;
 
   std::atomic<bool> thread_active_;

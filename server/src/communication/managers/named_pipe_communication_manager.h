@@ -12,7 +12,9 @@ class NamedPipeCommunicationManager : public ICommunicationManager {
 
   void BeginListener(std::function<void(const og::Input&)> callback) override;
 
-  ~NamedPipeCommunicationManager();
+  void WriteOutput(const og::Output& output) override;
+
+  ~NamedPipeCommunicationManager() override = default;
 
  private:
   class Impl;
