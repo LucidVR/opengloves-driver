@@ -1,7 +1,7 @@
 #include "lucidgloves_named_pipe_discovery.h"
 
 #include "communication/managers/named_pipe_communication_manager.h"
-#include "devices/lucidgloves_device.h"
+#include "device/lucidgloves/lucidgloves_device.h"
 
 static og::Logger& logger = og::Logger::GetInstance();
 
@@ -31,14 +31,14 @@ class LucidglovesNamedPipeDiscovery::Impl {
   std::function<void(const og::InputData&)> on_data_callback_;
 };
 
-void LucidglovesNamedPipeDiscovery::StartDiscovery(std::function<void(std::unique_ptr<og::Device>)> callback) {
+void LucidglovesNamedPipeDiscovery::StartDiscovery(std::function<void(std::unique_ptr<og::IDevice>)> callback) {
   device_discovered_callback_ = std::move(callback);
 
   pImpl_->StartListeners([&](og::Hand hand, std::unique_ptr<ICommunicationManager> communication_manager) {
     og::DeviceConfiguration configuration{};
 
     configuration.hand = hand;
-    configuration.device_type = og::kDeviceType_lucidgloves;
+    configuration.type = og::kDeviceType_lucidgloves;
 
     device_discovered_callback_(std::make_unique<LucidglovesDevice>(configuration, std::move(communication_manager)));
   });

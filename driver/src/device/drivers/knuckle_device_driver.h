@@ -37,7 +37,7 @@ enum KnuckleDeviceComponentIndex {
 
 class KnuckleDeviceDriver : public vr::ITrackedDeviceServerDriver {
  public:
-  KnuckleDeviceDriver(std::unique_ptr<og::Device> device);
+  KnuckleDeviceDriver(std::unique_ptr<og::IDevice> device);
 
   vr::EVRInitError Activate(uint32_t unObjectId) override;
 
@@ -66,7 +66,7 @@ class KnuckleDeviceDriver : public vr::ITrackedDeviceServerDriver {
 
   void PoseThread();
 
-  std::unique_ptr<og::Device> ogdevice_;
+  std::unique_ptr<og::IDevice> ogdevice_;
 
   vr::VRBoneTransform_t skeleton_[31]{};
   std::array<vr::VRInputComponentHandle_t, kKnuckleDeviceComponentIndex_Count> input_components_{};

@@ -32,7 +32,8 @@ static std::string GetLastErrorAsString() {
   return message;
 }
 
-BluetoothCommunicationService::BluetoothCommunicationService(og::DeviceBluetoothCommunicationConfiguration configuration) : configuration_(std::move(configuration)) {
+BluetoothCommunicationService::BluetoothCommunicationService(og::DeviceBluetoothCommunicationConfiguration configuration)
+    : configuration_(std::move(configuration)) {
   Connect();
 }
 
@@ -83,14 +84,14 @@ bool BluetoothCommunicationService::Connect() {
 
   do {
     if (wcscmp(btDeviceInfo.szName, wcDeviceName) == 0) {
-      logger.Log(og::kLoggerLevel_Info, "Bluetooth Device found");
+      logger.Log(og::kLoggerLevel_Info, "Bluetooth IDevice found");
       if (btDeviceInfo.fAuthenticated)  // I found that if fAuthenticated is true it means the device is paired.
       {
-        logger.Log(og::kLoggerLevel_Info, "Bluetooth Device is authenticated");
+        logger.Log(og::kLoggerLevel_Info, "Bluetooth IDevice is authenticated");
         device_address = btDeviceInfo.Address.ullLong;
         return true;
       } else {
-        logger.Log(og::kLoggerLevel_Warning, "This Bluetooth Device is not authenticated. Please pair with it first");
+        logger.Log(og::kLoggerLevel_Warning, "This Bluetooth IDevice is not authenticated. Please pair with it first");
       }
     }
   } while (BluetoothFindNextDevice(btDevice, &btDeviceInfo));  // loop through remaining BT devices connected to this machine
@@ -190,4 +191,8 @@ BluetoothCommunicationService::~BluetoothCommunicationService() {
   Disconnect();
 
   logger.Log(og::kLoggerLevel_Info, "Successfully disconnected from bluetooth device");
+}
+
+std::string BluetoothCommunicationService::GetIdentifier() {
+  return configuration_.name;
 }

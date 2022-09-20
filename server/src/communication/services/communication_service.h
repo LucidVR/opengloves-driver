@@ -23,4 +23,8 @@ class ICommunicationService {
   virtual bool IsConnected() = 0;
 
   virtual bool PurgeBuffer() = 0;
+
+  virtual std::string GetIdentifier() = 0;
+
+  virtual ~ICommunicationService() = default;
 };

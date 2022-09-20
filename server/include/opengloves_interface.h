@@ -41,10 +41,8 @@ namespace og {
     bool enabled;
 
     Hand hand;
-
-    DeviceType device_type;
-
-    DeviceCommunicationConfiguration device_communication;
+    DeviceType type;
+    DeviceCommunicationConfiguration communication;
   };
 
   struct BluetoothCommunicationConfiguration {
@@ -158,13 +156,18 @@ namespace og {
     OutputData data;
   };
 
-  class Device {
+  class IDevice {
    public:
     virtual DeviceConfiguration GetConfiguration() = 0;
 
     virtual void ListenForInput(std::function<void(const InputPeripheralData& data)> callback) = 0;
 
     virtual void Output(const Output& output) = 0;
+  };
+
+  class IDeviceDiscoverer {
+   public:
+    virtual void StartDiscovery(std::function<void(std::unique_ptr<og::IDevice> device)> callback) = 0;
   };
 
   class Server {
@@ -174,7 +177,7 @@ namespace og {
     /***
      * Start looking for devices. The callback will be called for every new device found.
      */
-    bool StartProber(std::function<void(std::unique_ptr<Device> device)> callback);
+    bool StartProber(std::function<void(std::unique_ptr<IDevice> device)> callback);
 
     /***
      * Stop looking for devices.

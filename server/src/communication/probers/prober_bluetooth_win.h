@@ -3,25 +3,19 @@
 #include <string>
 #include <vector>
 
-#include "communication/probers/communication_prober.h"
+#include "communication/probers/prober.h"
 #include "opengloves_interface.h"
 
 struct BluetoothProberConfiguration {
-  std::vector<std::string> identifiers;
+  std::string identifier;
 };
 
 class BluetoothCommunicationProber : public ICommunicationProber {
  public:
   explicit BluetoothCommunicationProber(BluetoothProberConfiguration configuration);
 
-  og::CommunicationType InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) override;
-
-  std::string GetName() override {
-    return "bluetooth";
-  }
+  bool InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) override;
 
  private:
-  std::function<void(std::unique_ptr<ICommunicationService>)> callback_;
-
   BluetoothProberConfiguration configuration_;
 };

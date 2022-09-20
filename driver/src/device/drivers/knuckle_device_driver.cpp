@@ -27,7 +27,7 @@ class KnuckleDeviceDriver::Impl {
   std::unique_ptr<HandTracking> hand_tracking_;
 };
 
-KnuckleDeviceDriver::KnuckleDeviceDriver(std::unique_ptr<og::Device> device)
+KnuckleDeviceDriver::KnuckleDeviceDriver(std::unique_ptr<og::IDevice> device)
     : pImpl_(std::make_unique<Impl>(GetDriverRootPath() + "\\resources\\anims\\glove_anim.glb")),
       ogdevice_(std::move(device)),
       pose_(std::make_unique<DevicePose>(GetRole())) {}

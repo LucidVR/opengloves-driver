@@ -38,7 +38,7 @@ static bool BluetoothDeviceIsConnectable(const BTH_ADDR& bt_address) {
   return true;
 }
 
-og::CommunicationType BluetoothCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) {
+bool BluetoothCommunicationProber::InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) {
   BLUETOOTH_DEVICE_SEARCH_PARAMS bt_dev_sp = {
       sizeof(BLUETOOTH_DEVICE_SEARCH_PARAMS),  // size of object
       1,                                       // return authenticated devices
@@ -55,14 +55,13 @@ og::CommunicationType BluetoothCommunicationProber::InquireDevices(std::vector<s
 
   if (bt_dev == nullptr) {
     logger.Log(kLoggerLevel_Info, "Could not find any bluetooth devices");
-    return og::kCommunicationType_Invalid;
+    return false;
   }
 
   int dev_found = 0;
 
   do {
-    for (const std::string& find_device_name : configuration_.identifiers) {
-      const auto wfind_device_name = std::wstring(find_device_name.begin(), find_device_name.end());
+      const auto wfind_device_name = std::wstring(configuration_.identifier.begin(), configuration_.identifier.end());
       const WCHAR* wcharfind_device_name = const_cast<WCHAR*>(wfind_device_name.c_str());
 
       if (wcscmp(bt_dev_info.szName, wcharfind_device_name) == 0) {
@@ -70,9 +69,9 @@ og::CommunicationType BluetoothCommunicationProber::InquireDevices(std::vector<s
           BTH_ADDR dev_bt_address = bt_dev_info.Address.ullLong;
 
           if (BluetoothDeviceIsConnectable(dev_bt_address)) {
-            logger.Log(kLoggerLevel_Info, "Discovered a new device: %s", find_device_name.c_str());
+            logger.Log(kLoggerLevel_Info, "Discovered a new device: %s", configuration_.identifier.c_str());
 
-            og::DeviceBluetoothCommunicationConfiguration bluetooth_configuration{find_device_name};
+            og::DeviceBluetoothCommunicationConfiguration bluetooth_configuration{configuration_.identifier};
             out_devices.emplace_back(std::make_unique<BluetoothCommunicationService>(bluetooth_configuration));
 
             dev_found++;
@@ -82,9 +81,8 @@ og::CommunicationType BluetoothCommunicationProber::InquireDevices(std::vector<s
           logger.Log(kLoggerLevel_Warning, "A device was found but was not authenticated. Please pair with it first.");
         }
       }
-    }
 
   } while (BluetoothFindNextDevice(bt_dev, &bt_dev_info));
 
-  return og::kCommunicationType_Bluetooth;
+  return true;
 }

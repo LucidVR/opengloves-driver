@@ -26,7 +26,11 @@ void HardwareCommunicationManager::BeginListener(std::function<void(const og::In
 void HardwareCommunicationManager::CommunicationThread() {
   while (thread_active_) {
     std::string recevied_string;
-    communication_service_->ReceiveNextPacket(recevied_string);
+    if (!communication_service_->ReceiveNextPacket(recevied_string)) {
+      logger.Log(kLoggerLevel_Error, "Failed to read from device.");
+
+      return;
+    }
 
     const Input input = encoding_service_->DecodePacket(recevied_string);
     callback_(input);

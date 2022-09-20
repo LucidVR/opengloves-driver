@@ -6,26 +6,26 @@
 #include <mutex>
 #include <vector>
 
-#include "communication/probers/communication_prober.h"
+#include "communication/probers/prober.h"
+#include "communication/encoding/encoding_service.h"
 #include "communication/services/communication_service.h"
-#include "device_discovery.h"
 #include "opengloves_interface.h"
 
-class LucidglovesDeviceDiscoverer : public IDeviceDiscoverer {
+class LucidglovesDeviceDiscoverer : public og::IDeviceDiscoverer {
  public:
   LucidglovesDeviceDiscoverer(og::CommunicationConfiguration communication_configuration, std::vector<og::DeviceConfiguration> device_configurations);
 
-  void StartDiscovery(std::function<void(std::unique_ptr<og::Device> device)> callback) override;
+  void StartDiscovery(std::function<void(std::unique_ptr<og::IDevice> device)> callback) override;
 
   void StopDiscovery();
 
   ~LucidglovesDeviceDiscoverer();
 
  private:
-  void ProberThread(std::unique_ptr<ICommunicationProber> prober);
-  void OnDeviceFound(std::unique_ptr<ICommunicationService> communication_service, og::CommunicationType communication_type);
+  void ConnectableProberThread(std::unique_ptr<ICommunicationProber> prober);
+  void OnDeviceFound(const og::DeviceConfiguration& configuration, std::unique_ptr<ICommunicationService> service);
 
-  std::function<void(std::unique_ptr<og::Device> device)> callback_;
+  std::function<void(std::unique_ptr<og::IDevice> device)> callback_;
 
   std::vector<std::thread> prober_threads_;
 

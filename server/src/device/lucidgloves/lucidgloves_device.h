@@ -6,7 +6,7 @@
 
 #include "communication/managers/communication_manager.h"
 
-class LucidglovesDevice : public og::Device {
+class LucidglovesDevice : public og::IDevice {
  public:
   LucidglovesDevice(og::DeviceConfiguration configuration, std::unique_ptr<ICommunicationManager> communication_manager);
 

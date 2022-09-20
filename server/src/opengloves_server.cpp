@@ -1,6 +1,9 @@
 #include <utility>
 
-#include "device/discovery/lucidgloves_fw_discovery.h"
+#include "device/lucidgloves/discovery/lucidgloves_fw_discovery.h"
+#include "device/lucidgloves/discovery/lucidgloves_named_pipe_discovery.h"
+
+
 #include "opengloves_interface.h"
 
 using namespace og;
@@ -11,7 +14,7 @@ class Server::Impl {
  public:
   Impl(ServerConfiguration configuration) : configuration_(std::move(configuration)){};
 
-  bool StartProber(const std::function<void(std::unique_ptr<Device> device)>& callback) {
+  bool StartProber(const std::function<void(std::unique_ptr<IDevice> device)>& callback) {
     logger.Log(kLoggerLevel_Info, "Starting server prober...");
 
     callback_ = callback;
@@ -40,7 +43,7 @@ class Server::Impl {
   }
 
  private:
-  std::function<void(std::unique_ptr<Device> device)> callback_;
+  std::function<void(std::unique_ptr<IDevice> device)> callback_;
   std::vector<std::unique_ptr<IDeviceDiscoverer>> device_discoverers_;
 
   ServerConfiguration configuration_;
@@ -50,7 +53,7 @@ Server::Server(ServerConfiguration configuration) {
   pImpl_ = std::make_unique<Server::Impl>(std::move(configuration));
 }
 
-bool Server::StartProber(std::function<void(std::unique_ptr<Device> device)> callback) {
+bool Server::StartProber(std::function<void(std::unique_ptr<IDevice> device)> callback) {
   return pImpl_->StartProber(callback);
 }
 

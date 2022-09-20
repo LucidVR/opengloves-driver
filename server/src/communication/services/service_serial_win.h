@@ -19,6 +19,8 @@ class SerialCommunicationService : public ICommunicationService {
 
   bool PurgeBuffer() override;
 
+  std::string GetIdentifier() override;
+
   ~SerialCommunicationService();
 
  private:

@@ -198,3 +198,7 @@ SerialCommunicationService::~SerialCommunicationService() {
 
   logger.Log(og::kLoggerLevel_Info, "Closing serial port communication service");
 }
+
+std::string SerialCommunicationService::GetIdentifier() {
+  return configuration_.port_name;
+}

@@ -21,14 +21,12 @@ static bool InitialiseExternalServices() {
 }
 
 static og::ServerConfiguration CreateServerConfiguration() {
-  og::ServerConfiguration result{};
-
   auto driver_configuration = GetDriverConfigurationMap();
   auto communication_configuration = GetCommunicationConfigurationMap();
   auto serial_configuration = GetSerialConfigurationMap();
   auto bluetooth_configuration = GetSerialConfigurationMap();
 
-  result = {
+  og::ServerConfiguration result = {
       .communication =
           {
               .auto_probe = std::get<bool>(communication_configuration["auto_probe"]),
@@ -45,8 +43,7 @@ static og::ServerConfiguration CreateServerConfiguration() {
           {
               .enabled = std::get<bool>(driver_configuration["left_enabled"]),
               .hand = og::kHandLeft,
-
-              .device_type = og::kDeviceType_lucidgloves
+              .type = og::kDeviceType_lucidgloves,
           },
 
       }};
@@ -93,10 +90,10 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
 
   // ogserver_->SetDefaultConfiguration(GetDriverLegacyConfiguration(vr::TrackedControllerRole_LeftHand));
 
-  ogserver_->StartProber([&](std::unique_ptr<og::Device> found_device) {
+  ogserver_->StartProber([&](std::unique_ptr<og::IDevice> found_device) {
     DriverLog("Physical device provider found a device, hand: %s", found_device->GetConfiguration().hand == og::kHandLeft ? "Left" : "Right");
 
-    switch (found_device->GetConfiguration().device_type) {
+    switch (found_device->GetConfiguration().type) {
       default:
         DriverLog("Physical device provider was given an unknown device type");
       case og::kDeviceType_lucidgloves:
