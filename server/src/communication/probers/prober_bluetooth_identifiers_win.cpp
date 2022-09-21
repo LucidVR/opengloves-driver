@@ -7,14 +7,13 @@
 #include <ws2bth.h>
 // clang-format on
 
-#include "prober_bluetooth_win.h"
-
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "communication/services/service_bluetooth.h"
 #include "opengloves_interface.h"
+#include "prober_bluetooth_identifiers_win.h"
 
 using namespace og;
 

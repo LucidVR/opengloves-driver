@@ -10,8 +10,8 @@ if (WIN32)
             prober_serial_identifiers_win.h
             prober_serial_identifiers_win.cpp
 
-            prober_bluetooth_win.h
-            prober_bluetooth_win.cpp
+            prober_bluetooth_identifiers_win.h
+            prober_bluetooth_identifiers_win.cpp
             )
 
     target_link_libraries(communication_probers PRIVATE server_lib setupapi wsock32 ws2_32 bthprops)

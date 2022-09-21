@@ -22,7 +22,7 @@ class LucidglovesDeviceDiscoverer : public og::IDeviceDiscoverer {
   ~LucidglovesDeviceDiscoverer();
 
  private:
-  void ConnectableProberThread(std::unique_ptr<ICommunicationProber> prober);
+  void ProberThread(std::unique_ptr<ICommunicationProber> prober, const std::function<void(std::unique_ptr<ICommunicationService> service)>& callback);
   void OnDeviceFound(const og::DeviceConfiguration& configuration, std::unique_ptr<ICommunicationService> service);
 
   std::function<void(std::unique_ptr<og::IDevice> device)> callback_;

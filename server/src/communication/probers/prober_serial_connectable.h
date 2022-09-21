@@ -7,13 +7,13 @@
 #include "communication/probers/prober.h"
 #include "communication/services/communication_service.h"
 
-struct SerialProberPort {
+struct SerialPortProberConfiguration {
   std::string port;
 };
 
 class SerialPortProber : public ICommunicationProber {
  public:
-  explicit SerialPortProber(const SerialProberPort& configuration);
+  explicit SerialPortProber(const SerialPortProberConfiguration& configuration);
 
   bool InquireDevices(std::vector<std::unique_ptr<ICommunicationService>>& out_devices) override;
 

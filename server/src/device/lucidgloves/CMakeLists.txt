@@ -12,4 +12,4 @@ target_include_directories(device_lucidgloves PRIVATE
         )
 
 target_link_libraries(device_lucidgloves PUBLIC opengloves_interface-includes server-includes)
-target_link_libraries(device_lucidgloves PRIVATE server_services_output server_services_input)
+target_link_libraries(device_lucidgloves PRIVATE server_services_output server_services_input communication_probers)

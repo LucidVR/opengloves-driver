@@ -5,7 +5,9 @@
 
 #include "communication/encoding/alpha_encoding_service.h"
 #include "communication/managers/hardware_communication_manager.h"
-#include "communication/probers/prober_bluetooth_win.h"
+#include "communication/probers/prober_bluetooth_connectable.h"
+#include "communication/probers/prober_bluetooth_identifiers_win.h"
+#include "communication/probers/prober_serial_connectable.h"
 #include "communication/probers/prober_serial_identifiers_win.h"
 #include "communication/services/service_bluetooth.h"
 #include "communication/services/service_serial.h"
@@ -33,13 +35,39 @@ void LucidglovesDeviceDiscoverer::StartDiscovery(std::function<void(std::unique_
     return;
   }
 
-  if(communication_configuration_.bluetooth.enabled) {
+  if (communication_configuration_.bluetooth.enabled) {
     logger.Log(og::kLoggerLevel_Info, "Using bluetooth configuration.");
 
+    for (const auto& device_configuration : device_configurations_) {
+      og::DeviceBluetoothCommunicationConfiguration configuration =
+          std::get<og::DeviceBluetoothCommunicationConfiguration>(device_configuration.communication.communication);
+      BluetoothPortProberConfiguration prober_configuration{configuration.name};
 
+      prober_threads_.emplace_back(std::thread(
+          &LucidglovesDeviceDiscoverer::ProberThread,
+          this,
+          std::make_unique<BluetoothPortProber>(prober_configuration),
+          [=](std::unique_ptr<ICommunicationService> service) {
+            OnDeviceFound(device_configuration, std::move(service));
+          }));
+    }
 
-  } else {
-    if(!communication_configuration_.serial.enabled) logger.Log(og::kLoggerLevel_Warning, "No communication type set. using serial");
+  } else {  // we will use serial communication
+    if (!communication_configuration_.serial.enabled) logger.Log(og::kLoggerLevel_Warning, "No communication type set. using serial");
+
+    for (const auto& device_configuration : device_configurations_) {
+      og::DeviceSerialCommunicationConfiguration configuration =
+          std::get<og::DeviceSerialCommunicationConfiguration>(device_configuration.communication.communication);
+      SerialPortProberConfiguration prober_configuration{configuration.port_name};
+
+      prober_threads_.emplace_back(std::thread(
+          &LucidglovesDeviceDiscoverer::ProberThread,
+          this,
+          std::make_unique<SerialPortProber>(prober_configuration),
+          [=](std::unique_ptr<ICommunicationService> service) {
+            OnDeviceFound(device_configuration, std::move(service));
+          }));
+    }
 
     logger.Log(og::kLoggerLevel_Info, "Using serial configuration.");
   }
@@ -47,14 +75,15 @@ void LucidglovesDeviceDiscoverer::StartDiscovery(std::function<void(std::unique_
   is_active_ = true;
 }
 
-void LucidglovesDeviceDiscoverer::ConnectableProberThread(std::unique_ptr<ICommunicationProber> prober) {
+void LucidglovesDeviceDiscoverer::ProberThread(
+    std::unique_ptr<ICommunicationProber> prober, const std::function<void(std::unique_ptr<ICommunicationService> service)>& callback) {
   while (is_active_) {
     std::vector<std::unique_ptr<ICommunicationService>> found_services;
 
     bool has_devices = prober->InquireDevices(found_services);
-
     for (auto& service : found_services) {
       logger.Log(og::kLoggerLevel_Info, "Device discovered with identifier: %s", service->GetIdentifier().c_str());
+      callback(std::move(service));
     }
 
     std::this_thread::sleep_for(std::chrono::milliseconds(2000));

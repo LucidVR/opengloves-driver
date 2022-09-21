@@ -3,7 +3,7 @@
 #include "communication/services/service_serial.h"
 #include "opengloves_interface.h"
 
-SerialPortProber::SerialPortProber(const SerialProberPort& configuration) {
+SerialPortProber::SerialPortProber(const SerialPortProberConfiguration& configuration) {
   port_ = configuration.port;
 }
 

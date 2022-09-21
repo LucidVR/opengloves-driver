@@ -23,7 +23,7 @@ class BluetoothCommunicationService : public ICommunicationService {
 
   std::string GetIdentifier() override;
 
-  ~BluetoothCommunicationService();
+  ~BluetoothCommunicationService() override;
 
  private:
   bool Connect();

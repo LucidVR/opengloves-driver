@@ -36,7 +36,7 @@ bool SerialIdentifierProber::InquireDevices(std::vector<std::unique_ptr<ICommuni
   if (device_info_set == INVALID_HANDLE_VALUE) {
     logger.Log(og::kLoggerLevel_Error, "Failed to set up serial prober: %s", GetLastErrorAsString().c_str());
 
-    return og::kCommunicationType_Invalid;
+    return false;
   }
 
   SP_DEVINFO_DATA device_info_data;
