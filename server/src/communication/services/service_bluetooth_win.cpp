@@ -57,7 +57,7 @@ bool BluetoothCommunicationService::Connect() {
   }
 
   // find by name
-  constexpr BLUETOOTH_DEVICE_SEARCH_PARAMS btDeviceSearchParameters = {
+  BLUETOOTH_DEVICE_SEARCH_PARAMS btDeviceSearchParameters = {
       sizeof(BLUETOOTH_DEVICE_SEARCH_PARAMS),  // size of object
       1,                                       // return authenticated devices
       0,                                       // return remembered devices

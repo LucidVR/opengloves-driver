@@ -163,6 +163,8 @@ namespace og {
     virtual void ListenForInput(std::function<void(const InputPeripheralData& data)> callback) = 0;
 
     virtual void Output(const Output& output) = 0;
+
+    virtual ~IDevice() = default;
   };
 
   class IDeviceDiscoverer {

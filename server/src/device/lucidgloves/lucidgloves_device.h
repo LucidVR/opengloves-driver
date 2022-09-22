@@ -15,7 +15,7 @@ class LucidglovesDevice : public og::IDevice {
 
   void Output(const og::Output& output) override;
 
-  ~LucidglovesDevice();
+  ~LucidglovesDevice() override;
 
  private:
   class Impl;

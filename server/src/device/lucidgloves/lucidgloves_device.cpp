@@ -69,5 +69,6 @@ og::DeviceConfiguration LucidglovesDevice::GetConfiguration() {
 }
 
 LucidglovesDevice::~LucidglovesDevice() {
+  pImpl_ = nullptr;
   OutputOSCServer::GetInstance().Stop();
 }

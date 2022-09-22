@@ -88,24 +88,37 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
   // initialise opengloves
   ogserver_ = std::make_unique<og::Server>(CreateServerConfiguration());
 
-  // ogserver_->SetDefaultConfiguration(GetDriverLegacyConfiguration(vr::TrackedControllerRole_LeftHand));
+  device_drivers_[vr::TrackedControllerRole_LeftHand] = std::make_unique<KnuckleDeviceDriver>(vr::TrackedControllerRole_LeftHand);
+  vr::VRServerDriverHost()->TrackedDeviceAdded(
+      device_drivers_[vr::TrackedControllerRole_LeftHand]->GetSerialNumber().c_str(),
+      vr::TrackedDeviceClass_Controller,
+      device_drivers_[vr::TrackedControllerRole_LeftHand].get());
+
+  device_drivers_[vr::TrackedControllerRole_RightHand] = std::make_unique<KnuckleDeviceDriver>(vr::TrackedControllerRole_RightHand);
+  vr::VRServerDriverHost()->TrackedDeviceAdded(
+      device_drivers_[vr::TrackedControllerRole_RightHand]->GetSerialNumber().c_str(),
+      vr::TrackedDeviceClass_Controller,
+      device_drivers_[vr::TrackedControllerRole_RightHand].get());
 
   ogserver_->StartProber([&](std::unique_ptr<og::IDevice> found_device) {
     DriverLog("Physical device provider found a device, hand: %s", found_device->GetConfiguration().hand == og::kHandLeft ? "Left" : "Right");
 
-    switch (found_device->GetConfiguration().type) {
-      default:
-        DriverLog("Physical device provider was given an unknown device type");
-      case og::kDeviceType_lucidgloves:
-        DriverLog("Physical device provider activating lucidgloves");
-
-        std::unique_ptr<KnuckleDeviceDriver> device_driver = std::make_unique<KnuckleDeviceDriver>(std::move(found_device));
-
-        vr::VRServerDriverHost()->TrackedDeviceAdded(
-            device_driver->GetSerialNumber().c_str(), vr::TrackedDeviceClass_Controller, device_driver.get());
-
-        device_drivers_.emplace_back(std::move(device_driver));
+    vr::ETrackedControllerRole role = vr::TrackedControllerRole_Invalid;
+    switch (found_device->GetConfiguration().hand) {
+      case og::kHandLeft:
+        role = vr::TrackedControllerRole_LeftHand;
+        break;
+      case og::kHandRight:
+        role = vr::TrackedControllerRole_RightHand;
+        break;
     }
+
+    if (role == vr::TrackedControllerRole_Invalid) {
+      DriverLog("Received device with unknown role, aborting.");
+      return;
+    }
+
+    device_drivers_[role]->SetDeviceDriver(std::move(found_device));
   });
 
   return vr::VRInitError_None;

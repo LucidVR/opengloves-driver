@@ -1,9 +1,11 @@
 #pragma once
 
+#include <map>
 #include <memory>
 
 #include "openvr_driver.h"
 #include "opengloves_interface.h"
+#include "device/drivers/device_driver.h"
 
 /*!
  * Represents a device that will in the end produce a new device in SteamVR, rather than trying to hook another device.
@@ -27,5 +29,5 @@ class PhysicalDeviceProvider : public vr::IServerTrackedDeviceProvider {
  private:
   std::unique_ptr<og::Server> ogserver_;
 
-  std::vector<std::unique_ptr<vr::ITrackedDeviceServerDriver>> device_drivers_;
+  std::map<vr::ETrackedControllerRole, std::unique_ptr<IDeviceDriver>> device_drivers_;
 };

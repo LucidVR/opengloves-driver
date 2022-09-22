@@ -4,7 +4,7 @@
 #include <string>
 #include <thread>
 
-#include "device/pose/device_pose.h"
+#include "device_driver.h"
 #include "opengloves_interface.h"
 #include "openvr_driver.h"
 
@@ -32,12 +32,16 @@ enum KnuckleDeviceComponentIndex {
   kKnuckleDeviceComponentIndex_FingerMiddle,
   kKnuckleDeviceComponentIndex_FingerRing,
   kKnuckleDeviceComponentIndex_FingerPinky,
+
+  kKnuckleDeviceComponentIndex_Skeleton,
   kKnuckleDeviceComponentIndex_Count
 };
 
-class KnuckleDeviceDriver : public vr::ITrackedDeviceServerDriver {
+class KnuckleDeviceDriver : public IDeviceDriver {
  public:
-  KnuckleDeviceDriver(std::unique_ptr<og::IDevice> device);
+  explicit KnuckleDeviceDriver(vr::ETrackedControllerRole role);
+
+  void SetDeviceDriver(std::unique_ptr<og::IDevice> device) override;
 
   vr::EVRInitError Activate(uint32_t unObjectId) override;
 
@@ -51,7 +55,9 @@ class KnuckleDeviceDriver : public vr::ITrackedDeviceServerDriver {
 
   vr::DriverPose_t GetPose() override;
 
-  std::string GetSerialNumber();
+  std::string GetSerialNumber() override;
+
+  bool IsActive() override;
 
   ~KnuckleDeviceDriver();
 
@@ -59,21 +65,7 @@ class KnuckleDeviceDriver : public vr::ITrackedDeviceServerDriver {
   class Impl;
   std::unique_ptr<Impl> pImpl_;
 
-  std::atomic<uint32_t> device_id_;
-
-  [[nodiscard]] bool IsRightHand() const;
-  [[nodiscard]] vr::ETrackedControllerRole GetRole() const;
-
-  void PoseThread();
-
-  std::unique_ptr<og::IDevice> ogdevice_;
-
-  vr::VRBoneTransform_t skeleton_[31]{};
-  std::array<vr::VRInputComponentHandle_t, kKnuckleDeviceComponentIndex_Count> input_components_{};
-  vr::VRInputComponentHandle_t skeleton_handle_{};
-
-  std::unique_ptr<DevicePose> pose_;
+  vr::ETrackedControllerRole role_;
 
   std::atomic<bool> is_active_;
-  std::thread pose_thread_;
 };

@@ -1,4 +1,4 @@
-add_library(device_drivers STATIC knuckle_device_driver.h knuckle_device_driver.cpp)
+add_library(device_drivers STATIC knuckle_device_driver.h knuckle_device_driver.cpp device_driver.h)
 
 find_package(OpenVR REQUIRED)
 
