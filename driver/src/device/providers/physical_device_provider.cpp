@@ -2,8 +2,8 @@
 
 #include "device/configuration/device_configuration.h"
 #include "device/drivers/knuckle_device_driver.h"
-#include "external_services/driver_external.h"
-#include "external_services/driver_internal.h"
+#include "services/driver_external.h"
+#include "services/driver_internal.h"
 #include "nlohmann/json.hpp"
 #include "util/driver_log.h"
 #include "util/file_path.h"

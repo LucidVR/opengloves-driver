@@ -1,7 +1,7 @@
 #include "knuckle_device_driver.h"
 
 #include "device/pose/device_pose.h"
-#include "external_services/driver_external.h"
+#include "services/driver_external.h"
 #include "hand_tracking/hand_tracking.h"
 #include "nlohmann/json.hpp"
 #include "util/file_path.h"

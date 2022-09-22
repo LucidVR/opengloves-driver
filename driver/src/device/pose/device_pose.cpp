@@ -1,7 +1,7 @@
 #include "device_pose.h"
 
-#include "external_services/driver_external.h"
-#include "external_services/driver_internal.h"
+#include "services/driver_external.h"
+#include "services/driver_internal.h"
 #include "nlohmann/json.hpp"
 #include "util/driver_log.h"
 #include "util/driver_math.h"
