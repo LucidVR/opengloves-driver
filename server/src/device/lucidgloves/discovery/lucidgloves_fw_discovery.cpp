@@ -6,7 +6,6 @@
 #include "communication/encoding/alpha_encoding_service.h"
 #include "communication/managers/hardware_communication_manager.h"
 #include "communication/probers/prober_bluetooth_connectable.h"
-#include "communication/probers/prober_bluetooth_identifiers_win.h"
 #include "communication/probers/prober_serial_connectable.h"
 #include "communication/probers/prober_serial_identifiers_win.h"
 #include "communication/services/service_bluetooth.h"
@@ -36,40 +35,37 @@ void LucidglovesDeviceDiscoverer::StartDiscovery(std::function<void(std::unique_
   }
 
   if (communication_configuration_.bluetooth.enabled) {
-    logger.Log(og::kLoggerLevel_Info, "Using bluetooth configuration.");
+    logger.Log(og::kLoggerLevel_Info, "Setting up bluetooth probers...");
 
     for (const auto& device_configuration : device_configurations_) {
-      og::DeviceBluetoothCommunicationConfiguration configuration =
-          std::get<og::DeviceBluetoothCommunicationConfiguration>(device_configuration.communication.communication);
+      const og::DeviceBluetoothCommunicationConfiguration& configuration = device_configuration.communication.bluetooth;
       BluetoothPortProberConfiguration prober_configuration{configuration.name};
 
       prober_threads_.emplace_back(std::thread(
           &LucidglovesDeviceDiscoverer::ProberThread,
           this,
           std::make_unique<BluetoothPortProber>(prober_configuration),
-          [=](std::unique_ptr<ICommunicationService> service) {
-            OnDeviceFound(device_configuration, std::move(service));
-          }));
+          [=](std::unique_ptr<ICommunicationService> service) { OnDeviceFound(device_configuration, std::move(service)); }));
     }
+  } else {
+    logger.Log(og::kLoggerLevel_Info, "Not probing for bluetooth devices as it was disabled in settings");
+  }
 
-  } else {  // we will use serial communication
-    if (!communication_configuration_.serial.enabled) logger.Log(og::kLoggerLevel_Warning, "No communication type set. using serial");
+  if (communication_configuration_.serial.enabled) {
+    logger.Log(og::kLoggerLevel_Info, "Setting up serial probers...");
 
     for (const auto& device_configuration : device_configurations_) {
-      og::DeviceSerialCommunicationConfiguration configuration =
-          std::get<og::DeviceSerialCommunicationConfiguration>(device_configuration.communication.communication);
-      SerialPortProberConfiguration prober_configuration{configuration.port_name};
+      const og::DeviceSerialCommunicationConfiguration& configuration = device_configuration.communication.serial;
 
+      SerialPortProberConfiguration prober_configuration{configuration.port_name};
       prober_threads_.emplace_back(std::thread(
           &LucidglovesDeviceDiscoverer::ProberThread,
           this,
           std::make_unique<SerialPortProber>(prober_configuration),
-          [=](std::unique_ptr<ICommunicationService> service) {
-            OnDeviceFound(device_configuration, std::move(service));
-          }));
+          [=](std::unique_ptr<ICommunicationService> service) { OnDeviceFound(device_configuration, std::move(service)); }));
     }
-
-    logger.Log(og::kLoggerLevel_Info, "Using serial configuration.");
+  } else {
+    logger.Log(og::kLoggerLevel_Info, "Not probing for serial devices as it was disabled in settings");
   }
 
   is_active_ = true;
@@ -93,14 +89,7 @@ void LucidglovesDeviceDiscoverer::ProberThread(
 void LucidglovesDeviceDiscoverer::OnDeviceFound(const og::DeviceConfiguration& configuration, std::unique_ptr<ICommunicationService> service) {
   std::lock_guard<std::mutex> lock(device_found_mutex_);
 
-  std::unique_ptr<IEncodingService> encoding_service;
-  switch (configuration.communication.encoding_type) {
-    default:
-      logger.Log(og::kLoggerLevel_Warning, "No encoding type set. Using alpha encoding.");
-    case og::kEncodingType_Alpha:
-      encoding_service = std::make_unique<AlphaEncodingService>(std::get<og::DeviceAlphaEncodingConfiguration>(configuration.communication.encoding));
-      break;
-  }
+  std::unique_ptr<IEncodingService> encoding_service = std::make_unique<AlphaEncodingService>(configuration.communication.encoding);
 
   std::unique_ptr<ICommunicationManager> communication_manager;
   switch (configuration.type) {

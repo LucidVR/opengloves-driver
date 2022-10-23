@@ -23,6 +23,7 @@ nlohmann::ordered_map<std::string, std::variant<bool>> GetDriverConfigurationMap
 nlohmann::ordered_map<std::string, std::variant<bool>> GetCommunicationConfigurationMap();
 nlohmann::ordered_map<std::string, std::variant<bool, std::string>> GetBluetoothSerialConfigurationMap();
 nlohmann::ordered_map<std::string, std::variant<bool, std::string>> GetSerialConfigurationMap();
+nlohmann::ordered_map<std::string, std::variant<int>> GetAlphaEncodingConfigurationMap();
 nlohmann::ordered_map<std::string, std::variant<float, bool>> GetPoseConfigurationMap();
 
 PoseConfiguration GetPoseConfiguration(vr::ETrackedControllerRole role);

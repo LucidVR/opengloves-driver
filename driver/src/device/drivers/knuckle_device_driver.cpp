@@ -82,7 +82,6 @@ class KnuckleDeviceDriver::Impl {
     vr::VRProperties()->SetStringProperty(props, vr::Prop_SerialNumber_String, IsRightHand() ? "LHR-E217CD01" : "LHR-E217CD00");
     vr::VRProperties()->SetStringProperty(props, vr::Prop_ManufacturerName_String, "LucidVR");
 
-    vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerRoleHint_Int32, 2000000000);
     vr::VRProperties()->SetFloatProperty(props, vr::Prop_DeviceBatteryPercentage_Float, 1.f);
     vr::VRProperties()->SetBoolProperty(props, vr::Prop_DeviceProvidesBatteryStatus_Bool, true);
 
@@ -90,6 +89,9 @@ class KnuckleDeviceDriver::Impl {
     vr::VRProperties()->SetBoolProperty(props, vr::Prop_Identifiable_Bool, true);
     vr::VRProperties()->SetInt32Property(
         props, vr::Prop_ControllerRoleHint_Int32, IsRightHand() ? vr::TrackedControllerRole_RightHand : vr::TrackedControllerRole_LeftHand);
+
+    vr::VRProperties()->SetInt32Property(props, vr::Prop_ControllerHandSelectionPriority_Int32, 2147483647);
+
     vr::VRProperties()->SetStringProperty(props, vr::Prop_ControllerType_String, "knuckles");
 
     vr::VRProperties()->SetStringProperty(props, vr::Prop_RenderModelName_String, IsRightHand() ? "{indexcontroller}valve_controller_knu_1_0_right" : "{indexcontroller}valve_controller_knu_1_0_left");

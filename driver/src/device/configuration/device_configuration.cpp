@@ -60,6 +60,14 @@ nlohmann::ordered_map<std::string, std::variant<bool, std::string>> GetSerialCon
   return result;
 }
 
+nlohmann::ordered_map<std::string, std::variant<int>> GetAlphaEncodingConfigurationMap() {
+  nlohmann::ordered_map<std::string, std::variant<int>> result{};
+
+  result["max_analog_value"] = vr::VRSettings()->GetInt32(k_alpha_encoding_settings_section, "max_analog_value");
+
+  return result;
+}
+
 nlohmann::ordered_map<std::string, std::variant<float, bool>> GetPoseConfigurationMap() {
   nlohmann::ordered_map<std::string, std::variant<float, bool>> result{};
 
@@ -90,17 +98,17 @@ PoseConfiguration GetPoseConfiguration(vr::ETrackedControllerRole role) {
   PoseConfiguration result{};
 
   const bool is_right_hand = role == vr::TrackedControllerRole_RightHand;
-
   nlohmann::ordered_map<std::string, std::variant<float, bool>> pose_configuration_map = GetPoseConfigurationMap();
-  const float offsetXPos = std::get<float>(pose_configuration_map.at(is_right_hand ? "right_x_offset_position" : "left_x_offset_position"));
-  const float offsetYPos = std::get<float>(pose_configuration_map.at(is_right_hand ? "right_y_offset_position" : "left_y_offset_position"));
-  const float offsetZPos = std::get<float>(pose_configuration_map.at(is_right_hand ? "right_z_offset_position" : "left_z_offset_position"));
-  result.offset_position = {offsetXPos, offsetYPos, offsetZPos};
 
-  const float offsetXRot = std::get<float>(pose_configuration_map.at(is_right_hand ? "right_x_offset_degrees" : "left_x_offset_degrees"));
-  const float offsetYRot = std::get<float>(pose_configuration_map.at(is_right_hand ? "right_x_offset_degrees" : "left_x_offset_degrees"));
-  const float offsetZRot = std::get<float>(pose_configuration_map.at(is_right_hand ? "right_x_offset_degrees" : "left_x_offset_degrees"));
-  result.offset_orientation = EulerToQuaternion(DEG_TO_RAD(offsetZRot), DEG_TO_RAD(offsetYRot), DEG_TO_RAD(offsetXRot));
+  result.offset_position = {
+      std::get<float>(pose_configuration_map.at(is_right_hand ? "right_x_offset_position" : "left_x_offset_position")),
+      std::get<float>(pose_configuration_map.at(is_right_hand ? "right_y_offset_position" : "left_y_offset_position")),
+      std::get<float>(pose_configuration_map.at(is_right_hand ? "right_z_offset_position" : "left_z_offset_position"))};
+
+  result.offset_orientation = EulerToQuaternion(
+      DEG_TO_RAD(std::get<float>(pose_configuration_map.at(is_right_hand ? "right_z_offset_degrees" : "left_z_offset_degrees"))),
+      DEG_TO_RAD(std::get<float>(pose_configuration_map.at(is_right_hand ? "right_y_offset_degrees" : "left_y_offset_degrees"))),
+      DEG_TO_RAD(std::get<float>(pose_configuration_map.at(is_right_hand ? "right_x_offset_degrees" : "left_x_offset_degrees"))));
 
   return result;
 }

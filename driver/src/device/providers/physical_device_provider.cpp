@@ -2,9 +2,9 @@
 
 #include "device/configuration/device_configuration.h"
 #include "device/drivers/knuckle_device_driver.h"
+#include "nlohmann/json.hpp"
 #include "services/driver_external.h"
 #include "services/driver_internal.h"
-#include "nlohmann/json.hpp"
 #include "util/driver_log.h"
 #include "util/file_path.h"
 
@@ -24,7 +24,8 @@ static og::ServerConfiguration CreateServerConfiguration() {
   auto driver_configuration = GetDriverConfigurationMap();
   auto communication_configuration = GetCommunicationConfigurationMap();
   auto serial_configuration = GetSerialConfigurationMap();
-  auto bluetooth_configuration = GetSerialConfigurationMap();
+  auto bluetooth_configuration = GetBluetoothSerialConfigurationMap();
+  auto encoding_configuration = GetAlphaEncodingConfigurationMap();
 
   og::ServerConfiguration result = {
       .communication =
@@ -44,8 +45,40 @@ static og::ServerConfiguration CreateServerConfiguration() {
               .enabled = std::get<bool>(driver_configuration["left_enabled"]),
               .hand = og::kHandLeft,
               .type = og::kDeviceType_lucidgloves,
+              .communication =
+                  {
+                      .serial =
+                          {
+                              .port_name = std::get<std::string>(serial_configuration["left_port"]),
+                          },
+                      .bluetooth =
+                          {
+                              .name = std::get<std::string>(bluetooth_configuration["left_name"]),
+                          },
+                      .encoding = {
+                          .max_analog_value = static_cast<unsigned int>(std::get<int>(encoding_configuration["max_analog_value"])),
+                      },
+                  },
           },
-
+          {
+              .enabled = std::get<bool>(driver_configuration["right_enabled"]),
+              .hand = og::kHandRight,
+              .type = og::kDeviceType_lucidgloves,
+              .communication =
+                  {
+                      .serial =
+                          {
+                              .port_name = std::get<std::string>(serial_configuration["right_port"]),
+                          },
+                      .bluetooth =
+                          {
+                              .name = std::get<std::string>(bluetooth_configuration["right_name"]),
+                          },
+                      .encoding = {
+                          .max_analog_value = static_cast<unsigned int>(std::get<int>(encoding_configuration["max_analog_value"])),
+                      },
+                  },
+          },
       }};
 
   return result;
@@ -88,17 +121,22 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
   // initialise opengloves
   ogserver_ = std::make_unique<og::Server>(CreateServerConfiguration());
 
-  device_drivers_[vr::TrackedControllerRole_LeftHand] = std::make_unique<KnuckleDeviceDriver>(vr::TrackedControllerRole_LeftHand);
-  vr::VRServerDriverHost()->TrackedDeviceAdded(
-      device_drivers_[vr::TrackedControllerRole_LeftHand]->GetSerialNumber().c_str(),
-      vr::TrackedDeviceClass_Controller,
-      device_drivers_[vr::TrackedControllerRole_LeftHand].get());
+  const auto driver_configuration = GetDriverConfigurationMap();
+  if (std::get<bool>(driver_configuration["left_enabled"])) {
+    device_drivers_[vr::TrackedControllerRole_LeftHand] = std::make_unique<KnuckleDeviceDriver>(vr::TrackedControllerRole_LeftHand);
+    vr::VRServerDriverHost()->TrackedDeviceAdded(
+        device_drivers_[vr::TrackedControllerRole_LeftHand]->GetSerialNumber().c_str(),
+        vr::TrackedDeviceClass_Controller,
+        device_drivers_[vr::TrackedControllerRole_LeftHand].get());
+  }
 
-  device_drivers_[vr::TrackedControllerRole_RightHand] = std::make_unique<KnuckleDeviceDriver>(vr::TrackedControllerRole_RightHand);
-  vr::VRServerDriverHost()->TrackedDeviceAdded(
-      device_drivers_[vr::TrackedControllerRole_RightHand]->GetSerialNumber().c_str(),
-      vr::TrackedDeviceClass_Controller,
-      device_drivers_[vr::TrackedControllerRole_RightHand].get());
+  if (std::get<bool>(driver_configuration["right_enabled"])) {
+    device_drivers_[vr::TrackedControllerRole_RightHand] = std::make_unique<KnuckleDeviceDriver>(vr::TrackedControllerRole_RightHand);
+    vr::VRServerDriverHost()->TrackedDeviceAdded(
+        device_drivers_[vr::TrackedControllerRole_RightHand]->GetSerialNumber().c_str(),
+        vr::TrackedDeviceClass_Controller,
+        device_drivers_[vr::TrackedControllerRole_RightHand].get());
+  }
 
   ogserver_->StartProber([&](std::unique_ptr<og::IDevice> found_device) {
     DriverLog("Physical device provider found a device, hand: %s", found_device->GetConfiguration().hand == og::kHandLeft ? "Left" : "Right");
@@ -118,7 +156,11 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
       return;
     }
 
-    device_drivers_[role]->SetDeviceDriver(std::move(found_device));
+    if(device_drivers_[role] != nullptr) {
+      device_drivers_[role]->SetDeviceDriver(std::move(found_device));
+    } else {
+      DriverLog("Discovered a device but no steamvr device was found to use it");
+    }
   });
 
   return vr::VRInitError_None;

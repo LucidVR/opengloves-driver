@@ -30,11 +30,10 @@ namespace og {
   };
 
   struct DeviceCommunicationConfiguration {
-    std::variant<DeviceSerialCommunicationConfiguration, DeviceBluetoothCommunicationConfiguration> communication;
-    CommunicationType communication_type;
+    DeviceSerialCommunicationConfiguration serial;
+    DeviceBluetoothCommunicationConfiguration bluetooth;
 
-    std::variant<DeviceAlphaEncodingConfiguration> encoding;
-    EncodingType encoding_type;
+    DeviceAlphaEncodingConfiguration encoding;
   };
 
   struct DeviceConfiguration {

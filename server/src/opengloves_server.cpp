@@ -12,7 +12,7 @@ static Logger& logger = Logger::GetInstance();
 
 class Server::Impl {
  public:
-  Impl(ServerConfiguration configuration) : configuration_(std::move(configuration)){};
+  explicit Impl(ServerConfiguration configuration) : configuration_(std::move(configuration)){};
 
   bool StartProber(const std::function<void(std::unique_ptr<IDevice> device)>& callback) {
     logger.Log(kLoggerLevel_Info, "Starting server prober...");
@@ -22,6 +22,7 @@ class Server::Impl {
 
     // lucidgloves firmware discovery (or other firmwares that use the same communication methods and encoding schemes)
     device_discoverers_.emplace_back(std::make_unique<LucidglovesDeviceDiscoverer>(configuration_.communication,configuration_.devices));
+
 
     for (auto& discoverer : device_discoverers_) {
       discoverer->StartDiscovery(callback);

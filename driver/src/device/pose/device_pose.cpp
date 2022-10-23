@@ -57,38 +57,36 @@ vr::DriverPose_t DevicePose::UpdatePose() const {
     return result;
   }
 
-  const vr::TrackedDevicePose_t controllerPose = GetControllerPose(controller_id_);
-  if (!controllerPose.bPoseIsValid) {
-    result.poseIsValid = false;
-    result.result = vr::TrackingResult_Uninitialized;
+  const vr::TrackedDevicePose_t controller_pose = GetControllerPose(controller_id_);
+  if (!controller_pose.bPoseIsValid) {
+    result.result = vr::TrackingResult_Running_OK;
+    result.poseIsValid = true;
 
     return result;
   }
 
-  const vr::HmdMatrix34_t controllerMatrix = controllerPose.mDeviceToAbsoluteTracking;
+  const vr::HmdVector3d_t controller_position = MatrixToPosition(controller_pose.mDeviceToAbsoluteTracking);
+  const vr::HmdQuaternion_t controller_orientation = MatrixToOrientation(controller_pose.mDeviceToAbsoluteTracking);
 
-  const vr::HmdQuaternion_t controllerRotation = MatrixToOrientation(controllerMatrix);
-  const vr::HmdVector3d_t controllerPosition = MatrixToPosition(controllerMatrix);
+  result.qWorldFromDriverRotation = controller_orientation;
 
-  result.qWorldFromDriverRotation = controllerRotation;
-
-  result.vecWorldFromDriverTranslation[0] = controllerPosition.v[0];
-  result.vecWorldFromDriverTranslation[1] = controllerPosition.v[1];
-  result.vecWorldFromDriverTranslation[2] = controllerPosition.v[2];
+  result.vecWorldFromDriverTranslation[0] = controller_position.v[0];
+  result.vecWorldFromDriverTranslation[1] = controller_position.v[1];
+  result.vecWorldFromDriverTranslation[2] = controller_position.v[2];
 
   result.vecPosition[0] = configuration_.offset_position.v[0];
   result.vecPosition[1] = configuration_.offset_position.v[1];
   result.vecPosition[2] = configuration_.offset_position.v[2];
 
-  const vr::HmdVector3_t objectVelocity = controllerPose.vVelocity * -controllerRotation;
-  result.vecVelocity[0] = objectVelocity.v[0];
-  result.vecVelocity[1] = objectVelocity.v[1];
-  result.vecVelocity[2] = objectVelocity.v[2];
+  const vr::HmdVector3_t velocity = controller_pose.vVelocity * -controller_orientation;
+  result.vecVelocity[0] = velocity.v[0];
+  result.vecVelocity[1] = velocity.v[1];
+  result.vecVelocity[2] = velocity.v[2];
 
-  const vr::HmdVector3_t objectAngularVelocity = controllerPose.vAngularVelocity * -controllerRotation * -configuration_.offset_orientation;
-  result.vecAngularVelocity[0] = objectAngularVelocity.v[0];
-  result.vecAngularVelocity[1] = objectAngularVelocity.v[1];
-  result.vecAngularVelocity[2] = objectAngularVelocity.v[2];
+  const vr::HmdVector3_t angular_velocity = controller_pose.vAngularVelocity * -controller_orientation * -configuration_.offset_orientation;
+  result.vecAngularVelocity[0] = angular_velocity.v[0];
+  result.vecAngularVelocity[1] = angular_velocity.v[1];
+  result.vecAngularVelocity[2] = angular_velocity.v[2];
 
   result.qRotation = configuration_.offset_orientation;
 
