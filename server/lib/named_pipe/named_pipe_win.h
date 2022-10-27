@@ -53,12 +53,6 @@ class NamedPipeListener : public INamedPipeListener {
     return true;
   }
 
-  void StopListening() {
-    if (thread_active_.exchange(false))
-      // Thread running
-      thread_.join();
-  }
-
   bool IsConnected() const {
     return thread_active_;
   }
@@ -76,7 +70,9 @@ class NamedPipeListener : public INamedPipeListener {
   }
 
   ~NamedPipeListener() {
-    StopListening();
+    if (thread_active_.exchange(false))
+      // Thread running
+      thread_.join();
   }
 
  private:
@@ -203,7 +199,7 @@ class NamedPipeListener : public INamedPipeListener {
     CloseHandle(hPipeInst);
     CloseHandle(hEvent);
   }
-  
+
   const std::string pipe_name_;
 
   std::atomic<bool> thread_active_;

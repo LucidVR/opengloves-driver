@@ -2,8 +2,6 @@
 
 #include "device/lucidgloves/discovery/lucidgloves_fw_discovery.h"
 #include "device/lucidgloves/discovery/lucidgloves_named_pipe_discovery.h"
-
-
 #include "opengloves_interface.h"
 
 using namespace og;
@@ -19,10 +17,9 @@ class Server::Impl {
 
     callback_ = callback;
 
-
     // lucidgloves firmware discovery (or other firmwares that use the same communication methods and encoding schemes)
-    device_discoverers_.emplace_back(std::make_unique<LucidglovesDeviceDiscoverer>(configuration_.communication,configuration_.devices));
-
+    device_discoverers_.emplace_back(std::make_unique<LucidglovesDeviceDiscoverer>(configuration_.communication, configuration_.devices));
+    device_discoverers_.emplace_back(std::make_unique<LucidglovesNamedPipeDiscovery>());
 
     for (auto& discoverer : device_discoverers_) {
       discoverer->StartDiscovery(callback);

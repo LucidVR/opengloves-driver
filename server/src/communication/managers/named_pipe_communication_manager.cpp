@@ -4,6 +4,9 @@
 #include <utility>
 
 #include "named_pipe/named_pipe_win.h"
+#include "opengloves_interface.h"
+
+static og::Logger& logger = og::Logger::GetInstance();
 
 namespace NamedPipeInputDataVersion {
   struct v1 {
@@ -98,6 +101,10 @@ class NamedPipeCommunicationManager::Impl {
         [&](const NamedPipeListenerEvent& event) { OnEvent(event); },
         [&](NamedPipeInputDataVersion::v2* data) { on_data_callback_(static_cast<NamedPipeInputData>(*data)); }));
 
+    for (const auto& pipe : named_pipes_) {
+      pipe->StartListening();
+    }
+
     is_listening_ = true;
   }
 
@@ -133,6 +140,8 @@ void NamedPipeCommunicationManager::BeginListener(std::function<void(const og::I
   if (pImpl_->IsListening()) return;
 
   pImpl_->StartListener([&](const NamedPipeInputData& pipe_data) {
+    logger.Log(og::kLoggerLevel_Info, "Received named pipe data");
+
     og::Input result{};
     result.type = og::kInputDataType_Peripheral;
 
@@ -166,3 +175,5 @@ void NamedPipeCommunicationManager::BeginListener(std::function<void(const og::I
 void NamedPipeCommunicationManager::WriteOutput(const og::Output& output) {
   // not implemented yet
 }
+
+NamedPipeCommunicationManager::~NamedPipeCommunicationManager() = default;

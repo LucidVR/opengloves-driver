@@ -1,5 +1,6 @@
 #include "lucidgloves_device.h"
 
+#include "opengloves_interface.h"
 #include "services/input/input_force_feedback_named_pipe.h"
 #include "services/output/output_osc.h"
 
@@ -37,6 +38,8 @@ class LucidglovesDevice::Impl {
         OutputOSCServer::GetInstance().Send(hand_, data.data.peripheral);
       }
     });
+
+    force_feedback_->StartListener();
   }
 
   void Output(const og::Output &output) {

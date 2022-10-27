@@ -19,7 +19,7 @@ class LucidglovesDeviceDiscoverer : public og::IDeviceDiscoverer {
 
   void StopDiscovery();
 
-  ~LucidglovesDeviceDiscoverer();
+  ~LucidglovesDeviceDiscoverer() override;
 
  private:
   void ProberThread(std::unique_ptr<ICommunicationProber> prober, const std::function<void(std::unique_ptr<ICommunicationService> service)>& callback);

@@ -14,7 +14,7 @@ class NamedPipeCommunicationManager : public ICommunicationManager {
 
   void WriteOutput(const og::Output& output) override;
 
-  ~NamedPipeCommunicationManager() override = default;
+  ~NamedPipeCommunicationManager() override;
 
  private:
   class Impl;

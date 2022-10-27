@@ -21,9 +21,9 @@ class DriverExternalServer::Impl {
         std::visit([&](auto&& v) { json[k_driver_settings_section][key] = v; }, value);
       }
 
-      nlohmann::ordered_map<std::string, std::variant<bool>> communication_configuration = GetCommunicationConfigurationMap();
-      for (auto& [key, value] : communication_configuration) {
-        std::visit([&](auto&& v) { json[k_communication_settings_section][key] = v; }, value);
+      nlohmann::ordered_map<std::string, std::variant<bool, std::string>> bt_serial_configuration = GetBluetoothSerialConfigurationMap();
+      for (auto& [key, value] : bt_serial_configuration) {
+        std::visit([&](auto&& v) { json[k_btserial_communication_settings_section][key] = v; }, value);
       }
 
       nlohmann::ordered_map<std::string, std::variant<bool, std::string>> serial_configuration = GetSerialConfigurationMap();
@@ -31,9 +31,9 @@ class DriverExternalServer::Impl {
         std::visit([&](auto&& v) { json[k_serial_communication_settings_section][key] = v; }, value);
       }
 
-      nlohmann::ordered_map<std::string, std::variant<bool, std::string>> bt_serial_configuration = GetBluetoothSerialConfigurationMap();
-      for (auto& [key, value] : bt_serial_configuration) {
-        std::visit([&](auto&& v) { json[k_btserial_communication_settings_section][key] = v; }, value);
+      nlohmann::ordered_map<std::string, std::variant<bool>> namedpipe_configuration = GetNamedPipeConfigurationMap();
+      for (auto& [key, value] : namedpipe_configuration) {
+        std::visit([&](auto&& v) { json[k_namedpipe_communication_settings_section][key] = v; }, value);
       }
 
       nlohmann::ordered_map<std::string, std::variant<float, bool>> pose_configuration = GetPoseConfigurationMap();
@@ -103,7 +103,6 @@ class DriverExternalServer::Impl {
     CROW_ROUTE(app_, "/settings").methods("DELETE"_method)([&](const crow::request& req) {
       vr::EVRSettingsError err;
       vr::VRSettings()->RemoveSection(k_driver_settings_section, &err);
-      vr::VRSettings()->RemoveSection(k_communication_settings_section, &err);
       vr::VRSettings()->RemoveSection(k_serial_communication_settings_section, &err);
       vr::VRSettings()->RemoveSection(k_btserial_communication_settings_section, &err);
       vr::VRSettings()->RemoveSection(k_pose_settings_section, &err);

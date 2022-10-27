@@ -17,6 +17,8 @@ class InputForceFeedbackNamedPipe {
  public:
   InputForceFeedbackNamedPipe(og::Hand hand, std::function<void(const ForceFeedbackCurlData&)> on_data_callback);
 
+  void StartListener();
+
   ~InputForceFeedbackNamedPipe();
  private:
   class Impl;

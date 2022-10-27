@@ -26,16 +26,17 @@
   },
   "communication_serial": {
     "enable": true,
-    "auto_discovery": true,
     "left_port": "\\\\.\\COM4",
     "right_port": "\\\\.\\COM5",
     "baud_rate": 115200
   },
   "communication_btserial": {
     "enable": true,
-    "auto_discovery": true,
     "left_name": "lucidgloves-left",
     "right_name": "lucidgloves-right"
+  },
+  "communication_namedpipe": {
+    "enable": false
   },
   "encoding": {
     "max_analog_value": 4095

@@ -9,9 +9,9 @@ const char* k_device_knuckles_section = "device_knuckles";
 
 const char* k_pose_settings_section = "pose_settings";
 
-const char* k_communication_settings_section = "opengloves_communication";
 const char* k_serial_communication_settings_section = "communication_serial";
 const char* k_btserial_communication_settings_section = "communication_btserial";
+const char* k_namedpipe_communication_settings_section = "communication_namedpipe";
 const char* k_alpha_encoding_settings_section = "encoding_alpha";
 
 nlohmann::ordered_map<std::string, std::variant<bool>> GetDriverConfigurationMap() {
@@ -22,14 +22,6 @@ nlohmann::ordered_map<std::string, std::variant<bool>> GetDriverConfigurationMap
   result["left_enabled"] = vr::VRSettings()->GetBool(k_driver_settings_section, "left_enabled");
   result["right_enabled"] = vr::VRSettings()->GetBool(k_driver_settings_section, "right_enabled");
   result["feedback_enabled"] = vr::VRSettings()->GetBool(k_driver_settings_section, "feedback_enabled");
-
-  return result;
-}
-
-nlohmann::ordered_map<std::string, std::variant<bool>> GetCommunicationConfigurationMap() {
-  nlohmann::ordered_map<std::string, std::variant<bool>> result{};
-
-  result["auto_probe"] = vr::VRSettings()->GetBool(k_pose_settings_section, "auto_probe");
 
   return result;
 }
@@ -56,6 +48,13 @@ nlohmann::ordered_map<std::string, std::variant<bool, std::string>> GetSerialCon
 
   result["left_port"] = settings_helper.GetString(k_serial_communication_settings_section, "left_port");
   result["right_port"] = settings_helper.GetString(k_serial_communication_settings_section, "right_port");
+
+  return result;
+}
+
+nlohmann::ordered_map<std::string, std::variant<bool>> GetNamedPipeConfigurationMap() {
+  nlohmann::ordered_map<std::string, std::variant<bool>> result{};
+  result["enabled"] = vr::VRSettings()->GetBool(k_namedpipe_communication_settings_section, "enabled");
 
   return result;
 }

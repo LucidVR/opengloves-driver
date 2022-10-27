@@ -22,7 +22,6 @@ static bool InitialiseExternalServices() {
 
 static og::ServerConfiguration CreateServerConfiguration() {
   auto driver_configuration = GetDriverConfigurationMap();
-  auto communication_configuration = GetCommunicationConfigurationMap();
   auto serial_configuration = GetSerialConfigurationMap();
   auto bluetooth_configuration = GetBluetoothSerialConfigurationMap();
   auto encoding_configuration = GetAlphaEncodingConfigurationMap();
@@ -30,7 +29,6 @@ static og::ServerConfiguration CreateServerConfiguration() {
   og::ServerConfiguration result = {
       .communication =
           {
-              .auto_probe = std::get<bool>(communication_configuration["auto_probe"]),
               .serial =
                   {
                       .enabled = std::get<bool>(serial_configuration["enabled"]),
@@ -156,10 +154,11 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
       return;
     }
 
-    if(device_drivers_[role] != nullptr) {
+    if (device_drivers_[role] != nullptr) {
       device_drivers_[role]->SetDeviceDriver(std::move(found_device));
     } else {
-      DriverLog("Discovered a device but no steamvr device was found to use it");
+      DriverLog("Discovered a device but no steamvr device was found to use it!");
+      found_device = nullptr;
     }
   });
 

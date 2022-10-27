@@ -169,6 +169,8 @@ namespace og {
   class IDeviceDiscoverer {
    public:
     virtual void StartDiscovery(std::function<void(std::unique_ptr<og::IDevice> device)> callback) = 0;
+
+    virtual ~IDeviceDiscoverer() = default;
   };
 
   class Server {

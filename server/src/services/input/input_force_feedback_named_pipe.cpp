@@ -15,7 +15,9 @@ class InputForceFeedbackNamedPipe::Impl {
           logger.Log(og::kLoggerLevel_Info, "Force feedback pipe connected for %s hand", hand == og::kHandLeft ? "left" : "right");
         },
         [&](const ForceFeedbackCurlData* data) { on_data_callback_(*data); });
+  }
 
+  void StartListening() {
     pipe_listener_->StartListening();
   }
 
@@ -27,5 +29,9 @@ class InputForceFeedbackNamedPipe::Impl {
 
 InputForceFeedbackNamedPipe::InputForceFeedbackNamedPipe(og::Hand hand, std::function<void(const ForceFeedbackCurlData&)> on_data_callback)
     : pImpl_(std::make_unique<Impl>(hand, std::move(on_data_callback))){};
+
+void InputForceFeedbackNamedPipe::StartListener() {
+  pImpl_->StartListening();
+}
 
 InputForceFeedbackNamedPipe::~InputForceFeedbackNamedPipe() = default;

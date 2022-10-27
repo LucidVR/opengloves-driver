@@ -21,6 +21,11 @@ class LucidglovesNamedPipeDiscovery::Impl {
       if (right_named_pipe_manager_ == nullptr) return;
       on_client_connected_callback_(og::kHandRight, std::move(right_named_pipe_manager_));
     });
+
+    left_named_pipe_manager_->BeginListener([&](const og::Input& input) {
+    });
+    right_named_pipe_manager_->BeginListener([&](const og::Input& input) {
+    });
   }
 
  private:
@@ -31,8 +36,14 @@ class LucidglovesNamedPipeDiscovery::Impl {
   std::function<void(const og::InputData&)> on_data_callback_;
 };
 
+LucidglovesNamedPipeDiscovery::LucidglovesNamedPipeDiscovery() {
+  pImpl_ = std::make_unique<Impl>();
+}
+
 void LucidglovesNamedPipeDiscovery::StartDiscovery(std::function<void(std::unique_ptr<og::IDevice>)> callback) {
   device_discovered_callback_ = std::move(callback);
+
+  logger.Log(og::kLoggerLevel_Info, "Starting named pipe input listener...");
 
   pImpl_->StartListeners([&](og::Hand hand, std::unique_ptr<ICommunicationManager> communication_manager) {
     og::DeviceConfiguration configuration{};
