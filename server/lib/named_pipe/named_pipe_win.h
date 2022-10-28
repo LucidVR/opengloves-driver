@@ -28,7 +28,7 @@ struct NamedPipeListenerData {
   char request[sizeof(T)];
 };
 
-enum class NamedPipeListenerEventType { ClientConnected };
+enum class NamedPipeListenerEventType { Invalid, ClientConnected };
 
 struct NamedPipeListenerEvent {
   NamedPipeListenerEventType type;
@@ -138,7 +138,7 @@ class NamedPipeListener : public INamedPipeListener {
 
     if (!Connect(&listener_data)) return;
 
-    on_event_callback_({NamedPipeListenerEventType::ClientConnected});
+    if (thread_active_) on_event_callback_({NamedPipeListenerEventType::ClientConnected});
 
     while (thread_active_) {
       switch (WaitForSingleObject(listener_data.overlap.hEvent, 5)) {

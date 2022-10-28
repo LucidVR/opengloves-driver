@@ -12,7 +12,8 @@ class InputForceFeedbackNamedPipe::Impl {
     pipe_listener_ = std::make_unique<NamedPipeListener<ForceFeedbackCurlData>>(
         pipe_name,
         [&](const NamedPipeListenerEvent& event) {
-          logger.Log(og::kLoggerLevel_Info, "Force feedback pipe connected for %s hand", hand == og::kHandLeft ? "left" : "right");
+          if (event.type == NamedPipeListenerEventType::ClientConnected)
+            logger.Log(og::kLoggerLevel_Info, "Force feedback pipe connected for %s hand", hand == og::kHandLeft ? "left" : "right");
         },
         [&](const ForceFeedbackCurlData* data) { on_data_callback_(*data); });
   }

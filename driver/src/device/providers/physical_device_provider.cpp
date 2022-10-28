@@ -25,6 +25,56 @@ static og::ServerConfiguration CreateServerConfiguration() {
   auto serial_configuration = GetSerialConfigurationMap();
   auto bluetooth_configuration = GetBluetoothSerialConfigurationMap();
   auto encoding_configuration = GetAlphaEncodingConfigurationMap();
+  auto namedpipe_configuration = GetNamedPipeConfigurationMap();
+
+  std::vector<og::DeviceConfiguration> device_configurations;
+
+  if (const bool left_enabled = std::get<bool>(driver_configuration["left_enabled"])) {
+    device_configurations.push_back({
+        .enabled = left_enabled,
+        .hand = og::kHandLeft,
+        .type = og::kDeviceType_lucidgloves,
+        .communication =
+            {
+                .serial =
+                    {
+                        .port_name = std::get<std::string>(serial_configuration["left_port"]),
+                    },
+                .bluetooth =
+                    {
+                        .name = std::get<std::string>(bluetooth_configuration["left_name"]),
+                    },
+                .encoding =
+                    {
+                        .max_analog_value = static_cast<unsigned int>(std::get<int>(encoding_configuration["max_analog_value"])),
+                    },
+            },
+    });
+  }
+
+  ;
+  if (const bool right_enabled = std::get<bool>(driver_configuration["right_enabled"])) {
+    device_configurations.push_back({
+        .enabled = right_enabled,
+        .hand = og::kHandRight,
+        .type = og::kDeviceType_lucidgloves,
+        .communication =
+            {
+                .serial =
+                    {
+                        .port_name = std::get<std::string>(serial_configuration["right_port"]),
+                    },
+                .bluetooth =
+                    {
+                        .name = std::get<std::string>(bluetooth_configuration["right_name"]),
+                    },
+                .encoding =
+                    {
+                        .max_analog_value = static_cast<unsigned int>(std::get<int>(encoding_configuration["max_analog_value"])),
+                    },
+            },
+    });
+  }
 
   og::ServerConfiguration result = {
       .communication =
@@ -37,47 +87,13 @@ static og::ServerConfiguration CreateServerConfiguration() {
                   {
                       .enabled = std::get<bool>(bluetooth_configuration["enabled"]),
                   },
-          },
-      .devices = {
-          {
-              .enabled = std::get<bool>(driver_configuration["left_enabled"]),
-              .hand = og::kHandLeft,
-              .type = og::kDeviceType_lucidgloves,
-              .communication =
+              .named_pipe =
                   {
-                      .serial =
-                          {
-                              .port_name = std::get<std::string>(serial_configuration["left_port"]),
-                          },
-                      .bluetooth =
-                          {
-                              .name = std::get<std::string>(bluetooth_configuration["left_name"]),
-                          },
-                      .encoding = {
-                          .max_analog_value = static_cast<unsigned int>(std::get<int>(encoding_configuration["max_analog_value"])),
-                      },
+                      .enabled = std::get<bool>(namedpipe_configuration["enabled"]),
                   },
           },
-          {
-              .enabled = std::get<bool>(driver_configuration["right_enabled"]),
-              .hand = og::kHandRight,
-              .type = og::kDeviceType_lucidgloves,
-              .communication =
-                  {
-                      .serial =
-                          {
-                              .port_name = std::get<std::string>(serial_configuration["right_port"]),
-                          },
-                      .bluetooth =
-                          {
-                              .name = std::get<std::string>(bluetooth_configuration["right_name"]),
-                          },
-                      .encoding = {
-                          .max_analog_value = static_cast<unsigned int>(std::get<int>(encoding_configuration["max_analog_value"])),
-                      },
-                  },
-          },
-      }};
+      .devices = device_configurations,
+  };
 
   return result;
 }

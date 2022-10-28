@@ -50,11 +50,16 @@ namespace og {
   struct SerialCommunicationConfiguration {
     bool enabled;
   };
+  struct NamedPipeCommunicationConfiguration {
+    bool enabled;
+  };
+
   struct CommunicationConfiguration {
     bool auto_probe;
 
     SerialCommunicationConfiguration serial;
     BluetoothCommunicationConfiguration bluetooth;
+    NamedPipeCommunicationConfiguration named_pipe;
   };
 
   struct ServerConfiguration {

@@ -27,7 +27,6 @@ class BluetoothCommunicationService : public ICommunicationService {
 
  private:
   bool Connect();
-  bool Disconnect();
 
   void LogError(const std::string&, bool with_win_error) const;
 

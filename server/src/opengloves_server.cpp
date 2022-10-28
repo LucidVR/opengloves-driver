@@ -19,7 +19,7 @@ class Server::Impl {
 
     // lucidgloves firmware discovery (or other firmwares that use the same communication methods and encoding schemes)
     device_discoverers_.emplace_back(std::make_unique<LucidglovesDeviceDiscoverer>(configuration_.communication, configuration_.devices));
-    device_discoverers_.emplace_back(std::make_unique<LucidglovesNamedPipeDiscovery>());
+    if (configuration_.communication.named_pipe.enabled) device_discoverers_.emplace_back(std::make_unique<LucidglovesNamedPipeDiscovery>());
 
     for (auto& discoverer : device_discoverers_) {
       discoverer->StartDiscovery(callback);
