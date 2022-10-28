@@ -9,24 +9,24 @@ using namespace og;
 class LucidglovesDevice::Impl {
  public:
   Impl(og::Hand hand, std::unique_ptr<ICommunicationManager> communication_manager)
-      : hand_(hand),
-        communication_manager_(std::move(communication_manager)),
-        force_feedback_(std::make_unique<InputForceFeedbackNamedPipe>(hand, [&](const ForceFeedbackCurlData &curl_data) {
-          og::Output output{};
+      : hand_(hand), communication_manager_(std::move(communication_manager)) {
+    force_feedback_ = std::make_unique<InputForceFeedbackNamedPipe>(hand, [&](const ForceFeedbackCurlData &curl_data) {
+      og::Output output{};
 
-          og::OutputForceFeedbackData output_force_feedback_data{};
-          output_force_feedback_data.thumb = curl_data.thumb;
-          output_force_feedback_data.index = curl_data.index;
-          output_force_feedback_data.middle = curl_data.middle;
-          output_force_feedback_data.ring = curl_data.ring;
-          output_force_feedback_data.pinky = curl_data.pinky;
+      og::OutputForceFeedbackData output_force_feedback_data{};
+      output_force_feedback_data.thumb = curl_data.thumb;
+      output_force_feedback_data.index = curl_data.index;
+      output_force_feedback_data.middle = curl_data.middle;
+      output_force_feedback_data.ring = curl_data.ring;
+      output_force_feedback_data.pinky = curl_data.pinky;
 
-          output.data.force_feedback_data = output_force_feedback_data;
+      output.data.force_feedback_data = output_force_feedback_data;
 
-          output.type = og::kOutputData_Type_ForceFeedback;
+      output.type = og::kOutputData_Type_ForceFeedback;
 
-          communication_manager_->WriteOutput(output);
-        })){};
+      communication_manager_->WriteOutput(output);
+    });
+  };
 
   void ListenForInput(std::function<void(const og::InputPeripheralData &)> callback) {
     callback_ = std::move(callback);

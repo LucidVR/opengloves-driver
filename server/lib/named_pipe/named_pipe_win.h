@@ -2,6 +2,7 @@
 
 #include <atomic>
 #include <functional>
+#include <mutex>
 #include <string>
 #include <thread>
 #include <utility>
@@ -70,9 +71,9 @@ class NamedPipeListener : public INamedPipeListener {
   }
 
   ~NamedPipeListener() {
-    if (thread_active_.exchange(false))
-      // Thread running
+    if (thread_active_.exchange(false) && thread_.joinable()) {
       thread_.join();
+    }
   }
 
  private:
@@ -200,7 +201,7 @@ class NamedPipeListener : public INamedPipeListener {
     CloseHandle(hEvent);
   }
 
-  const std::string pipe_name_;
+  std::string pipe_name_;
 
   std::atomic<bool> thread_active_;
   std::thread thread_;

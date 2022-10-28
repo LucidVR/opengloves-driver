@@ -158,7 +158,7 @@ vr::EVRInitError PhysicalDeviceProvider::Init(vr::IVRDriverContext* pDriverConte
       device_drivers_[role]->SetDeviceDriver(std::move(found_device));
     } else {
       DriverLog("Discovered a device but no steamvr device was found to use it!");
-      found_device = nullptr;
+      found_device.reset();
     }
   });
 
