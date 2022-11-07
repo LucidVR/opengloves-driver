@@ -1,0 +1,60 @@
+name: build-develop
+
+on:
+  push:
+    branches:
+      - develop
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [[windows-latest,x64-windows,msvc]]
+        buildType: [Release]
+    runs-on: ${{ matrix.os[0] }}
+
+    steps:
+      - uses: actions/checkout@v2
+      - uses: lukka/get-cmake@latest
+
+      - name: Checkout submodules
+        run: |
+          git submodule update --init
+      - name: List $RUNNER_WORKSPACE before build
+        run: find $RUNNER_WORKSPACE
+        shell: bash
+
+      - name: Restore artifacts, or run vcpkg
+        uses: lukka/run-vcpkg@v10
+        id: runvcpkg
+        with:
+          runVcpkgInstall: true
+          vcpkgGitCommitId: 'a0454d6e18b335cf12da34d925538897d598219b'
+          vcpkgJsonGlob: 'vcpkg.json'
+          appendedCacheKey: vcpkginstall
+
+      - name: Prints output of run-vcpkg's action.
+        run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
+
+      - name: Run CMake with Ninja
+        uses: lukka/run-cmake@v10
+        with:
+          cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+          configurePreset: 'ci-default'
+          buildPreset: 'ci-build'
+
+      - name: Upload driver package
+        uses: actions/upload-artifact@v2
+        with:
+          name: opengloves
+          path: ${{ github.workspace }}/builds/ci-default/driver/opengloves
+
+      - name: Upload server package
+        uses: actions/upload-artifact@v2
+        with:
+          name: opengloves_server
+          path: ${{ github.workspace }}/builds/ci-default/server/src/opengloves_server.lib

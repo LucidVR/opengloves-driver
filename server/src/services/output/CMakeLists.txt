@@ -1,0 +1,5 @@
+add_library(server_services_output STATIC output_osc.h output_osc.cpp)
+
+target_include_directories(server_services_output PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+
+target_link_libraries(server_services_output PUBLIC opengloves_interface-includes server_lib-includes)

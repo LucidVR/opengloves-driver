@@ -1,0 +1,102 @@
+{
+  "jsonid": "input_profile",
+  "controller_type": "opengloves",
+  "compatibility_mode_controller_type": "knuckles",
+  "input_bindingui_mode" : "controller_handed",
+  "input_bindingui_left" :
+  {
+    "image": "{openglove}/icons/opengloves.svg"
+  },
+  "input_bindingui_right" :
+  {
+    "image": "{openglove}/icons/opengloves.svg"
+  },
+  "input_source": {
+    "/pose/raw": {
+      "type": "pose",
+      "binding_image_point": [ 5, 35 ]
+    },
+    "/input/skeleton/right": {
+      "type": "skeleton",
+      "skeleton": "/skeleton/hand/right",
+      "side": "right",
+      "binding_image_point": [ 5, 35 ]
+    },
+    "/input/skeleton/left": {
+      "type": "skeleton",
+      "skeleton": "/skeleton/hand/left",
+      "side": "left",
+      "binding_image_point": [ 5, 35 ]
+    },
+    "/input/trigger/click": {
+      "type": "trigger",
+      "binding_image_point": [ 11, 60 ],
+      "order": 1
+    },
+    "/input/joystick": {
+      "type": "joystick",
+      "x": true,
+      "y": true,
+      "click": true,
+      "binding_image_point": [ 11, 60 ],
+      "order": 2
+    },
+    "/input/A/click": {
+      "type": "button",
+      "binding_image_point": [ 67, 81 ],
+      "order": 4
+    },
+	"/input/B/click": {
+      "type": "button",
+      "binding_image_point": [ 67, 81 ],
+      "order": 4
+    },
+    "/input/grab/click": {
+      "type": "button",
+      "binding_image_point": [ 67, 81 ],
+      "order": 5
+    },
+	"/input/pinch/click": {
+      "type": "button",
+      "binding_image_point": [ 67, 81 ],
+      "order": 5
+    },
+    "/output/haptic": {
+      "type": "vibration",
+      "binding_image_point": [ 67, 81 ],
+      "order": 6
+    },
+    "/input/finger/thumb": {
+      "type": "trigger",
+      "visibility": "InputValueVisibility_AvailableButHidden",
+      "binding_image_point": [ 56, 86 ]
+    },
+    "/input/finger/index": {
+      "type": "trigger",
+      "visibility": "InputValueVisibility_AvailableButHidden",
+      "binding_image_point": [ 56, 86 ]
+    },
+    "/input/finger/middle": {
+      "type": "trigger",
+      "visibility": "InputValueVisibility_AvailableButHidden",
+      "binding_image_point": [ 56, 86 ]
+    },
+    "/input/finger/ring": {
+      "type": "trigger",
+      "visibility": "InputValueVisibility_AvailableButHidden",
+      "binding_image_point": [ 56, 86 ]
+    },
+    "/input/finger/pinky": {
+      "type": "trigger",
+      "visibility": "InputValueVisibility_AvailableButHidden",
+      "binding_image_point": [ 56, 86 ]
+    },
+    "/input/system" : {
+      "type" : "button",
+      "click" : true,
+      "touch" : true,
+      "binding_image_point" : [ 34,45 ],
+      "order" : 1
+    }
+  }
+}

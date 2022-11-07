@@ -1,0 +1,32 @@
+{
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ci-default",
+      "displayName": "Default opengloves ci build configuration",
+      "description": "Opengloves ci build",
+      "binaryDir": "${sourceDir}/builds/${presetName}",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        },
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ci-build",
+      "configurePreset": "ci-default",
+      "displayName": "Build ci",
+      "description": "Build ci Configurations"
+    }
+  ]
+}

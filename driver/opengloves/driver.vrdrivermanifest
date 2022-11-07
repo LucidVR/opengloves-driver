@@ -1,0 +1,8 @@
+{
+	"alwaysActivate": true,
+	"name" : "opengloves",
+	"directory" : "",
+	"resourceOnly" : false,
+	"prefersUpperDeviceIndices" :  false,
+	"hmd_presence" : []
+}

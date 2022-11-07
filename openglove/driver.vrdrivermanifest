@@ -1,8 +1,0 @@
-{
-	"alwaysActivate": true,
-	"name" : "openglove",
-	"directory" : "",
-	"resourceOnly" : false,
-	"prefersUpperDeviceIndices" :  false,
-	"hmd_presence" : []
-}
