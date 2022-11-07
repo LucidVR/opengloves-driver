@@ -15,13 +15,6 @@ if (WIN32)
             service_bluetooth_win.h
             service_bluetooth_win.cpp
             )
-elseif (UNIX AND NOT APPLE)
-    target_sources(communication_services
-            PRIVATE
-            service_bluetooth_linux.h
-
-            service_serial_linux.h
-            )
 endif ()
 
 target_link_libraries(communication_services PUBLIC server-includes opengloves_interface-includes)
