@@ -159,6 +159,10 @@ void NamedPipeCommunicationManager::BeginListener(std::function<void(const og::I
     data.trigger.pressed = pipe_data.trigger_button;
     data.trigger.value = pipe_data.trigger_value;
 
+    data.joystick.x = pipe_data.joy_x;
+    data.joystick.y = pipe_data.joy_y;
+    data.joystick.pressed = pipe_data.joy_button;
+
     data.calibrate.pressed = pipe_data.calibrate;
     data.calibrate.value = pipe_data.calibrate;
 
