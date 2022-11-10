@@ -17,11 +17,17 @@ Pre-built binaries are be provided in the Releases in this Repository, but if yo
   * Modify Visual Studio in Visual Studio installer
 * Navigate into the project folder
   * `cd opengloves-driver`
+* Ensure `vcpkg` is installed
+	* If you need to, get [vcpkg](https://vcpkg.io/en/getting-started.html) installed in the base of this repository
+```
+git clone https://github.com/Microsoft/vcpkg.git
+.\vcpkg\bootstrap-vcpkg.bat -disableMetrics
+```
 * Make a build directory and enter it
     * `mkdir build`
     * `cd build`
 * Run CMake
-  * `cmake ..`
+  * `cmake .. -DCMAKE_TOOLCHAIN_FILE="..\vcpkg\scripts\buildsystems\vcpkg.cmake"`
 
 This should generate Visual Studio project files in the `build/` folder, which you can then compile.
 
