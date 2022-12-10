@@ -4,14 +4,12 @@
 #include "openvr_driver.h"
 #include "util/driver_log.h"
 
-#if defined(_WIN32)
-#define HMD_DLL_EXPORT extern "C" __declspec(dllexport)
-#define HMD_DLL_IMPORT extern "C" __declspec(dllimport)
-#elif defined(__GNUC__) || defined(COMPILER_GCC) || defined(__APPLE__)
+#if defined(WIN32)
+#define HMD_DLL_EXPORT extern "C" __declspec( dllexport )
+#define HMD_DLL_IMPORT extern "C" __declspec( dllimport )
+#else
 #define HMD_DLL_EXPORT extern "C" __attribute__((visibility("default")))
 #define HMD_DLL_IMPORT extern "C"
-#else
-#error "Unsupported Platform."
 #endif
 
 PhysicalDeviceProvider physical_device_provider;  // only physical devices supported right now

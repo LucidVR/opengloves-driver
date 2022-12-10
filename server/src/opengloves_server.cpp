@@ -1,7 +1,11 @@
 #include <utility>
 
 #include "device/lucidgloves/discovery/lucidgloves_fw_discovery.h"
+
+#ifdef WIN32
 #include "device/lucidgloves/discovery/lucidgloves_named_pipe_discovery.h"
+#endif
+
 #include "opengloves_interface.h"
 
 using namespace og;
@@ -19,7 +23,9 @@ class Server::Impl {
 
     // lucidgloves firmware discovery (or other firmwares that use the same communication methods and encoding schemes)
     device_discoverers_.emplace_back(std::make_unique<LucidglovesDeviceDiscoverer>(configuration_.communication, configuration_.devices));
+#ifdef WIN32
     if (configuration_.communication.named_pipe.enabled) device_discoverers_.emplace_back(std::make_unique<LucidglovesNamedPipeDiscovery>());
+#endif
 
     for (auto& discoverer : device_discoverers_) {
       discoverer->StartDiscovery(callback);

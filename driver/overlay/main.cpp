@@ -106,7 +106,7 @@ int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE hPreInst, LPWSTR nCmdLine, int 
           return 0;
       }
     }
-    Sleep(200);
+    std::this_thread::sleep_for(std::chrono::seconds(2));
   }
 
   return 0;

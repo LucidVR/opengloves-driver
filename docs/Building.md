@@ -6,29 +6,25 @@ If you're looking to use OpenGloves to use your hardware in SteamVR applications
 ## Setting Up
 Pre-built binaries are be provided in the Releases in this Repository, but if you would prefer to build the driver yourself instructions are documented below.
 
-* Clone the repo **(including submodules)**
-  * `git clone --recursive https://github.com/LucidVR/opengloves-driver.git` 
-    *If this doesn't clone the submodules correctly, try `git submodule update --init --recursive`   
+* Clone the repo
+  * `git clone https://github.com/LucidVR/opengloves-driver.git`  
+
+## Dependencies
+Opengloves uses vcpkg to manage dependencies. Follow the instructions here to get set up with vcpkg: https://vcpkg.io/en/getting-started.html
+
+### Linux
+Required packages:
+* `sudo apt install libbluetooth`
 
 ## Generate Project Files
-* Ensure that you have cmake installed (along with the path variable set)
-  * https://cmake.org/download/
-* Ensure that you have `C++ CMake tools for Windows` installed
-  * Modify Visual Studio in Visual Studio installer
-* Navigate into the project folder
-  * `cd opengloves-driver`
-* Make a build directory and enter it
-    * `mkdir build`
-    * `cd build`
-* Run CMake
-  * `cmake ..`
+Opengloves uses cmake and vcpkg.
+* First, follow the instructions here to get set up with vcpkg: https://vcpkg.io/en/getting-started.html
 
-This should generate Visual Studio project files in the `build/` folder, which you can then compile.
-
-## Building with Visual Studio Build Tools
-* run a cmake build in the `build/` folder
-  * `cmake --build . --config Release`
-  * The artifacts of the build will be outputted to `build/Debug/`, or `build/Release/` depending on build configuration
+* Point `-DCMAKE_TOOLCHAIN_FILE` to your vcpkg cmake file
+* Create a build folder with `mkdir build`
+* Navigate into `build/` with `cd build`
+* Run `cmake ..`
+* Wait for dependencies to install
 
 ## Building with Visual Studio IDE
 * Open the Visual Studio project (.sln file) in the `build/` folder

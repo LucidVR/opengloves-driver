@@ -18,11 +18,6 @@ if (WIN32)
 elseif (UNIX AND NOT APPLE)
     target_sources(communication_probers
             PRIVATE
-            prober_serial_linux.h
-            prober_serial_linux.cpp
-
-            prober_bluetooth_linux.h
-            prober_bluetooth_linux.cpp
             )
 endif ()
 

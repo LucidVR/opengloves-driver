@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.7.1)
 set(CMAKE_CXX_STANDARD 20)
 
+set(CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} -fPIC" )
+
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 project(opengloves)

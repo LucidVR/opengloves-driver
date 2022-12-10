@@ -1,6 +1,7 @@
 #include "lucidgloves_named_pipe_discovery.h"
 
 #include "communication/managers/named_pipe_communication_manager.h"
+
 #include "device/lucidgloves/lucidgloves_device.h"
 
 static og::Logger& logger = og::Logger::GetInstance();

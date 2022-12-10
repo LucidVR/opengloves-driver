@@ -20,15 +20,15 @@ class OutputOSCServer::Impl {
 
     char address[100];
 
-    sprintf_s(address, "/avatar/parameters/%s%sSplay", hand_string, "Thumb");
+    std::sprintf(address, "/avatar/parameters/%s%sSplay", hand_string, "Thumb");
     minioscBundle(&bundle, address, ",f", input.splay[0]);
-    sprintf_s(address, "/avatar/parameters/%s%sSplay", hand_string, "Index");
+    std::sprintf(address, "/avatar/parameters/%s%sSplay", hand_string, "Index");
     minioscBundle(&bundle, address, ",f", input.splay[1]);
-    sprintf_s(address, "/avatar/parameters/%s%sSplay", hand_string, "Middle");
+    std::sprintf(address, "/avatar/parameters/%s%sSplay", hand_string, "Middle");
     minioscBundle(&bundle, address, ",f", input.splay[2]);
-    sprintf_s(address, "/avatar/parameters/%s%sSplay", hand_string, "Ring");
+    std::sprintf(address, "/avatar/parameters/%s%sSplay", hand_string, "Ring");
     minioscBundle(&bundle, address, ",f", input.splay[3]);
-    sprintf_s(address, "/avatar/parameters/%s%sSplay", hand_string, "Pinky");
+    std::sprintf(address, "/avatar/parameters/%s%sSplay", hand_string, "Pinky");
     minioscBundle(&bundle, address, ",f", input.splay[4]);
 
 

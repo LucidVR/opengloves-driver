@@ -1,4 +1,8 @@
-add_library(communication_managers STATIC communication_manager.h hardware_communication_manager.cpp hardware_communication_manager.h named_pipe_communication_manager.h named_pipe_communication_manager.cpp)
+add_library(communication_managers STATIC communication_manager.h hardware_communication_manager.cpp hardware_communication_manager.h)
+
+if (WIN32)
+    add_library(communication_managers STATIC named_pipe_communication_manager.h named_pipe_communication_manager.cpp)
+endif ()
 
 target_link_libraries(communication_managers PUBLIC opengloves_interface-includes server-includes server_lib-includes)
 target_link_libraries(communication_managers PRIVATE communication_services encoding_services)
