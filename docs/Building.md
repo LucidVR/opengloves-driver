@@ -4,11 +4,10 @@ If you'd like to make changes to OpenGloves, follow the instructions below to se
 If you're looking to use OpenGloves to use your hardware in SteamVR applications, it is heavily recommended to install the driver on Steam.
 
 ## Setting Up
-Pre-built binaries are be provided in the Releases in this Repository, but if you would prefer to build the driver yourself instructions are documented below.
+Pre-built binaries are be provided in the Releases in this Repository, but if you would prefer to build the driver yourself instructions are documented below. Be sure to uninstall the driver from Steam if you do this.
 
 * Clone the repo **(including submodules)**
-  * `git clone --recursive https://github.com/LucidVR/opengloves-driver.git` 
-    *If this doesn't clone the submodules correctly, try `git submodule update --init --recursive`   
+  * `git clone https://github.com/LucidVR/opengloves-driver.git` 
 
 ## Generate Project Files
 * Ensure that you have cmake installed (along with the path variable set)
@@ -19,10 +18,12 @@ Pre-built binaries are be provided in the Releases in this Repository, but if yo
   * `cd opengloves-driver`
 * Ensure `vcpkg` is installed
 	* If you need to, get [vcpkg](https://vcpkg.io/en/getting-started.html) installed in the base of this repository
+
 ```
 git clone https://github.com/Microsoft/vcpkg.git
 .\vcpkg\bootstrap-vcpkg.bat -disableMetrics
 ```
+
 * Make a build directory and enter it
     * `mkdir build`
     * `cd build`
