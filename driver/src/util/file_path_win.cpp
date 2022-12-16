@@ -42,7 +42,7 @@ bool CreateBackgroundProcess(const std::string& path, const std::string& name) {
   char* carguments = new char[name.length() + 1];
   strcpy(carguments, name.c_str());
 
-  if (!CreateProcess((path + "\\" + name).c_str(), carguments, nullptr, nullptr, FALSE, 0, nullptr, path.c_str(), &si, &pi)) {
+  if (!CreateProcess((path + "\\" + name + ".exe").c_str(), carguments, nullptr, nullptr, FALSE, 0, nullptr, path.c_str(), &si, &pi)) {
     DriverLog("CreateProcess failed. Error: %s", GetLastErrorAsString().c_str());
 
     delete[] carguments;

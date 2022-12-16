@@ -1,13 +1,13 @@
 #include <dlfcn.h>
-#include <stdio.h>
+#include <cstdlib>
 
 #include <cstring>
 
 #include "driver_log.h"
 #include "file_path.h"
 
-void test_func() {
-
+bool CreateBackgroundProcess(const std::string& path, const std::string& name) {
+  return std::system(("./" + path + name).c_str()) > -1;
 }
 
 std::string GetDriverBinPath() {

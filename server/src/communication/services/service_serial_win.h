@@ -17,8 +17,6 @@ class SerialCommunicationService : public ICommunicationService {
 
   bool IsConnected() override;
 
-  bool PurgeBuffer() override;
-
   std::string GetIdentifier() override;
 
   ~SerialCommunicationService();

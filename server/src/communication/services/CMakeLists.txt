@@ -1,9 +1,7 @@
 add_library(communication_services STATIC
         communication_service.h
+        )
 
-        service_bluetooth.h
-        service_serial.h
-        service_bluetooth_linux.cpp service_bluetooth_linux.h service_serial_linux.cpp service_serial_linux.h)
 set_target_properties(communication_services PROPERTIES LINKER_LANGUAGE CXX)
 
 if (WIN32)
@@ -18,6 +16,9 @@ if (WIN32)
 elseif (UNIX AND NOT APPLE)
     target_sources(communication_services
             PRIVATE
+            service_serial_linux.h
+            service_serial_linux.cpp
+
             service_bluetooth_linux.h
             service_bluetooth_linux.cpp
             )
@@ -26,7 +27,6 @@ elseif (UNIX AND NOT APPLE)
 
     target_link_libraries(communication_services PRIVATE bluetooth)
 endif ()
-
 
 
 target_link_libraries(communication_services PUBLIC server-includes opengloves_interface-includes)

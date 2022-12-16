@@ -7,18 +7,31 @@
 #include "communication/managers/hardware_communication_manager.h"
 #include "communication/probers/prober_bluetooth_connectable.h"
 #include "communication/probers/prober_serial_connectable.h"
-#include "communication/probers/prober_serial_identifiers_win.h"
-#include "communication/services/service_bluetooth.h"
-#include "communication/services/service_serial.h"
+
+#ifdef _WIN32
+#include "communication/services/service_bluetooth_win.h"
+#endif
+#ifdef linux
+#include "communication/services/service_bluetooth_linux.h"
+#endif
+
+#ifdef _WIN32
+#include "communication/services/service_serial_win.h"
+#endif
+#ifdef linux
+#include "communication/services/service_serial_linux.h"
+#endif
+
 #include "device/lucidgloves/lucidgloves_device.h"
 #include "opengloves_interface.h"
 
 static og::Logger& logger = og::Logger::GetInstance();
 
-static const std::vector<SerialProberIdentifier> lucidgloves_serial_ids = {
-    {"10C4", "EA60"},  // cp2102
-    {"7523", "7524"}   // ch340
-};
+//static const std::vector<SerialProberIdentifier> lucidgloves_serial_ids = {
+//    {"10C4", "EA60"},  // cp2102
+//    {"7523", "7524"}   // ch340
+//};
+
 static const std::vector<std::string> lucidgloves_bt_ids = {"lucidgloves", "lucidgloves-left", "lucidgloves-right"};
 
 LucidglovesDeviceDiscoverer::LucidglovesDeviceDiscoverer(

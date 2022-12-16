@@ -87,6 +87,8 @@ bool SerialCommunicationService::RawWrite(const std::string& buff) {
 
     return false;
   }
+
+  return true;
 }
 
 bool SerialCommunicationService::IsConnected() {
@@ -96,4 +98,4 @@ bool SerialCommunicationService::IsConnected() {
 std::string SerialCommunicationService::GetIdentifier() {
   return "serial";
 }
-
+SerialCommunicationService::~SerialCommunicationService() = default;

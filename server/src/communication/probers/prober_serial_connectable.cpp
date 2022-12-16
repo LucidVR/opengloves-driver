@@ -1,6 +1,12 @@
 #include "prober_serial_connectable.h"
 
-#include "communication/services/service_serial.h"
+#ifdef _WIN32
+#include "communication/services/service_serial_win.h"
+#endif
+#ifdef linux
+#include "communication/services/service_serial_linux.h"
+#endif
+
 #include "opengloves_interface.h"
 
 SerialPortProber::SerialPortProber(const SerialPortProberConfiguration& configuration) {

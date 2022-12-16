@@ -6,15 +6,19 @@ project("opengloves_openvr_driver")
 set(DRIVER_NAME "opengloves")
 set(OPENGLOVES_PROJECT "driver_${DRIVER_NAME}")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY $<1:${CMAKE_CURRENT_BINARY_DIR}/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH}>)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${DRIVER_NAME}/bin/${PLATFORM_NAME}${PROCESSOR_ARCH})
 
-add_library("${OPENGLOVES_PROJECT}" SHARED src/driver_factory.cpp)
+message(${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
+
+add_library(${OPENGLOVES_PROJECT} SHARED src/driver_factory.cpp)
+set_target_properties(${OPENGLOVES_PROJECT} PROPERTIES PREFIX "") # on linux cmake prefixes the driver static library with lib
+set_target_properties(${OPENGLOVES_PROJECT} PROPERTIES LIBRARY_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}) # for linux
 
 # driver setup
 add_subdirectory(overlay)
 add_subdirectory(src)
 
-#openvr
+# openvr
 find_package(OpenVR REQUIRED)
 target_link_libraries(${OPENGLOVES_PROJECT} PUBLIC OpenVR::OpenVR)
 

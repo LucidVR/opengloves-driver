@@ -11,5 +11,5 @@ target_include_directories(device_lucidgloves PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
         )
 
-target_link_libraries(device_lucidgloves PUBLIC opengloves_interface-includes server-includes)
-target_link_libraries(device_lucidgloves PRIVATE server_services_output server_services_input communication_probers)
+target_link_libraries(device_lucidgloves PUBLIC opengloves_interface-includes server-includes communication_managers communication_services communication_probers encoding_services)
+target_link_libraries(device_lucidgloves PRIVATE server_services_output server_services_input)

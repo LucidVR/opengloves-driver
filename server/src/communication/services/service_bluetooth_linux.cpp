@@ -62,10 +62,6 @@ bool BluetoothCommunicationService::IsConnected() {
   return is_connected_;
 }
 
-bool BluetoothCommunicationService::PurgeBuffer() {
-  return true;
-}
-
 std::string BluetoothCommunicationService::GetIdentifier() {
   return "bluetooth";
 }

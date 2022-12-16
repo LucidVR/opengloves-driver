@@ -16,7 +16,7 @@ static bool InitialiseExternalServices() {
 
   DriverLog("Binary path located: %s", bin_path.c_str());
 
-  return CreateBackgroundProcess(bin_path, "opengloves_overlay.exe");
+  return CreateBackgroundProcess(bin_path, "opengloves_overlay");
 }
 
 static og::ServerConfiguration CreateServerConfiguration() {

@@ -2,7 +2,12 @@
 
 #include <utility>
 
-#include "communication/services/service_bluetooth.h"
+#ifdef _WIN32
+#include "communication/services/service_bluetooth_win.h"
+#endif
+#ifdef linux
+#include "communication/services/service_bluetooth_linux.h"
+#endif
 
 BluetoothPortProber::BluetoothPortProber(BluetoothPortProberConfiguration configuration) : configuration_(std::move(configuration)) {}
 

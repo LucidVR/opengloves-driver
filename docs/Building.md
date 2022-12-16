@@ -14,7 +14,7 @@ Opengloves uses vcpkg to manage dependencies. Follow the instructions here to ge
 
 ### Linux
 Required packages:
-* `sudo apt install libbluetooth`
+* `sudo apt install libbluetooth-dev`
 
 ## Generate Project Files
 Opengloves uses cmake and vcpkg.

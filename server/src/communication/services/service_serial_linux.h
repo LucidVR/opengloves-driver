@@ -1,7 +1,5 @@
 #pragma once
 
-#pragma once
-
 #include <atomic>
 #include <string>
 
@@ -17,11 +15,9 @@ class SerialCommunicationService : public ICommunicationService {
 
   bool IsConnected() override;
 
-  bool PurgeBuffer() override;
-
   std::string GetIdentifier() override;
 
-  ~SerialCommunicationService();
+  ~SerialCommunicationService() override;
 
  private:
   og::DeviceSerialCommunicationConfiguration configuration_;
