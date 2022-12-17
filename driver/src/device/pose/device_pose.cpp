@@ -68,15 +68,10 @@ vr::DriverPose_t DevicePose::UpdatePose() const {
   const vr::HmdVector3d_t controller_position = MatrixToPosition(controller_pose.mDeviceToAbsoluteTracking);
   const vr::HmdQuaternion_t controller_orientation = MatrixToOrientation(controller_pose.mDeviceToAbsoluteTracking);
 
-  result.qWorldFromDriverRotation = controller_orientation;
-
-  result.vecWorldFromDriverTranslation[0] = controller_position.v[0];
-  result.vecWorldFromDriverTranslation[1] = controller_position.v[1];
-  result.vecWorldFromDriverTranslation[2] = controller_position.v[2];
-
-  result.vecPosition[0] = configuration_.offset_position.v[0];
-  result.vecPosition[1] = configuration_.offset_position.v[1];
-  result.vecPosition[2] = configuration_.offset_position.v[2];
+  auto new_position = controller_position + configuration_.offset_position * controller_orientation * configuration_.offset_orientation;
+  result.vecPosition[0] = new_position.v[0];
+  result.vecPosition[1] = new_position.v[1];
+  result.vecPosition[2] = new_position.v[2];
 
   const vr::HmdVector3_t velocity = controller_pose.vVelocity * -controller_orientation;
   result.vecVelocity[0] = velocity.v[0];
@@ -88,7 +83,7 @@ vr::DriverPose_t DevicePose::UpdatePose() const {
   result.vecAngularVelocity[1] = angular_velocity.v[1];
   result.vecAngularVelocity[2] = angular_velocity.v[2];
 
-  result.qRotation = configuration_.offset_orientation;
+  result.qRotation = controller_orientation * configuration_.offset_orientation;
 
   result.poseIsValid = true;
   result.deviceIsConnected = true;
