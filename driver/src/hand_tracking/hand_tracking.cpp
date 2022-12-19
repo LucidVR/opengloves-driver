@@ -223,8 +223,11 @@ void HandTracking::ComputeBoneTransforms(
     else
       curl = data.flexion[iFinger][i - static_cast<int>(GetRootFingerBoneFromFingerIndex(finger))];
 
+    const float alpha = 0.2f;
+    accumulator_[i] = (alpha * curl) + (1.0f - alpha) * accumulator_[i];
+
     const float splay = data.splay[iFinger];
 
-    SetTransformForBone(bone_transforms[i], static_cast<HandSkeletonBone>(i), curl, splay, role == vr::TrackedControllerRole_RightHand);
+    SetTransformForBone(bone_transforms[i], static_cast<HandSkeletonBone>(i), accumulator_[i], splay, role == vr::TrackedControllerRole_RightHand);
   }
 }
