@@ -38,7 +38,7 @@
   "communication_namedpipe": {
     "enable": false
   },
-  "encoding": {
+  "encoding_alpha": {
     "max_analog_value": 4095
   }
 }

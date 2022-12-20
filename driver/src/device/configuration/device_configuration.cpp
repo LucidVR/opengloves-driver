@@ -2,6 +2,8 @@
 
 #include "util/driver_math.h"
 
+#include "util/driver_log.h"
+
 const char* k_driver_settings_section = "driver_opengloves";
 
 const char* k_device_lucidgloves_section = "device_lucidgloves";
@@ -63,6 +65,9 @@ nlohmann::ordered_map<std::string, std::variant<int>> GetAlphaEncodingConfigurat
   nlohmann::ordered_map<std::string, std::variant<int>> result{};
 
   result["max_analog_value"] = vr::VRSettings()->GetInt32(k_alpha_encoding_settings_section, "max_analog_value");
+
+  if (std::get<int>(result["max_analog_value"]) == 0)
+    DriverLog("max_analog_value is set to zero. This will cause errors, and your glove probably won't work.");
 
   return result;
 }
