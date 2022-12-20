@@ -2,6 +2,9 @@
 
 #include "util/driver_math.h"
 
+#include "opengloves_interface.h"
+#include "services/webserver_logging.h"
+
 const char* k_driver_settings_section = "driver_opengloves";
 
 const char* k_device_lucidgloves_section = "device_lucidgloves";
@@ -13,6 +16,8 @@ const char* k_serial_communication_settings_section = "communication_serial";
 const char* k_btserial_communication_settings_section = "communication_btserial";
 const char* k_namedpipe_communication_settings_section = "communication_namedpipe";
 const char* k_alpha_encoding_settings_section = "encoding_alpha";
+
+static og::Logger& logger = og::Logger::GetInstance();
 
 nlohmann::ordered_map<std::string, std::variant<bool>> GetDriverConfigurationMap() {
   nlohmann::ordered_map<std::string, std::variant<bool>> result{};
@@ -63,6 +68,9 @@ nlohmann::ordered_map<std::string, std::variant<int>> GetAlphaEncodingConfigurat
   nlohmann::ordered_map<std::string, std::variant<int>> result{};
 
   result["max_analog_value"] = vr::VRSettings()->GetInt32(k_alpha_encoding_settings_section, "max_analog_value");
+
+  if (std::get<int>(result["max_analog_value"]) == 0)
+      logger.Log(og::kLoggerLevel_Error, "max_analog_value is set to zero. This will cause errors, and your glove probably won't work.");
 
   return result;
 }
