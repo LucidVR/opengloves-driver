@@ -63,25 +63,22 @@ vr::HmdQuaternion_t operator-(const vr::HmdQuaternion_t& q) {
   return {q.w, -q.x, -q.y, -q.z};
 }
 
-vr::HmdQuaternion_t operator*(const vr::HmdQuaternion_t& q, const vr::HmdQuaternion_t& r) {
-  vr::HmdQuaternion_t result{};
-
-  result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
-  result.x = r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y;
-  result.y = r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x;
-  result.z = r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w;
-
-  return result;
+vr::HmdQuaternion_t operator*(const vr::HmdQuaternion_t& a, const vr::HmdQuaternion_t& b) {
+  return {
+      a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+      a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+      a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+      a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+  };
 }
 
-vr::HmdQuaternionf_t operator*(const vr::HmdQuaternionf_t& q, const vr::HmdQuaternion_t& r) {
-  vr::HmdQuaternionf_t result{};
-
-  result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
-  result.x = r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y;
-  result.y = r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x;
-  result.z = r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w;
-
+vr::HmdQuaternionf_t operator*(const vr::HmdQuaternionf_t& a, const vr::HmdQuaternion_t& b) {
+  vr::HmdQuaternionf_t result = {
+      a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
+      a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
+      a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
+      a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+  };
   return result;
 }
 
@@ -117,9 +114,9 @@ vr::HmdVector3d_t operator-(const vr::HmdVector3d_t& vec1, const vr::HmdVector3d
 }
 
 vr::HmdVector3d_t operator*(const vr::HmdVector3d_t& vec, const vr::HmdQuaternion_t& q) {
-  const vr::HmdQuaternion_t qvec = {1.0, vec.v[0], vec.v[1], vec.v[2]};
+  const vr::HmdQuaternion_t qvec = {0.0, vec.v[0], vec.v[1], vec.v[2]};
 
-  const vr::HmdQuaternion_t qResult = q * qvec * -q;
+  const vr::HmdQuaternion_t qResult = (q * qvec) * (-q);
 
   return {qResult.x, qResult.y, qResult.z};
 }

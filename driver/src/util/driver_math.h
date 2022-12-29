@@ -14,8 +14,8 @@ vr::HmdVector3d_t MatrixToPosition(const vr::HmdMatrix34_t& matrix);
 vr::HmdQuaternion_t MatrixToOrientation(const vr::HmdMatrix34_t& matrix);
 
 vr::HmdQuaternion_t operator-(const vr::HmdQuaternion_t& q);
-vr::HmdQuaternion_t operator*(const vr::HmdQuaternion_t& q, const vr::HmdQuaternion_t& r);
-vr::HmdQuaternionf_t operator*(const vr::HmdQuaternionf_t& q, const vr::HmdQuaternion_t& r);
+vr::HmdQuaternion_t operator*(const vr::HmdQuaternion_t& a, const vr::HmdQuaternion_t& b);
+vr::HmdQuaternionf_t operator*(const vr::HmdQuaternionf_t& a, const vr::HmdQuaternion_t& b);
 vr::HmdVector3_t operator+(const vr::HmdMatrix34_t& matrix, const vr::HmdVector3_t& vec);
 vr::HmdVector3_t operator*(const vr::HmdMatrix33_t& matrix, const vr::HmdVector3_t& vec);
 vr::HmdVector3_t operator-(const vr::HmdVector3_t& vec, const vr::HmdMatrix34_t& matrix);

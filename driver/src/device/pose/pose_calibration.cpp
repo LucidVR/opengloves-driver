@@ -33,16 +33,13 @@ PoseConfiguration PoseCalibration::CompleteCalibration(
   const vr::HmdVector3d_t new_position = MatrixToPosition(controller_pose.mDeviceToAbsoluteTracking);
   const vr::HmdQuaternion_t new_rotation = MatrixToOrientation(controller_pose.mDeviceToAbsoluteTracking);
 
-  const vr::HmdQuaternion_t last_rotation = maintain_pose_.qWorldFromDriverRotation * pose_configuration.offset_orientation;
-
-  const vr::HmdVector3d_t last_offset_position = pose_configuration.offset_position * maintain_pose_.qWorldFromDriverRotation;
   const vr::HmdVector3d_t last_position{
-      maintain_pose_.vecWorldFromDriverTranslation[0] + last_offset_position.v[0],
-      maintain_pose_.vecWorldFromDriverTranslation[1] + last_offset_position.v[1],
-      maintain_pose_.vecWorldFromDriverTranslation[2] + last_offset_position.v[2],
+      maintain_pose_.vecPosition[0],
+      maintain_pose_.vecPosition[1],
+      maintain_pose_.vecPosition[2],
   };
 
-  const vr::HmdQuaternion_t transform_orientation = -new_rotation * last_rotation;
+  const vr::HmdQuaternion_t transform_orientation = -new_rotation * maintain_pose_.qRotation;
   result.offset_orientation = transform_orientation;
 
   const vr::HmdVector3d_t transform_position = (last_position - new_position) * -new_rotation;
