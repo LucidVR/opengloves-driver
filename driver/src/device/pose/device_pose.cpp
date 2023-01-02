@@ -80,7 +80,7 @@ vr::DriverPose_t DevicePose::UpdatePose() const {
   result.vecVelocity[0] = velocity.v[0];
   result.vecVelocity[1] = velocity.v[1];
   result.vecVelocity[2] = velocity.v[2];
-  
+
   result.poseIsValid = true;
   result.deviceIsConnected = true;
 

@@ -63,23 +63,22 @@ vr::HmdQuaternion_t operator-(const vr::HmdQuaternion_t& q) {
   return {q.w, -q.x, -q.y, -q.z};
 }
 
-vr::HmdQuaternion_t operator*(const vr::HmdQuaternion_t& a, const vr::HmdQuaternion_t& b) {
+vr::HmdQuaternion_t operator*(const vr::HmdQuaternion_t& q1, const vr::HmdQuaternion_t& q2) {
   return {
-      a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
-      a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
-      a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
-      a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+      -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w,
+      q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x,
+      -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y,
+      q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z,
   };
 }
 
-vr::HmdQuaternionf_t operator*(const vr::HmdQuaternionf_t& a, const vr::HmdQuaternion_t& b) {
-  vr::HmdQuaternionf_t result = {
-      a.w * b.w - a.x * b.x - a.y * b.y - a.z * b.z,
-      a.w * b.x + a.x * b.w + a.y * b.z - a.z * b.y,
-      a.w * b.y - a.x * b.z + a.y * b.w + a.z * b.x,
-      a.w * b.z + a.x * b.y - a.y * b.x + a.z * b.w,
+vr::HmdQuaternionf_t operator*(const vr::HmdQuaternionf_t& q1, const vr::HmdQuaternion_t& q2) {
+  return {
+      static_cast<float>(-q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w),
+      static_cast<float>(q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x),
+      static_cast<float>(-q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y),
+      static_cast<float>(q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z),
   };
-  return result;
 }
 
 vr::HmdVector3_t operator+(const vr::HmdMatrix34_t& matrix, const vr::HmdVector3_t& vec) {

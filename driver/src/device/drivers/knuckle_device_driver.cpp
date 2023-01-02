@@ -159,7 +159,7 @@ class KnuckleDeviceDriver::Impl {
     while (is_active_) {
       vr::VRServerDriverHost()->TrackedDevicePoseUpdated(device_id_, pose_->UpdatePose(), sizeof(vr::DriverPose_t));
 
-      std::this_thread::sleep_for(std::chrono::milliseconds(10));
+      std::this_thread::sleep_for(std::chrono::milliseconds(3));
     }
   }
 

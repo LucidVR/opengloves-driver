@@ -130,7 +130,7 @@ static void TransformLeftBone(vr::VRBoneTransform_t& bone, const HandSkeletonBon
   bone.position.v[0] *= -1;
 }
 
-HandTracking::HandTracking(std::string file_name) {
+HandTracking::HandTracking(const std::string& file_name) {
   model_manager_ = std::make_unique<GLTFModelManager>(file_name);
 
   model_loaded_ = model_manager_->Load();
@@ -158,7 +158,6 @@ void HandTracking::LoadDefaultSkeletonByHand(vr::VRBoneTransform_t* bone_transfo
 }
 
 void HandTracking::SetTransformForBone(vr::VRBoneTransform_t& bone, const HandSkeletonBone& boneIndex, float curl, float splay, bool rightHand) {
-  if (!model_loaded_) return;
   // We don't clamp this, as chances are if it's invalid we don't really want to use it anyway.
   if (curl < 0.0f || curl > 1.0f) return;
 
