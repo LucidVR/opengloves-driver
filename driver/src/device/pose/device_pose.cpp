@@ -1,8 +1,8 @@
 #include "device_pose.h"
 
+#include "nlohmann/json.hpp"
 #include "services/driver_external.h"
 #include "services/driver_internal.h"
-#include "nlohmann/json.hpp"
 #include "util/driver_log.h"
 #include "util/driver_math.h"
 
@@ -68,27 +68,18 @@ vr::DriverPose_t DevicePose::UpdatePose() const {
   const vr::HmdVector3d_t controller_position = MatrixToPosition(controller_pose.mDeviceToAbsoluteTracking);
   const vr::HmdQuaternion_t controller_orientation = MatrixToOrientation(controller_pose.mDeviceToAbsoluteTracking);
 
-  result.qWorldFromDriverRotation = controller_orientation;
+  const vr::HmdQuaternion_t rotation = controller_orientation * configuration_.offset_orientation;
+  result.qRotation = rotation;
 
-  result.vecWorldFromDriverTranslation[0] = controller_position.v[0];
-  result.vecWorldFromDriverTranslation[1] = controller_position.v[1];
-  result.vecWorldFromDriverTranslation[2] = controller_position.v[2];
+  const vr::HmdVector3d_t position = controller_position + (configuration_.offset_position * controller_orientation);
+  result.vecPosition[0] = position.v[0];
+  result.vecPosition[1] = position.v[1];
+  result.vecPosition[2] = position.v[2];
 
-  result.vecPosition[0] = configuration_.offset_position.v[0];
-  result.vecPosition[1] = configuration_.offset_position.v[1];
-  result.vecPosition[2] = configuration_.offset_position.v[2];
-
-  const vr::HmdVector3_t velocity = controller_pose.vVelocity * -controller_orientation;
+  const vr::HmdVector3_t velocity = controller_pose.vVelocity;
   result.vecVelocity[0] = velocity.v[0];
   result.vecVelocity[1] = velocity.v[1];
   result.vecVelocity[2] = velocity.v[2];
-
-  const vr::HmdVector3_t angular_velocity = controller_pose.vAngularVelocity * -controller_orientation * -configuration_.offset_orientation;
-  result.vecAngularVelocity[0] = angular_velocity.v[0];
-  result.vecAngularVelocity[1] = angular_velocity.v[1];
-  result.vecAngularVelocity[2] = angular_velocity.v[2];
-
-  result.qRotation = configuration_.offset_orientation;
 
   result.poseIsValid = true;
   result.deviceIsConnected = true;

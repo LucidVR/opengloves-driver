@@ -63,26 +63,22 @@ vr::HmdQuaternion_t operator-(const vr::HmdQuaternion_t& q) {
   return {q.w, -q.x, -q.y, -q.z};
 }
 
-vr::HmdQuaternion_t operator*(const vr::HmdQuaternion_t& q, const vr::HmdQuaternion_t& r) {
-  vr::HmdQuaternion_t result{};
-
-  result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
-  result.x = r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y;
-  result.y = r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x;
-  result.z = r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w;
-
-  return result;
+vr::HmdQuaternion_t operator*(const vr::HmdQuaternion_t& q1, const vr::HmdQuaternion_t& q2) {
+  return {
+      -q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w,
+      q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x,
+      -q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y,
+      q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z,
+  };
 }
 
-vr::HmdQuaternionf_t operator*(const vr::HmdQuaternionf_t& q, const vr::HmdQuaternion_t& r) {
-  vr::HmdQuaternionf_t result{};
-
-  result.w = r.w * q.w - r.x * q.x - r.y * q.y - r.z * q.z;
-  result.x = r.w * q.x + r.x * q.w - r.y * q.z + r.z * q.y;
-  result.y = r.w * q.y + r.x * q.z + r.y * q.w - r.z * q.x;
-  result.z = r.w * q.z - r.x * q.y + r.y * q.x + r.z * q.w;
-
-  return result;
+vr::HmdQuaternionf_t operator*(const vr::HmdQuaternionf_t& q1, const vr::HmdQuaternion_t& q2) {
+  return {
+      static_cast<float>(-q1.x * q2.x - q1.y * q2.y - q1.z * q2.z + q1.w * q2.w),
+      static_cast<float>(q1.x * q2.w + q1.y * q2.z - q1.z * q2.y + q1.w * q2.x),
+      static_cast<float>(-q1.x * q2.z + q1.y * q2.w + q1.z * q2.x + q1.w * q2.y),
+      static_cast<float>(q1.x * q2.y - q1.y * q2.x + q1.z * q2.w + q1.w * q2.z),
+  };
 }
 
 vr::HmdVector3_t operator+(const vr::HmdMatrix34_t& matrix, const vr::HmdVector3_t& vec) {
@@ -117,9 +113,9 @@ vr::HmdVector3d_t operator-(const vr::HmdVector3d_t& vec1, const vr::HmdVector3d
 }
 
 vr::HmdVector3d_t operator*(const vr::HmdVector3d_t& vec, const vr::HmdQuaternion_t& q) {
-  const vr::HmdQuaternion_t qvec = {1.0, vec.v[0], vec.v[1], vec.v[2]};
+  const vr::HmdQuaternion_t qvec = {0.0, vec.v[0], vec.v[1], vec.v[2]};
 
-  const vr::HmdQuaternion_t qResult = q * qvec * -q;
+  const vr::HmdQuaternion_t qResult = (q * qvec) * (-q);
 
   return {qResult.x, qResult.y, qResult.z};
 }
