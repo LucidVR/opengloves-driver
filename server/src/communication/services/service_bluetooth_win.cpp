@@ -155,20 +155,7 @@ bool BluetoothCommunicationService::RawWrite(const std::string& buff) {
   return true;
 }
 
-bool BluetoothCommunicationService::PurgeBuffer() {
-  if (!is_connected_) return false;
-
-  logger.Log(og::kLoggerLevel_Info, "Attempting to purge bluetooth buffer");
-
-  char buff[100];
-  int bytes_read;
-  do {
-    bytes_read = recv(sock_, buff, strlen(buff), 0);
-
-  } while (bytes_read > 0 && !is_disconnecting_);
-
-  logger.Log(og::kLoggerLevel_Info, "Purged bluetooth buffer");
-
+bool BluetoothCommunicationService::PrepareDisconnect() {
   return true;
 }
 
