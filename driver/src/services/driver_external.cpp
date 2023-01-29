@@ -115,12 +115,14 @@ class DriverExternalServer::Impl {
         .methods("POST"_method)([&](const crow::request& req, const std::string& function_name, const std::string& role) {
           if (!crow::json::load(req.body)) return crow::response(crow::status::BAD_REQUEST);
 
-          if (!request_callbacks_.count(req.url) && request_callbacks_.at(req.url) != nullptr) {
+          std::string function_callback_name = function_name + "/" + role;
+
+          if (!request_callbacks_.contains(function_callback_name)) {
             return crow::response(404);
           }
 
           try {
-            if (!request_callbacks_.at(req.url)(req.body)) {
+            if (!request_callbacks_.at(function_callback_name)(req.body)) {
               return crow::response(400);
             }
           } catch (const std::exception& e) {
