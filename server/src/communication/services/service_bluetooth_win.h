@@ -19,7 +19,7 @@ class BluetoothCommunicationService : public ICommunicationService {
 
   bool IsConnected() override;
 
-  bool PurgeBuffer() override;
+  bool PrepareDisconnect() override;
 
   std::string GetIdentifier() override;
 

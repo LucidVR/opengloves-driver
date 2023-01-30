@@ -23,7 +23,7 @@ DevicePose::DevicePose(vr::ETrackedControllerRole role) : role_(role), calibrati
   });
 
   external_server.RegisterFunctionCallback(
-      std::string("/functions/pose_calibration/") + std::string(role == vr::TrackedControllerRole_LeftHand ? "left" : "right"),
+      std::string("pose_calibration/") + std::string(role == vr::TrackedControllerRole_LeftHand ? "left" : "right"),
       [&](const std::string& body) {
         const nlohmann::json data = nlohmann::json::parse(body);
         if (!data.contains("start")) return false;

@@ -53,6 +53,8 @@ void HardwareCommunicationManager::WriteOutput(const og::Output& output) {
 
 HardwareCommunicationManager::~HardwareCommunicationManager() {
   if (thread_active_.exchange(false)) {
+    communication_service_->PrepareDisconnect();
+
     logger.Log(kLoggerLevel_Info, "Attempting to cleanup communication thread...");
     communication_thread_.join();
 

@@ -140,18 +140,8 @@ bool SerialCommunicationService::RawWrite(const std::string& buff) {
   return true;
 }
 
-bool SerialCommunicationService::PurgeBuffer() {
-  if (!is_connected_) {
-    LogError("Cannot purge buffer as device is not connected", false);
-    return false;
-  }
-
-  if (!PurgeComm(handle_, PURGE_RXCLEAR | PURGE_TXCLEAR)) {
-    LogError("Failed to purge serial port buffer");
-
-    return false;
-  }
-
+bool SerialCommunicationService::PrepareDisconnect() {
+  CancelIO();
   return true;
 }
 

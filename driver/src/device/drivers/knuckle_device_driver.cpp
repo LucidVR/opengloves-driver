@@ -52,7 +52,7 @@ class KnuckleDeviceDriver::Impl {
       // clang-format on
     });
 
-    external_server.RegisterFunctionCallback("/force_feedback/" + std::string(IsRightHand() ? "right" : "left"), [&](const std::string &data) {
+    external_server.RegisterFunctionCallback("force_feedback/" + std::string(IsRightHand() ? "right" : "left"), [&](const std::string &data) {
       const nlohmann::json json = nlohmann::json::parse(data);
 
       int16_t thumb = json["thumb"];
