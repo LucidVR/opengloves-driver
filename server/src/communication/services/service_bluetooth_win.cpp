@@ -162,7 +162,7 @@ bool BluetoothCommunicationService::PrepareDisconnect() {
 BluetoothCommunicationService::~BluetoothCommunicationService() {
   is_disconnecting_ = true;
   if (is_connected_.exchange(false)) {
-    if (shutdown(sock_, SD_BOTH) != 0) {
+    if (shutdown(sock_, SD_BOTH) == SOCKET_ERROR) {
       LogError("Failed to disconnect from bluetooth socket device");
     }
 

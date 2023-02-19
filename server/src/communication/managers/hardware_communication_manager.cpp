@@ -28,8 +28,7 @@ void HardwareCommunicationManager::CommunicationThread() {
     std::string received_string;
     if (!communication_service_->ReceiveNextPacket(received_string)) {
       logger.Log(kLoggerLevel_Error, "Failed to read from device.");
-      communication_service_->PrepareDisconnect();
-      communication_service_ = nullptr;
+
       return;
     }
 
@@ -40,8 +39,7 @@ void HardwareCommunicationManager::CommunicationThread() {
     queued_write_string += "\n";
     if (!communication_service_->RawWrite(queued_write_string)) {
       logger.Log(kLoggerLevel_Error, "Failed to write to device.");
-      communication_service_->PrepareDisconnect();
-      communication_service_ = nullptr;
+
       return;
     }
     if (queued_write_string != "\n")  // log any data we've sent to the device

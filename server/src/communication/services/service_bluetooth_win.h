@@ -34,6 +34,6 @@ class BluetoothCommunicationService : public ICommunicationService {
 
   SOCKET sock_{};
 
-  std::atomic<bool> is_connected_;
-  std::atomic<bool> is_disconnecting_;
+  std::atomic<bool> is_connected_ = false;
+  std::atomic<bool> is_disconnecting_ = false;
 };
