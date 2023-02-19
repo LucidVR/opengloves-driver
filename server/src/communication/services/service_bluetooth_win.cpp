@@ -112,7 +112,7 @@ bool BluetoothCommunicationService::Connect() {
     return false;
   }
 
-  DWORD timeout = 100;
+  DWORD timeout = 1000;
   setsockopt(sock_, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof timeout);
   setsockopt(sock_, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof timeout);
 
