@@ -16,6 +16,7 @@ class KnuckleDeviceDriver::Impl {
         hand_tracking_(std::make_unique<HandTracking>(GetDriverRootPath() + R"(\resources\anims\glove_anim.glb)")) {}
 
   void SetDeviceDriver(std::unique_ptr<og::IDevice> device) {
+    device_ = nullptr;
     device_ = std::move(device);
 
     device_->ListenForInput([&](og::InputPeripheralData data) {

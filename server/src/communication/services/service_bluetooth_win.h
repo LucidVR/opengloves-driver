@@ -4,6 +4,7 @@
 #include <bluetoothapis.h>
 
 #include <atomic>
+#include <mutex>
 #include <string>
 
 #include "communication/services/communication_service.h"
@@ -33,6 +34,8 @@ class BluetoothCommunicationService : public ICommunicationService {
   og::DeviceBluetoothCommunicationConfiguration configuration_;
 
   SOCKET sock_{};
+
+  std::mutex io_mutex_;
 
   std::atomic<bool> is_connected_ = false;
   std::atomic<bool> is_disconnecting_ = false;
