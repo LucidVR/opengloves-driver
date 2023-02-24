@@ -48,7 +48,8 @@ bool BluetoothCommunicationService::IsConnected() {
 }
 
 bool BluetoothCommunicationService::Connect() {
-  WSAData data;
+  std::scoped_lock lock(io_mutex_);
+  WSAData data{};
 
   if (WSAStartup(MAKEWORD(2, 2), &data) != 0) {
     LogError("WSA failed to startup");
@@ -112,7 +113,7 @@ bool BluetoothCommunicationService::Connect() {
     return false;
   }
 
-  DWORD timeout = 100;
+  DWORD timeout = 1000;
   setsockopt(sock_, SOL_SOCKET, SO_RCVTIMEO, (char*)&timeout, sizeof timeout);
   setsockopt(sock_, SOL_SOCKET, SO_SNDTIMEO, (char*)&timeout, sizeof timeout);
 
@@ -127,6 +128,7 @@ bool BluetoothCommunicationService::ReceiveNextPacket(std::string& buff) {
   char next_char = 0;
 
   do {
+    std::scoped_lock lock(io_mutex_);
     const int err = recv(sock_, &next_char, 1, 0);
 
     if (err == SOCKET_ERROR) {
@@ -146,6 +148,7 @@ bool BluetoothCommunicationService::RawWrite(const std::string& buff) {
 
   const char* cbuff = buff.c_str();
 
+  std::scoped_lock lock(io_mutex_);
   if (send(sock_, cbuff, strlen(cbuff), 0) < 0) {
     LogError("Failed to send data to bluetooth device");
 
@@ -161,8 +164,9 @@ bool BluetoothCommunicationService::PrepareDisconnect() {
 
 BluetoothCommunicationService::~BluetoothCommunicationService() {
   is_disconnecting_ = true;
+  std::scoped_lock lock(io_mutex_);
   if (is_connected_.exchange(false)) {
-    if (shutdown(sock_, SD_BOTH) != 0) {
+    if (shutdown(sock_, SD_BOTH) == SOCKET_ERROR) {
       LogError("Failed to disconnect from bluetooth socket device");
     }
 

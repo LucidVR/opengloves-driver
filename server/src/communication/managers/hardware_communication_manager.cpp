@@ -25,20 +25,23 @@ void HardwareCommunicationManager::BeginListener(std::function<void(const og::In
 
 void HardwareCommunicationManager::CommunicationThread() {
   while (thread_active_) {
-    std::string recevied_string;
-    if (!communication_service_->ReceiveNextPacket(recevied_string)) {
+    std::string received_string;
+    if (!communication_service_->ReceiveNextPacket(received_string)) {
       logger.Log(kLoggerLevel_Error, "Failed to read from device.");
 
       return;
     }
 
-    const Input input = encoding_service_->DecodePacket(recevied_string);
+    const Input input = encoding_service_->DecodePacket(received_string);
     callback_(input);
 
     // now write information we might have
     queued_write_string += "\n";
-    communication_service_->RawWrite(queued_write_string);
+    if (!communication_service_->RawWrite(queued_write_string)) {
+      logger.Log(kLoggerLevel_Error, "Failed to write to device.");
 
+      return;
+    }
     if (queued_write_string != "\n")  // log any data we've sent to the device
       logger.Log(kLoggerLevel_Info, "Wrote data to device: %s", queued_write_string.c_str());
 

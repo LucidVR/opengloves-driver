@@ -46,6 +46,11 @@ class LucidglovesDevice::Impl {
     communication_manager_->WriteOutput(output);
   }
 
+  ~Impl() {
+    force_feedback_ = nullptr;
+    communication_manager_ = nullptr;
+  }
+
  private:
   og::Hand hand_;
 
