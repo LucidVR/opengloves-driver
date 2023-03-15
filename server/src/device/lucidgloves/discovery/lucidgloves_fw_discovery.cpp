@@ -41,11 +41,12 @@ void LucidglovesDeviceDiscoverer::StartDiscovery(std::function<void(std::unique_
       const og::DeviceBluetoothCommunicationConfiguration& configuration = device_configuration.communication.bluetooth;
       BluetoothPortProberConfiguration prober_configuration{configuration.name};
 
-      prober_threads_.emplace_back(std::thread(
+      prober_threads_.emplace_back(
           &LucidglovesDeviceDiscoverer::ProberThread,
           this,
           std::make_unique<BluetoothPortProber>(prober_configuration),
-          [=](std::unique_ptr<ICommunicationService> service) { OnDeviceFound(device_configuration, std::move(service)); }));
+          [=](std::unique_ptr<ICommunicationService> service) { OnDeviceFound(device_configuration, std::move(service)); }
+          );
     }
   } else {
     logger.Log(og::kLoggerLevel_Info, "Not probing for bluetooth devices as it was disabled in settings");

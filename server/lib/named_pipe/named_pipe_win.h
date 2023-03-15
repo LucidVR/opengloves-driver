@@ -15,6 +15,8 @@ enum class NamedPipeListenerState { Connecting, Reading, Callback };
 class INamedPipeListener {
  public:
   virtual bool StartListening() = 0;
+
+  virtual ~INamedPipeListener() = default;
 };
 
 template <typename T>
