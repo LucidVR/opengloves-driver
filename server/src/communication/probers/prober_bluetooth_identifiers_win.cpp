@@ -1,3 +1,8 @@
+// Copyright (c) 2023 LucidVR
+//
+// SPDX-License-Identifier: MIT
+//
+// Initial Author: danwillm
 
 // clang-format off
 #include <WinSock2.h>

@@ -1,3 +1,6 @@
+# Copyright (c) 2023 LucidVR
+# SPDX-License-Identifier: MIT
+
 add_subdirectory(communication)
 add_subdirectory(services)
 add_subdirectory(device)

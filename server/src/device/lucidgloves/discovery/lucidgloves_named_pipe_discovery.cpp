@@ -1,3 +1,9 @@
+// Copyright (c) 2023 LucidVR
+//
+// SPDX-License-Identifier: MIT
+//
+// Initial Author: danwillm
+
 #include "lucidgloves_named_pipe_discovery.h"
 
 #include "communication/managers/named_pipe_communication_manager.h"

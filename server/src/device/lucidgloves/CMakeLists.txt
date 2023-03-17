@@ -1,3 +1,6 @@
+# Copyright (c) 2023 LucidVR
+# SPDX-License-Identifier: MIT
+
 add_library(device_lucidgloves STATIC
         lucidgloves_device.h
         lucidgloves_device.cpp

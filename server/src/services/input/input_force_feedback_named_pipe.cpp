@@ -1,3 +1,9 @@
+// Copyright (c) 2023 LucidVR
+//
+// SPDX-License-Identifier: MIT
+//
+// Initial Author: danwillm
+
 #include "input_force_feedback_named_pipe.h"
 
 #include "named_pipe/named_pipe_win.h"

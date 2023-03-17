@@ -1,4 +1,7 @@
-add_library(device_providers STATIC physical_device_provider.h physical_device_provider.cpp hook_device_provider.h hook_device_provider.cpp)
+# Copyright (c) 2023 LucidVR
+# SPDX-License-Identifier: MIT
+
+add_library(device_providers STATIC physical_device_provider.h physical_device_provider.cpp)
 
 find_package(OpenVR REQUIRED)
 

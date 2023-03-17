@@ -1,3 +1,6 @@
+# Copyright (c) 2023 LucidVR
+# SPDX-License-Identifier: MIT
+
 find_package(nlohmann_json CONFIG REQUIRED)
 
 add_library(device_pose STATIC device_pose.h device_pose.cpp pose_calibration.h pose_calibration.cpp)
