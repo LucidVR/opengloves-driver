@@ -1,3 +1,6 @@
+# Copyright (c) 2023 LucidVR
+# SPDX-License-Identifier: MIT
+
 cmake_minimum_required(VERSION 3.7.1)
 set(CMAKE_CXX_STANDARD 20)
 

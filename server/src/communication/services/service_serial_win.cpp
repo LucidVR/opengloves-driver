@@ -1,3 +1,9 @@
+// Copyright (c) 2023 LucidVR
+//
+// SPDX-License-Identifier: MIT
+//
+// Initial Author: danwillm
+
 #include "service_serial_win.h"
 
 #include "opengloves_interface.h"

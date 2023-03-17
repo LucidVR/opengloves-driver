@@ -1,3 +1,9 @@
+// Copyright (c) 2023 LucidVR
+//
+// SPDX-License-Identifier: MIT
+//
+// Initial Author: danwillm
+
 #include "communication/encoding/alpha_encoding_service.h"
 
 #include <algorithm>

@@ -1,3 +1,6 @@
+# Copyright (c) 2023 LucidVR
+# SPDX-License-Identifier: MIT
+
 add_library(communication_probers STATIC
         prober.h
 

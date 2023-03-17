@@ -1,3 +1,9 @@
+// Copyright (c) 2023 LucidVR
+//
+// SPDX-License-Identifier: MIT
+//
+// Initial Author: danwillm
+
 #include <cstring>
 
 #include "device/providers/physical_device_provider.h"

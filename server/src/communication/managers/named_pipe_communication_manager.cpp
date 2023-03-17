@@ -1,3 +1,9 @@
+// Copyright (c) 2023 LucidVR
+//
+// SPDX-License-Identifier: MIT
+//
+// Initial Author: danwillm
+
 #include "named_pipe_communication_manager.h"
 
 #include <regex>

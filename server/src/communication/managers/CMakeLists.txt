@@ -1,3 +1,6 @@
+# Copyright (c) 2023 LucidVR
+# SPDX-License-Identifier: MIT
+
 add_library(communication_managers STATIC communication_manager.h hardware_communication_manager.cpp hardware_communication_manager.h named_pipe_communication_manager.h named_pipe_communication_manager.cpp)
 
 target_link_libraries(communication_managers PUBLIC opengloves_interface-includes server-includes server_lib-includes)

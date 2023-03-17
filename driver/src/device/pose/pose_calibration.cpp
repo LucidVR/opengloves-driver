@@ -1,3 +1,9 @@
+// Copyright (c) 2023 LucidVR
+//
+// SPDX-License-Identifier: MIT
+//
+// Initial Author: danwillm
+
 #include "pose_calibration.h"
 
 #include "util/driver_math.h"

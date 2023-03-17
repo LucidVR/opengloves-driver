@@ -1,3 +1,9 @@
+// Copyright (c) 2023 LucidVR
+//
+// SPDX-License-Identifier: MIT
+//
+// Initial Author: danwillm
+
 #include <utility>
 
 #include "device/lucidgloves/discovery/lucidgloves_fw_discovery.h"

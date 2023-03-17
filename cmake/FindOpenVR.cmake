@@ -1,3 +1,6 @@
+# Copyright (c) 2023 LucidVR
+# SPDX-License-Identifier: MIT
+
 cmake_minimum_required(VERSION 3.22)
 
 function(_OpenVR_find)

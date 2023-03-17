@@ -1,3 +1,6 @@
+# Copyright (c) 2023 LucidVR
+# SPDX-License-Identifier: MIT
+
 find_package(OpenVR REQUIRED)
 find_package(Crow CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)

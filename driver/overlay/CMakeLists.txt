@@ -1,3 +1,6 @@
+# Copyright (c) 2023 LucidVR
+# SPDX-License-Identifier: MIT
+
 find_package(nlohmann_json CONFIG REQUIRED)
 find_package(CURL REQUIRED)
 find_package(restclient-cpp CONFIG REQUIRED)
