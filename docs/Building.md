@@ -64,7 +64,7 @@ If you want to make changes to the code and would like to use a debugger/not hav
 	],
 	"external_drivers" : 
 	[
-		"E:\\opengloves-driver\\build\\Debug\\openglove" <============== (or equivalent driver path & name)
+		"E:\\opengloves-driver\\build\\driver\\opengloves" <============== (or equivalent driver path & name)
 	],
 	"jsonid" : "vrpathreg",
 	"log" : 
