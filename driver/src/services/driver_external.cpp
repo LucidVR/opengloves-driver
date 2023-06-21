@@ -43,7 +43,7 @@ class DriverExternalServer::Impl {
       }
 
       nlohmann::ordered_map<std::string, std::variant<int>> alpha_encoding_configuration = GetAlphaEncodingConfigurationMap();
-      for (auto& [key, value] : alpga_encoding_configuration) {
+      for (auto& [key, value] : alpha_encoding_configuration) {
         std::visit([&](auto&& v) { json[k_alpha_encoding_settings_section][key] = v; }, value);
       }
 
