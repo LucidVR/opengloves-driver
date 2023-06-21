@@ -43,5 +43,3 @@ to that of the index controller, and cannot have custom inputs.
 <!----------------------------------------------------------------------------->
 
 [`DeviceDriver`]: ../src/DeviceDriver/DeviceDriver.cpp
-
-[LucidGloveDriver]: https://github.com/LucidVR/opengloves-driver/blob/develop/src/DeviceDriver/LucidGloveDriver.cpp
