@@ -27,9 +27,6 @@ that **OpenGloves** provides, such as `Bone Calculations` and <br>
 
 To do this, you have to create your own class derived from [`DeviceDriver`], that <br> implement `StartingDevice`, `SetupProps`, `HandleInput` &  `StoppingDevice`.
 
-**➔**  An example of a fully custom controller is **[LucidGloveDriver]** <br>
-     *which you are free to adapt to your needs.*
-
 <br>
 
 #### Dynamic Inputs
@@ -46,5 +43,3 @@ to that of the index controller, and cannot have custom inputs.
 <!----------------------------------------------------------------------------->
 
 [`DeviceDriver`]: ../src/DeviceDriver/DeviceDriver.cpp
-
-[LucidGloveDriver]: https://github.com/LucidVR/opengloves-driver/blob/develop/src/DeviceDriver/LucidGloveDriver.cpp
