@@ -1,12 +1,13 @@
 {
-    "name": "opengloves",
-    "homepage": "https://github.com/LucidVR/opengloves-driver",
-    "version-string": "1.0",
-    "dependencies": [
-        "openvr",
-        "crow",
-        "nlohmann-json",
-        "restclient-cpp",
-        "tinygltf"
-    ]
+  "name": "opengloves",
+  "homepage": "https://github.com/LucidVR/opengloves-driver",
+  "version-string": "1.0",
+  "dependencies": [
+    "openvr",
+    "crow",
+    "nlohmann-json",
+    "restclient-cpp",
+    "tinygltf"
+  ],
+  "builtin-baseline": "f6a5d4e8eb7476b8d7fc12a56dff300c1c986131"
 }
