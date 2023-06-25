@@ -55,18 +55,16 @@ class KnuckleDeviceDriver::Impl {
       vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerMiddle], hand_tracking_->GetAverageFingerCurlValue(data.flexion[2]), 0);
       vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerRing], hand_tracking_->GetAverageFingerCurlValue(data.flexion[3]), 0);
       vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerPinky], hand_tracking_->GetAverageFingerCurlValue(data.flexion[4]), 0);
+      // clang-format on
 
       if (data.calibrate.pressed) {
-          if (!pose_->IsCalibrating()) {
-            pose_->StartCalibration(kCalibrationMethod_Hardware);
-          }
+        if (!pose_->IsCalibrating()) {
+          pose_->StartCalibration(kCalibrationMethod_Hardware);
+        }
       }
-      else {
-          if (pose_->IsCalibrating()) {
-            pose_->CompleteCalibration(kCalibrationMethod_Hardware);
-          }
+      else if (pose_->IsCalibrating()) {
+        pose_->CompleteCalibration(kCalibrationMethod_Hardware);
       }
-      // clang-format on
     });
 
     external_server.RegisterFunctionCallback("force_feedback/" + std::string(IsRightHand() ? "right" : "left"), [&](const std::string &data) {
