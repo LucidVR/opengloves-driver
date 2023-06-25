@@ -42,6 +42,11 @@ class DriverExternalServer::Impl {
         std::visit([&](auto&& v) { json[k_namedpipe_communication_settings_section][key] = v; }, value);
       }
 
+      nlohmann::ordered_map<std::string, std::variant<int>> alpha_encoding_configuration = GetAlphaEncodingConfigurationMap();
+      for (auto& [key, value] : alpha_encoding_configuration) {
+        std::visit([&](auto&& v) { json[k_alpha_encoding_settings_section][key] = v; }, value);
+      }
+
       nlohmann::ordered_map<std::string, std::variant<float, bool>> pose_configuration = GetPoseConfigurationMap();
       for (auto& [key, value] : pose_configuration) {
         std::visit([&](auto&& v) { json[k_pose_settings_section][key] = v; }, value);
