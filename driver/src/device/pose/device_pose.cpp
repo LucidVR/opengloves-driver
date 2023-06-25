@@ -103,6 +103,10 @@ void DevicePose::CancelCalibration(CalibrationMethod method) const {
   calibration_->CancelCalibration(method);
 }
 
+bool DevicePose::IsCalibrating() const {
+  return calibration_->IsCalibrating();
+}
+
 void DevicePose::CompleteCalibration(CalibrationMethod method) {
   if (controller_id_ < 0) {
     DriverLog("Completed calibration but controller index was invalid");

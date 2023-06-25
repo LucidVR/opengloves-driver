@@ -7,9 +7,9 @@
 #include "knuckle_device_driver.h"
 
 #include "device/pose/device_pose.h"
-#include "services/driver_external.h"
 #include "hand_tracking/hand_tracking.h"
 #include "nlohmann/json.hpp"
+#include "services/driver_external.h"
 #include "util/file_path.h"
 
 static DriverExternalServer &external_server = DriverExternalServer::GetInstance();
@@ -26,36 +26,45 @@ class KnuckleDeviceDriver::Impl {
 
     device_->ListenForInput([&](og::InputPeripheralData data) {
       // clang-format off
-    hand_tracking_->ComputeBoneTransforms(skeleton_, data, IsRightHand() ? vr::TrackedControllerRole_RightHand : vr::TrackedControllerRole_LeftHand);
-    vr::VRDriverInput()->UpdateSkeletonComponent(input_components_[kKnuckleDeviceComponentIndex_Skeleton],  vr::VRSkeletalMotionRange_WithController, skeleton_, 31);
-    vr::VRDriverInput()->UpdateSkeletonComponent(input_components_[kKnuckleDeviceComponentIndex_Skeleton], vr::VRSkeletalMotionRange_WithoutController, skeleton_, 31);
+      hand_tracking_->ComputeBoneTransforms(skeleton_, data, IsRightHand() ? vr::TrackedControllerRole_RightHand : vr::TrackedControllerRole_LeftHand);
+      vr::VRDriverInput()->UpdateSkeletonComponent(input_components_[kKnuckleDeviceComponentIndex_Skeleton],  vr::VRSkeletalMotionRange_WithController, skeleton_, 31);
+      vr::VRDriverInput()->UpdateSkeletonComponent(input_components_[kKnuckleDeviceComponentIndex_Skeleton], vr::VRSkeletalMotionRange_WithoutController, skeleton_, 31);
 
-    vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_ThumbstickX], data.joystick.x, 0);
-    vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_ThumbstickY], data.joystick.y, 0);
+      vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_ThumbstickX], data.joystick.x, 0);
+      vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_ThumbstickY], data.joystick.y, 0);
 
-    vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_ThumbstickClick], data.joystick.pressed, 0);
-    vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_ThumbstickTouch], data.joystick.pressed, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_ThumbstickClick], data.joystick.pressed, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_ThumbstickTouch], data.joystick.pressed, 0);
 
-    vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_TriggerClick], data.trigger.pressed, 0);
-    vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_TriggerValue], data.trigger.value, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_TriggerClick], data.trigger.pressed, 0);
+      vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_TriggerValue], data.trigger.value, 0);
 
-    vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_AClick], data.A.pressed, 0);
-    vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_ATouch], data.A.value > 0.f, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_AClick], data.A.pressed, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_ATouch], data.A.value > 0.f, 0);
 
-    vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_BClick], data.B.pressed, 0);
-    vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_BTouch], data.B.value > 0.f, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_BClick], data.B.pressed, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_BTouch], data.B.value > 0.f, 0);
 
-    vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_GripTouch], data.grab.activated, 0);
-    vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_GripForce], data.grab.activated, 0);
-    vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_GripValue], data.grab.activated, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_GripTouch], data.grab.activated, 0);
+      vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_GripForce], data.grab.activated, 0);
+      vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_GripValue], data.grab.activated, 0);
 
-    vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_SystemClick], data.menu.pressed, 0);
+      vr::VRDriverInput()->UpdateBooleanComponent(input_components_[kKnuckleDeviceComponentIndex_SystemClick], data.menu.pressed, 0);
 
-    vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerIndex], hand_tracking_->GetAverageFingerCurlValue(data.flexion[1]), 0);
-    vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerMiddle], hand_tracking_->GetAverageFingerCurlValue(data.flexion[2]), 0);
-    vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerRing], hand_tracking_->GetAverageFingerCurlValue(data.flexion[3]), 0);
-    vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerPinky], hand_tracking_->GetAverageFingerCurlValue(data.flexion[4]), 0);
+      vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerIndex], hand_tracking_->GetAverageFingerCurlValue(data.flexion[1]), 0);
+      vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerMiddle], hand_tracking_->GetAverageFingerCurlValue(data.flexion[2]), 0);
+      vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerRing], hand_tracking_->GetAverageFingerCurlValue(data.flexion[3]), 0);
+      vr::VRDriverInput()->UpdateScalarComponent(input_components_[kKnuckleDeviceComponentIndex_FingerPinky], hand_tracking_->GetAverageFingerCurlValue(data.flexion[4]), 0);
       // clang-format on
+
+      if (data.calibrate.pressed) {
+        if (!pose_->IsCalibrating()) {
+          pose_->StartCalibration(kCalibrationMethod_Hardware);
+        }
+      }
+      else if (pose_->IsCalibrating()) {
+        pose_->CompleteCalibration(kCalibrationMethod_Hardware);
+      }
     });
 
     external_server.RegisterFunctionCallback("force_feedback/" + std::string(IsRightHand() ? "right" : "left"), [&](const std::string &data) {
