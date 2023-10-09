@@ -146,8 +146,6 @@ class NamedPipeListener : public INamedPipeListener {
 
     if (!Connect(&listener_data)) return;
 
-    if (thread_active_) on_event_callback_({NamedPipeListenerEventType::ClientConnected});
-
     while (thread_active_) {
       switch (WaitForSingleObject(listener_data.overlap.hEvent, 5)) {
         case WAIT_OBJECT_0:
@@ -177,6 +175,13 @@ class NamedPipeListener : public INamedPipeListener {
             LogError("GetOverlappedResult failed");
             break;
           }
+          
+          if (listener_data.state == NamedPipeListenerState::Connecting) {
+            if (thread_active_) {
+              on_event_callback_({NamedPipeListenerEventType::ClientConnected});
+            }
+          }
+          
           listener_data.state = NamedPipeListenerState::Reading;
         }
       }
@@ -205,6 +210,7 @@ class NamedPipeListener : public INamedPipeListener {
       }
     }
 
+    DisconnectNamedPipe(hPipeInst); // Not 100% sure this is needed, but winapi seems to like this better
     CloseHandle(hPipeInst);
     CloseHandle(hEvent);
   }
