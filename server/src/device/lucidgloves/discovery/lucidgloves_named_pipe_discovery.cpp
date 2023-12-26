@@ -18,20 +18,13 @@ class LucidglovesNamedPipeDiscovery::Impl {
   void StartListeners(std::function<void(og::Hand hand, std::unique_ptr<ICommunicationManager>)> on_client_connected_callback) {
     on_client_connected_callback_ = std::move(on_client_connected_callback);
 
-    left_named_pipe_manager_ = std::make_unique<NamedPipeCommunicationManager>(og::kHandLeft, [&]() {
-      if (left_named_pipe_manager_ == nullptr) return;
-      on_client_connected_callback_(og::kHandLeft, std::move(left_named_pipe_manager_));
-    });
+    on_client_connected_callback_(og::kHandLeft, std::make_unique<NamedPipeCommunicationManager>(og::kHandLeft, [&]() {
+                                    logger.Log(og::kLoggerLevel_Info, "Left hand named pipe client connected");
+                                  }));
 
-    right_named_pipe_manager_ = std::make_unique<NamedPipeCommunicationManager>(og::kHandRight, [&]() {
-      if (right_named_pipe_manager_ == nullptr) return;
-      on_client_connected_callback_(og::kHandRight, std::move(right_named_pipe_manager_));
-    });
-
-    left_named_pipe_manager_->BeginListener([&](const og::Input& input) {
-    });
-    right_named_pipe_manager_->BeginListener([&](const og::Input& input) {
-    });
+    on_client_connected_callback_(og::kHandRight, std::make_unique<NamedPipeCommunicationManager>(og::kHandRight, [&]() {
+                                    logger.Log(og::kLoggerLevel_Info, "Right hand named pipe client connected");
+                                  }));
   }
 
  private:
