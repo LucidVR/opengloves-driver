@@ -122,7 +122,7 @@ class NamedPipeCommunicationManager::Impl {
   void OnEvent(const NamedPipeListenerEvent& event) {
     switch (event.type) {
       case NamedPipeListenerEventType::ClientConnected:
-        if (client_registered_) return;
+        if (client_registered_ || !on_client_connected_callback_) return;
         on_client_connected_callback_();
         client_registered_ = true;
         break;
