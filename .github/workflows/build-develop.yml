@@ -35,6 +35,7 @@ jobs:
           runVcpkgInstall: true
           vcpkgJsonGlob: 'vcpkg.json'
           appendedCacheKey: vcpkginstall
+          vcpkgGitCommitId: 'f1c6efee2245009540dde947e0e3d008f3aa7dbb'
 
       - name: Prints output of run-vcpkg's action.
         run: echo "root='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_ROOT_OUT }}', triplet='${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_DEFAULT_TRIPLET_OUT }}' "
