@@ -69,7 +69,7 @@ int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE hPreInst, LPWSTR nCmdLine, int 
 
 {
   vr::EVRInitError err;
-  VR_Init(&err, vr::VRApplication_Background);
+  VR_Init(&err, vr::VRApplication_Utility);
 
   if (err != vr::VRInitError_None) {
     std::cout << "Failed to initialise background process. Error: %s" << err << std::endl;
