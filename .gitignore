@@ -16,3 +16,4 @@ cmake_install.cmake
 clion_build/
 
 vcpkg/
+builds/

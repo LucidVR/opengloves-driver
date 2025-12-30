@@ -7,6 +7,20 @@
   },
   "configurePresets": [
     {
+      "name": "Debug",
+      "displayName": "Debug",
+      "description": "Opengloves debug build",
+      "binaryDir": "${sourceDir}/builds/${presetName}",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake"
+        },
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
       "name": "ci-default",
       "displayName": "Default opengloves ci build configuration",
       "description": "Opengloves ci build",
@@ -27,6 +41,12 @@
       "configurePreset": "ci-default",
       "displayName": "Build ci",
       "description": "Build ci Configurations"
+    },
+    {
+      "name": "Debug",
+      "configurePreset": "Debug",
+      "displayName": "Debug Build",
+      "description": "Debug Build Preset"
     }
   ]
 }

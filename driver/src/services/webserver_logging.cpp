@@ -21,7 +21,7 @@ class DriverServerLog::Impl : public crow::ILogHandler {
     crow::logger::setHandler(this);
   }
 
-  void log(std::string message, crow::LogLevel level) override {
+  void log(const std::string& message, crow::LogLevel level) override {
     std::string prefix;
 
     switch (level) {
