@@ -206,4 +206,6 @@ void PhysicalDeviceProvider::Cleanup() {
   ogserver_->StopProber();
   DriverInternalServer::GetInstance().Stop();
   DriverExternalServer::GetInstance().Stop();
+
+  CleanupDriverLog();
 }
