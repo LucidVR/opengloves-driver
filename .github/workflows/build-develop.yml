@@ -48,13 +48,13 @@ jobs:
           buildPreset: 'ci-build'
 
       - name: Upload driver package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: opengloves
           path: ${{ github.workspace }}/builds/ci-default/driver/opengloves
 
       - name: Upload server package
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4
         with:
           name: opengloves_server
           path: ${{ github.workspace }}/builds/ci-default/server/src/opengloves_server.lib
