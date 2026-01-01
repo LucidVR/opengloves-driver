@@ -21,12 +21,6 @@
 
 static og::Logger& logger = og::Logger::GetInstance();
 
-static const std::vector<SerialProberIdentifier> lucidgloves_serial_ids = {
-    {"10C4", "EA60"},  // cp2102
-    {"7523", "7524"}   // ch340
-};
-static const std::vector<std::string> lucidgloves_bt_ids = {"lucidgloves", "lucidgloves-left", "lucidgloves-right"};
-
 LucidglovesDeviceDiscoverer::LucidglovesDeviceDiscoverer(
     og::CommunicationConfiguration communication_configuration, std::vector<og::DeviceConfiguration> device_configurations)
     : device_configurations_(std::move(device_configurations)), communication_configuration_(communication_configuration) {}
@@ -44,6 +38,7 @@ void LucidglovesDeviceDiscoverer::StartDiscovery(std::function<void(std::unique_
     logger.Log(og::kLoggerLevel_Info, "Setting up bluetooth probers...");
 
     for (const auto& device_configuration : device_configurations_) {
+      logger.Log(og::kLoggerLevel_Info, "Setting up bluetooth prober for: %s", device_configuration.communication.bluetooth.name.c_str());
       const og::DeviceBluetoothCommunicationConfiguration& configuration = device_configuration.communication.bluetooth;
       BluetoothPortProberConfiguration prober_configuration{configuration.name};
 
@@ -62,6 +57,7 @@ void LucidglovesDeviceDiscoverer::StartDiscovery(std::function<void(std::unique_
     logger.Log(og::kLoggerLevel_Info, "Setting up serial probers...");
 
     for (const auto& device_configuration : device_configurations_) {
+      logger.Log(og::kLoggerLevel_Info, "Setting up serial prober for: %s", device_configuration.communication.bluetooth.name.c_str());
       const og::DeviceSerialCommunicationConfiguration& configuration = device_configuration.communication.serial;
 
       SerialPortProberConfiguration prober_configuration{configuration.port_name};

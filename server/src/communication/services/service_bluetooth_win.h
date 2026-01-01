@@ -35,7 +35,7 @@ class BluetoothCommunicationService : public ICommunicationService {
  private:
   bool Connect();
 
-  void LogError(const std::string&, bool with_win_error) const;
+  void LogError(const std::string&, bool wsa_error, bool with_win_error) const;
 
   og::DeviceBluetoothCommunicationConfiguration configuration_;
 

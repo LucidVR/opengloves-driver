@@ -34,7 +34,6 @@ jobs:
         with:
           runVcpkgInstall: true
           vcpkgJsonGlob: 'vcpkg.json'
-          appendedCacheKey: vcpkginstall
           vcpkgGitCommitId: '76a382b7b8ce7ed30bbf976aa9aecae868594d5e'
 
       - name: Prints output of run-vcpkg's action.

@@ -17,9 +17,30 @@ using namespace og;
 
 static Logger& logger = Logger::GetInstance();
 
-static std::string GetLastErrorAsString() {
+static std::string GetLastWSAErrorAsString() {
   const DWORD errorMessageId = ::WSAGetLastError();
   if (errorMessageId == 0) return std::string();
+
+  LPSTR messageBuffer = nullptr;
+  const size_t size = FormatMessageA(
+      FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+      nullptr,
+      errorMessageId,
+      MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+      reinterpret_cast<LPSTR>(&messageBuffer),
+      0,
+      nullptr);
+
+  std::string message(messageBuffer, size);
+
+  LocalFree(messageBuffer);
+
+  return message;
+}
+
+static std::string GetLastErrorAsString() {
+  const DWORD errorMessageId = GetLastError();
+  if (errorMessageId == 0) return "";
 
   LPSTR messageBuffer = nullptr;
   const size_t size = FormatMessageA(
@@ -43,10 +64,15 @@ BluetoothCommunicationService::BluetoothCommunicationService(og::DeviceBluetooth
   Connect();
 }
 
-void BluetoothCommunicationService::LogError(const std::string& message, bool with_win_error = true) const {
+void BluetoothCommunicationService::LogError(const std::string& message, bool wsa_error, bool with_win_error = true) const {
   std::ostringstream oss;
 
-  logger.Log(kLoggerLevel_Error, "%s, %s: %s", configuration_.name.c_str(), message.c_str(), with_win_error ? GetLastErrorAsString().c_str() : "");
+  std::string err_msg = "";
+  if (with_win_error) {
+    err_msg = wsa_error ? GetLastWSAErrorAsString() : GetLastErrorAsString();
+  }
+
+  logger.Log(kLoggerLevel_Error, "%s, %s: %s", configuration_.name.c_str(), message.c_str(), err_msg.c_str());
 }
 
 bool BluetoothCommunicationService::IsConnected() {
@@ -58,7 +84,7 @@ bool BluetoothCommunicationService::Connect() {
   WSAData data{};
 
   if (WSAStartup(MAKEWORD(2, 2), &data) != 0) {
-    LogError("WSA failed to startup");
+    LogError("WSA failed to startup", true);
 
     return false;
   }
@@ -81,7 +107,7 @@ bool BluetoothCommunicationService::Connect() {
 
   BTH_ADDR device_address = 0;
   if (btDevice == nullptr) {
-    logger.Log(og::kLoggerLevel_Warning, "Could not find any bluetooth devices");
+    LogError("Could not find any bluetooth devices", false);
     device_address = NULL;
     return false;
   }
@@ -103,18 +129,26 @@ bool BluetoothCommunicationService::Connect() {
     }
   } while (BluetoothFindNextDevice(btDevice, &btDeviceInfo));  // loop through remaining BT devices connected to this machine
 
+  if (!BluetoothFindDeviceClose(btDevice)) {
+    LogError("Failed to close bluetooth device", false);
+  }
+
   if (!found_device) return false;
 
   sock_ = socket(AF_BTH, SOCK_STREAM, BTHPROTO_RFCOMM);
+  if (sock_ == INVALID_SOCKET) {
+    LogError("unable to create socket", true);
+    return false;
+  }
 
   SOCKADDR_BTH sock_address{};
   sock_address.addressFamily = AF_BTH;
-  sock_address.serviceClassId = RFCOMM_PROTOCOL_UUID;
+  sock_address.serviceClassId = SerialPortServiceClass_UUID;
   sock_address.port = 0;
   sock_address.btAddr = device_address;
 
   if (connect(sock_, reinterpret_cast<SOCKADDR*>(&sock_address), sizeof sock_address) != 0) {
-    LogError("Failed to connect to bluetooth device");
+    LogError("Failed to connect to bluetooth device", true);
 
     return false;
   }
@@ -137,8 +171,12 @@ bool BluetoothCommunicationService::ReceiveNextPacket(std::string& buff) {
     std::scoped_lock lock(io_mutex_);
     const int err = recv(sock_, &next_char, 1, 0);
 
+    if (err == 0) {
+      is_connected_ = false;
+      return false;
+    }
     if (err == SOCKET_ERROR) {
-      LogError("Received socket error reading next byte from bluetooth");
+      LogError("Received socket error reading next byte from bluetooth", true);
 
       return false;
     }
@@ -156,7 +194,7 @@ bool BluetoothCommunicationService::RawWrite(const std::string& buff) {
 
   std::scoped_lock lock(io_mutex_);
   if (send(sock_, cbuff, strlen(cbuff), 0) < 0) {
-    LogError("Failed to send data to bluetooth device");
+    LogError("Failed to send data to bluetooth device", true);
 
     return false;
   }
@@ -173,10 +211,17 @@ BluetoothCommunicationService::~BluetoothCommunicationService() {
   std::scoped_lock lock(io_mutex_);
   if (is_connected_.exchange(false)) {
     if (shutdown(sock_, SD_BOTH) == SOCKET_ERROR) {
-      LogError("Failed to disconnect from bluetooth socket device");
+      LogError("Failed to disconnect from bluetooth socket device", true);
     }
 
+    closesocket(sock_);
+    sock_ = INVALID_SOCKET;
+
     is_connected_ = false;
+  }
+
+  if (WSACleanup()) {
+    LogError("WSA failed to cleanup", true);
   }
 }
 
